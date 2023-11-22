@@ -1,0 +1,58 @@
+{#
+  This file is part of Invenio Modular Deposit Form
+
+  Copyright (C) 2023 Mesh Research.
+
+  This is an extension for the InvenioRDM platform and was adapted from
+  files in InvenioRDM. InvenioRDM is:
+
+  Copyright (C) 2020 CERN.
+  Copyright (C) 2020 Northwestern University.
+
+  Invenio App RDM and Invenio Modular Deposit Form are free software; you
+  can redistribute and/or modify them under the terms of the MIT License;
+  see LICENSE file for more details.
+#}
+{%- if not record.is_published and record.versions.index and record.versions.index > 1%}
+  {%- set title = _("New version") %}
+{%- elif not record.is_published %}
+  {%- set title = _("New upload") %}
+{% else %}
+  {%- set title = _("Edit upload") %}
+{%- endif %}
+{%- extends config.BASE_TEMPLATE %}
+
+{%- block page_body %}
+  {%- if record %}
+  <input id="deposits-record" type="hidden" name="deposits-record" value='{{record | tojson }}'></input>
+  {%- endif %}
+  {%- if preselectedCommunity %}
+  <input id="deposits-draft-community" type="hidden" name="deposits-draft-community" value='{{preselectedCommunity | tojson }}'></input>
+  {%- endif %}
+  {%- if files %}
+  <input id="deposits-record-files" type="hidden" name="deposits-record-files" value='{{files | tojson }}'></input>
+  {%- endif %}
+  {%- if forms_config %}
+  <input type="hidden" name="deposits-config" value='{{forms_config | tojson }}'></input>
+  {%- endif %}
+  {%- if permissions %}
+  <input id="deposits-record-permissions" type="hidden" name="deposits-record-permissions" value='{{permissions | tojson }}'></input>
+  {%- endif %}
+  <div id="deposit-form"
+    data-common-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS", {}) | tojson }}'
+    data-fields-by-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", {}) | tojson }}'
+    data-label-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", {}) | tojson }}'
+    data-placeholder-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS", {}) | tojson }}'
+    data-description-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS", {}) | tojson }}'
+    data-icon-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", {}) | tojson }}'
+    data-help-text-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", {}) | tojson }}'
+    data-default-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", {}) | tojson }}'
+    data-priority-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", {}) | tojson }}'
+    data-extra-required-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", {}) | tojson }}'
+  ></div>
+{%- endblock page_body %}
+
+{%- block javascript %}
+    {{ super() }}
+    {{ webpack['invenio-modular-deposit-form.js'] }}
+{%- endblock %}

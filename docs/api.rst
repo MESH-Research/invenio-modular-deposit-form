@@ -1,0 +1,19 @@
+..
+    Copyright (C) 2023 Mesh Research.
+
+    Invenio Modular Deposit Form is free software; you can redistribute it
+    and/or modify it under the terms of the MIT License; see LICENSE file for
+    more details.
+
+
+API Docs
+========
+
+.. automodule:: invenio_modular_deposit_form.ext
+   :members:
+
+Views
+-----
+
+.. automodule:: invenio_modular_deposit_form.views
+   :members:
