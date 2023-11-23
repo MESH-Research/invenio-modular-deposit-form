@@ -8,23 +8,166 @@
 
 """An InvenioRDM extension that adds a more modular and customizable version of the record deposit form."""
 
+INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "textDocument-journalArticle"
 
-INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = {
-    "1": [
-        "previously_published",
-        "doi",
-        "resource_type",
-        "combined_titles",
-        "combined_dates",
-        "abstract",
-    ],
-    "2": ["communities", "creators", "contributors", "ai", "funding"],
-    "3": ["language", "subjects_keywords", "content_warning"],
-    "4": ["alternate_identifiers", "related_works"],
-    "5": ["file_upload", "metadata_only", "licenses"],
-    "6": ["admin_metadata"],
-    "7": ["submit_actions"],
-}
+INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
+    {
+        "section": "top",
+        "component": "FormPages",
+        "subsections": [
+            {
+                "section": "page-1",
+                "title": "Type & Title",
+                "component": "FormPage",
+                "subsections": [
+                    {
+                        "section": "resource_type",
+                        "title": "Resource Type",
+                        "component": "ResourceTypeComponent",
+                    },
+                    {
+                        "section": "doi",
+                        "title": "Digital Object Identifier",
+                        "component": "DoiComponent",
+                    },
+                    {
+                        "section": "combined_titles",
+                        "title": "Title",
+                        "component": "CombinedTitlesComponent",
+                    },
+                    {
+                        "section": "combined_dates",
+                        "title": "Dates",
+                        "component": "CombinedDatesComponent",
+                    },
+                    {
+                        "section": "abstract",
+                        "title": "Description",
+                        "component": "AbstractComponent",
+                    },
+                ],
+            },
+            {
+                "section": "page-2",
+                "title": "Submission Details",
+                "subsections": [
+                    {
+                        "section": "publisher",
+                        "title": "Publisher",
+                        "component": "PublisherComponent",
+                    },
+                    {
+                        "section": "language",
+                        "title": "Language",
+                        "component": "LanguagesComponent",
+                    },
+                    {
+                        "section": "alternate_identifiers",
+                        "title": "Alternate Identifiers",
+                        "component": "AlternateIdentifiersComponent",
+                    },
+                ],
+            },
+            {
+                "section": "page-3",
+                "title": "Contributors & Funding",
+                "subsections": [
+                    {
+                        "section": "creators",
+                        "title": "Creators",
+                        "component": "CreatorsComponent",
+                    },
+                    {
+                        "section": "contributors",
+                        "title": "Contributors",
+                        "component": "ContributorsComponent",
+                    },
+                    {"section": "ai", "title": "AI Use", "component": "AIComponent"},
+                    {
+                        "section": "funding",
+                        "title": "Funding",
+                        "component": "FundingComponent",
+                    },
+                ],
+            },
+            {
+                "section": "page-4",
+                "title": "Make It Findable",
+                "subsections": [
+                    {
+                        "section": "subjects_keywords",
+                        "title": "Subjects",
+                        "component": "SubjectsKeywordsComponent",
+                    },
+                    {
+                        "section": "content_warning",
+                        "title": "Content Warning",
+                        "component": "ContentWarningComponent",
+                    },
+                    {
+                        "section": "related_works",
+                        "title": "Related Works",
+                        "component": "RelatedWorksComponent",
+                    },
+                ],
+            },
+            {
+                "section": "page-5",
+                "title": "Access",
+                "subsections": [
+                    {
+                        "section": "communities",
+                        "title": "Communities",
+                        "component": "CommunitiesComponent",
+                    },
+                    {
+                        "section": "access",
+                        "title": "Access",
+                        "component": "AccessComponent",
+                    },
+                    {
+                        "section": "admin_metadata",
+                        "title": "Administrative Metadata",
+                        "component": "AdminMetadataComponent",
+                        "props": {"restrict_to": ["administrator"]},
+                    },
+                ],
+            },
+            {
+                "section": "page-6",
+                "title": "Files",
+                "subsections": [
+                    {
+                        "section": "file_upload",
+                        "title": "Files Upload",
+                        "component": "FilesUploadComponent",
+                    },
+                    {
+                        "section": "metadata_only",
+                        "title": "Metadata Only",
+                        "component": "MetadataOnlyComponent",
+                    },
+                    {
+                        "section": "licenses",
+                        "title": "Licenses",
+                        "component": "LicensesComponent",
+                    },
+                ],
+            },
+            {
+                "section": "page-7",
+                "title": "Publish",
+                "subsections": [
+                    {
+                        "section": "submit_actions",
+                        "title": "Publish",
+                        "component": "SubmitActionsComponent",
+                    },
+                ],
+            },
+        ],
+    }
+]
 
 INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
     "audiovisual": None,
@@ -64,43 +207,92 @@ INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
     "software-service": None,
     "software-other": None,
     "textDocument": None,
-    "textDocument-abstract": {"4": ["journal_detail"]},
+    "textDocument-abstract": {
+        "page-2": [
+            {
+                "same_as": "textDocument-journalArticle",
+            }
+        ]
+    },
     "textDocument-bibliography": None,
     "textDocument-blogPost": None,
-    "textDocument-book": {"4": ["publication_detail", "book_volume_pages", "series"]},
+    "textDocument-book": {
+        "page-2": [
+            {
+                "section": "publication_detail",
+                "title": "Publication Details",
+                "component": "PublicationDetailsComponent",
+            },
+            {
+                "section": "book_volume_pages",
+                "title": "Volume & Pages",
+                "component": "BookVolumePagesComponent",
+            },
+            {"section": "series", "title": "Series", "component": "SeriesComponent"},
+        ]
+    },
     "textDocument-bookSection": {
-        "4": ["book_section_detail", "book_section_volume_pages", "series"]
+        "page-2": [
+            {
+                "section": "book_section_detail",
+                "title": "Book Section Details",
+                "component": "BookSectionDetailComponent",
+            },
+            {
+                "section": "book_section_volume_pages",
+                "title": "Volume & Pages",
+                "component": "BookSectionVolumePagesComponent",
+            },
+            {"section": "series", "title": "Series", "component": "SeriesComponent"},
+        ]
     },
     "textDocument-conferenceProceeding": None,
     "textDocument-dataManagementPlan": None,
     "textDocument-documentation": None,
-    "textDocument-essay": {
-        "4": ["book_section_detail", "book_section_volume_pages", "series"]
-    },
+    "textDocument-essay": {"page-2": [{"same_as": "textDocument-bookSection"}]},
     "textDocument-interviewTranscript": None,
-    "textDocument-journalArticle": {"4": ["journal_detail"]},
+    "textDocument-journalArticle": {
+        "page-2": [
+            {
+                "section": "journal_detail",
+                "title": "Journal Details",
+                "component": "JournalDetailComponent",
+            }
+        ]
+    },
     "textDocument-legalComment": None,
     "textDocument-legalResponse": None,
     "textDocument-magazineArticle": None,
-    "textDocument-monograph": {
-        "4": ["publication_detail", "book_volume_pages", "series"]
-    },
+    "textDocument-monograph": {"page-2": [{"same_as": "textDocument-book"}]},
     "textDocument-newspaperArticle": {"4": ["journal_detail", "edition_section"]},
     "textDocument-onlinePublication": None,
     "textDocument-poeticWork": None,
     "textDocument-preprint": None,
     "textDocument-report": {
-        "4": ["organization_detail", "book_volume_pages", "publisher", "series"]
+        "page-2": [
+            {
+                "section": "organization_detail",
+                "title": "Organization Details",
+                "component": "OrganizationDetailsComponent",
+            },
+            {
+                "section": "book_volume_pages",
+                "title": "Volume & Pages",
+                "component": "BookVolumePagesComponent",
+            },
+            {
+                "section": "publisher",
+                "title": "Publisher",
+                "component": "PublisherComponent",
+            },
+            {"section": "series", "title": "Series", "component": "SeriesComponent"},
+        ]
     },
-    "textDocument-review": {"4": ["journal_detail"]},
+    "textDocument-review": {"page-2": [{"same_as": "textDocument-journalArticle"}]},
     "textDocument-technicalStandard": None,
     "textDocument-thesis": {"4": ["thesis_detail"]},
-    "textDocument-whitePaper": {
-        "4": ["organization_detail", "book_volume_pages", "publisher", "series"]
-    },
-    "textDocument-workingPaper": {
-        "4": ["organization_detail", "book_volume_pages", "publisher", "series"]
-    },
+    "textDocument-whitePaper": {"page-2": [{"same_as": "textDocument-report"}]},
+    "textDocument-workingPaper": {"page-2": [{"same_as": "textDocument-report"}]},
     "textDocument-other": None,
     "other": None,
     "other-catalog": None,

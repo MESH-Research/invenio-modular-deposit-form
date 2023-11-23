@@ -15,48 +15,25 @@ const overriddenComponents = overrideStore.getAll();
 const formDiv = document.getElementById("deposit-form");
 const dataSet = formDiv.dataset;
 
-// Ensure there aren't any missing values in fields config
-const fillEmptyValues = (fieldsByType) => {
-  const pageNums = ["1", "2", "3", "4", "5", "6"];
-  Object.entries(fieldsByType).forEach(([typename, pages]) => {
-    if (pages === null || pages === undefined) {
-      fieldsByType[typename] = {
-        1: null,
-        2: null,
-        3: null,
-        4: null,
-        5: null,
-        6: null,
-      };
-    } else {
-      for (let idx = 0; idx < pageNums.length; idx++) {
-        if (!Object.keys(pages).includes(pageNums[idx])) {
-          fieldsByType[typename][pageNums[idx]] = null;
-        }
-      }
-    }
-  });
-  return fieldsByType;
-};
-
 ReactDOM.render(
   <OverridableContext.Provider value={overriddenComponents}>
     <RDMDepositForm
-      record={getInputFromDOM("deposits-record")}
-      preselectedCommunity={getInputFromDOM("deposits-draft-community")}
-      files={getInputFromDOM("deposits-record-files")}
-      config={getInputFromDOM("deposits-config")}
-      permissions={getInputFromDOM("deposits-record-permissions")}
       commonFields={JSON.parse(dataSet.commonFields)}
-      fieldsByType={fillEmptyValues(JSON.parse(dataSet.fieldsByType))}
-      labelModifications={JSON.parse(dataSet.labelModifications)}
-      placeholderModifications={JSON.parse(dataSet.placeholderModifications)}
-      descriptionModifications={JSON.parse(dataSet.descriptionModifications)}
-      iconModifications={JSON.parse(dataSet.iconModifications)}
-      helpTextModifications={JSON.parse(dataSet.helpTextModifications)}
+      config={getInputFromDOM("deposits-config")}
       defaultFieldValues={JSON.parse(dataSet.defaultFieldValues)}
-      priorityFieldValues={JSON.parse(dataSet.priorityFieldValues)}
+      defaultResourceType={JSON.parse(dataSet.defaultResourceType)}
+      descriptionModifications={JSON.parse(dataSet.descriptionModifications)}
       extraRequiredFields={JSON.parse(dataSet.extraRequiredFields)}
+      fieldsByType={JSON.parse(dataSet.fieldsByType)}
+      files={getInputFromDOM("deposits-record-files")}
+      helpTextModifications={JSON.parse(dataSet.helpTextModifications)}
+      iconModifications={JSON.parse(dataSet.iconModifications)}
+      labelModifications={JSON.parse(dataSet.labelModifications)}
+      permissions={getInputFromDOM("deposits-record-permissions")}
+      placeholderModifications={JSON.parse(dataSet.placeholderModifications)}
+      preselectedCommunity={getInputFromDOM("deposits-draft-community")}
+      priorityFieldValues={JSON.parse(dataSet.priorityFieldValues)}
+      record={getInputFromDOM("deposits-record")}
     />
   </OverridableContext.Provider>,
   formDiv

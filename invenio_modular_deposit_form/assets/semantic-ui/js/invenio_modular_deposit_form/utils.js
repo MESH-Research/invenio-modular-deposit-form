@@ -24,4 +24,25 @@ function pushToArrayEnd(startingArray, targetValue, keyLabel) {
   return newArray;
 }
 
-export { scrollTop, moveToArrayStart };
+function flattenKeysDotJoined(val) {
+  const keysArray = Object.keys(val);
+  let newArray = [];
+  for (let i = 0; i < keysArray.length; i++) {
+    const myValue = val[keysArray[i]];
+    if (
+      typeof myValue === "object" &&
+      !Array.isArray(myValue) &&
+      myValue !== null
+    ) {
+      const childKeys = flattenKeysDotJoined(val[keysArray[i]]).map(
+        (k) => `${keysArray[i]}.${k}`
+      );
+      newArray = newArray.concat(childKeys);
+    } else {
+      newArray.push(keysArray[i]);
+    }
+  }
+  return newArray;
+}
+
+export { scrollTop, moveToArrayStart, pushToArrayEnd, flattenKeysDotJoined };

@@ -49,6 +49,7 @@
     data-default-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", {}) | tojson }}'
     data-priority-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", {}) | tojson }}'
     data-extra-required-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", {}) | tojson }}'
+    data-default-resource-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", {}) | tojson }}'
   ></div>
 {%- endblock page_body %}
 
