@@ -136,21 +136,19 @@ const AdditionalTitlesComponent = () => {
 
 const AlternateIdentifiersComponent = ({ vocabularies }) => {
   return (
-    <Segment as="fieldset">
-      <Overridable
-        id="InvenioAppRdm.Deposit.IdentifiersField.container"
-        vocabularies={vocabularies}
+    <Overridable
+      id="InvenioAppRdm.Deposit.IdentifiersField.container"
+      vocabularies={vocabularies}
+      fieldPath="metadata.identifiers"
+    >
+      <IdentifiersField
         fieldPath="metadata.identifiers"
-      >
-        <IdentifiersField
-          fieldPath="metadata.identifiers"
-          label={i18next.t("URL or Alternate Identifiers")}
-          labelIcon="barcode"
-          schemeOptions={vocabularies.metadata.identifiers.scheme}
-          showEmptyValue
-        />
-      </Overridable>
-    </Segment>
+        label={i18next.t("URL or Alternate Identifiers")}
+        labelIcon="barcode"
+        schemeOptions={vocabularies.metadata.identifiers.scheme}
+        showEmptyValue
+      />
+    </Overridable>
   );
 };
 
@@ -179,75 +177,63 @@ const CommonsDomainComponent = ({ customFieldsUI }) => {
 };
 
 const CommunitiesComponent = () => {
+  {
+    /* <Overridable id="InvenioAppRdm.Deposit.CommunityHeader.container">
+    <CommunityHeader imagePlaceholderLink="/static/images/square-placeholder.png" />
+  </Overridable> */
+  }
   return (
-    <Segment as="fieldset" className="communities-field">
-      <CommunityField imagePlaceholderLink="/static/images/square-placeholder.png" />
-      {/* <Overridable id="InvenioAppRdm.Deposit.CommunityHeader.container">
-        <CommunityHeader imagePlaceholderLink="/static/images/square-placeholder.png" />
-      </Overridable> */}
-    </Segment>
+    <CommunityField imagePlaceholderLink="/static/images/square-placeholder.png" />
   );
 };
 
 const ContributorsComponent = ({ config, vocabularies }) => {
   return (
-    <Segment
-      id={"InvenioAppRdm.Deposit.ContributorsField.card"}
-      as="fieldset"
-      className="contributors-field"
+    <Overridable
+      id="InvenioAppRdm.Deposit.ContributorsField.container"
+      fieldPath="metadata.contributors"
+      vocabularies={vocabularies}
+      config={config}
     >
-      <Overridable
-        id="InvenioAppRdm.Deposit.ContributorsField.container"
+      <CreatibutorsField
+        addButtonLabel={i18next.t("Add contributor")}
+        label={i18next.t("Contributors")}
+        labelIcon="user plus"
         fieldPath="metadata.contributors"
-        vocabularies={vocabularies}
-        config={config}
-      >
-        <CreatibutorsField
-          addButtonLabel={i18next.t("Add contributor")}
-          label={i18next.t("Contributors")}
-          labelIcon="user plus"
-          fieldPath="metadata.contributors"
-          roleOptions={vocabularies.metadata.contributors.role}
-          schema="contributors"
-          autocompleteNames={config.autocomplete_names}
-          modal={{
-            addLabel: "Add contributor",
-            editLabel: "Edit contributor",
-          }}
-          id="InvenioAppRdm.Deposit.ContributorsField.card"
-          description="Contributors play a secondary role in the production of this material (e.g., illustrators, research assistants, and in some cases editors or translators)."
-        />
-      </Overridable>
-    </Segment>
+        roleOptions={vocabularies.metadata.contributors.role}
+        schema="contributors"
+        autocompleteNames={config.autocomplete_names}
+        modal={{
+          addLabel: "Add contributor",
+          editLabel: "Edit contributor",
+        }}
+        id="InvenioAppRdm.Deposit.ContributorsField.card"
+        description="Contributors play a secondary role in the production of this material (e.g., illustrators, research assistants, and in some cases editors or translators)."
+      />
+    </Overridable>
   );
 };
 
 const CreatorsComponent = ({ config, vocabularies }) => {
   return (
-    <Segment
-      id={"InvenioAppRdm.Deposit.CreatorsField.card"}
-      as="fieldset"
-      className="creators-field"
+    <Overridable
+      id="InvenioAppRdm.Deposit.CreatorsField.container"
+      vocabularies={vocabularies}
+      config={config}
+      fieldPath="metadata.creators"
     >
-      <Overridable
-        id="InvenioAppRdm.Deposit.CreatorsField.container"
-        vocabularies={vocabularies}
-        config={config}
+      <CreatibutorsField
+        label={i18next.t("Creators")}
+        labelIcon="user"
         fieldPath="metadata.creators"
-      >
-        <CreatibutorsField
-          label={i18next.t("Creators")}
-          labelIcon="user"
-          fieldPath="metadata.creators"
-          roleOptions={vocabularies.metadata.creators.role}
-          schema="creators"
-          autocompleteNames={config.autocomplete_names}
-          required
-          // id="InvenioAppRdm.Deposit.CreatorsField.card"
-          description="Creators are the primary producers of this material (e.g., authors, researchers, and in some cases editors or translators)."
-        />
-      </Overridable>
-    </Segment>
+        roleOptions={vocabularies.metadata.creators.role}
+        schema="creators"
+        autocompleteNames={config.autocomplete_names}
+        required
+        // id="InvenioAppRdm.Deposit.CreatorsField.card"
+        description="Creators are the primary producers of this material (e.g., authors, researchers, and in some cases editors or translators)."
+      />
+    </Overridable>
   );
 };
 
@@ -264,43 +250,41 @@ const DateComponent = () => {
 
 const DoiComponent = ({ config, record }) => {
   return (
-    <Segment as="fieldset" className="pid-field">
-      <Overridable
-        id="InvenioAppRdm.Deposit.PIDField.container"
-        config={config}
-        record={record}
-      >
-        <Fragment>
-          {config.pids.map((pid) => (
-            <Fragment key={pid.scheme}>
-              <PIDField
-                btnLabelDiscardPID={pid.btn_label_discard_pid}
-                btnLabelGetPID={pid.btn_label_get_pid}
-                canBeManaged={pid.can_be_managed}
-                canBeUnmanaged={pid.can_be_unmanaged}
-                fieldPath={`pids.${pid.scheme}`}
-                fieldLabel={pid.field_label}
-                isEditingPublishedRecord={
-                  record.is_published === true // is_published is `null` at first upload
-                }
-                managedHelpText={pid.managed_help_text}
-                pidLabel={pid.pid_label}
-                pidPlaceholder={pid.pid_placeholder}
-                pidType={pid.scheme}
-                unmanagedHelpText={pid.unmanaged_help_text}
-                required
-              />
-            </Fragment>
-          ))}
-        </Fragment>
-      </Overridable>
-    </Segment>
+    <Overridable
+      id="InvenioAppRdm.Deposit.PIDField.container"
+      config={config}
+      record={record}
+    >
+      <Fragment>
+        {config.pids.map((pid) => (
+          <Fragment key={pid.scheme}>
+            <PIDField
+              btnLabelDiscardPID={pid.btn_label_discard_pid}
+              btnLabelGetPID={pid.btn_label_get_pid}
+              canBeManaged={pid.can_be_managed}
+              canBeUnmanaged={pid.can_be_unmanaged}
+              fieldPath={`pids.${pid.scheme}`}
+              fieldLabel={pid.field_label}
+              isEditingPublishedRecord={
+                record.is_published === true // is_published is `null` at first upload
+              }
+              managedHelpText={pid.managed_help_text}
+              pidLabel={pid.pid_label}
+              pidPlaceholder={pid.pid_placeholder}
+              pidType={pid.scheme}
+              unmanagedHelpText={pid.unmanaged_help_text}
+              required
+            />
+          </Fragment>
+        ))}
+      </Fragment>
+    </Overridable>
   );
 };
 
 const FilesUploadComponent = ({ config, noFiles, record, permissions }) => {
   return (
-    <Segment as="fieldset">
+    <>
       {/* <Overridable
       id="InvenioAppRdm.Deposit.AccordionFieldFiles.container"
       record={record}
@@ -325,95 +309,89 @@ const FilesUploadComponent = ({ config, noFiles, record, permissions }) => {
         />
       </Overridable>
       {/*</Overridable> */}
-    </Segment>
+    </>
   );
 };
 
 const FundingComponent = ({}) => {
   return (
-    <Segment
-      id="InvenioAppRdm.Deposit.AccordionFieldFunding.card"
-      as="fieldset"
-      className="funding-field"
+    <Overridable
+      id="InvenioAppRdm.Deposit.FundingField.container"
+      fieldPath="metadata.funding"
     >
-      <Overridable
-        id="InvenioAppRdm.Deposit.FundingField.container"
+      <FundingField
         fieldPath="metadata.funding"
-      >
-        <FundingField
-          fieldPath="metadata.funding"
-          searchConfig={{
-            searchApi: {
-              axios: {
-                headers: {
-                  Accept: "application/vnd.inveniordm.v1+json",
-                },
-                url: "/api/awards",
-                withCredentials: false,
+        searchConfig={{
+          searchApi: {
+            axios: {
+              headers: {
+                Accept: "application/vnd.inveniordm.v1+json",
               },
+              url: "/api/awards",
+              withCredentials: false,
             },
-            initialQueryState: {
-              sortBy: "bestmatch",
-              sortOrder: "asc",
-              layout: "list",
-              page: 1,
-              size: 5,
-            },
-          }}
-          label="Funding"
-          labelIcon="money bill alternate outline"
-          deserializeAward={(award) => {
-            return {
-              title: award.title_l10n,
-              number: award.number,
-              funder: award.funder ?? "",
-              id: award.id,
-              ...(award.identifiers && {
-                identifiers: award.identifiers,
-              }),
-              ...(award.acronym && { acronym: award.acronym }),
-            };
-          }}
-          deserializeFunder={(funder) => {
-            return {
-              id: funder.id,
-              name: funder.name,
-              ...(funder.title_l10n && { title: funder.title_l10n }),
-              ...(funder.pid && { pid: funder.pid }),
-              ...(funder.country && { country: funder.country }),
-              ...(funder.identifiers && {
-                identifiers: funder.identifiers,
-              }),
-            };
-          }}
-          computeFundingContents={(funding) => {
-            let headerContent,
-              descriptionContent,
-              awardOrFunder = "";
+          },
+          initialQueryState: {
+            sortBy: "bestmatch",
+            sortOrder: "asc",
+            layout: "list",
+            page: 1,
+            size: 5,
+          },
+        }}
+        label="Funding"
+        labelIcon="money bill alternate outline"
+        deserializeAward={(award) => {
+          return {
+            title: award.title_l10n,
+            number: award.number,
+            funder: award.funder ?? "",
+            id: award.id,
+            ...(award.identifiers && {
+              identifiers: award.identifiers,
+            }),
+            ...(award.acronym && { acronym: award.acronym }),
+          };
+        }}
+        deserializeFunder={(funder) => {
+          return {
+            id: funder.id,
+            name: funder.name,
+            ...(funder.title_l10n && { title: funder.title_l10n }),
+            ...(funder.pid && { pid: funder.pid }),
+            ...(funder.country && { country: funder.country }),
+            ...(funder.identifiers && {
+              identifiers: funder.identifiers,
+            }),
+          };
+        }}
+        computeFundingContents={(funding) => {
+          let headerContent,
+            descriptionContent,
+            awardOrFunder = "";
 
-            if (funding.funder) {
-              const funderName =
-                funding.funder?.name ??
-                funding.funder?.title ??
-                funding.funder?.id ??
-                "";
-              awardOrFunder = "funder";
-              headerContent = funderName;
-              descriptionContent = "";
+          if (funding.funder) {
+            const funderName =
+              funding.funder?.name ??
+              funding.funder?.title ??
+              funding.funder?.id ??
+              "";
+            awardOrFunder = "funder";
+            headerContent = funderName;
+            descriptionContent = "";
 
-              // there cannot be an award without a funder
-              if (funding.award) {
-                awardOrFunder = "award";
-                descriptionContent = funderName;
-                headerContent = funding.award.title;
-              }
+            // there cannot be an award without a funder
+            if (funding.award) {
+              awardOrFunder = "award";
+              descriptionContent = funderName;
+              headerContent = funding.award.title;
             }
+          }
 
-            return { headerContent, descriptionContent, awardOrFunder };
-          }}
-        />
-      </Overridable>
-    </Segment>
+          return { headerContent, descriptionContent, awardOrFunder };
+        }}
+      />
+    </Overridable>
   );
 };
 
@@ -463,62 +441,58 @@ const JournalISSNComponent = ({ customFieldsUI, labelMods }) => {
 
 const LanguagesComponent = ({ record }) => {
   return (
-    <Segment as="fieldset">
-      <Overridable
-        id="InvenioAppRdm.Deposit.LanguagesField.container"
+    <Overridable
+      id="InvenioAppRdm.Deposit.LanguagesField.container"
+      fieldPath="metadata.languages"
+      record={record}
+    >
+      <LanguagesField
         fieldPath="metadata.languages"
-        record={record}
-      >
-        <LanguagesField
-          fieldPath="metadata.languages"
-          initialOptions={_get(record, "ui.languages", []).filter(
-            (lang) => lang !== null
-          )} // needed because dumped empty record from backend gives [null]
-          serializeSuggestions={(suggestions) =>
-            suggestions.map((item) => ({
-              text: item.title_l10n,
-              value: item.id,
-              key: item.id,
-            }))
-          }
-        />
-      </Overridable>
-    </Segment>
+        initialOptions={_get(record, "ui.languages", []).filter(
+          (lang) => lang !== null
+        )} // needed because dumped empty record from backend gives [null]
+        serializeSuggestions={(suggestions) =>
+          suggestions.map((item) => ({
+            text: item.title_l10n,
+            value: item.id,
+            key: item.id,
+          }))
+        }
+      />
+    </Overridable>
   );
 };
 
 const LicensesComponent = () => {
   return (
-    <Segment as="fieldset">
-      <Overridable
-        id="InvenioAppRdm.Deposit.LicenseField.container"
+    <Overridable
+      id="InvenioAppRdm.Deposit.LicenseField.container"
+      fieldPath="metadata.rights"
+    >
+      <LicenseField
         fieldPath="metadata.rights"
-      >
-        <LicenseField
-          fieldPath="metadata.rights"
-          searchConfig={{
-            searchApi: {
-              axios: {
-                headers: {
-                  Accept: "application/vnd.inveniordm.v1+json",
-                },
-                url: "/api/vocabularies/licenses",
-                withCredentials: false,
+        searchConfig={{
+          searchApi: {
+            axios: {
+              headers: {
+                Accept: "application/vnd.inveniordm.v1+json",
               },
+              url: "/api/vocabularies/licenses",
+              withCredentials: false,
             },
-            initialQueryState: {
-              filters: [["tags", "recommended"]],
-            },
-          }}
-          serializeLicenses={(result) => ({
-            title: result.title_l10n,
-            description: result.description_l10n,
-            id: result.id,
-            link: result.props.url,
-          })}
-        />
-      </Overridable>
-    </Segment>
+          },
+          initialQueryState: {
+            filters: [["tags", "recommended"]],
+          },
+        }}
+        serializeLicenses={(result) => ({
+          title: result.title_l10n,
+          description: result.description_l10n,
+          id: result.id,
+          link: result.props.url,
+        })}
+      />
+    </Overridable>
   );
 };
 
@@ -635,35 +609,23 @@ const ReferencesComponent = ({ vocabularies }) => {
 
 const RelatedWorksComponent = ({ vocabularies }) => {
   return (
-    <Segment as="fieldset">
-      <Overridable
-        id="InvenioAppRdm.Deposit.RelatedWorksField.container"
+    <Overridable
+      id="InvenioAppRdm.Deposit.RelatedWorksField.container"
+      fieldPath="metadata.related_identifiers"
+      vocabularies={vocabularies}
+    >
+      <RelatedWorksField
         fieldPath="metadata.related_identifiers"
-        vocabularies={vocabularies}
-      >
-        <RelatedWorksField
-          fieldPath="metadata.related_identifiers"
-          options={vocabularies.metadata.identifiers}
-          showEmptyValue={false}
-        />
-      </Overridable>
-    </Segment>
+        options={vocabularies.metadata.identifiers}
+        showEmptyValue={false}
+      />
+    </Overridable>
   );
 };
 
 const ResourceTypeComponent = ({ vocabularies }) => {
-  return (
-    <Segment
-      id={"InvenioAppRdm.Deposit.ResourceTypeComponent.container"}
-      as="fieldset"
-      className="resource-type-field"
-    >
-      <ResourceTypeSelectorField
-        options={vocabularies.metadata.resource_type}
-        fieldPath="metadata.resource_type"
-        required
-      />
-      {/* <Overridable
+  {
+    /* <Overridable
         id="InvenioAppRdm.Deposit.ResourceTypeField.container"
         vocabularies={vocabularies}
         fieldPath="metadata.resource_type"
@@ -673,8 +635,14 @@ const ResourceTypeComponent = ({ vocabularies }) => {
           fieldPath="metadata.resource_type"
           required
         />
-      </Overridable> */}
-    </Segment>
+      </Overridable> */
+  }
+  return (
+    <ResourceTypeSelectorField
+      options={vocabularies.metadata.resource_type}
+      fieldPath="metadata.resource_type"
+      required
+    />
   );
 };
 

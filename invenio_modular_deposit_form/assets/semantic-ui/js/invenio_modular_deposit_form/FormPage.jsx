@@ -34,17 +34,16 @@ const FieldsContent = ({
   wrapped,
   index,
   commonFieldProps,
-  fieldComponents,
 }) => {
   console.log(
     "FieldsContent",
+    section,
     component,
     wrapped,
     index,
-    commonFieldProps,
-    fieldComponents
+    commonFieldProps
   );
-  const MyField = fieldComponents[component][0];
+  const MyField = commonFieldProps.fieldComponents[component][0];
   return !!wrapped ? (
     <SectionWrapper sectionName={section}>
       <MyField key={index} {...commonFieldProps} />
@@ -54,7 +53,13 @@ const FieldsContent = ({
   );
 };
 
-const FormPage = ({ children, id, pageNums, currentFormPage }) => {
+const FormPage = ({
+  commonFieldProps,
+  currentFormPage,
+  id,
+  pageNums,
+  subsections,
+}) => {
   const {
     values,
     errors,
@@ -104,7 +109,44 @@ const FormPage = ({ children, id, pageNums, currentFormPage }) => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="formPageWrapper" id={id}>
-        {children}
+        {subsections.map(
+          (
+            { section, component, wrapped, subsections: innerSections, props },
+            index
+          ) => {
+            return component === "SectionWrapper" ? (
+              <SectionWrapper sectionName={section} key={section} {...props}>
+                {innerSections.map(
+                  ({ component, wrapped, props: innerProps }, index) => (
+                    <FieldsContent
+                      key={index}
+                      {...{
+                        section,
+                        component,
+                        wrapped,
+                        index,
+                        commonFieldProps,
+                        ...innerProps,
+                      }}
+                    />
+                  )
+                )}
+              </SectionWrapper>
+            ) : (
+              <FieldsContent
+                {...{
+                  section,
+                  component,
+                  wrapped,
+                  index,
+                  commonFieldProps,
+                  ...props,
+                }}
+              />
+            );
+          }
+        )}
+
         <div
           className={`ui container ${
             pageTargetInViewport

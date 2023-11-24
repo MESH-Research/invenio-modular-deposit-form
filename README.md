@@ -91,6 +91,14 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS
 An additional special component exposed is SectionWrapper. This can be used to group a
 set of components together visually and semantically.
 
+If a component on its own should be wrapped in a similar section wrapper, you can instead
+set the "wrapped" property of the component declaration to `True`.
+
+If you wish to change the html that wraps these sections, you can override the SectionWrapper
+component. Just be sure to pass through the `children` property. If you want to change the structure of
+a particular section, you can create a custom React component for that section and set `wrapped` to `False`
+in its configuration.
+
 ### Layout changes by resource type
 
 INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE
