@@ -1,52 +1,25 @@
 import {
   AccessRightField,
-  DescriptionsField,
-  CreatibutorsField,
-  DeleteButton,
-  DepositFormApp,
-  DepositStatusBox,
-  FileUploader,
-  FormFeedback,
-  IdentifiersField,
-  PreviewButton,
-  LanguagesField,
-  LicenseField,
-  PublicationDateField,
-  PublishButton,
-  PublisherField,
-  ReferencesField,
-  RelatedWorksField,
-  SubjectsField,
-  TitlesField,
-  VersionField,
-  CommunityHeader,
-  SaveButton,
 } from "@js/invenio_rdm_records";
-import { FundingField } from "@js/invenio_vocabularies";
-import ResourceTypeSelectorField from "./replacement_components/ResourceTypeSelectorField";
-import { PIDField } from "./replacement_components/PIDField";
-import { DatesField } from "./replacement_components/DatesField";
 import {
   AbstractComponent,
   AdditionalDatesComponent,
   AdditionalDescriptionComponent,
   AdditionalTitlesComponent,
-  AIComponent,
   AlternateIdentifiersComponent,
   BookTitleComponent,
   CommunitiesComponent,
-  ContentWarningComponent,
   ContributorsComponent,
   CreatorsComponent,
   DateComponent,
   DoiComponent,
   FilesUploadComponent,
   FundingComponent,
-  KeywordsComponent,
+  ISBNComponent,
+  SectionPagesComponent,
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
-  PreviouslyPublishedComponent,
   PublisherDoiComponent,
   PublisherComponent,
   PublicationLocationComponent,
@@ -57,26 +30,18 @@ import {
   SubtitleComponent,
   TitleComponent,
   TotalPagesComponent,
-  SeriesComponent,
-  VolumeComponent,
   VersionComponent,
 } from "./field_components/field_components";
 import {
   AccessRightsComponent,
-  AdminMetadataComponent,
   BookDetailComponent,
   BookSectionDetailComponent,
-  BookSectionVolumePagesComponent,
-  BookVolumePagesComponent,
   CombinedDatesComponent,
   CombinedTitlesComponent,
-  CommonsLegacyInfoComponent,
   DeleteComponent,
-  EditionSectionComponent,
   JournalDetailComponent,
   OrganizationDetailsComponent,
   PublicationDetailsComponent,
-  SubjectKeywordsComponent,
   SubmissionComponent,
   SubmitActionsComponent,
   ThesisDetailsComponent,
@@ -94,28 +59,22 @@ const fieldComponents = {
     AdditionalTitlesComponent,
     ["metadata.additional_titles"],
   ],
-  AIComponent: [AIComponent, ["custom_fields.kcr:ai_usage"]],
   AlternateIdentifiersComponent: [
     AlternateIdentifiersComponent,
     ["metadata.identifiers"],
   ],
+  BookTitleComponent: [BookTitleComponent, ["custom_fields.imprint:imprint.title"]],
   CommunitiesComponent: [CommunitiesComponent, []],
-  ContentWarningComponent: [
-    ContentWarningComponent,
-    ["custom_fields.kcr:content_warning"],
-  ],
   ContributorsComponent: [ContributorsComponent, ["metadata.contributors"]],
   CreatorsComponent: [CreatorsComponent, ["metadata.creators"]],
   DateComponent: [DateComponent, ["metadata.publication_date"]],
   DoiComponent: [DoiComponent, ["pids.doi"]],
   FundingComponent: [FundingComponent, ["metadata.funding"]],
-  ISBNComponent: [null, ["custom_fields.imprint:imprint.isbn"]],
+  ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
   FilesUploadComponent: [FilesUploadComponent, ["files"]],
-  KeywordsComponent: [KeywordsComponent, ["custom_fields.kcr:user_defined_tags"]],
   LanguagesComponent: [LanguagesComponent, ["metadata.languages"]],
   LicensesComponent: [LicensesComponent, ["metadata.rights"]],
   MetadataOnlyComponent: [MetadataOnlyComponent, ["access.status"]],
-  PreviouslyPublishedComponent: [PreviouslyPublishedComponent, []],
   PublisherComponent: [PublisherComponent, ["metadata.publisher"]],
   PublicationLocationComponent: [
     PublicationLocationComponent,
@@ -123,21 +82,14 @@ const fieldComponents = {
   ],
   RelatedWorksComponent: [RelatedWorksComponent, ["metadata.related_identifiers"]],
   ResourceTypeComponent: [ResourceTypeComponent, ["metadata.resource_type"]],
-  SeriesComponent: [SeriesComponent, ["custom_fields.kcr:book_series"]],
   SubjectsComponent: [SubjectsComponent, ["metadata.subjects"]],
   SubtitleComponent: [SubtitleComponent, ["metadata.additional_titles"]],
   TitleComponent: [TitleComponent, ["metadata.title"]],
   TotalPagesComponent: [TotalPagesComponent, ["custom_fields.imprint:imprint.pages"]],
-  VolumeComponent: [VolumeComponent, ["custom_fields.kcr:volumes"]],
   VersionComponent: [VersionComponent, ["metadata.version"]],
   // below are composite field components
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
-  AdminMetadataComponent: [AdminMetadataComponent, [
-"kcr:commons_domain",
-"kcr:submitter_email",
-"kcr:submitter_username",
-]],
   BookDetailComponent: [
     BookDetailComponent,
     [
@@ -157,18 +109,6 @@ const fieldComponents = {
       "custom_fields.imprint:imprint.place",
     ],
   ],
-  BookSectionVolumePagesComponent: [
-    BookSectionVolumePagesComponent,
-    [
-      "custom_fields.journal:journal.pages",
-      "custom_fields.kcr:volume",
-      "custom_fields.imprint:imprint.pages",
-    ],
-  ],
-  BookVolumePagesComponent: [
-    BookVolumePagesComponent,
-    ["custom_fields.kcr:volume", "custom_fields.imprint:imprint.pages"],
-  ],
   CombinedTitlesComponent: [
     CombinedTitlesComponent,
     ["metadata.title", "metadata.additional_titles"],
@@ -177,27 +117,11 @@ const fieldComponents = {
     CombinedDatesComponent,
     ["metadata.publication_date", "metadata.dates"],
   ],
-  CommonsLegacyInfoComponent: [CommonsLegacyInfoComponent, [
-    "hclegacy:groups_for_deposit",
-    "hclegacy:collection",
-    "hclegacy:committee_deposit",
-    "hclegacy:file_location",
-    "hclegacy:file_pid",
-    "hclegacy:groups_for_deposit",
-    "hclegacy:previously_published",
-    "hclegacy:publication_type",
-    "hclegacy:record_change_date",
-    "hclegacy:record_creation_date",
-    "hclegacy:record_identifier",
-    "hclegacy:society",
-    "hclegacy:submitter_org_memberships",
-    "hclegacy:submitter_affiliation",
-    "hclegacy:submitter_id",
-  ]],
   DeleteComponent: [DeleteComponent, []],
-  EditionSectionComponent: [
-    EditionSectionComponent,
-    ["custom_fields.kcr:edition", "custom_fields.kcr:chapter_label"],
+  ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
+  SectionPagesComponent: [
+    SectionPagesComponent,
+    ["custom_fields.journal:journal.pages"],
   ],
   JournalDetailComponent: [
     JournalDetailComponent,
@@ -212,7 +136,6 @@ const fieldComponents = {
   OrganizationDetailsComponent: [
     OrganizationDetailsComponent,
     [
-      "custom_fields.kcr:sponsoring_institution",
       "custom_fields.imprint:imprint.place",
     ],
   ],
@@ -225,10 +148,6 @@ const fieldComponents = {
       "custom_fields.imprint:imprint.place",
     ],
   ],
-  SubjectsKeywordsComponent: [
-    SubjectKeywordsComponent,
-    ["metadata.subjects", "custom_fields.kcr:user_defined_tags"],
-  ],
   SubmissionComponent: [SubmissionComponent, []],
   SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
   ThesisDetailsComponent: [ThesisDetailsComponent, ["custom_fields.thesis:university"]],
@@ -239,6 +158,9 @@ const fieldComponents = {
 };
 
 const extras = require(`@js/invenio_modular_deposit_form_extras/componentsMap.js`);
-console.log(extras.componentsConfig);
+if ( extras ) {
+  Object.assign(fieldComponents, extras.componentsMap);
+}
+console.log(fieldComponents);
 
 export { fieldComponents };

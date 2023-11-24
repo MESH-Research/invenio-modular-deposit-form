@@ -27,7 +27,8 @@ import PropTypes, { object } from "prop-types";
 import Overridable from "react-overridable";
 import { flattenKeysDotJoined } from "./utils";
 import { fieldComponents } from "./componentsMap";
-import { FormPage } from "./FormPage";
+import { FieldsContent, FormPage } from "./FormPage";
+import { SectionWrapper } from "./field_components/SectionWrapper";
 
 // React Context to track the current form values.
 // Will contain the Formik values object passed up from a
@@ -183,20 +184,32 @@ export const RDMDepositForm = ({
     setCurrentTypeFieldsByType(fieldsByType[values.metadata.resource_type]);
   };
 
+  function flattenWrappers(page) {
+    let flattened = [];
+    if (page.subsections) {
+      for (const sub of page.subsections) {
+        if (sub.component === "SectionWrapper") {
+          flattened = flattened.concat(flattenWrappers(sub));
+        } else {
+          flattened.push(sub);
+        }
+      }
+    }
+    return flattened;
+  }
+
   const handleErrorsChange = (errors) => {
     if (errors != {}) {
       setCurrentErrors(errors);
       let errorPages = [];
       // for each page...
-      for (let p of formPages) {
+      for (const p of formPages) {
         // collect form widget slugs
-        let pageFields = p.subsections ? p.subsections : [];
-        if (!!currentTypeFieldsByType[p.section]) {
-          pageFields = pageFields.concat(currentTypeFieldsByType[p.section]);
-        }
+        let pageFields = !!currentTypeFieldsByType[p.section]
+          ? flattenWrappers(currentTypeFieldsByType[p.section])
+          : flattenWrappers(p);
         // get form field label for each slug
         let pageMetaFields = pageFields.reduce((accum, { component }) => {
-          console.log("component", component);
           accum = accum.concat(fieldComponents[component][1]);
           return accum;
         }, []);
@@ -210,6 +223,17 @@ export const RDMDepositForm = ({
       setPagesWithErrors(errorPages);
       errorPages.length && setCurrentFormPage(errorPages[0]);
     }
+  };
+
+  const commonFieldProps = {
+    config: config,
+    noFiles: noFiles,
+    record: record,
+    vocabularies: vocabularies,
+    permissions: permissions,
+    customFieldsUI: customFieldsUI,
+    currentResourceType: currentResourceType,
+    ...currentFieldMods,
   };
 
   return (
@@ -285,48 +309,50 @@ export const RDMDepositForm = ({
                         <FormPage
                           id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                           pageNums={formPages.map(({ section }) => section)}
+                          subsections={
+                            !!currentTypeFieldsByType[section]
+                              ? currentTypeFieldsByType[section]
+                              : subsections
+                          }
                           currentFormPage={section}
                           currentResourceType={currentResourceType}
                         >
-                          {!!currentResourceType &&
-                          !!currentTypeFieldsByType &&
-                          !!currentTypeFieldsByType[section]
-                            ? currentTypeFieldsByType[section]?.map(
-                                ({ component }, index) => {
-                                  const MyField = fieldComponents[component][0];
-                                  return (
-                                    <MyField
-                                      key={index}
-                                      config={config}
-                                      noFiles={noFiles}
-                                      record={record}
-                                      vocabularies={vocabularies}
-                                      permissions={permissions}
-                                      customFieldsUI={customFieldsUI}
-                                      {...currentFieldMods}
-                                      currentResourceType={currentResourceType}
-                                    />
-                                  );
-                                }
-                              )
-                            : ""}
-                          {subsections.map(({ component }, index) => {
-                            console.log("component", component);
-                            const MyField = fieldComponents[component][0];
-                            return (
-                              <MyField
-                                key={index}
-                                config={config}
-                                noFiles={noFiles}
-                                record={record}
-                                vocabularies={vocabularies}
-                                permissions={permissions}
-                                customFieldsUI={customFieldsUI}
-                                {...currentFieldMods}
-                                currentResourceType={currentResourceType}
-                              />
-                            );
-                          })}
+                          {subsections.map(
+                            (
+                              { section, component, wrapped, subsections },
+                              index
+                            ) => {
+                              return component === "SectionWrapper" ? (
+                                <SectionWrapper sectionName={section}>
+                                  {subsections.map(
+                                    ({ component, wrapped }, index) => {
+                                      <FieldsContent
+                                        {...{
+                                          section,
+                                          component,
+                                          wrapped,
+                                          index,
+                                          commonFieldProps,
+                                          fieldComponents,
+                                        }}
+                                      />;
+                                    }
+                                  )}
+                                </SectionWrapper>
+                              ) : (
+                                <FieldsContent
+                                  {...{
+                                    section,
+                                    component,
+                                    wrapped,
+                                    index,
+                                    commonFieldProps,
+                                    fieldComponents,
+                                  }}
+                                />
+                              );
+                            }
+                          )}
                         </FormPage>
                       </div>
                     )

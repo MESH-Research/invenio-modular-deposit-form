@@ -4,6 +4,7 @@ import { Button, Icon } from "semantic-ui-react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FormValuesContext } from "./RDMDepositForm";
+import { SectionWrapper } from "./field_components/SectionWrapper";
 
 function useIsInViewport(ref) {
   const [isIntersecting, setIsIntersecting] = useState(false);
@@ -26,6 +27,32 @@ function useIsInViewport(ref) {
 
   return isIntersecting;
 }
+
+const FieldsContent = ({
+  section,
+  component,
+  wrapped,
+  index,
+  commonFieldProps,
+  fieldComponents,
+}) => {
+  console.log(
+    "FieldsContent",
+    component,
+    wrapped,
+    index,
+    commonFieldProps,
+    fieldComponents
+  );
+  const MyField = fieldComponents[component][0];
+  return !!wrapped ? (
+    <SectionWrapper sectionName={section}>
+      <MyField key={index} {...commonFieldProps} />
+    </SectionWrapper>
+  ) : (
+    <MyField key={index} {...commonFieldProps} />
+  );
+};
 
 const FormPage = ({ children, id, pageNums, currentFormPage }) => {
   const {
@@ -120,4 +147,4 @@ const FormPage = ({ children, id, pageNums, currentFormPage }) => {
   );
 };
 
-export { FormPage };
+export { FieldsContent, FormPage };

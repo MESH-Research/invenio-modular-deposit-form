@@ -11,28 +11,10 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, {
-  Component,
-  createContext,
-  createRef,
-  forwardRef,
-  Fragment,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { useStore } from "react-redux";
+import React from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
-import {
-  AccordionField,
-  CustomFields,
-  FieldLabel,
-  loadWidgetsFromConfig,
-} from "react-invenio-forms";
 import {
   AccessRightField,
   DescriptionsField,
@@ -55,41 +37,32 @@ import {
   VersionField,
   CommunityHeader,
 } from "@js/invenio_rdm_records";
-import { FundingField } from "@js/invenio_vocabularies";
-import { Card, Form, Grid, Segment } from "semantic-ui-react";
-import PropTypes from "prop-types";
+import { Form, Grid, Segment } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { SubmitButtonModal } from "../replacement_components/PublishButton/SubmitButton";
-import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSelectorField";
-import { PIDField } from "../replacement_components/PIDField";
-import { DatesField } from "../replacement_components/DatesField";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { DndProvider } from "react-dnd";
 import {
-  CustomFieldInjector,
-  CustomFieldSectionInjector,
   AbstractComponent,
   AdditionalDatesComponent,
   AdditionalDescriptionComponent,
   AdditionalTitlesComponent,
-  AIComponent,
   AlternateIdentifiersComponent,
   BookTitleComponent,
   CommunitiesComponent,
-  ContentWarningComponent,
   ContributorsComponent,
   CreatorsComponent,
   DateComponent,
   DoiComponent,
   FilesUploadComponent,
   FundingComponent,
+  SectionPagesComponent,
   JournalTitleComponent,
   JournalISSNComponent,
-  KeywordsComponent,
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
-  PreviouslyPublishedComponent,
+  MeetingDatesComponent,
+  MeetingPlaceComponent,
+  MeetingTitleComponent,
   PublisherDoiComponent,
   PublisherComponent,
   PublicationLocationComponent,
@@ -100,60 +73,25 @@ import {
   SubtitleComponent,
   TitleComponent,
   TotalPagesComponent,
-  SeriesComponent,
-  VolumeComponent,
   VersionComponent,
-  SponsoringInstitutionComponent,
-  EditionComponent,
-  ChapterLabelComponent,
-  PagesComponent,
   UniversityComponent,
 } from "./field_components";
-import { useFormikContext } from "formik";
-import { FormValuesContext } from "../RDMDepositForm";
+import { CustomFieldInjector } from "./CustomFieldInjector";
 
-const AdminMetadataComponent = ({ customFieldsUI }) => {
+const AccessRightsComponent = ({ permissions }) => {
   return (
-    <Segment as="fieldset">
-      <CustomFieldSectionInjector
-        sectionName="Commons admin info"
-        idString="AdminMetadataFields"
-        customFieldsUI={customFieldsUI}
+    <Overridable
+      id="InvenioAppRdm.Deposit.AccessRightField.container"
+      fieldPath="access"
+    >
+      <AccessRightField
+        label={i18next.t("Public access")}
+        labelIcon="shield"
+        fieldPath="access"
+        showMetadataAccess={permissions?.can_manage_record_access}
+        fluid
       />
-    </Segment>
-  );
-};
-
-const PublicationDetailsComponent = ({ customFieldsUI }) => {
-  return (
-    <Segment as="fieldset">
-      {/* <FieldLabel htmlFor={"imprint:imprint"}
-          icon={"book"}
-          label={"Publication Details"}
-        /> */}
-      {/* <Divider fitted /> */}
-      <Form.Group widths="equal">
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.isbn"
-          idString="ImprintISBNField"
-          description="e.g. 0-06-251587-X"
-          placeholder=""
-          customFieldsUI={customFieldsUI}
-        />
-        <EditionComponent
-          customFieldsUI={customFieldsUI}
-          label="Edition or Version"
-          icon="copy outline"
-        />
-        {/* <VersionComponent description="" */}
-        {/* /> */}
-      </Form.Group>
-      <Form.Group widths="equal">
-        <PublisherComponent />
-        <PublicationLocationComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-    </Segment>
+    </Overridable>
   );
 };
 
@@ -166,14 +104,7 @@ const BookDetailComponent = ({ customFieldsUI }) => {
       />
       <Divider fitted /> */}
       <Form.Group>
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.title"
-          idString="ImprintTitleField"
-          description=""
-          customFieldsUI={customFieldsUI}
-        />
-        <VersionComponent description="" label="Book title" icon="" />
+        <BookTitleComponent customFieldsUI={customFieldsUI} />
       </Form.Group>
       <Form.Group>
         <CustomFieldInjector
@@ -193,22 +124,11 @@ const BookDetailComponent = ({ customFieldsUI }) => {
         <VolumeComponent customFieldsUI={customFieldsUI} />
       </Form.Group>
       <Form.Group>
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.pages"
-          idString="ImprintPagesField"
+        <TotalPagesComponent
           customFieldsUI={customFieldsUI}
           description={""}
           label="Number of Pages"
           icon="file outline"
-        />
-      </Form.Group>
-      <Form.Group>
-        <CustomFieldInjector
-          sectionName="Series"
-          fieldName="kcr:book_series"
-          idString="KcrBookSeries"
-          customFieldsUI={customFieldsUI}
         />
       </Form.Group>
     </Segment>
@@ -251,55 +171,16 @@ const BookSectionDetailComponent = ({ customFieldsUI }) => {
     </Segment>
   );
 };
-const BookVolumePagesComponent = ({ customFieldsUI }) => {
-  return (
-    <Segment as="fieldset">
-      <Form.Group widths="equal">
-        <VolumeComponent customFieldsUI={customFieldsUI} />
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.pages"
-          idString="ImprintPagesField"
-          customFieldsUI={customFieldsUI}
-          description={""}
-          label="Total pages"
-          icon="file outline"
-        />
-      </Form.Group>
-    </Segment>
-  );
-};
 
-const BookSectionVolumePagesComponent = ({ customFieldsUI, labelMods }) => {
+const CombinedDatesComponent = ({ vocabularies }) => {
   return (
-    <Segment as="fieldset">
-      <Form.Group widths="equal">
-        <PagesComponent customFieldsUI={customFieldsUI} labelMods={labelMods} />
-        <TotalPagesComponent
-          customFieldsUI={customFieldsUI}
-          description={""}
-          labelMods={labelMods}
-        />
-        <ChapterLabelComponent
-          customFieldsUI={customFieldsUI}
-          labelMods={labelMods}
-        />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <VolumeComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-    </Segment>
-  );
-};
-
-const CommonsLegacyInfoComponent = ({ customFieldsUI }) => {
-  return (
-    <Segment as="fieldset">
-      <CustomFieldSectionInjector
-        sectionName="Commons legacy info"
-        idString="HCLegacyFields"
-        customFieldsUI={customFieldsUI}
-      />
+    <Segment
+      id={"InvenioAppRdm.Deposit.CombinedDatesComponent.container"}
+      as="fieldset"
+      className="combined-dates-field"
+    >
+      <DateComponent />
+      <AdditionalDatesComponent vocabularies={vocabularies} />
     </Segment>
   );
 };
@@ -319,15 +200,18 @@ const CombinedTitlesComponent = ({ vocabularies, record, labelMods }) => {
   );
 };
 
-const EditionSectionComponent = ({ customFieldsUI, labelMods }) => {
+const DeleteComponent = ({ permissions, record, icon }) => {
   return (
-    <Segment as="fieldset">
-      <EditionComponent customFieldsUI={customFieldsUI} labelMods={labelMods} />
-      <ChapterLabelComponent
-        customFieldsUI={customFieldsUI}
-        labelMods={labelMods}
-      />
-    </Segment>
+    <>
+      {permissions?.can_delete_draft && (
+        <Overridable
+          id="InvenioAppRdm.Deposit.CardDeleteButton.container"
+          record={record}
+        >
+          <DeleteButton fluid icon={icon} />
+        </Overridable>
+      )}
+    </>
   );
 };
 
@@ -363,10 +247,7 @@ const JournalDetailComponent = ({ customFieldsUI, labelMods }) => {
           description=""
           customFieldsUI={customFieldsUI}
         />
-        <CustomFieldInjector
-          sectionName="Journal"
-          fieldName="journal:journal.pages"
-          idString="JournalPagesField"
+        <SectionPagesComponent
           customFieldsUI={customFieldsUI}
           description={""}
           label="Pages"
@@ -380,20 +261,48 @@ const JournalDetailComponent = ({ customFieldsUI, labelMods }) => {
     </Segment>
   );
 };
+
+const MeetingDetailsComponent = ({ customFieldsUI }) => {
+  return (
+    <Segment as="fieldset">
+      <MeetingTitleComponent customFieldsUI={customFieldsUI} />
+      <MeetingDatesComponent customFieldsUI={customFieldsUI} />
+      <MeetingPlaceComponent customFieldsUI={customFieldsUI} />
+    </Segment>
+  );
+};
+
 const OrganizationDetailsComponent = ({ customFieldsUI }) => {
   return (
     <Segment as="fieldset" className="organization-details-fields">
-      <SponsoringInstitutionComponent customFieldsUI={customFieldsUI} />
       <PublicationLocationComponent customFieldsUI={customFieldsUI} />
     </Segment>
   );
 };
 
-const SubjectKeywordsComponent = ({ record, vocabularies, customFieldsUI }) => {
+const PublicationDetailsComponent = ({ customFieldsUI }) => {
   return (
-    <Segment as="fieldset" className="subject-keywords-fields">
-      <SubjectsComponent record={record} vocabularies={vocabularies} />
-      <KeywordsComponent customFieldsUI={customFieldsUI} />
+    <Segment as="fieldset">
+      {/* <FieldLabel htmlFor={"imprint:imprint"}
+          icon={"book"}
+          label={"Publication Details"}
+        /> */}
+      {/* <Divider fitted /> */}
+      <Form.Group widths="equal">
+        <CustomFieldInjector
+          sectionName="Book / Report / Chapter"
+          fieldName="imprint:imprint.isbn"
+          idString="ImprintISBNField"
+          description="e.g. 0-06-251587-X"
+          placeholder=""
+          customFieldsUI={customFieldsUI}
+        />
+        <VersionComponent description="" />
+      </Form.Group>
+      <Form.Group widths="equal">
+        <PublisherComponent />
+        <PublicationLocationComponent customFieldsUI={customFieldsUI} />
+      </Form.Group>
     </Segment>
   );
 };
@@ -549,6 +458,21 @@ const SubmissionComponent = ({ record, permissions }) => {
   );
 };
 
+const SubmitActionsComponent = ({ permissions, record }) => {
+  return (
+    <Grid className="submit-actions">
+      <Grid.Row>
+        <Grid.Column width="16">
+          <AccessRightsComponent permissions={permissions} />
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row className="submit-buttons-row">
+        <SubmissionComponent record={record} permissions={permissions} />
+      </Grid.Row>
+    </Grid>
+  );
+};
+
 const ThesisDetailsComponent = ({ customFieldsUI, labelMods }) => {
   return (
     <Segment as="fieldset">
@@ -579,82 +503,17 @@ const TypeTitleComponent = ({ vocabularies, record, labelMods }) => {
   );
 };
 
-const AccessRightsComponent = ({ permissions }) => {
-  return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.AccessRightField.container"
-      fieldPath="access"
-    >
-      <AccessRightField
-        label={i18next.t("Public access")}
-        labelIcon="shield"
-        fieldPath="access"
-        showMetadataAccess={permissions?.can_manage_record_access}
-        fluid
-      />
-    </Overridable>
-  );
-};
-
-const CombinedDatesComponent = ({ vocabularies }) => {
-  return (
-    <Segment
-      id={"InvenioAppRdm.Deposit.CombinedDatesComponent.container"}
-      as="fieldset"
-      className="combined-dates-field"
-    >
-      <DateComponent />
-      <AdditionalDatesComponent vocabularies={vocabularies} />
-    </Segment>
-  );
-};
-
-const DeleteComponent = ({ permissions, record, icon }) => {
-  return (
-    <>
-      {permissions?.can_delete_draft && (
-        <Overridable
-          id="InvenioAppRdm.Deposit.CardDeleteButton.container"
-          record={record}
-        >
-          <DeleteButton fluid icon={icon} />
-        </Overridable>
-      )}
-    </>
-  );
-};
-
-const SubmitActionsComponent = ({ permissions, record }) => {
-  return (
-    <Grid className="submit-actions">
-      <Grid.Row>
-        <Grid.Column width="16">
-          <AccessRightsComponent permissions={permissions} />
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row className="submit-buttons-row">
-        <SubmissionComponent record={record} permissions={permissions} />
-      </Grid.Row>
-    </Grid>
-  );
-};
-
 export {
   AccessRightsComponent,
-  AdminMetadataComponent,
   BookDetailComponent,
-  BookVolumePagesComponent,
-  BookSectionVolumePagesComponent,
   BookSectionDetailComponent,
   CombinedDatesComponent,
   CombinedTitlesComponent,
-  CommonsLegacyInfoComponent,
   DeleteComponent,
-  EditionSectionComponent,
   JournalDetailComponent,
+  MeetingDetailsComponent,
   OrganizationDetailsComponent,
   PublicationDetailsComponent,
-  SubjectKeywordsComponent,
   SubmissionComponent,
   SubmitActionsComponent,
   ThesisDetailsComponent,

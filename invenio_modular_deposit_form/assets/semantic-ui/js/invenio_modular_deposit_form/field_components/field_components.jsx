@@ -11,26 +11,11 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, {
-  Component,
-  createContext,
-  createRef,
-  forwardRef,
-  Fragment,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { Fragment } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
-import {
-  AccordionField,
-  CustomFields,
-  FieldLabel,
-  loadWidgetsFromConfig,
-} from "react-invenio-forms";
+import { AccordionField } from "react-invenio-forms";
 import {
   AccessRightField,
   DescriptionsField,
@@ -56,7 +41,7 @@ import {
   SaveButton,
 } from "@js/invenio_rdm_records";
 import { FundingField } from "@js/invenio_vocabularies";
-import { Card, Container, Divider, Icon, Segment } from "semantic-ui-react";
+import { Segment } from "semantic-ui-react";
 // import PropTypes from "prop-types";
 import Overridable from "react-overridable";
 import { CommunityField } from "../replacement_components/CommunityField";
@@ -64,48 +49,37 @@ import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSel
 import { PIDField } from "../replacement_components/PIDField";
 import { DatesField } from "../replacement_components/DatesField";
 import { moveToArrayStart } from "../utils";
-import {
-  CustomFieldInjector,
-  CustomFieldSectionInjector,
-} from "./CustomFieldInjector";
-
-// import { HTML5Backend } from "react-dnd-html5-backend";
-// import { DndProvider } from "react-dnd";
+import { CustomFieldInjector } from "./CustomFieldInjector";
 
 const AbstractComponent = ({ record, vocabularies }) => {
   return (
-    <Segment
-      id={"InvenioAppRdm.Deposit.AbstractComponent.container"}
-      as="fieldset"
+    <Overridable
+      id="InvenioAppRdm.Deposit.DescriptionsField.container"
+      record={record}
+      vocabularies={vocabularies}
+      fieldPath="metadata.description"
     >
-      <Overridable
-        id="InvenioAppRdm.Deposit.DescriptionsField.container"
-        record={record}
-        vocabularies={vocabularies}
+      <DescriptionsField
         fieldPath="metadata.description"
-      >
-        <DescriptionsField
-          fieldPath="metadata.description"
-          options={vocabularies.metadata.descriptions}
-          recordUI={_get(record, "ui", null)}
-          label="Abstract"
-          editorConfig={{
-            removePlugins: [
-              "Image",
-              "ImageCaption",
-              "ImageStyle",
-              "ImageToolbar",
-              "ImageUpload",
-              "MediaEmbed",
-              "Table",
-              "TableToolbar",
-              "TableProperties",
-              "TableCellProperties",
-            ],
-          }}
-        />
-      </Overridable>
-    </Segment>
+        options={vocabularies.metadata.descriptions}
+        recordUI={_get(record, "ui", null)}
+        label="Abstract"
+        editorConfig={{
+          removePlugins: [
+            "Image",
+            "ImageCaption",
+            "ImageStyle",
+            "ImageToolbar",
+            "ImageUpload",
+            "MediaEmbed",
+            "Table",
+            "TableToolbar",
+            "TableProperties",
+            "TableCellProperties",
+          ],
+        }}
+      />
+    </Overridable>
   );
 };
 
@@ -160,21 +134,6 @@ const AdditionalTitlesComponent = () => {
   return <></>;
 };
 
-const AIComponent = ({ customFieldsUI }) => {
-  // const sectionConfig = customFieldsUI.find(item => item.section === "AI Usage");
-  // const fieldConfig = sectionConfig.find(item => item.field === "ai_used");
-  return (
-    <Segment as="fieldset">
-      <CustomFieldInjector
-        sectionName="AI Usage"
-        fieldName="kcr:ai_usage"
-        idString="AIUsageField"
-        customFieldsUI={customFieldsUI}
-      />
-    </Segment>
-  );
-};
-
 const AlternateIdentifiersComponent = ({ vocabularies }) => {
   return (
     <Segment as="fieldset">
@@ -207,24 +166,6 @@ const BookTitleComponent = ({ customFieldsUI }) => {
   );
 };
 
-const ChapterLabelComponent = ({ customFieldsUI, labelMods }) => {
-  const moddedLabel =
-    labelMods && labelMods["custom_fields.kcr:chapter_label"]
-      ? labelMods["custom_fields.kcr:chapter_label"]
-      : "Chapter number/label";
-  return (
-    <CustomFieldInjector
-      sectionName="KCR Book information"
-      fieldName="kcr:chapter_label"
-      idString="ChapterLabelField"
-      customFieldsUI={customFieldsUI}
-      label={moddedLabel}
-      description={""}
-      icon="tag"
-    />
-  );
-};
-
 const CommonsDomainComponent = ({ customFieldsUI }) => {
   return (
     <CustomFieldInjector
@@ -244,33 +185,6 @@ const CommunitiesComponent = () => {
       {/* <Overridable id="InvenioAppRdm.Deposit.CommunityHeader.container">
         <CommunityHeader imagePlaceholderLink="/static/images/square-placeholder.png" />
       </Overridable> */}
-    </Segment>
-  );
-};
-
-const ContentWarningComponent = ({ customFieldsUI }) => {
-  return (
-    <Segment as="fieldset">
-      <CustomFieldInjector
-        fieldName="kcr:content_warning"
-        sectionName="Content warning"
-        idString="ContentWarning"
-        customFieldsUI={customFieldsUI}
-        editorConfig={{
-          removePlugins: [
-            "Image",
-            "ImageCaption",
-            "ImageStyle",
-            "ImageToolbar",
-            "ImageUpload",
-            "MediaEmbed",
-            "Table",
-            "TableToolbar",
-            "TableProperties",
-            "TableCellProperties",
-          ],
-        }}
-      />
     </Segment>
   );
 };
@@ -381,18 +295,6 @@ const DoiComponent = ({ config, record }) => {
         </Fragment>
       </Overridable>
     </Segment>
-  );
-};
-
-const EditionComponent = ({ customFieldsUI }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="KCR Book info"
-      fieldName="kcr:edition"
-      idString="EditionField"
-      customFieldsUI={customFieldsUI}
-      description={""}
-    />
   );
 };
 
@@ -515,6 +417,18 @@ const FundingComponent = ({}) => {
   );
 };
 
+const ISBNComponent = ({ customFieldsUI }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Book / Report / Chapter"
+      fieldName="imprint:imprint.isbn"
+      idString="ImprintISBNField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+    />
+  );
+};
+
 const JournalTitleComponent = ({ customFieldsUI, labelMods }) => {
   const moddedLabel =
     labelMods && labelMods["custom_fields.journal:journal.title"]
@@ -542,18 +456,6 @@ const JournalISSNComponent = ({ customFieldsUI, labelMods }) => {
       label="ISSN"
       icon="barcode"
       description=""
-      customFieldsUI={customFieldsUI}
-    />
-  );
-};
-
-const KeywordsComponent = ({ customFieldsUI }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Tags"
-      label="User-defined Keywords"
-      fieldName="kcr:user_defined_tags"
-      idString="KCRKeywordsField"
       customFieldsUI={customFieldsUI}
     />
   );
@@ -624,7 +526,43 @@ const MetadataOnlyComponent = () => {
   return <></>;
 };
 
-const PagesComponent = ({ customFieldsUI, labelMods }) => {
+const MeetingTitleComponent = ({ customFieldsUI }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference / Workshop"
+      fieldName="meeting:meeting.title"
+      idString="MeetingTitleField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+    />
+  );
+};
+
+const MeetingPlaceComponent = ({ customFieldsUI }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference / Workshop"
+      fieldName="meeting:meeting.place"
+      idString="MeetingPlaceField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+    />
+  );
+};
+
+const MeetingDatesComponent = ({ customFieldsUI }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference / Workshop"
+      fieldName="meeting:meeting.dates"
+      idString="MeetingDatesField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+    />
+  );
+};
+
+const SectionPagesComponent = ({ customFieldsUI, labelMods }) => {
   const moddedLabel =
     labelMods && labelMods["custom_fields.journal:journal.pages"]
       ? labelMods["custom_fields.journal:journal.pages"]
@@ -640,10 +578,6 @@ const PagesComponent = ({ customFieldsUI, labelMods }) => {
       icon="file outline"
     />
   );
-};
-
-const PreviouslyPublishedComponent = () => {
-  return <></>;
 };
 
 const PublisherComponent = ({}) => {
@@ -741,32 +675,6 @@ const ResourceTypeComponent = ({ vocabularies }) => {
         />
       </Overridable> */}
     </Segment>
-  );
-};
-
-const SeriesComponent = ({ customFieldsUI }) => {
-  return (
-    <Segment as="fieldset">
-      <CustomFieldInjector
-        sectionName="Series"
-        fieldName="kcr:book_series"
-        idString="KcrBookSeries"
-        icon="list"
-        customFieldsUI={customFieldsUI}
-      />
-    </Segment>
-  );
-};
-
-const SponsoringInstitutionComponent = ({ customFieldsUI }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="KCR Conference information"
-      fieldName="kcr:sponsoring_institution"
-      idString="SponsoringInstitutionField"
-      customFieldsUI={customFieldsUI}
-      description={""}
-    />
   );
 };
 
@@ -881,17 +789,6 @@ const UniversityComponent = ({ customFieldsUI }) => {
   );
 };
 
-const VolumeComponent = ({ customFieldsUI }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="KCR Book information"
-      fieldName="kcr:volumes"
-      idString="KcrVolumes"
-      customFieldsUI={customFieldsUI}
-    />
-  );
-};
-
 const VersionComponent = ({ description, label, icon }) => {
   return (
     <Overridable
@@ -910,48 +807,41 @@ const VersionComponent = ({ description, label, icon }) => {
 };
 
 export {
-  CustomFieldInjector,
-  CustomFieldSectionInjector,
   AbstractComponent,
   AdditionalDatesComponent,
   AdditionalDescriptionComponent,
   AdditionalTitlesComponent,
-  AIComponent,
   AlternateIdentifiersComponent,
   BookTitleComponent,
-  ChapterLabelComponent,
   CommonsDomainComponent,
   CommunitiesComponent,
-  ContentWarningComponent,
   ContributorsComponent,
   CreatorsComponent,
   DateComponent,
   DoiComponent,
-  EditionComponent,
   FilesUploadComponent,
   FundingComponent,
+  ISBNComponent,
+  SectionPagesComponent,
   JournalTitleComponent,
   JournalISSNComponent,
-  KeywordsComponent,
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
-  PagesComponent,
-  PreviouslyPublishedComponent,
+  MeetingDatesComponent,
+  MeetingPlaceComponent,
+  MeetingTitleComponent,
   PublisherComponent,
   PublicationLocationComponent,
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
-  SponsoringInstitutionComponent,
   SubjectsComponent,
   SubmitterEmailComponent,
   SubmitterUsernameComponent,
   SubtitleComponent,
   TitleComponent,
   TotalPagesComponent,
-  SeriesComponent,
   UniversityComponent,
-  VolumeComponent,
   VersionComponent,
 };

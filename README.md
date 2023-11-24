@@ -26,7 +26,9 @@ This extension tries to integrate as cleanly as possible with InvenioRDM's defau
 - plays nicely with InvenioRDM's custom fields API
 - continues to allow overriding of React components via the overridable API
 
-## Rationalle
+All components have access to a `record` prop that includes the metadata for the record being currently edited (if a draft already exists).
+
+## Rationale
 
 The aim of this extension is to further improve InvenioRDM's deposit form's usability and customizability.
 Users are more likely to fill a form out completely if that form is easy to understand and navigate. This means
@@ -82,6 +84,36 @@ INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS
 
 These config variables are injected into the main form component via data attributes.
 
+### Basic form layout and pagination
+
+INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS
+
+An additional special component exposed is SectionWrapper. This can be used to group a
+set of components together visually and semantically.
+
+### Layout changes by resource type
+
+INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE
+
+
+
+### Other changes to fields by resource type
+
+INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS
+
+INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS
+
+INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS
+
+INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS
+
+INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS
+
+INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES
+
+INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES
+
+INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS
 ## Adding your own React components
 
 If you want to add your own new React components, rather than just overriding the built-in components, you will need to
@@ -114,6 +146,74 @@ theme = WebpackThemeBundle(
 invenio_assets.webpack =
     knowledge_commons_repository_theme = knowledge_commons_repository.webpack:theme
 ```
+
+### The componentsMap object
+
+The `componentsMap` object must have the following structure:
+
+```python
+{
+  BookSectionVolumePagesComponent: [
+    BookSectionVolumePagesComponent,
+    [
+      "custom_fields.journal:journal.pages",
+      "custom_fields.imprint:imprint.pages",
+    ],
+  ]
+}
+```
+
+The keys are strings matching the names of the React components you want to expose. These strings can then be referenced in your layout configuration (in your invenio.cfg). The value for each component is an array consisting of:
+
+[0] The React component itself, and
+[1] an array of the field names handled by the component
+
+### Overriding
+
+Normally, if you want to override a React component this should be done using the `overridable` API. This extension does allow for a second method, however. If you include a component definition in your componentsMap.js file that duplicates the key of a build-in component, your definition will supersede the built-in one. This offers a conventient way to *change the metadata fields handled by a component*.
+
+### Handling custom fields
+
+Custom field values have to be accessed differently from built-in field values. Components that deal with custom fields can use the `CustomFieldInjector` and `CustomFieldSectionInjector` helper components.
+
+## Built-in components
+
+InvenioRDM includes React components that are exposed for import:
+
+- AccessRightField (in "@js/invenio_rdm_records")
+- DescriptionsField (in"@js/invenio_rdm_records")
+- CreatibutorsField (in"@js/invenio_rdm_records")
+- DeleteButton (in"@js/invenio_rdm_records")
+- DepositFormApp (in"@js/invenio_rdm_records")
+- DepositStatusBox (in"@js/invenio_rdm_records")
+- FileUploader (in"@js/invenio_rdm_records")
+- FormFeedback (in"@js/invenio_rdm_records")
+- IdentifiersField (in"@js/invenio_rdm_records")
+- PreviewButton (in"@js/invenio_rdm_records")
+- LanguagesField (in"@js/invenio_rdm_records")
+- LicenseField (in"@js/invenio_rdm_records")
+- PublicationDateField (in"@js/invenio_rdm_records")
+- PublishButton (in"@js/invenio_rdm_records")
+- PublisherField (in"@js/invenio_rdm_records")
+- ReferencesField (in"@js/invenio_rdm_records")
+- RelatedWorksField (in"@js/invenio_rdm_records")
+- SubjectsField (in"@js/invenio_rdm_records")
+- TitlesField (in"@js/invenio_rdm_records")
+- VersionField (in"@js/invenio_rdm_records")
+- CommunityHeader (in"@js/invenio_rdm_records")
+- SaveButton (in"@js/invenio_rdm_records")
+- FundingField (in "@js/invenio_vocabularies")
+<!-- FIXME: where do below originally live? -->
+- ResourceTypeSelectorField (from "./replacement_components/ResourceTypeSelectorField")
+- PIDField (from "./replacement_components/PIDField")
+- DatesField ( from "./replacement_components/DatesField" )
+
+### Gotchas
+
+- By default the imprint:imprint.pages field is used for *total pages* in a publication,
+while the journal:journal.pages field is used for *page numbers in a larger work*. So the
+BookSectionPages component uses the journal:journal.pages field. If this is not how these
+fields are interpreted in your InvenioRDM schema, you may override this component.
 
 ## Form state management
 
