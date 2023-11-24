@@ -12,6 +12,7 @@ const SectionWrapper = ({
     <Segment
       id={`InvenioAppRdm.Deposit.${sectionName}.container`}
       as="fieldset"
+      className={`invenio-fieldset ${sectionName}`}
     >
       {show_heading && (
         <legend className="field-label-class invenio-field-label">

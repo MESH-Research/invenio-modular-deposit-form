@@ -16,6 +16,7 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { useFormikContext } from "formik";
 // import { FormValuesContext } from "../custom_deposit/custom_RDMDepositForm";
 import { Button, Icon, Menu } from "semantic-ui-react";
+import { set } from "lodash";
 
 const ResourceTypeSelectorField = ({fieldPath,
                             label=i18next.t("Resource type"),
@@ -75,7 +76,10 @@ const ResourceTypeSelectorField = ({fieldPath,
   const handleOtherToggleClick = () => {
     setFieldValue("metadata.resource_type", null);
     setOtherToggleActive(true);
-    document.querySelectorAll(".resource-type-field .invenio-select-field input")[0].focus();
+
+    setTimeout(() => {
+    document.querySelectorAll("#InvenioAppRdm\\.Deposit\\.resource_type\\.container .invenio-select-field input")[0].focus();
+    }, 200);
   }
 
   const buttonTypes = [

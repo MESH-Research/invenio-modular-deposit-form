@@ -300,8 +300,18 @@ export const RDMDepositForm = ({
                 animation="fade"
                 duration={{ show: 1000, hide: 20 }}
               >
-                {formPages.map(
-                  ({ section, subsections }, index) =>
+                {formPages.map(({ section, subsections }, index) => {
+                  let actualSubsections = subsections;
+                  if (currentTypeFields) {
+                    actualSubsections = !!currentTypeFields[section]
+                      ? currentTypeFields[section].subsections
+                      : subsections;
+                    if (!!subsections[0].same_as) {
+                      actualSubsections =
+                        fieldsByType[subsections[0].same_as][section];
+                    }
+                  }
+                  return (
                     currentFormPage === section && (
                       <div key={index}>
                         <FormPage
@@ -309,15 +319,12 @@ export const RDMDepositForm = ({
                           commonFieldProps={commonFieldProps}
                           id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                           pageNums={formPages.map(({ section }) => section)}
-                          subsections={
-                            !!currentTypeFields[section]
-                              ? currentTypeFields[section]
-                              : subsections
-                          }
+                          subsections={actualSubsections}
                         />
                       </div>
                     )
-                )}
+                  );
+                })}
               </Transition.Group>
             </Grid.Column>
           </Grid>

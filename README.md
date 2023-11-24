@@ -103,7 +103,14 @@ in its configuration.
 
 INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE
 
+For each resource type configured in your InvenioRDM instance, you may override the form fields and layout on a page-by-page basis.
 
+To avoid unnecessary boilerplate configuration, you can re-use the override declaration from another resource type. In the list of components for any page, simply include one object with a single key, `same_as`. The value should be the label of another configured resource type. For example, if I want to re-use the "page-2" configuration from `textDocument-book` in my configuration for `textDocument-monograph`, I would place this entry in my
+INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE dictionary:
+
+```python
+    "textDocument-monograph": {"page-2": [{"same_as": "textDocument-book"}]}
+```
 
 ### Other changes to fields by resource type
 
