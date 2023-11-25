@@ -249,6 +249,7 @@ const DateComponent = () => {
 };
 
 const DoiComponent = ({ config, record }) => {
+  console.log("DoiComponent", config);
   return (
     <Overridable
       id="InvenioAppRdm.Deposit.PIDField.container"

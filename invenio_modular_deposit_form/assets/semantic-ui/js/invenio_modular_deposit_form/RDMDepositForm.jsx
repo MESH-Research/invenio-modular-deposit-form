@@ -50,6 +50,7 @@ export const RDMDepositForm = ({
   helpTextModifications,
   defaultFieldValues,
   defaultResourceType,
+  pidsConfigOverrides,
   priorityFieldValues,
   extraRequiredFields,
 }) => {
@@ -221,6 +222,13 @@ export const RDMDepositForm = ({
       errorPages.length && setCurrentFormPage(errorPages[0]);
     }
   };
+
+  if (!!pidsConfigOverrides?.doi) {
+    Object.assign(
+      config.pids.filter((pid) => pid.scheme === "doi")[0],
+      pidsConfigOverrides.doi
+    );
+  }
 
   const commonFieldProps = {
     config: config,

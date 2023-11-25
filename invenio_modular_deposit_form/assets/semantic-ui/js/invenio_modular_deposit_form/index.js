@@ -30,6 +30,7 @@ ReactDOM.render(
       iconModifications={JSON.parse(dataSet.iconModifications)}
       labelModifications={JSON.parse(dataSet.labelModifications)}
       permissions={getInputFromDOM("deposits-record-permissions")}
+      pidsConfigOverrides={JSON.parse(dataSet.pidsConfigOverrides)}
       placeholderModifications={JSON.parse(dataSet.placeholderModifications)}
       preselectedCommunity={getInputFromDOM("deposits-draft-community")}
       priorityFieldValues={JSON.parse(dataSet.priorityFieldValues)}

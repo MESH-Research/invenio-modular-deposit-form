@@ -28,6 +28,64 @@ This extension tries to integrate as cleanly as possible with InvenioRDM's defau
 
 All components have access to a `record` prop that includes the metadata for the record being currently edited (if a draft already exists).
 
+The extension replaces the template `deposit.html`. That template renders the output from the view functions in `invenio_app_rdm.records_ui.views.deposits`. That template has access to the following
+template variables coming from the view function:
+
+- forms_config (dict): produced by the helper function get_form_config in the same file as the view
+                       function.
+- searchbar_config
+- record (dict)
+- files=dict(default_preview=None, entries=[], links={}),
+- preselectedCommunity=community,
+- permissions=get_record_permissions(
+            [
+                "new_version",  # when editing existing records only
+                "manage_files",
+                "delete_draft",
+                "manage_record_access",
+            ]
+        ),
+
+The `forms_config` dictionary includes the following keys:
+
+vocabularies: created by VocabulariesOptions().dump(),
+autocomplete_names: from the config variable "APP_RDM_DEPOSIT_FORM_AUTOCOMPLETE_NAMES" (defaults
+                    to "search")
+current_locale
+default_locale
+pids: created in the helper function get_form_pids_config()
+quota: from the config variable "APP_RDM_DEPOSIT_FORM_QUOTA"
+decimal_size_display: from the config variable "APP_RDM_DISPLAY_DECIMAL_FILE_SIZES"
+links: user_dashboard_request=conf["RDM_REQUESTS_ROUTES"]["user-dashboard-request-details"]
+user_communities_memberships: created in the helper function get_user_communities_memberships()
+custom_fields
+publish_modal_extra: from the config variable "APP_RDM_DEPOSIT_FORM_PUBLISH_MODAL_EXTRA"
+createUrl(str): "/api/records" (only when creating a new record)
+apiUrl(str): f"/api/records/{pid_value}/draft" (only when editing an existing record)
+
+The `pids` variable is a list with a configuration dictionary for each enabled pid scheme.
+At present only "doi" is supported. The default values for this configuration are:
+
+            "scheme": "doi"
+            "field_label": "Digital Object Identifier"
+            "pid_label": "DOI"
+            "pid_placeholder": "Copy/paste your existing DOI here..."
+            "can_be_managed": can_be_managed
+            "can_be_unmanaged": can_be_unmanaged
+            "btn_label_discard_pid": _("Discard the reserved DOI.")
+            "btn_label_get_pid": _("Get a DOI now!")
+            "managed_help_text": _(
+                "Reserve a DOI by pressing the button "
+                "(so it can be included in files prior to upload). "
+                "The DOI is registered when your upload is published.")
+            "unmanaged_help_text": _(
+                "A DOI allows your upload to be easily and "
+                "unambiguously cited. Example: 10.1234/foo.bar")
+
+The function does not allow customization of these values. This extension will read
+a variable with the name INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES and, if it has a key "doi",
+use any values provided there to override the default value with the same key.
+
 ## Rationale
 
 The aim of this extension is to further improve InvenioRDM's deposit form's usability and customizability.
