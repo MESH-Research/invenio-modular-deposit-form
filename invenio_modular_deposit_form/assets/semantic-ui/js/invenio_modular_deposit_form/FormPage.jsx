@@ -35,14 +35,6 @@ const FieldsContent = ({
   index,
   commonFieldProps,
 }) => {
-  console.log(
-    "FieldsContent",
-    section,
-    component,
-    wrapped,
-    index,
-    commonFieldProps
-  );
   const MyField = commonFieldProps.fieldComponents[component][0];
   return !!wrapped ? (
     <SectionWrapper sectionName={section}>

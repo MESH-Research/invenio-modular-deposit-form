@@ -302,13 +302,11 @@ export const RDMDepositForm = ({
               >
                 {formPages.map(({ section, subsections }, index) => {
                   let actualSubsections = subsections;
-                  if (currentTypeFields) {
-                    actualSubsections = !!currentTypeFields[section]
-                      ? currentTypeFields[section].subsections
-                      : subsections;
-                    if (!!subsections[0].same_as) {
+                  if (!!currentTypeFields && !!currentTypeFields[section]) {
+                    actualSubsections = currentTypeFields[section];
+                    if (!!actualSubsections[0].same_as) {
                       actualSubsections =
-                        fieldsByType[subsections[0].same_as][section];
+                        fieldsByType[actualSubsections[0].same_as][section];
                     }
                   }
                   return (

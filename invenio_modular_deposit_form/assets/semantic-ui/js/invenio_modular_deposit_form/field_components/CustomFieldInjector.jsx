@@ -25,9 +25,14 @@ const CustomFieldInjector = ({
   ...restArgs
 }) => {
   const [MyWidget, setMyWidget] = useState();
+  console.log("customFieldsUI", customFieldsUI);
+  console.log("sectionName", sectionName);
   const chosenSetConfig = new Array(
     customFieldsUI.find((item) => item.section === sectionName)
   );
+  console.log("chosenSetConfig", chosenSetConfig);
+  console.log("chosenSetConfig", chosenSetConfig[0]);
+  console.log("chosenSetConfig", chosenSetConfig[0].fields);
   const chosenFieldConfig = chosenSetConfig[0].fields.find(
     (item) => item.field === fieldName
   );
