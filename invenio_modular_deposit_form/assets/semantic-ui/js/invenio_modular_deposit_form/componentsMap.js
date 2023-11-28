@@ -3,6 +3,7 @@ import {
 } from "@js/invenio_rdm_records";
 import {
   AbstractComponent,
+  AccessRightsComponent,
   AdditionalDatesComponent,
   AdditionalDescriptionComponent,
   AdditionalTitlesComponent,
@@ -12,6 +13,7 @@ import {
   ContributorsComponent,
   CreatorsComponent,
   DateComponent,
+  DeleteComponent,
   DoiComponent,
   FilesUploadComponent,
   FundingComponent,
@@ -20,29 +22,26 @@ import {
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
-  PublisherDoiComponent,
   PublisherComponent,
   PublicationLocationComponent,
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
   SubjectsComponent,
+  SubmissionComponent,
   SubtitleComponent,
   TitleComponent,
   TotalPagesComponent,
   VersionComponent,
 } from "./field_components/field_components";
 import {
-  AccessRightsComponent,
   BookDetailComponent,
   BookSectionDetailComponent,
   CombinedDatesComponent,
   CombinedTitlesComponent,
-  DeleteComponent,
   JournalDetailComponent,
   OrganizationDetailsComponent,
   PublicationDetailsComponent,
-  SubmissionComponent,
   SubmitActionsComponent,
   ThesisDetailsComponent,
   TypeTitleComponent,
@@ -50,6 +49,7 @@ import {
 
 const fieldComponents = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
+  AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
   AdditionalDescriptionComponent: [
     AdditionalDescriptionComponent,
