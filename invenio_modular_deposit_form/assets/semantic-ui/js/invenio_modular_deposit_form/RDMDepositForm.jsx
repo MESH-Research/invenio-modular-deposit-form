@@ -164,7 +164,7 @@ export const RDMDepositForm = ({
     const newPageWrapper = document.getElementById(
       `InvenioAppRdm.Deposit.FormPage.${currentFormPage}`
     );
-    const targetIndex = currentFormPage === "5" ? 1 : 0;
+    const targetIndex = currentFormPage === "page-6" ? 1 : 0;
     const newFirstInput =
       newPageWrapper.querySelectorAll("button, input")[targetIndex];
     newFirstInput.focus();
@@ -197,15 +197,24 @@ export const RDMDepositForm = ({
   }
 
   const handleErrorsChange = (errors) => {
+    console.log("errors", errors);
     if (errors != {}) {
       setCurrentErrors(errors);
       let errorPages = [];
       // for each page...
       for (const p of formPages) {
         // collect form widget slugs
-        let pageFields = !!currentTypeFields[p.section]
-          ? flattenWrappers(currentTypeFields[p.section])
-          : flattenWrappers(p);
+        console.log("handleErrorsChange.p", p);
+        console.log("handleErrorsChange.currentTypeFields", currentTypeFields);
+        console.log(
+          "handleErrorsChange.flattenWrappers(p)",
+          flattenWrappers(p)
+        );
+        let pageFields =
+          !!currentTypeFields && !!currentTypeFields[p.section]
+            ? flattenWrappers(currentTypeFields[p.section])
+            : flattenWrappers(p);
+        console.log("handleErrorsChange.pageFields", pageFields);
         // get form field label for each slug
         let pageMetaFields = pageFields.reduce((accum, { component }) => {
           accum = accum.concat(fieldComponents[component][1]);
@@ -213,13 +222,15 @@ export const RDMDepositForm = ({
         }, []);
         // get form field labels for current errors
         const errorFields = flattenKeysDotJoined(errors);
+        console.log("handleErrorsChange.errorFields", errorFields);
         // add page to error pages if the two lists overlap
         if (pageMetaFields.some((item) => errorFields.includes(item))) {
           errorPages.push(p);
         }
       }
       setPagesWithErrors(errorPages);
-      errorPages.length && setCurrentFormPage(errorPages[0]);
+      console.log("handleErrorsChange.errorPages", errorPages);
+      errorPages.length && setCurrentFormPage(errorPages[0].section);
     }
   };
 
