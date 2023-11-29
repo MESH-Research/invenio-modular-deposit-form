@@ -67,7 +67,7 @@ const AbstractComponent = ({ record, vocabularies }) => {
         fieldPath="metadata.description"
         options={vocabularies.metadata.descriptions}
         recordUI={_get(record, "ui", null)}
-        label="Abstract"
+        label="Description"
         editorConfig={{
           removePlugins: [
             "Image",

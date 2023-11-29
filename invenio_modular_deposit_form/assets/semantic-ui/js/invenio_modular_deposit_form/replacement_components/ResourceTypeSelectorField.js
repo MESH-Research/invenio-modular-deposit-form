@@ -13,29 +13,20 @@ import _get from "lodash/get";
 import { Form } from "semantic-ui-react";
 import { FieldLabel, SelectField } from "react-invenio-forms";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import { useFormikContext } from "formik";
-// import { FormValuesContext } from "../custom_deposit/custom_RDMDepositForm";
-import { Button, Icon, Menu } from "semantic-ui-react";
-import { set } from "lodash";
+import { Field, useFormikContext } from "formik";
+import { Icon, Label } from "semantic-ui-react";
 
-const ResourceTypeSelectorField = ({fieldPath,
-                            label=i18next.t("Resource type"),
-                            labelIcon="tag",
-                            options,
-                            labelclassname="field-label-class",
-                            required=false,
-                            ...restProps}) => {
-
-  const [ otherToggleActive, setOtherToggleActive ] = useState(false);
+const ResourceTypeSelectorField = ({
+  fieldPath,
+  label = i18next.t("Resource type"),
+  labelIcon = "tag",
+  options,
+  labelclassname = "field-label-class",
+  required = false,
+  ...restProps
+}) => {
+  const [otherToggleActive, setOtherToggleActive] = useState(false);
   const { values, errors, setFieldValue, initialValues } = useFormikContext();
-
-  const groupErrors = (errors, fieldPath) => {
-    const fieldErrors = _get(errors, fieldPath);
-    if (fieldErrors) {
-      return { content: fieldErrors };
-    }
-    return null;
-  };
 
   /**
    * Generate label value
@@ -44,7 +35,10 @@ const ResourceTypeSelectorField = ({fieldPath,
    * @returns {string} label
    */
   const _label = (option) => {
-    return option.type_name + (option.subtype_name ? " / " + option.subtype_name : "");
+    return (
+      option.type_name +
+      (option.subtype_name ? " / " + option.subtype_name : "")
+    );
   };
 
   /**
@@ -68,113 +62,109 @@ const ResourceTypeSelectorField = ({fieldPath,
   const frontEndOptions = createOptions(options);
 
   const handleItemClick = (event) => {
-    setFieldValue("metadata.resource_type",
-                  event.target.closest('button').name);
+    setFieldValue(
+      "metadata.resource_type",
+      event.target.closest("button").name
+    );
     setOtherToggleActive(false);
-  }
+  };
 
   const handleOtherToggleClick = () => {
     setFieldValue("metadata.resource_type", null);
     setOtherToggleActive(true);
 
     setTimeout(() => {
-    document.querySelectorAll("#InvenioAppRdm\\.Deposit\\.resource_type\\.container .invenio-select-field input")[0].focus();
+      document
+        .querySelectorAll(
+          "#InvenioAppRdm\\.Deposit\\.resource_type\\.container .invenio-select-field input"
+        )[0]
+        .focus();
     }, 200);
-  }
+  };
 
   const buttonTypes = [
-    {id: 'textDocument-journalArticle',
-     label: 'Journal Article',
-     icon: 'file text'
+    {
+      id: "textDocument-journalArticle",
+      label: "Journal Article",
+      icon: "file text",
     },
-    {id: 'textDocument-review',
-     label: 'Review',
-     icon: 'thumbs up'
+    { id: "textDocument-review", label: "Review", icon: "thumbs up" },
+    { id: "textDocument-book", label: "Book", icon: "book" },
+    { id: "textDocument-bookSection", label: "Book Section", icon: "book" },
+    {
+      id: "instructionalResource-syllabus",
+      label: "Syllabus",
+      icon: "graduation",
     },
-    {id: 'textDocument-book',
-     label: 'Book',
-     icon: 'book'
-    },
-    {id: 'textDocument-bookSection',
-     label: 'Book Section',
-     icon: 'book'
-    },
-    {id: 'instructionalResource-syllabus',
-     label: 'Syllabus',
-     icon: 'graduation'
-    },
-  ]
+  ];
 
   return (
-    <>
-      <Form.Field required={required}>
-        <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-      </Form.Field>
-      <div
-        className="ui compact fluid icon labeled six item menu"
-      >
-      {buttonTypes.map((buttonType, index) => (
-        // <Menu.Item
-        //   key={index}
-        //   name={buttonType.id}
-        //   as={Button}
-        //   active={values.metadata.resource_type === buttonType.id}
-        //   onClick={handleItemClick}
-        //   formnovalidate
-        // >
-        //   <Icon name={buttonType.icon} />
-        //   {buttonType.label}
-        // </Menu.Item>
-        <button
-          key={index}
-          id={buttonType.id}
-          name={buttonType.id}
-          onClick={handleItemClick}
-          className={`ui button item ${values.metadata.resource_type === buttonType.id ? "active" : ""}`}
-          formNoValidate
-          type="button"
+    <Field id={fieldPath} name={fieldPath}>
+      {({
+        field, // { name, value, onChange, onBlur }
+        form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+        meta,
+      }) => (
+        <Form.Field
+          required={!!required}
+          error={!!meta.error && !!meta.touched}
         >
-          <Icon name={buttonType.icon} />
-          {buttonType.label}
-        </button>
-        )
+          <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+          <div className="ui compact fluid icon labeled six item menu">
+            {buttonTypes.map((buttonType, index) => (
+              <button
+                key={index}
+                id={buttonType.id}
+                name={buttonType.id}
+                onClick={handleItemClick}
+                className={`ui button item ${
+                  values.metadata.resource_type === buttonType.id
+                    ? "active"
+                    : ""
+                }`}
+                formNoValidate
+                type="button"
+              >
+                <Icon name={buttonType.icon} />
+                {buttonType.label}
+              </button>
+            ))}
+            <button
+              id={"otherToggle"}
+              name={"otherToggle"}
+              onClick={handleOtherToggleClick}
+              className={`ui button item ${
+                otherToggleActive === true ? "active" : ""
+              }`}
+              formNoValidate
+              type="button"
+            >
+              <Icon name="asterisk" />
+              Other...
+            </button>
+          </div>
+          {!!otherToggleActive && (
+            <SelectField
+              fieldPath={fieldPath}
+              label={""}
+              optimized
+              options={frontEndOptions}
+              selectOnBlur={false}
+              search={true}
+              placeholder={"choose another resource type..."}
+              {...restProps}
+            />
+          )}
+          {meta.error && meta.touched && (
+            <Label pointing className="prompt error">
+              {meta.error}
+            </Label>
+          )}
+        </Form.Field>
       )}
-        <button
-          id={'otherToggle'}
-          name={'otherToggle'}
-          onClick={handleOtherToggleClick}
-          className={`ui button item ${otherToggleActive === true ? "active" : ""}`}
-          formNoValidate
-          type="button"
-        >
-          <Icon name="asterisk" />
-          Other...
-        </button>
-        {/* <Menu.Item
-          name='otherToggle'
-          active={otherToggleActive === true}
-          onClick={handleOtherToggleClick}
-          as={Button}
-        >
-          <Icon name='asterisk' />
-          Other...
-        </Menu.Item>*/}
-      </div>
-      {!!otherToggleActive &&
-        <SelectField
-            fieldPath={fieldPath}
-            label={""}
-            optimized
-            options={frontEndOptions}
-            selectOnBlur={false}
-            search={true}
-            placeholder={"choose another resource type..."}
-            {...restProps}
-        />
-      }
-    </>
-);
-}
+    </Field>
+  );
+};
 
 ResourceTypeSelectorField.propTypes = {
   fieldPath: PropTypes.string.isRequired,

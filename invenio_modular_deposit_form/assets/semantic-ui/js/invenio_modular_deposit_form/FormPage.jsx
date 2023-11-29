@@ -74,6 +74,7 @@ const FormPage = ({
     handleFormPageChange,
   } = useContext(FormValuesContext);
   console.log("FormPage formik errors", errors);
+  console.log("FormPage formik touched", touched);
   console.log("FormPage formik values", values);
   console.log("FormPage formik otherProps", otherProps);
   const currentPageIndex = pageNums.indexOf(currentFormPage);
