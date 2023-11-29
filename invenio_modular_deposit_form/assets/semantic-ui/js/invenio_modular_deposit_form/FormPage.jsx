@@ -5,6 +5,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FormValuesContext } from "./RDMDepositForm";
 import { SectionWrapper } from "./field_components/SectionWrapper";
+import { initial } from "lodash";
 
 function useIsInViewport(ref) {
   const [isIntersecting, setIsIntersecting] = useState(false);
@@ -53,12 +54,17 @@ const FormPage = ({
   subsections,
 }) => {
   const {
-    values,
     errors,
-    setFieldValue,
+    initialErrors,
+    initialTouched,
     initialValues,
+    isValid,
+    setFieldValue,
+    touched,
     validateField,
     validateForm,
+    values,
+    ...otherProps
   } = useFormikContext();
   const {
     currentValues,
@@ -67,6 +73,9 @@ const FormPage = ({
     handleErrorsChange,
     handleFormPageChange,
   } = useContext(FormValuesContext);
+  console.log("FormPage formik errors", errors);
+  console.log("FormPage formik values", values);
+  console.log("FormPage formik otherProps", otherProps);
   const currentPageIndex = pageNums.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
   const previousPageIndex = currentPageIndex - 1;
@@ -90,7 +99,13 @@ const FormPage = ({
   //pass errors up from Formik context to main form context
   useEffect(() => {
     if (currentErrors !== errors) {
-      handleErrorsChange(errors);
+      handleErrorsChange(
+        errors,
+        touched,
+        initialErrors,
+        initialTouched,
+        isValid
+      );
     }
   }, [errors]);
 
