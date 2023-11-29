@@ -1,6 +1,4 @@
-import {
-  AccessRightField,
-} from "@js/invenio_rdm_records";
+import { AccessRightField } from "@js/invenio_rdm_records";
 import {
   AbstractComponent,
   AccessRightsComponent,
@@ -63,7 +61,10 @@ const fieldComponents = {
     AlternateIdentifiersComponent,
     ["metadata.identifiers"],
   ],
-  BookTitleComponent: [BookTitleComponent, ["custom_fields.imprint:imprint.title"]],
+  BookTitleComponent: [
+    BookTitleComponent,
+    ["custom_fields.imprint:imprint.title"],
+  ],
   CommunitiesComponent: [CommunitiesComponent, []],
   ContributorsComponent: [ContributorsComponent, ["metadata.contributors"]],
   CreatorsComponent: [CreatorsComponent, ["metadata.creators"]],
@@ -80,12 +81,18 @@ const fieldComponents = {
     PublicationLocationComponent,
     ["custom_fields.imprint:imprint.place"],
   ],
-  RelatedWorksComponent: [RelatedWorksComponent, ["metadata.related_identifiers"]],
+  RelatedWorksComponent: [
+    RelatedWorksComponent,
+    ["metadata.related_identifiers"],
+  ],
   ResourceTypeComponent: [ResourceTypeComponent, ["metadata.resource_type"]],
   SubjectsComponent: [SubjectsComponent, ["metadata.subjects"]],
   SubtitleComponent: [SubtitleComponent, ["metadata.additional_titles"]],
   TitleComponent: [TitleComponent, ["metadata.title"]],
-  TotalPagesComponent: [TotalPagesComponent, ["custom_fields.imprint:imprint.pages"]],
+  TotalPagesComponent: [
+    TotalPagesComponent,
+    ["custom_fields.imprint:imprint.pages"],
+  ],
   VersionComponent: [VersionComponent, ["metadata.version"]],
   // below are composite field components
   AccessComponent: [AccessRightField, ["access"]],
@@ -135,9 +142,7 @@ const fieldComponents = {
   ],
   OrganizationDetailsComponent: [
     OrganizationDetailsComponent,
-    [
-      "custom_fields.imprint:imprint.place",
-    ],
+    ["custom_fields.imprint:imprint.place"],
   ],
   PublicationDetailsComponent: [
     PublicationDetailsComponent,
@@ -150,7 +155,10 @@ const fieldComponents = {
   ],
   SubmissionComponent: [SubmissionComponent, []],
   SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
-  ThesisDetailsComponent: [ThesisDetailsComponent, ["custom_fields.thesis:university"]],
+  ThesisDetailsComponent: [
+    ThesisDetailsComponent,
+    ["custom_fields.thesis:university"],
+  ],
   TypeTitleComponent: [
     TypeTitleComponent,
     ["metadata.title", "metadata.resource_type"],
@@ -158,9 +166,8 @@ const fieldComponents = {
 };
 
 const extras = require(`@js/invenio_modular_deposit_form_extras/componentsMap.js`);
-if ( extras ) {
+if (extras) {
   Object.assign(fieldComponents, extras.componentsMap);
 }
-console.log(fieldComponents);
 
 export { fieldComponents };

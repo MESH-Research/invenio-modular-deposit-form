@@ -27,25 +27,19 @@ import PropTypes, { object } from "prop-types";
 import Overridable from "react-overridable";
 import { flattenKeysDotJoined } from "./utils";
 import { fieldComponents } from "./componentsMap";
-import { FieldsContent, FormPage } from "./FormPage";
-import { SectionWrapper } from "./field_components/SectionWrapper";
-import { set } from "lodash";
+import { FormPage } from "./FormPage";
+import { object as yupObject, string as yupString, date as yupDate } from "yup";
+
+const validator = require(`@js/invenio_modular_deposit_form_extras/validator.js`);
+const validationSchema = validator?.validationSchema
+  ? validator?.validationSchema
+  : null;
+const validate = validator?.validate ? validator?.validate : null;
 
 // React Context to track the current form values.
 // Will contain the Formik values object passed up from a
 // form field.
 const FormValuesContext = createContext();
-
-const FormValidator = (values) => {
-  const errors = {};
-  if (!values.metadata.resource_type) {
-    errors.metadata = { resource_type: "Required", ...errors.metadata };
-  }
-  if (!values.metadata.title || values.metadata.title === "") {
-    errors.metadata = { title: "Required", ...errors.metadata };
-  }
-  return errors;
-};
 
 export const RDMDepositForm = ({
   config,
@@ -285,7 +279,8 @@ export const RDMDepositForm = ({
         preselectedCommunity={preselectedCommunity}
         files={files}
         permissions={permissions}
-        validate={FormValidator}
+        validate={validate}
+        validationSchema={validationSchema}
       >
         <Overridable
           id="InvenioAppRdm.Deposit.FormFeedback.container"

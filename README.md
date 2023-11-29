@@ -187,6 +187,23 @@ INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES
 INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES
 
 INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS
+
+### Client-side form validation
+
+If you wish to enable client-side form validation, you can provide a validator in your instance folder in a file called `validator.js` this should be placed in the assets subfolder you have created in a location like `site/my_instance_name/assets/semantic-ui/js/invenio_modular_deposit_form_extras`.
+
+This validator.js file may export one of two objects:
+
+validationSchema: This should be a `yup` schema. If provided, it will be passed to the Formik form validation handler via the `validationSchema` property, which will handle the validation and update the form's `errors` object as necessary.
+
+validate: This can be a custom validation function which will be passed to the Formik form `validate` property.
+
+If neither of these objects is exported in a file with that name, the client-side validation will simply be deactivated.
+
+
+
+*FIXME: at present this requires a patch to DepositFormApp and DepositBootstrap to pass the `validate` and `validationSchema` props.*
+
 ## Adding your own React components
 
 If you want to add your own new React components, rather than just overriding the built-in components, you will need to
