@@ -51,6 +51,8 @@ const FormPage = ({
   currentFormPage,
   id,
   pageNums,
+  pageErrorFields,
+  pageTouchedErrorFields,
   subsections,
 }) => {
   const {
@@ -97,7 +99,7 @@ const FormPage = ({
     }
   }, [values]);
 
-  //pass errors up from Formik context to main form context
+  //pass errors up from Formik context to main form context on initial render
   useEffect(() => {
     if (currentErrors !== errors) {
       handleErrorsChange(
@@ -108,7 +110,20 @@ const FormPage = ({
         isValid
       );
     }
-  }, [errors]);
+  }, []);
+
+  //pass errors up from Formik context to main form context when they change
+  useEffect(() => {
+    if (currentErrors !== errors) {
+      handleErrorsChange(
+        errors,
+        touched,
+        initialErrors,
+        initialTouched,
+        isValid
+      );
+    }
+  }, [errors, touched]);
 
   const handleButtonClick = (event, { value }) => {
     handleFormPageChange(event, { value });

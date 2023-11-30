@@ -29,6 +29,7 @@ import { flattenKeysDotJoined } from "./utils";
 import { fieldComponents } from "./componentsMap";
 import { FormPage } from "./FormPage";
 import { object as yupObject, string as yupString, date as yupDate } from "yup";
+import { set } from "lodash";
 
 const validator = require(`@js/invenio_modular_deposit_form_extras/validator.js`);
 const validationSchema = validator?.validationSchema
@@ -65,7 +66,8 @@ export const RDMDepositForm = ({
   const [currentFormPage, setCurrentFormPage] = useState(formPages[0].section);
   const [currentValues, setCurrentValues] = useState({});
   const [currentErrors, setCurrentErrors] = useState({});
-  const [pagesWithErrors, setPagesWithErrors] = useState([]);
+  const [pagesWithErrors, setPagesWithErrors] = useState({});
+  const [pagesWithTouchedErrors, setPagesWithTouchedErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [initialErrors, setInitialErrors] = useState({});
   const [initialTouched, setInitialTouched] = useState({});
@@ -86,6 +88,8 @@ export const RDMDepositForm = ({
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
   const customFieldsUI = config.custom_fields.ui;
+  const [formPageFields, setFormPageFields] = useState({});
+  console.log("RDMDepositForm pages with errors", pagesWithErrors);
 
   const setFormPageInHistory = (value) => {
     if (value === undefined) {
@@ -185,13 +189,6 @@ export const RDMDepositForm = ({
     setFormPageInHistory(value);
   };
 
-  const handleValuesChange = (values) => {
-    setCurrentValues(values);
-    localStorage.setItem("depositFormValues", JSON.stringify(values));
-    setCurrentResourceType(values.metadata.resource_type);
-    setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
-  };
-
   function flattenWrappers(page) {
     let flattened = [];
     if (page.subsections) {
@@ -206,6 +203,35 @@ export const RDMDepositForm = ({
     return flattened;
   }
 
+  // update formPageFields when currentResourceType changes
+  useEffect(() => {
+    let newTypeFields = {};
+    for (const p of formPages) {
+      // collect form widget slugs
+      const pageFields =
+        !!currentTypeFields && !!currentTypeFields[p.section]
+          ? flattenWrappers(currentTypeFields[p.section])
+          : flattenWrappers(p);
+      // get form field label for each slug
+      const pageMetaFields = pageFields.reduce((accum, { component }) => {
+        accum = accum.concat(fieldComponents[component][1]);
+        return accum;
+      }, []);
+      newTypeFields[p.section] = pageMetaFields;
+    }
+    console.log("newTypeFields", newTypeFields);
+    setFormPageFields(newTypeFields);
+  }, [currentResourceType]);
+
+  const handleValuesChange = (values) => {
+    setCurrentValues(values);
+    localStorage.setItem("depositFormValues", JSON.stringify(values));
+    setCurrentResourceType(values.metadata.resource_type);
+    setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
+  };
+
+  // receive error values up from Formik context to main form context
+  // collect form field labels for current errors, and set pages with errors
   const handleErrorsChange = (
     errors,
     touched,
@@ -216,31 +242,41 @@ export const RDMDepositForm = ({
     if (errors != {}) {
       setCurrentErrors(errors);
       setTouched(touched);
-      let errorPages = [];
+      // get form field labels for current errors
+      const errorFields = flattenKeysDotJoined(errors);
+      const touchedFields = flattenKeysDotJoined(touched);
+      console.log("RDMDepositForm errorFields", errorFields);
+      console.log("RDMDepositForm errorFields", touchedFields);
+
+      let errorPages = {};
+      let touchedErrorPages = {};
       // for each page...
+
       for (const p of formPages) {
-        // collect form widget slugs
-        let pageFields =
-          !!currentTypeFields && !!currentTypeFields[p.section]
-            ? flattenWrappers(currentTypeFields[p.section])
-            : flattenWrappers(p);
-        // get form field label for each slug
-        let pageMetaFields = pageFields.reduce((accum, { component }) => {
-          accum = accum.concat(fieldComponents[component][1]);
-          return accum;
-        }, []);
-        // get form field labels for current errors
-        const errorFields = flattenKeysDotJoined(errors);
         // add page to error pages if the two lists overlap
-        if (pageMetaFields.some((item) => errorFields.includes(item))) {
-          errorPages.push(p);
+        console.log("RDMDepositForm formPageFields", formPageFields[p.section]);
+        const pageErrorFields = formPageFields[p.section]?.filter((item) =>
+          errorFields.includes(item)
+        );
+        const pageTouchedErrorFields = pageErrorFields?.filter((item) =>
+          touchedFields.includes(item)
+        );
+        console.log("RDMDepositForm pageErrorFields", pageErrorFields);
+        if (pageErrorFields?.length > 0) {
+          errorPages[p.section] = pageErrorFields;
+        }
+        if (pageTouchedErrorFields?.length > 0) {
+          touchedErrorPages[p.section] = pageTouchedErrorFields;
         }
       }
+      console.log("RDMDepositForm errorPages", errorPages);
+      console.log("RDMDepositForm touchedErrorPages", touchedErrorPages);
       setPagesWithErrors(errorPages);
-      errorPages.length && setCurrentFormPage(errorPages[0].section);
+      setPagesWithTouchedErrors(touchedErrorPages);
+      // TODO: don't need to navigate back now because errors handled client-side?
+      // errorPages.length && setCurrentFormPage(errorPages[0].section);
     }
     console.log("RDMDepositForm state errors", errors);
-    console.log("RDMDepositForm pages with errors", pagesWithErrors);
   };
 
   if (!!pidsConfigOverrides?.doi) {
@@ -317,7 +353,7 @@ export const RDMDepositForm = ({
                     value={section}
                     formNoValidate
                     className={`ui button upload-form-stepper-step ${section}
-                     ${pagesWithErrors.includes(section) ? "has-error" : ""}`}
+                     ${!!pagesWithTouchedErrors[section] ? "has-error" : ""}`}
                     type="button"
                   >
                     <Step.Content>
@@ -349,6 +385,10 @@ export const RDMDepositForm = ({
                           id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                           pageNums={formPages.map(({ section }) => section)}
                           subsections={actualSubsections}
+                          pageErrorFields={pagesWithErrors[section]}
+                          pageTouchedErrorFields={
+                            pagesWithTouchedErrors[section]
+                          }
                         />
                       </div>
                     )
