@@ -49,10 +49,9 @@ const FieldsContent = ({
 const FormPage = ({
   commonFieldProps,
   currentFormPage,
+  pageFields,
   id,
   pageNums,
-  pageErrorFields,
-  pageTouchedErrorFields,
   subsections,
 }) => {
   const {
@@ -62,6 +61,8 @@ const FormPage = ({
     initialValues,
     isValid,
     setFieldValue,
+    setFieldTouched,
+    setTouched,
     touched,
     validateField,
     validateForm,
@@ -72,13 +73,13 @@ const FormPage = ({
     currentValues,
     handleValuesChange,
     currentErrors,
+    currentTouched,
     handleErrorsChange,
     handleFormPageChange,
   } = useContext(FormValuesContext);
-  console.log("FormPage formik errors", errors);
-  console.log("FormPage formik touched", touched);
-  console.log("FormPage formik values", values);
-  console.log("FormPage formik otherProps", otherProps);
+  // console.log("FormPage formik errors", errors);
+  // console.log("FormPage formik touched", touched);
+  // console.log("FormPage formik values", values);
   const currentPageIndex = pageNums.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
   const previousPageIndex = currentPageIndex - 1;
@@ -114,7 +115,9 @@ const FormPage = ({
 
   //pass errors up from Formik context to main form context when they change
   useEffect(() => {
-    if (currentErrors !== errors) {
+    console.log("errors or touched changed errors", errors);
+    console.log("errors or touched changed touched", touched);
+    if (currentErrors !== errors || currentTouched !== touched) {
       handleErrorsChange(
         errors,
         touched,
@@ -126,7 +129,17 @@ const FormPage = ({
   }, [errors, touched]);
 
   const handleButtonClick = (event, { value }) => {
-    handleFormPageChange(event, { value });
+    console.log("setting touched", touched);
+    for (const field of pageFields) {
+      console.log("setting field touched", field);
+      setFieldTouched(field);
+    }
+    setTimeout(() => {
+      console.log("after setting, touched is", touched);
+    }, 3000);
+    handleFormPageChange(event, {
+      value: value,
+    });
   };
 
   return (

@@ -11,7 +11,7 @@ function scrollTop() {
 
 function moveToArrayStart(startingArray, moveTargets, keyLabel) {
   let newArray = [...startingArray];
-  for ( const target of moveTargets ) {
+  for (const target of moveTargets) {
     const index = newArray.findIndex((item) => item[keyLabel] === target);
     newArray.unshift(...newArray.splice(index, 1));
   }
@@ -20,7 +20,12 @@ function moveToArrayStart(startingArray, moveTargets, keyLabel) {
 
 function pushToArrayEnd(startingArray, targetValue, keyLabel) {
   let newArray = [...startingArray];
-  newArray.push(...newArray.splice(newArray.findIndex((item) => item[keyLabel]===targetValue), 1));
+  newArray.push(
+    ...newArray.splice(
+      newArray.findIndex((item) => item[keyLabel] === targetValue),
+      1
+    )
+  );
   return newArray;
 }
 
@@ -45,4 +50,24 @@ function flattenKeysDotJoined(val) {
   return newArray;
 }
 
-export { scrollTop, moveToArrayStart, pushToArrayEnd, flattenKeysDotJoined };
+function flattenWrappers(page) {
+  let flattened = [];
+  if (page.subsections) {
+    for (const sub of page.subsections) {
+      if (sub.component === "SectionWrapper") {
+        flattened = flattened.concat(flattenWrappers(sub));
+      } else {
+        flattened.push(sub);
+      }
+    }
+  }
+  return flattened;
+}
+
+export {
+  scrollTop,
+  moveToArrayStart,
+  pushToArrayEnd,
+  flattenKeysDotJoined,
+  flattenWrappers,
+};
