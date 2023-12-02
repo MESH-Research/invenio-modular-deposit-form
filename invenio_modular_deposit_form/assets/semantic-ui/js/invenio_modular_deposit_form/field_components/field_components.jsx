@@ -164,7 +164,7 @@ const AlternateIdentifiersComponent = ({ vocabularies }) => {
     >
       <IdentifiersField
         fieldPath="metadata.identifiers"
-        label={i18next.t("URL or Alternate Identifiers")}
+        label={i18next.t("URLs and Other Identifiers")}
         labelIcon="barcode"
         schemeOptions={vocabularies.metadata.identifiers.scheme}
         showEmptyValue

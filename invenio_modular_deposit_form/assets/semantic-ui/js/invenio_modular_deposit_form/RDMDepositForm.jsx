@@ -92,6 +92,7 @@ export const RDMDepositForm = ({
   };
   const customFieldsUI = config.custom_fields.ui;
   const [formPageFields, setFormPageFields] = useState({});
+  console.log("RDMDepositForm values", currentValues);
 
   const setFormPageInHistory = (value) => {
     if (value === undefined) {
