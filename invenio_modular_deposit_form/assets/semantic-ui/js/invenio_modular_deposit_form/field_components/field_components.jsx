@@ -235,7 +235,7 @@ const ContributorsComponent = ({ config, vocabularies }) => {
   );
 };
 
-const CreatorsComponent = ({ config, vocabularies }) => {
+const CreatorsComponent = ({ config, vocabularies, label }) => {
   return (
     <Overridable
       id="InvenioAppRdm.Deposit.CreatorsField.container"
@@ -244,7 +244,7 @@ const CreatorsComponent = ({ config, vocabularies }) => {
       fieldPath="metadata.creators"
     >
       <CreatibutorsField
-        label={i18next.t("Creators")}
+        label={i18next.t(label) || i18next.t("Creators")}
         labelIcon="user"
         fieldPath="metadata.creators"
         roleOptions={vocabularies.metadata.creators.role}
@@ -252,7 +252,7 @@ const CreatorsComponent = ({ config, vocabularies }) => {
         autocompleteNames={config.autocomplete_names}
         required
         // id="InvenioAppRdm.Deposit.CreatorsField.card"
-        description="Creators are the primary producers of this material (e.g., authors, researchers, and in some cases editors or translators)."
+        description=""
       />
     </Overridable>
   );

@@ -219,8 +219,8 @@ export const RDMDepositForm = ({
     );
     const targetIndex = currentFormPage === "page-6" ? 1 : 0;
     const newFirstInput =
-      newPageWrapper.querySelectorAll("button, input")[targetIndex];
-    newFirstInput.focus();
+      newPageWrapper?.querySelectorAll("button, input")[targetIndex];
+    newFirstInput?.focus();
   }, [currentFormPage]);
 
   const handlePageChangeCancel = () => {
@@ -344,7 +344,7 @@ export const RDMDepositForm = ({
                 // ordered={true}
                 size={"small"}
               >
-                {formPages.map(({ section, title }, index) => (
+                {formPages.map(({ section, label }, index) => (
                   <Step
                     key={index}
                     as={Button}
@@ -358,7 +358,7 @@ export const RDMDepositForm = ({
                     type="button"
                   >
                     <Step.Content>
-                      <Step.Title>{i18next.t(title)}</Step.Title>
+                      <Step.Title>{i18next.t(label)}</Step.Title>
                     </Step.Content>
                   </Step>
                 ))}

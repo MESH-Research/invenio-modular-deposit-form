@@ -32,6 +32,11 @@ function useIsInViewport(ref) {
 const FieldsContent = ({
   section,
   component,
+  description,
+  helpText,
+  label,
+  labelIcon,
+  placeholder,
   wrapped,
   index,
   commonFieldProps,
@@ -39,7 +44,15 @@ const FieldsContent = ({
   const MyField = commonFieldProps.fieldComponents[component][0];
   return !!wrapped ? (
     <SectionWrapper sectionName={section}>
-      <MyField key={index} {...commonFieldProps} />
+      <MyField
+        key={index}
+        {...commonFieldProps}
+        description={description}
+        helpText={helpText}
+        label={label}
+        labelIcon={labelIcon}
+        placeholder={placeholder}
+      />
     </SectionWrapper>
   ) : (
     <MyField key={index} {...commonFieldProps} />
@@ -88,7 +101,8 @@ const FormPage = ({
   const previousPage =
     previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
   const pageTargetRef = useRef(null);
-  const pageTargetInViewport = useIsInViewport(pageTargetRef);
+  // FIXME: sticky footer deactivated
+  // const pageTargetInViewport = useIsInViewport(pageTargetRef);
 
   //pass values up from Formik context to main form context
   useEffect(() => {
@@ -147,25 +161,53 @@ const FormPage = ({
       <div className="formPageWrapper" id={id}>
         {subsections.map(
           (
-            { section, component, wrapped, subsections: innerSections, props },
+            {
+              section,
+              component,
+              description,
+              helpText,
+              label,
+              labelIcon,
+              placeholder,
+              wrapped,
+              subsections: innerSections,
+              props,
+            },
             index
           ) => {
             return component === "SectionWrapper" ? (
               <SectionWrapper sectionName={section} key={section} {...props}>
                 {innerSections.map(
-                  ({ component, wrapped, props: innerProps }, index) => (
-                    <FieldsContent
-                      key={index}
-                      {...{
-                        section,
-                        component,
-                        wrapped,
-                        index,
-                        commonFieldProps,
-                        ...innerProps,
-                      }}
-                    />
-                  )
+                  (
+                    {
+                      component,
+                      description,
+                      helpText,
+                      label,
+                      labelIcon,
+                      placeholder,
+                      wrapped,
+                      props: innerProps,
+                    },
+                    index
+                  ) =>
+                    // <FieldsContent
+                    //   key={index}
+                    //   {...{
+                    //     section,
+                    //     component,
+                    //     description,
+                    //     helpText,
+                    //     label,
+                    //     labelIcon,
+                    //     placeholder,
+                    //     wrapped,
+                    //     index,
+                    //     commonFieldProps,
+                    //     ...innerProps,
+                    //   }}
+                    // />
+                    null
                 )}
               </SectionWrapper>
             ) : (
@@ -173,6 +215,11 @@ const FormPage = ({
                 {...{
                   section,
                   component,
+                  description,
+                  helpText,
+                  label,
+                  labelIcon,
+                  placeholder,
                   wrapped,
                   index,
                   commonFieldProps,
@@ -185,9 +232,11 @@ const FormPage = ({
 
         <div
           className={`ui container ${
-            pageTargetInViewport
-              ? "sticky-footer-static"
-              : "sticky-footer-fixed"
+            "sticky-footer-static"
+            // FIXME: sticky footer deactivated
+            // pageTargetInViewport
+            //   ? "sticky-footer-static"
+            //   : "sticky-footer-fixed"
           }`}
         >
           {!!previousPage && (
