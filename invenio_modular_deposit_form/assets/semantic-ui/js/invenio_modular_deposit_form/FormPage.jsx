@@ -32,30 +32,18 @@ function useIsInViewport(ref) {
 const FieldsContent = ({
   section,
   component,
-  description,
-  helpText,
-  label,
-  labelIcon,
-  placeholder,
   wrapped,
   index,
   commonFieldProps,
+  ...props
 }) => {
   const MyField = commonFieldProps.fieldComponents[component][0];
   return !!wrapped ? (
     <SectionWrapper sectionName={section}>
-      <MyField
-        key={index}
-        {...commonFieldProps}
-        description={description}
-        helpText={helpText}
-        label={label}
-        labelIcon={labelIcon}
-        placeholder={placeholder}
-      />
+      <MyField key={index} {...commonFieldProps} {...props} />
     </SectionWrapper>
   ) : (
-    <MyField key={index} {...commonFieldProps} />
+    <MyField key={index} {...commonFieldProps} {...props} />
   );
 };
 
@@ -164,62 +152,33 @@ const FormPage = ({
             {
               section,
               component,
-              description,
-              helpText,
-              label,
-              labelIcon,
-              placeholder,
               wrapped,
               subsections: innerSections,
-              props,
+              ...props
             },
             index
           ) => {
             return component === "SectionWrapper" ? (
               <SectionWrapper sectionName={section} key={section} {...props}>
-                {innerSections.map(
-                  (
-                    {
+                {innerSections.map(({ component, ...innerProps }, index) => (
+                  <FieldsContent
+                    key={index}
+                    {...{
+                      section,
                       component,
-                      description,
-                      helpText,
-                      label,
-                      labelIcon,
-                      placeholder,
                       wrapped,
-                      props: innerProps,
-                    },
-                    index
-                  ) =>
-                    // <FieldsContent
-                    //   key={index}
-                    //   {...{
-                    //     section,
-                    //     component,
-                    //     description,
-                    //     helpText,
-                    //     label,
-                    //     labelIcon,
-                    //     placeholder,
-                    //     wrapped,
-                    //     index,
-                    //     commonFieldProps,
-                    //     ...innerProps,
-                    //   }}
-                    // />
-                    null
-                )}
+                      index,
+                      commonFieldProps,
+                      ...innerProps,
+                    }}
+                  />
+                ))}
               </SectionWrapper>
             ) : (
               <FieldsContent
                 {...{
                   section,
                   component,
-                  description,
-                  helpText,
-                  label,
-                  labelIcon,
-                  placeholder,
                   wrapped,
                   index,
                   commonFieldProps,

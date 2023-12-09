@@ -235,7 +235,7 @@ const ContributorsComponent = ({ config, vocabularies }) => {
   );
 };
 
-const CreatorsComponent = ({ config, vocabularies, label }) => {
+const CreatorsComponent = ({ config, vocabularies, label, ...props }) => {
   return (
     <Overridable
       id="InvenioAppRdm.Deposit.CreatorsField.container"
@@ -251,8 +251,8 @@ const CreatorsComponent = ({ config, vocabularies, label }) => {
         schema="creators"
         autocompleteNames={config.autocomplete_names}
         required
-        // id="InvenioAppRdm.Deposit.CreatorsField.card"
         description=""
+        {...props}
       />
     </Overridable>
   );
