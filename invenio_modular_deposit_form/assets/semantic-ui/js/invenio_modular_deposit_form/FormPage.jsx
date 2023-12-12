@@ -90,7 +90,7 @@ const FormPage = ({
     previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
   const pageTargetRef = useRef(null);
   // FIXME: sticky footer deactivated
-  // const pageTargetInViewport = useIsInViewport(pageTargetRef);
+  const pageTargetInViewport = useIsInViewport(pageTargetRef);
 
   //pass values up from Formik context to main form context
   useEffect(() => {
@@ -138,7 +138,7 @@ const FormPage = ({
     }
     setTimeout(() => {
       console.log("after setting, touched is", touched);
-    }, 3000);
+    }, 100);
     handleFormPageChange(event, {
       value: value,
     });
@@ -191,11 +191,11 @@ const FormPage = ({
 
         <div
           className={`ui container ${
-            "sticky-footer-static"
+            // "sticky-footer-static"
             // FIXME: sticky footer deactivated
-            // pageTargetInViewport
-            //   ? "sticky-footer-static"
-            //   : "sticky-footer-fixed"
+            pageTargetInViewport
+              ? "sticky-footer-static"
+              : "sticky-footer-fixed"
           }`}
         >
           {!!previousPage && (

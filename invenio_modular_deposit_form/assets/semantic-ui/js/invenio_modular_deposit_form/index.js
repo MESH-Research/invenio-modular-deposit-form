@@ -20,6 +20,7 @@ ReactDOM.render(
     <RDMDepositForm
       commonFields={JSON.parse(dataSet.commonFields)}
       config={getInputFromDOM("deposits-config")}
+      currentUserprofile={JSON.parse(dataSet.currentUserprofile)}
       defaultFieldValues={JSON.parse(dataSet.defaultFieldValues)}
       defaultResourceType={JSON.parse(dataSet.defaultResourceType)}
       descriptionModifications={JSON.parse(dataSet.descriptionModifications)}

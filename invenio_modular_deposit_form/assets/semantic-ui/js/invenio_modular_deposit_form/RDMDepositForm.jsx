@@ -47,23 +47,24 @@ const validate = validator?.validate ? validator?.validate : null;
 const FormValuesContext = createContext();
 
 export const RDMDepositForm = ({
-  config,
-  files,
-  record,
-  permissions,
-  preselectedCommunity,
   commonFields,
-  fieldsByType,
-  labelModifications,
-  placeholderModifications,
-  descriptionModifications,
-  iconModifications,
-  helpTextModifications,
+  config,
+  currentUserprofile,
   defaultFieldValues,
   defaultResourceType,
-  pidsConfigOverrides,
-  priorityFieldValues,
+  descriptionModifications,
   extraRequiredFields,
+  files,
+  fieldsByType,
+  helpTextModifications,
+  iconModifications,
+  labelModifications,
+  record,
+  permissions,
+  pidsConfigOverrides,
+  placeholderModifications,
+  preselectedCommunity,
+  priorityFieldValues,
 }) => {
   const formPages = commonFields[0].subsections;
   const formPageSlugs = formPages.map(({ section }) => section);
@@ -289,6 +290,7 @@ export const RDMDepositForm = ({
 
   const commonFieldProps = {
     config: config,
+    currentUserprofile: currentUserprofile,
     fieldComponents: fieldComponents,
     noFiles: noFiles,
     record: record,
@@ -382,6 +384,7 @@ export const RDMDepositForm = ({
                       <div key={index}>
                         <FormPage
                           currentFormPage={section}
+                          currentUserprofile={currentUserprofile}
                           commonFieldProps={commonFieldProps}
                           id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                           pageNums={formPages.map(({ section }) => section)}

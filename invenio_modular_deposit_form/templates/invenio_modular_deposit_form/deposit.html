@@ -14,6 +14,7 @@
   see LICENSE file for more details.
 #}
 {%- if not record.is_published and record.versions.index and record.versions.index > 1%}
+{% from invenio_userprofiles.api import current_userprofile %}
   {%- set title = _("New version") %}
 {%- elif not record.is_published %}
   {%- set title = _("New upload") %}
@@ -23,6 +24,7 @@
 {%- extends config.BASE_TEMPLATE %}
 
 {%- block page_body %}
+
   {%- if record %}
   <input id="deposits-record" type="hidden" name="deposits-record" value='{{record | tojson }}'></input>
   {%- endif %}
@@ -39,6 +41,7 @@
   <input id="deposits-record-permissions" type="hidden" name="deposits-record-permissions" value='{{permissions | tojson }}'></input>
   {%- endif %}
   <div id="deposit-form"
+    data-current-userprofile='{{ dict(full_name=current_userprofile.full_name, affiliations=current_userprofile.affiliations) | tojson }}'
     data-common-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS", {}) | tojson }}'
     data-fields-by-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", {}) | tojson }}'
     data-label-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", {}) | tojson }}'
