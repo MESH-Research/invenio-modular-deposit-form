@@ -81,6 +81,7 @@ export const RDMDepositForm = ({
   const [currentTypeFields, setCurrentTypeFields] = useState(
     fieldsByType[defaultResourceType]
   );
+  const [fieldTouchHandler, setFieldTouchHandler] = useState();
   const currentFieldMods = {
     labelMods: labelModifications[currentResourceType],
     iconMods: iconModifications[currentResourceType],
@@ -124,8 +125,6 @@ export const RDMDepositForm = ({
   };
 
   const updateFormErrorState = (errors, touched) => {
-    console.log("updateFormErrorState errors", errors);
-    console.log("updateFormErrorState touched", touched);
     const errorFields = flattenKeysDotJoined(errors);
     const touchedFields = flattenKeysDotJoined(touched);
     let errorPages = {};
@@ -236,6 +235,9 @@ export const RDMDepositForm = ({
   };
 
   const handleFormPageChange = (event, { value }) => {
+    for (const field of formPageFields[currentFormPage]) {
+      fieldTouchHandler(field);
+    }
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
       setConfirmingPageChange(true);
       setNextFormPage(value);
@@ -287,6 +289,11 @@ export const RDMDepositForm = ({
       pidsConfigOverrides.doi
     );
   }
+
+  // pass setFieldTouched up from Formik context to main form context
+  const handleSettingFieldTouched = (setTouchedFunction) => {
+    setFieldTouchHandler(() => setTouchedFunction);
+  };
 
   const commonFieldProps = {
     config: config,
@@ -390,6 +397,7 @@ export const RDMDepositForm = ({
                           pageNums={formPages.map(({ section }) => section)}
                           subsections={actualSubsections}
                           pageFields={formPageFields[section]}
+                          handleSettingFieldTouched={handleSettingFieldTouched}
                         />
                       </div>
                     )

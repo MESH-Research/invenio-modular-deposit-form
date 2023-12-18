@@ -50,10 +50,10 @@ const FieldsContent = ({
 const FormPage = ({
   commonFieldProps,
   currentFormPage,
-  pageFields,
   id,
   pageNums,
   subsections,
+  handleSettingFieldTouched,
 }) => {
   const {
     errors,
@@ -115,6 +115,11 @@ const FormPage = ({
     }
   }, []);
 
+  //pass setFieldTouched up from Formik context to main form context
+  useEffect(() => {
+    handleSettingFieldTouched(setFieldTouched);
+  }, []);
+
   //pass errors up from Formik context to main form context when they change
   useEffect(() => {
     console.log("errors or touched changed errors", errors);
@@ -131,17 +136,7 @@ const FormPage = ({
   }, [errors, touched]);
 
   const handleButtonClick = (event, { value }) => {
-    console.log("setting touched", touched);
-    for (const field of pageFields) {
-      console.log("setting field touched", field);
-      setFieldTouched(field);
-    }
-    setTimeout(() => {
-      console.log("after setting, touched is", touched);
-    }, 100);
-    handleFormPageChange(event, {
-      value: value,
-    });
+    handleFormPageChange(event, { value });
   };
 
   return (
