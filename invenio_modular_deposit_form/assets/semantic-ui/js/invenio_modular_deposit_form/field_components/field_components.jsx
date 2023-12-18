@@ -43,7 +43,7 @@ import {
   SaveButton,
 } from "@js/invenio_rdm_records";
 import { FundingField } from "@js/invenio_vocabularies";
-import { Grid } from "semantic-ui-react";
+import { Grid, Message } from "semantic-ui-react";
 // import PropTypes from "prop-types";
 import Overridable from "react-overridable";
 import { CommunityField } from "../replacement_components/CommunityField";
@@ -714,7 +714,7 @@ const SubjectsComponent = ({ record, vocabularies }) => {
 };
 
 const SubmissionComponent = ({ record, permissions }) => {
-  const { values, setFieldValue } = useFormikContext();
+  const { errors, values, setFieldValue } = useFormikContext();
   const { handleFormPageChange } = useContext(FormValuesContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
@@ -761,6 +761,20 @@ const SubmissionComponent = ({ record, permissions }) => {
   return (
     <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
       <Grid relaxed className="save-submit-buttons">
+        {errors && !_isEmpty(errors) && (
+          <Grid.Row>
+            <Grid.Column computer="8" tablet="6">
+              <Message
+                visible
+                negative
+                icon="warning sign"
+                header={i18next.t(
+                  "There are problems with your submission. Please fix the highlighted sections."
+                )}
+              />
+            </Grid.Column>
+          </Grid.Row>
+        )}
         <Grid.Row>
           <Grid.Column computer="8" tablet="6">
             <SubmitButtonModal
@@ -771,6 +785,7 @@ const SubmissionComponent = ({ record, permissions }) => {
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
+              disabled={errors && !_isEmpty(errors)}
             />
           </Grid.Column>
           <Grid.Column
@@ -797,6 +812,7 @@ const SubmissionComponent = ({ record, permissions }) => {
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
+              disabled={errors && !_isEmpty(errors)}
             />
           </Grid.Column>
           <Grid.Column
@@ -820,6 +836,7 @@ const SubmissionComponent = ({ record, permissions }) => {
               size="massive"
               id="deposit-form-publish-button"
               positive
+              disabled={errors && !_isEmpty(errors)}
             />
           </Grid.Column>
           <Grid.Column
