@@ -15,6 +15,7 @@ import React, {
   createContext,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState,
 } from "react";
 import _get from "lodash/get";
@@ -31,7 +32,11 @@ import {
 } from "semantic-ui-react";
 import PropTypes, { object } from "prop-types";
 import Overridable from "react-overridable";
-import { flattenKeysDotJoined, flattenWrappers } from "./utils";
+import {
+  flattenKeysDotJoined,
+  flattenWrappers,
+  getTouchedParent,
+} from "./utils";
 import { fieldComponents } from "./componentsMap";
 import { FormPage } from "./FormPage";
 
@@ -95,6 +100,26 @@ export const RDMDepositForm = ({
   const customFieldsUI = config.custom_fields.ui;
   const [formPageFields, setFormPageFields] = useState({});
   console.log("RDMDepositForm values", currentValues);
+  const confirmModalRef = useRef(null);
+
+  // fix sticky footer overlapping content when navigating by keyboard
+  // combined with css scroll-margin-bottom
+  useEffect(() => {
+    const inputs = document.querySelectorAll(
+      "#rdm-deposit-form input, #rdm-deposit-form button, #rdm-deposit-form select"
+    );
+    inputs.forEach((input) => {
+      input.addEventListener("focus", (event) => {
+        event.target.scrollIntoView({ block: "end", behavior: "smooth" });
+      });
+    });
+    const textareas = document.querySelectorAll("#rdm-deposit-form textarea");
+    textareas.forEach((textarea) => {
+      textarea.addEventListener("focus", (event) => {
+        event.target.scrollIntoView({ block: "center", behavior: "smooth" });
+      });
+    });
+  }, [currentFormPage]);
 
   const setFormPageInHistory = (value) => {
     if (value === undefined) {
@@ -136,8 +161,9 @@ export const RDMDepositForm = ({
       const pageErrorFields = formPageFields[p.section]?.filter((item) =>
         errorFields.includes(item)
       );
-      const pageTouchedErrorFields = pageErrorFields?.filter((item) =>
-        touchedFields.includes(item)
+      const pageTouchedErrorFields = pageErrorFields?.filter(
+        (item) =>
+          touchedFields.includes(item) || getTouchedParent(currentTouched, item)
       );
       if (pageErrorFields?.length > 0) {
         errorPages[p.section] = pageErrorFields;
@@ -212,8 +238,7 @@ export const RDMDepositForm = ({
     noFiles = true;
   }
 
-  // FIXME: workaround since file uploader has inaccessible first input
-  useLayoutEffect(() => {
+  const focusFirstElement = () => {
     const newPageWrapper = document.getElementById(
       `InvenioAppRdm.Deposit.FormPage.${currentFormPage}`
     );
@@ -221,10 +246,16 @@ export const RDMDepositForm = ({
     const newFirstInput =
       newPageWrapper?.querySelectorAll("button, input")[targetIndex];
     newFirstInput?.focus();
+  };
+
+  // FIXME: workaround since file uploader has inaccessible first input
+  useLayoutEffect(() => {
+    focusFirstElement();
   }, [currentFormPage]);
 
   const handlePageChangeCancel = () => {
     setConfirmingPageChange(false);
+    focusFirstElement();
   };
 
   const handlePageChangeConfirm = () => {
@@ -237,9 +268,17 @@ export const RDMDepositForm = ({
   const handleFormPageChange = (event, { value }) => {
     for (const field of formPageFields[currentFormPage]) {
       fieldTouchHandler(field);
+      let str = `*[id*=${field}]`.replace(".", "\\.").replace(":", "\\:");
+      document.querySelectorAll(str).forEach((e) => {
+        e.focus();
+        e.blur();
+      });
     }
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
       setConfirmingPageChange(true);
+      setTimeout(() => {
+        confirmModalRef.current.focus();
+      }, 20);
       setNextFormPage(value);
     } else {
       setCurrentFormPage(value);
@@ -413,7 +452,11 @@ export const RDMDepositForm = ({
                 content={i18next.t(
                   "There are problems with the information you've entered. Are you sure you want to continue?"
                 )}
-                cancelButton={i18next.t("Fix the problems")}
+                cancelButton={
+                  <button className="ui button" ref={confirmModalRef}>
+                    {i18next.t("Fix the problems")}
+                  </button>
+                }
                 confirmButton={i18next.t("Continue anyway")}
                 onCancel={handlePageChangeCancel}
                 onConfirm={handlePageChangeConfirm}
