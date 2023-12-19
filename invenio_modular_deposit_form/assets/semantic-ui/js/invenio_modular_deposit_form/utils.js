@@ -1,3 +1,6 @@
+import { func } from "prop-types";
+import { getIn } from "formik";
+
 /**
  * Scroll page to top
  */
@@ -64,7 +67,22 @@ function flattenWrappers(page) {
   return flattened;
 }
 
+function getTouchedParent(touched, fieldPath) {
+  const fieldParts = fieldPath.split(".");
+  let touchedAncestor = false;
+
+  for (let i = fieldParts.length; i > 1; i--) {
+    let currentPath = fieldParts.slice(0, i).join(".");
+    if (getIn(touched, currentPath) === true) {
+      touchedAncestor = true;
+      break;
+    }
+  }
+  return touchedAncestor;
+}
+
 export {
+  getTouchedParent,
   scrollTop,
   moveToArrayStart,
   pushToArrayEnd,
