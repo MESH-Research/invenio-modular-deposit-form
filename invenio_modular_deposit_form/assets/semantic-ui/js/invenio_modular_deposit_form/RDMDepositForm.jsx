@@ -90,7 +90,7 @@ export const RDMDepositForm = ({
   const currentFieldMods = {
     labelMods: labelModifications[currentResourceType],
     iconMods: iconModifications[currentResourceType],
-    helpTextModifications: helpTextModifications[currentResourceType],
+    helpTextMods: helpTextModifications[currentResourceType],
     placeholderMods: placeholderModifications[currentResourceType],
     descriptionMods: descriptionModifications[currentResourceType],
     defaultFieldValues: defaultFieldValues[currentResourceType],

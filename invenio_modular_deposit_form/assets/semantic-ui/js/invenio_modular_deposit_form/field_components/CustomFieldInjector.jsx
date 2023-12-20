@@ -5,6 +5,7 @@ import { i18next } from "@translations/invenio_app_rdm/i18next";
 import { CustomFields, loadWidgetsFromConfig } from "react-invenio-forms";
 // import PropTypes from "prop-types";
 import Overridable from "react-overridable";
+import { FieldComponentWrapper } from "./FieldComponentWrapper";
 
 /**
  * A React component to insert UI for a single custom fields section
@@ -48,19 +49,20 @@ const CustomFieldInjector = ({
   }, []);
 
   return (
-    <Overridable
-      id={`InvenioAppRdm.Deposit.${idString}.container`}
+    <FieldComponentWrapper
+      componentName={idString}
+      fieldPath={fieldPathPrefix + "." + fieldName}
       customFieldsUI={chosenSetConfig}
+      {...restArgs}
     >
-      <>
-        {MyWidget}
-        {/* <CustomFields
+      {MyWidget}
+      {/* FIXME: Do we have to load widget dynamically like this? */}
+      {/* <CustomFields
         config={chosenSetConfig}
         templateLoaders={templateLoaders}
         fieldPathPrefix="custom_fields"
       /> */}
-      </>
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 

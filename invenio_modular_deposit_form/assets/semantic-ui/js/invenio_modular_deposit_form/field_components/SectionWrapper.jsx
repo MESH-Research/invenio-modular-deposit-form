@@ -1,11 +1,11 @@
 import React from "react";
-import { Icon, Segment } from "semantic-ui-react";
+import { Form, Icon, Segment } from "semantic-ui-react";
 
 const SectionWrapper = ({
   children,
   icon,
   sectionName,
-  title,
+  label,
   show_heading = false,
 }) => {
   return (
@@ -16,10 +16,10 @@ const SectionWrapper = ({
     >
       {show_heading && (
         <legend className="field-label-class invenio-field-label">
-          {!!icon && <Icon name={icon} />} {title}
+          {!!icon && <Icon name={icon} />} {label}
         </legend>
       )}
-      {children}
+      {children.length > 1 ? <Form.Group>{children}</Form.Group> : children}
     </Segment>
   );
 };

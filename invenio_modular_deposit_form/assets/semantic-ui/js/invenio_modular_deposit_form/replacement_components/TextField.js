@@ -18,9 +18,10 @@ const TextField = ({
   optimized,
   classnames,
   showLabel = true,
-  fluid = true,
-  width,
+  fluid = "true",
   onBlur,
+  width,
+  ...extraProps
 }) => {
   const FormikField = optimized ? FastField : Field;
   return (
@@ -65,6 +66,7 @@ const TextField = ({
                   field.onBlur(e);
                 },
               })}
+              {...extraProps}
             />
             {helpText && (
               <div className="helptext" id={`${fieldPath}.helptext`}>

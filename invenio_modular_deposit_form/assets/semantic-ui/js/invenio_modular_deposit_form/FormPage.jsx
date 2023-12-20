@@ -39,7 +39,12 @@ const FieldsContent = ({
 }) => {
   const MyField = commonFieldProps.fieldComponents[component][0];
   return !!wrapped ? (
-    <SectionWrapper sectionName={section}>
+    <SectionWrapper
+      sectionName={section}
+      icon={props.icon}
+      label={props.label}
+      show_heading={props.show_heading}
+    >
       <MyField key={index} {...commonFieldProps} {...props} />
     </SectionWrapper>
   ) : (

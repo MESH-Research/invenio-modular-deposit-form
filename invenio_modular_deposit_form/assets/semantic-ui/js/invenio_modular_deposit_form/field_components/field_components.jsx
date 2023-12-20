@@ -52,22 +52,28 @@ import { PIDField } from "../replacement_components/PIDField";
 import { DatesField } from "../replacement_components/DatesField";
 import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
+import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { SubmitButtonModal } from "../replacement_components/PublishButton/SubmitButton";
 import { FormValuesContext } from "../RDMDepositForm";
 
-const AbstractComponent = ({ record, vocabularies }) => {
+const AbstractComponent = ({ record, vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.DescriptionsField.container"
-      record={record}
-      vocabularies={vocabularies}
+    // <Overridable
+    //   id="InvenioAppRdm.Deposit.DescriptionsField.container"
+    //   record={record}
+    //   vocabularies={vocabularies}
+    //   fieldPath="metadata.description"
+    // >
+    <FieldComponentWrapper
+      componentName="DescriptionsField"
       fieldPath="metadata.description"
+      {...extraProps}
     >
       <DescriptionsField
         fieldPath="metadata.description"
         options={vocabularies.metadata.descriptions}
         recordUI={_get(record, "ui", null)}
-        label="Description"
+        label={extraProps.label || "Description"}
         editorConfig={{
           removePlugins: [
             "Image",
@@ -83,53 +89,56 @@ const AbstractComponent = ({ record, vocabularies }) => {
           ],
         }}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const AccessRightsComponent = ({ permissions }) => {
+const AccessRightsComponent = ({ permissions, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.AccessRightField.container"
+    <FieldComponentWrapper
+      componentName="AccessRightField"
       fieldPath="access"
+      {...extraProps}
+      icon={extraProps.icon || "shield"}
+      label={extraProps.label || i18next.t("Public access")}
     >
       <AccessRightField
-        label={i18next.t("Public access")}
-        labelIcon="shield"
         fieldPath="access"
         showMetadataAccess={permissions?.can_manage_record_access}
         fluid
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const AdditionalDatesComponent = ({ vocabularies }) => {
+const AdditionalDatesComponent = ({ vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.DateField.container"
-      vocabularies={vocabularies}
+    <FieldComponentWrapper
+      componentName="DateField"
       fieldPath="metadata.dates"
+      {...extraProps}
     >
       <DatesField
         fieldPath="metadata.dates"
         options={vocabularies.metadata.dates}
         showEmptyValue={false}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const AdditionalDescriptionComponent = ({ record, vocabularies }) => {
+const AdditionalDescriptionComponent = ({
+  record,
+  vocabularies,
+  ...extraProps
+}) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.DescriptionsField.container"
-      record={record}
-      vocabularies={vocabularies}
+    <FieldComponentWrapper
+      componentName="DescriptionsField"
       fieldPath="metadata.description"
+      {...extraProps}
     >
       <DescriptionsField
-        fieldPath="metadata.description"
         options={vocabularies.metadata.descriptions}
         recordUI={_get(record, "ui", null)}
         editorConfig={{
@@ -147,7 +156,7 @@ const AdditionalDescriptionComponent = ({ record, vocabularies }) => {
           ],
         }}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
@@ -155,25 +164,24 @@ const AdditionalTitlesComponent = () => {
   return <></>;
 };
 
-const AlternateIdentifiersComponent = ({ vocabularies }) => {
+const AlternateIdentifiersComponent = ({ vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.IdentifiersField.container"
-      vocabularies={vocabularies}
+    <FieldComponentWrapper
+      componentName="IdentifiersField"
       fieldPath="metadata.identifiers"
+      label={i18next.t("URLs and Other Identifiers")}
+      labelIcon={"barcode"}
+      {...extraProps}
     >
       <IdentifiersField
-        fieldPath="metadata.identifiers"
-        label={i18next.t("URLs and Other Identifiers")}
-        labelIcon="barcode"
         schemeOptions={vocabularies.metadata.identifiers.scheme}
         showEmptyValue
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const BookTitleComponent = ({ customFieldsUI }) => {
+const BookTitleComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
@@ -181,6 +189,9 @@ const BookTitleComponent = ({ customFieldsUI }) => {
       idString="ImprintTitleField"
       customFieldsUI={customFieldsUI}
       description={""}
+      label={"Book title"}
+      icon={"book"}
+      {...extraProps}
     />
   );
 };
@@ -193,6 +204,7 @@ const CommonsDomainComponent = ({ customFieldsUI }) => {
       idString="CommonsDomainField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
@@ -208,19 +220,17 @@ const CommunitiesComponent = () => {
   );
 };
 
-const ContributorsComponent = ({ config, vocabularies }) => {
+const ContributorsComponent = ({ config, vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.ContributorsField.container"
+    <FieldComponentWrapper
+      componentName="ContibutorsField"
       fieldPath="metadata.contributors"
-      vocabularies={vocabularies}
-      config={config}
+      label={i18next.t("Contributors")}
+      labelIcon="user plus"
+      {...extraProps}
     >
       <CreatibutorsField
         addButtonLabel={i18next.t("Add contributor")}
-        label={i18next.t("Contributors")}
-        labelIcon="user plus"
-        fieldPath="metadata.contributors"
         roleOptions={vocabularies.metadata.contributors.role}
         schema="contributors"
         autocompleteNames={config.autocomplete_names}
@@ -229,67 +239,65 @@ const ContributorsComponent = ({ config, vocabularies }) => {
           editLabel: "Edit contributor",
         }}
         id="InvenioAppRdm.Deposit.ContributorsField.card"
-        description="Contributors play a secondary role in the production of this material (e.g., illustrators, research assistants, and in some cases editors or translators)."
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const CreatorsComponent = ({ config, vocabularies, label, ...props }) => {
+const CreatorsComponent = ({ config, vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.CreatorsField.container"
-      vocabularies={vocabularies}
-      config={config}
+    <FieldComponentWrapper
+      componentName="CreatorsField"
       fieldPath="metadata.creators"
+      label={i18next.t(label) || i18next.t("Creators")}
+      labelIcon="user"
+      description=""
+      {...extraProps}
     >
       <CreatibutorsField
-        label={i18next.t(label) || i18next.t("Creators")}
-        labelIcon="user"
-        fieldPath="metadata.creators"
         roleOptions={vocabularies.metadata.creators.role}
         schema="creators"
         autocompleteNames={config.autocomplete_names}
         required
-        description=""
-        {...props}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const DateComponent = () => {
+const DateComponent = ({ ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.PublicationDateField.container"
+    <FieldComponentWrapper
+      componentName="PublicationDateField"
       fieldPath="metadata.publication_date"
+      {...extraProps}
     >
       <PublicationDateField required fieldPath="metadata.publication_date" />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const DeleteComponent = ({ permissions, record, icon }) => {
+const DeleteComponent = ({ permissions, record, ...extraProps }) => {
   return (
     <>
-      {permissions?.can_delete_draft && (
-        <Overridable
-          id="InvenioAppRdm.Deposit.CardDeleteButton.container"
-          record={record}
+      {permissions?.can_delete_draft ? (
+        <FieldComponentWrapper
+          componentName="CardDeleteButton"
+          fieldPath={""}
+          {...extraProps}
         >
-          <DeleteButton fluid icon={icon} />
-        </Overridable>
-      )}
+          <DeleteButton fluid />
+        </FieldComponentWrapper>
+      ) : null}
     </>
   );
 };
 
-const DoiComponent = ({ config, record }) => {
+const DoiComponent = ({ config, record, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.PIDField.container"
-      config={config}
-      record={record}
+    <FieldComponentWrapper
+      componentName="PIDField"
+      fieldPath={"pids"}
+      {...extraProps}
     >
       <Fragment>
         {config.pids.map((pid) => (
@@ -314,11 +322,17 @@ const DoiComponent = ({ config, record }) => {
           </Fragment>
         ))}
       </Fragment>
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const FilesUploadComponent = ({ config, noFiles, record, permissions }) => {
+const FilesUploadComponent = ({
+  config,
+  noFiles,
+  record,
+  permissions,
+  ...extraProps
+}) => {
   return (
     <>
       {/* <Overridable
@@ -332,10 +346,10 @@ const FilesUploadComponent = ({ config, noFiles, record, permissions }) => {
           <em>{i18next.t("The record has no files.")}</em>
         </div>
       )}
-      <Overridable
-        id="InvenioAppRdm.Deposit.FileUploader.container"
-        record={record}
-        config={config}
+      <FieldComponentWrapper
+        componentName="FileUploader"
+        fieldPath="files"
+        {...extraProps}
       >
         <FileUploader
           isDraftRecord={!record.is_published}
@@ -343,20 +357,20 @@ const FilesUploadComponent = ({ config, noFiles, record, permissions }) => {
           decimalSizeDisplay={config.decimal_size_display}
           showMetadataOnlyToggle={false} //{permissions?.can_manage_files}
         />
-      </Overridable>
+      </FieldComponentWrapper>
       {/*</Overridable> */}
     </>
   );
 };
 
-const FundingComponent = ({}) => {
+const FundingComponent = ({ ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.FundingField.container"
+    <FieldComponentWrapper
+      componentName="FundingField"
       fieldPath="metadata.funding"
+      {...extraProps}
     >
       <FundingField
-        fieldPath="metadata.funding"
         searchConfig={{
           searchApi: {
             axios: {
@@ -427,11 +441,11 @@ const FundingComponent = ({}) => {
           return { headerContent, descriptionContent, awardOrFunder };
         }}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const ISBNComponent = ({ customFieldsUI }) => {
+const ISBNComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
@@ -439,29 +453,27 @@ const ISBNComponent = ({ customFieldsUI }) => {
       idString="ImprintISBNField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
 
-const JournalTitleComponent = ({ customFieldsUI, labelMods }) => {
-  const moddedLabel =
-    labelMods && labelMods["custom_fields.journal:journal.title"]
-      ? labelMods["custom_fields.journal:journal.title"]
-      : "Journal title";
+const JournalTitleComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
       fieldName="journal:journal.title"
       idString="JournalTitleField"
-      label={moddedLabel}
+      label="Journal title"
       icon="book"
       description=""
       customFieldsUI={customFieldsUI}
+      {...extraProps}
     />
   );
 };
 
-const JournalISSNComponent = ({ customFieldsUI, labelMods }) => {
+const JournalISSNComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
@@ -471,16 +483,17 @@ const JournalISSNComponent = ({ customFieldsUI, labelMods }) => {
       icon="barcode"
       description=""
       customFieldsUI={customFieldsUI}
+      {...extraProps}
     />
   );
 };
 
-const LanguagesComponent = ({ record }) => {
+const LanguagesComponent = ({ record, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.LanguagesField.container"
+    <FieldComponentWrapper
+      componentName="LanguagesField"
       fieldPath="metadata.languages"
-      record={record}
+      {...extraProps}
     >
       <LanguagesField
         fieldPath="metadata.languages"
@@ -495,18 +508,18 @@ const LanguagesComponent = ({ record }) => {
           }))
         }
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const LicensesComponent = () => {
+const LicensesComponent = ({ ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.LicenseField.container"
+    <FieldComponentWrapper
+      componentName="LicenseField"
       fieldPath="metadata.rights"
+      {...extraProps}
     >
       <LicenseField
-        fieldPath="metadata.rights"
         searchConfig={{
           searchApi: {
             axios: {
@@ -528,7 +541,7 @@ const LicensesComponent = () => {
           link: result.props.url,
         })}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
@@ -536,7 +549,7 @@ const MetadataOnlyComponent = () => {
   return <></>;
 };
 
-const MeetingTitleComponent = ({ customFieldsUI }) => {
+const MeetingTitleComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference / Workshop"
@@ -544,11 +557,12 @@ const MeetingTitleComponent = ({ customFieldsUI }) => {
       idString="MeetingTitleField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
 
-const MeetingPlaceComponent = ({ customFieldsUI }) => {
+const MeetingPlaceComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference / Workshop"
@@ -556,11 +570,12 @@ const MeetingPlaceComponent = ({ customFieldsUI }) => {
       idString="MeetingPlaceField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
 
-const MeetingDatesComponent = ({ customFieldsUI }) => {
+const MeetingDatesComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference / Workshop"
@@ -568,15 +583,12 @@ const MeetingDatesComponent = ({ customFieldsUI }) => {
       idString="MeetingDatesField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
 
-const SectionPagesComponent = ({ customFieldsUI, labelMods }) => {
-  const moddedLabel =
-    labelMods && labelMods["custom_fields.journal:journal.pages"]
-      ? labelMods["custom_fields.journal:journal.pages"]
-      : "Section pages";
+const SectionPagesComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
@@ -584,29 +596,28 @@ const SectionPagesComponent = ({ customFieldsUI, labelMods }) => {
       idString="JournalPagesField"
       customFieldsUI={customFieldsUI}
       description={""}
-      label={moddedLabel}
+      label="Section pages"
       icon="file outline"
+      {...extraProps}
     />
   );
 };
 
-const PublisherComponent = ({}) => {
+const PublisherComponent = ({ ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.PublisherField.container"
+    <FieldComponentWrapper
+      componentName="PublisherField"
       fieldPath="metadata.publisher"
+      description=""
+      helpText=""
+      {...extraProps}
     >
-      <PublisherField
-        fieldPath="metadata.publisher"
-        description=""
-        helpText=""
-        required={true}
-      />
-    </Overridable>
+      <PublisherField fieldPath="metadata.publisher" required />
+    </FieldComponentWrapper>
   );
 };
 
-const PublicationLocationComponent = ({ customFieldsUI }) => {
+const PublicationLocationComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
@@ -616,50 +627,41 @@ const PublicationLocationComponent = ({ customFieldsUI }) => {
       label={"Place of Publication"}
       icon={"map marker alternate"}
       description={""}
+      {...extraProps}
     />
   );
 };
 
-const ReferencesComponent = ({ vocabularies }) => {
+const ReferencesComponent = ({ vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.AccordionFieldReferences.container"
+    <FieldComponentWrapper
+      componentName="ReferencesField"
+      fieldPath={"metadata.references"}
       vocabularies={vocabularies}
+      {...extraProps}
     >
-      <AccordionField
-        includesPaths={["metadata.references"]}
-        active
-        label={i18next.t("References")}
-      >
-        <Overridable
-          id="InvenioAppRdm.Deposit.ReferencesField.container"
-          fieldPath="metadata.references"
-          vocabularies={vocabularies}
-        >
-          <ReferencesField fieldPath="metadata.references" showEmptyValue />
-        </Overridable>
-      </AccordionField>
-    </Overridable>
+      <ReferencesField showEmptyValue />
+    </FieldComponentWrapper>
   );
 };
 
-const RelatedWorksComponent = ({ vocabularies }) => {
+const RelatedWorksComponent = ({ vocabularies, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.RelatedWorksField.container"
-      fieldPath="metadata.related_identifiers"
-      vocabularies={vocabularies}
+    <FieldComponentWrapper
+      componentName="RelatedWorksField"
+      fieldPath={"metadata.related_identifiers"}
+      {...extraProps}
     >
       <RelatedWorksField
         fieldPath="metadata.related_identifiers"
         options={vocabularies.metadata.identifiers}
         showEmptyValue={false}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const ResourceTypeComponent = ({ vocabularies }) => {
+const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
   {
     /* <Overridable
         id="InvenioAppRdm.Deposit.ResourceTypeField.container"
@@ -673,16 +675,23 @@ const ResourceTypeComponent = ({ vocabularies }) => {
         />
       </Overridable> */
   }
+  const fieldPath = "metadata.resource_type";
   return (
-    <ResourceTypeSelectorField
-      options={vocabularies.metadata.resource_type}
-      fieldPath="metadata.resource_type"
-      required
-    />
+    <FieldComponentWrapper
+      componentName="ResourceTypeSelectorField"
+      fieldPath={fieldPath}
+      {...extraProps}
+    >
+      <ResourceTypeSelectorField
+        fieldPath={fieldPath}
+        options={vocabularies.metadata.resource_type}
+        required
+      />
+    </FieldComponentWrapper>
   );
 };
 
-const SubjectsComponent = ({ record, vocabularies }) => {
+const SubjectsComponent = ({ record, vocabularies, ...extraProps }) => {
   let myLimitToOptions = [...vocabularies.metadata.subjects.limit_to];
   myLimitToOptions.reverse();
   myLimitToOptions = moveToArrayStart(
@@ -691,25 +700,23 @@ const SubjectsComponent = ({ record, vocabularies }) => {
     "value"
   );
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.SubjectsField.container"
-      vocabularies={vocabularies}
+    <FieldComponentWrapper
+      componentName="SubjectsField"
       fieldPath="metadata.subjects"
-      record={record}
+      placeholder={i18next.t(
+        "Search for a subject by name (press 'enter' to select)"
+      )}
+      label="Subjects"
+      description={i18next.t(
+        "These standardized subject headings help people to find your materials!"
+      )}
+      {...extraProps}
     >
       <SubjectsField
-        fieldPath="metadata.subjects"
-        label="Subjects"
         initialOptions={_get(record, "ui.subjects", null)}
         limitToOptions={myLimitToOptions}
-        placeholder={i18next.t(
-          "Search for a subject by name (press 'enter' to select)"
-        )}
-        description={i18next.t(
-          "These standardized subject headings help people to find your materials!"
-        )}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
@@ -881,7 +888,7 @@ const SubmissionComponent = ({ record, permissions }) => {
   );
 };
 
-const SubmitterEmailComponent = ({ customFieldsUI }) => {
+const SubmitterEmailComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Commons admin info"
@@ -889,11 +896,12 @@ const SubmitterEmailComponent = ({ customFieldsUI }) => {
       idString="SubmitterEmailField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
 
-const SubmitterUsernameComponent = ({ customFieldsUI }) => {
+const SubmitterUsernameComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Commons admin info"
@@ -901,6 +909,7 @@ const SubmitterUsernameComponent = ({ customFieldsUI }) => {
       idString="SubmitterUsernameField"
       customFieldsUI={customFieldsUI}
       description={""}
+      {...extraProps}
     />
   );
 };
@@ -908,35 +917,25 @@ const SubtitleComponent = () => {
   return <></>;
 };
 
-const TitleComponent = ({ vocabularies, record, labelMods }) => {
-  const required = true;
-  const moddedLabel =
-    labelMods && labelMods["metadata.title"]
-      ? labelMods["metadata.title"]
-      : "Title";
+const TitleComponent = ({ vocabularies, record, ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.TitlesField.container"
-      vocabularies={vocabularies}
+    <FieldComponentWrapper
+      componentName="TitlesField"
       fieldPath="metadata.title"
-      record={record}
+      required
+      label={extraProps.label}
+      {...extraProps}
     >
       <TitlesField
-        options={vocabularies.metadata.titles}
         fieldPath="metadata.title"
+        options={vocabularies.metadata.titles}
         recordUI={record.ui}
-        label={moddedLabel}
-        required={required}
       />
-    </Overridable>
+    </FieldComponentWrapper>
   );
 };
 
-const TotalPagesComponent = ({ customFieldsUI, labelMods }) => {
-  const moddedLabel =
-    labelMods && labelMods["custom_fields.imprint:imprint.pages"]
-      ? labelMods["custom_fields.imprint:imprint.pages"]
-      : "Total book pages";
+const TotalPagesComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
@@ -944,37 +943,35 @@ const TotalPagesComponent = ({ customFieldsUI, labelMods }) => {
       idString="ImprintPagesField"
       customFieldsUI={customFieldsUI}
       description={""}
-      label={moddedLabel}
+      label="Total book pages"
       icon="file outline"
+      {...extraProps}
     />
   );
 };
 
-const UniversityComponent = ({ customFieldsUI }) => {
+const UniversityComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="KCR Book information"
       fieldName="thesis:university"
       idString="ThesisUniversity"
       customFieldsUI={customFieldsUI}
+      {...extraProps}
     />
   );
 };
 
-const VersionComponent = ({ description, label, icon }) => {
+const VersionComponent = ({ ...extraProps }) => {
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.VersionField.container"
+    <FieldComponentWrapper
+      componentName="VersionField"
       fieldPath="metadata.version"
+      helpText=""
+      {...extraProps}
     >
-      <VersionField
-        fieldPath="metadata.version"
-        description={description}
-        label={label}
-        labelIcon={icon}
-        helpText=""
-      />
-    </Overridable>
+      <VersionField />
+    </FieldComponentWrapper>
   );
 };
 

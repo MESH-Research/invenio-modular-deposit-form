@@ -82,9 +82,6 @@ const BookDetailComponent = ({ customFieldsUI }) => {
         <PublicationLocationComponent customFieldsUI={customFieldsUI} />
       </Form.Group>
       <Form.Group>
-        <VolumeComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-      <Form.Group>
         <TotalPagesComponent
           customFieldsUI={customFieldsUI}
           description={""}

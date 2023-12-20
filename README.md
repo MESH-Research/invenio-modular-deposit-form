@@ -146,16 +146,20 @@ These config variables are injected into the main form component via data attrib
 
 INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS
 
-An additional special component exposed is SectionWrapper. This can be used to group a
-set of components together visually and semantically.
+SectionWrapper
+    An additional special component exposed is SectionWrapper. This can be used to group a
+    set of components together visually and semantically.
 
-If a component on its own should be wrapped in a similar section wrapper, you can instead
-set the "wrapped" property of the component declaration to `True`.
+    If a component on its own should be wrapped in a similar section wrapper, you can instead
+    set the "wrapped" property of the component declaration to `True`.
 
-If you wish to change the html that wraps these sections, you can override the SectionWrapper
-component. Just be sure to pass through the `children` property. If you want to change the structure of
-a particular section, you can create a custom React component for that section and set `wrapped` to `False`
-in its configuration.
+    If you wish to change the html that wraps these sections, you can override the SectionWrapper
+    component. Just be sure to pass through the `children` property. If you want to change the structure of
+    a particular section, you can create a custom React component for that section and set `wrapped` to `False`
+    in its configuration.
+
+FormRow
+    Another special component is FormRow. This wraps the contained components in a semantic-ui-react `Form.Group` component, i.e. in a <div> with the class `fields`.
 
 ### Layout changes by resource type
 
@@ -188,6 +192,25 @@ INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES
 
 INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS
 
+### Individual field configuration options
+
+Each field configuration will pass its arguments through to the React component. In particular, form field components generally expect these arguments:
+
+description
+helpText
+icon
+label
+optimized
+required (defaults to `false` unless required in Yup schema or Invenio JSONSchema)
+classnames (note all lowecase and plural!!)
+    A string containing any class names to be passed through to the rendered component. This can be used to pass semantic-ui style classes. E.g., a field with the classes "two wide" will be assigned a width of two grid columns within its form group.
+showLabel (defaults to `true`)
+fluid (defaults to "true")
+onBlur
+    An extra function can be passed to be triggered by onBlur events on the input. This will run immediately before Formik's built-in onBlur event
+
+**Properties are overridden in the sequence built-in defaults > React field_components definition > invenio.cfg values (from less priority to highest priority)**
+
 ### Client-side form validation
 
 If you wish to enable client-side form validation, you can provide a validator in your instance folder in a file called `validator.js` this should be placed in the assets subfolder you have created in a location like `site/my_instance_name/assets/semantic-ui/js/invenio_modular_deposit_form_extras`.
@@ -200,9 +223,9 @@ validate: This can be a custom validation function which will be passed to the F
 
 If neither of these objects is exported in a file with that name, the client-side validation will simply be deactivated.
 
-
-
 *FIXME: at present this requires a patch to DepositFormApp and DepositBootstrap to pass the `validate` and `validationSchema` props.*
+
+**TextField components are aware not just of their own `touched` state, but also the `touched` state of parents**
 
 ## Adding your own React components
 
@@ -270,33 +293,33 @@ Custom field values have to be accessed differently from built-in field values. 
 
 InvenioRDM includes React components that are exposed for import:
 
-- AccessRightField (in "@js/invenio_rdm_records")
-- DescriptionsField (in"@js/invenio_rdm_records")
-- CreatibutorsField (in"@js/invenio_rdm_records")
-- DeleteButton (in"@js/invenio_rdm_records")
-- DepositFormApp (in"@js/invenio_rdm_records")
-- DepositStatusBox (in"@js/invenio_rdm_records")
-- FileUploader (in"@js/invenio_rdm_records")
-- FormFeedback (in"@js/invenio_rdm_records")
-- IdentifiersField (in"@js/invenio_rdm_records")
-- PreviewButton (in"@js/invenio_rdm_records")
-- LanguagesField (in"@js/invenio_rdm_records")
-- LicenseField (in"@js/invenio_rdm_records")
-- PublicationDateField (in"@js/invenio_rdm_records")
-- PublishButton (in"@js/invenio_rdm_records")
-- PublisherField (in"@js/invenio_rdm_records")
-- ReferencesField (in"@js/invenio_rdm_records")
-- RelatedWorksField (in"@js/invenio_rdm_records")
-- SubjectsField (in"@js/invenio_rdm_records")
-- TitlesField (in"@js/invenio_rdm_records")
-- VersionField (in"@js/invenio_rdm_records")
-- CommunityHeader (in"@js/invenio_rdm_records")
-- SaveButton (in"@js/invenio_rdm_records")
-- FundingField (in "@js/invenio_vocabularies")
+### AccessRightField (in "@js/invenio_rdm_records")
+### DescriptionsField (in"@js/invenio_rdm_records")
+### CreatibutorsField (in"@js/invenio_rdm_records")
+### DeleteButton (in"@js/invenio_rdm_records")
+### DepositFormApp (in"@js/invenio_rdm_records")
+### DepositStatusBox (in"@js/invenio_rdm_records")
+### FileUploader (in"@js/invenio_rdm_records")
+### FormFeedback (in"@js/invenio_rdm_records")
+### IdentifiersField (in"@js/invenio_rdm_records")
+### PreviewButton (in"@js/invenio_rdm_records")
+### LanguagesField (in"@js/invenio_rdm_records")
+### LicenseField (in"@js/invenio_rdm_records")
+### PublicationDateField (in"@js/invenio_rdm_records")
+### PublishButton (in"@js/invenio_rdm_records")
+### PublisherField (in"@js/invenio_rdm_records")
+### ReferencesField (in"@js/invenio_rdm_records")
+### RelatedWorksField (in"@js/invenio_rdm_records")
+### SubjectsField (in"@js/invenio_rdm_records")
+### TitlesField (in"@js/invenio_rdm_records")
+### VersionField (in"@js/invenio_rdm_records")
+### CommunityHeader (in"@js/invenio_rdm_records")
+### SaveButton (in"@js/invenio_rdm_records")
+### FundingField (in "@js/invenio_vocabularies")
 <!-- FIXME: where do below originally live? -->
-- ResourceTypeSelectorField (from "./replacement_components/ResourceTypeSelectorField")
-- PIDField (from "./replacement_components/PIDField")
-- DatesField ( from "./replacement_components/DatesField" )
+### ResourceTypeSelectorField (from "./replacement_components/ResourceTypeSelectorField")
+### PIDField (from "./replacement_components/PIDField")
+### DatesField ( from "./replacement_components/DatesField" )
 
 ### Gotchas
 
