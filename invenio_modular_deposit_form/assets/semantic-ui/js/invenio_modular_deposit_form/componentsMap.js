@@ -44,6 +44,7 @@ import {
   ThesisDetailsComponent,
   TypeTitleComponent,
 } from "./field_components/compound_field_components";
+import { FormRow } from "./FieldsContent";
 
 const fieldComponents = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
@@ -125,6 +126,7 @@ const fieldComponents = {
     ["metadata.publication_date", "metadata.dates"],
   ],
   DeleteComponent: [DeleteComponent, []],
+  FormRow: [FormRow, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
   SectionPagesComponent: [
     SectionPagesComponent,

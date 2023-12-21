@@ -8,6 +8,7 @@ const SectionWrapper = ({
   label,
   show_heading = false,
 }) => {
+  console.log("SectionWrapper", children);
   return (
     <Segment
       id={`InvenioAppRdm.Deposit.${sectionName}.container`}
@@ -19,7 +20,14 @@ const SectionWrapper = ({
           {!!icon && <Icon name={icon} />} {label}
         </legend>
       )}
-      {children.length > 1 ? <Form.Group>{children}</Form.Group> : children}
+      {children.length > 1 &&
+      !React.Children.toArray(children).some(
+        (child) => child.props.component === "FormRow"
+      ) ? (
+        <Form.Group>{children}</Form.Group>
+      ) : (
+        children
+      )}
     </Segment>
   );
 };

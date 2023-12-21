@@ -294,35 +294,32 @@ const DeleteComponent = ({ permissions, record, ...extraProps }) => {
 
 const DoiComponent = ({ config, record, ...extraProps }) => {
   return (
-    <FieldComponentWrapper
-      componentName="PIDField"
-      fieldPath={"pids"}
-      {...extraProps}
-    >
-      <Fragment>
-        {config.pids.map((pid) => (
-          <Fragment key={pid.scheme}>
-            <PIDField
-              btnLabelDiscardPID={pid.btn_label_discard_pid}
-              btnLabelGetPID={pid.btn_label_get_pid}
-              canBeManaged={pid.can_be_managed}
-              canBeUnmanaged={pid.can_be_unmanaged}
-              fieldPath={`pids.${pid.scheme}`}
-              fieldLabel={pid.field_label}
-              isEditingPublishedRecord={
-                record.is_published === true // is_published is `null` at first upload
-              }
-              managedHelpText={pid.managed_help_text}
-              pidLabel={pid.pid_label}
-              pidPlaceholder={pid.pid_placeholder}
-              pidType={pid.scheme}
-              unmanagedHelpText={pid.unmanaged_help_text}
-              required
-            />
-          </Fragment>
-        ))}
-      </Fragment>
-    </FieldComponentWrapper>
+    // FIXME: PIDField doesn't play nicely with FieldComponentWrapper
+    // <FieldComponentWrapper componentName="PIDField" {...extraProps}>
+    <Fragment>
+      {config.pids.map((pid) => (
+        <Fragment key={pid.scheme}>
+          <PIDField
+            btnLabelDiscardPID={pid.btn_label_discard_pid}
+            btnLabelGetPID={pid.btn_label_get_pid}
+            canBeManaged={pid.can_be_managed}
+            canBeUnmanaged={pid.can_be_unmanaged}
+            fieldPath={`pids.${pid.scheme}`}
+            fieldLabel={pid.field_label}
+            isEditingPublishedRecord={
+              record.is_published === true // is_published is `null` at first upload
+            }
+            managedHelpText={pid.managed_help_text}
+            pidLabel={pid.pid_label}
+            pidPlaceholder={pid.pid_placeholder}
+            pidType={pid.scheme}
+            unmanagedHelpText={pid.unmanaged_help_text}
+            required
+          />
+        </Fragment>
+      ))}
+    </Fragment>
+    // </FieldComponentWrapper>
   );
 };
 

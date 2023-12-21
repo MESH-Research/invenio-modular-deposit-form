@@ -5,6 +5,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FormValuesContext } from "./RDMDepositForm";
 import { SectionWrapper } from "./field_components/SectionWrapper";
+import { FieldsContent } from "./FieldsContent";
 import { initial } from "lodash";
 
 function useIsInViewport(ref) {
@@ -28,29 +29,6 @@ function useIsInViewport(ref) {
 
   return isIntersecting;
 }
-
-const FieldsContent = ({
-  section,
-  component,
-  wrapped,
-  index,
-  commonFieldProps,
-  ...props
-}) => {
-  const MyField = commonFieldProps.fieldComponents[component][0];
-  return !!wrapped ? (
-    <SectionWrapper
-      sectionName={section}
-      icon={props.icon}
-      label={props.label}
-      show_heading={props.show_heading}
-    >
-      <MyField key={index} {...commonFieldProps} {...props} />
-    </SectionWrapper>
-  ) : (
-    <MyField key={index} {...commonFieldProps} {...props} />
-  );
-};
 
 const FormPage = ({
   commonFieldProps,
