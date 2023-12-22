@@ -8,7 +8,6 @@ const SectionWrapper = ({
   label,
   show_heading = false,
 }) => {
-  console.log("SectionWrapper", children);
   return (
     <Segment
       id={`InvenioAppRdm.Deposit.${sectionName}.container`}

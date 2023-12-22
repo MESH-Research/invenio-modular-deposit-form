@@ -161,6 +161,14 @@ SectionWrapper
 FormRow
     Another special component is FormRow. This wraps the contained components in a semantic-ui-react `Form.Group` component, i.e. in a <div> with the class `fields`.
 
+#### Field widths
+
+Within a FormRow, it is necessary to declare how wide each field in the row should be. You can do this in two ways using the "classnames" property and semantic-ui layout classes for form fields:
+
+1. If you want the row's fields to have equal widths, then give the FormRow component a "classnames" value that includes "equal width".
+2. If you want to assign the fields different widths, then give each field component a "classnames" value that includes "X wide", where "X" is the word for a number of grid columns: e.g. "two wide" for a field that will be only two grid columns wide.
+
+
 ### Layout changes by resource type
 
 INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE
@@ -291,7 +299,48 @@ Custom field values have to be accessed differently from built-in field values. 
 
 ## Built-in components
 
-InvenioRDM includes React components that are exposed for import:
+  AbstractComponent,
+  AccessRightsComponent,
+  AdditionalDatesComponent,
+  AdditionalDescriptionComponent,
+  AdditionalTitlesComponent,
+  AlternateIdentifiersComponent,
+  BookTitleComponent,
+  CommonsDomainComponent,
+  CommunitiesComponent,
+  ContributorsComponent,
+  CreatorsComponent,
+  DateComponent,
+  DeleteComponent,
+  DoiComponent,
+  FilesUploadComponent,
+  FundingComponent,
+  ISBNComponent,
+  SectionPagesComponent,
+  JournalTitleComponent,
+  JournalISSNComponent,
+  LanguagesComponent,
+  LicensesComponent,
+  MetadataOnlyComponent,
+  MeetingDatesComponent,
+  MeetingPlaceComponent,
+  MeetingTitleComponent,
+  PublisherComponent,
+  PublicationLocationComponent,
+  ReferencesComponent,
+  RelatedWorksComponent,
+  ResourceTypeComponent,
+  SubjectsComponent,
+  SubmissionComponent,
+  SubmitterEmailComponent,
+  SubmitterUsernameComponent,
+  SubtitleComponent,
+  TitleComponent,
+  TotalPagesComponent,
+  UniversityComponent,
+  VersionComponent,
+
+InvenioRDM includes field-level React components that are exposed for import. These cannot be included directly because ???:
 
 ### AccessRightField (in "@js/invenio_rdm_records")
 ### DescriptionsField (in"@js/invenio_rdm_records")

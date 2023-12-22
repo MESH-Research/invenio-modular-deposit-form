@@ -97,6 +97,7 @@ export const RDMDepositForm = ({
     priorityFieldValues: priorityFieldValues[currentResourceType],
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
+  console.log("RDMDepositForm currentFieldMods", currentFieldMods);
   const customFieldsUI = config.custom_fields.ui;
   const [formPageFields, setFormPageFields] = useState({});
   console.log("RDMDepositForm values", currentValues);

@@ -1,5 +1,6 @@
 import React from "react";
 import Overridable from "react-overridable";
+import { pickBy } from "lodash";
 
 const FieldComponentWrapper = ({
   children,
@@ -21,31 +22,11 @@ const FieldComponentWrapper = ({
   required,
   ...extraProps
 }) => {
-  console.log(
-    "FieldComponentWrapper resource type",
-    componentName,
-    fieldPath,
-    icon,
-    iconMods,
-    label,
-    labelMods,
-    defaultFieldValues,
-    description,
-    descriptionMods,
-    extraRequiredFields,
-    helpText,
-    helpTextMods,
-    placeholder,
-    placeholderMods,
-    priorityFieldValues,
-    required,
-    extraProps
-  );
   const moddedIcon =
-    iconMods && iconMods[fieldPath] ? iconMods.hasOwnProperty(fieldPath) : icon;
+    iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
   const moddedLabel =
-    labelMods && labelMods[fieldPath]
-      ? labelMods.hasOwnProperty(fieldPath)
+    labelMods && labelMods.hasOwnProperty(fieldPath)
+      ? labelMods[fieldPath]
       : label;
   const moddedDescription =
     descriptionMods && descriptionMods.hasOwnProperty(fieldPath)
@@ -71,7 +52,9 @@ const FieldComponentWrapper = ({
     priorityFieldValues && priorityFieldValues.hasOwnProperty(fieldPath)
       ? priorityFieldValues[fieldPath]
       : null;
-  console.log("FieldComponentWrapper children", children);
+  console.log("extraProps", fieldPath, extraProps);
+  // Remove undefined values from extraProps
+  const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
   return (
     <Overridable
       id={`InvenioAppRdm.Deposit.${componentName}.container`}
@@ -90,7 +73,7 @@ const FieldComponentWrapper = ({
             placeholder: moddedPlaceholder,
             priorityFieldValues: priorityFieldValueSet,
             required: moddedRequired,
-            ...extraProps,
+            ...cleanedExtraProps,
           },
           null
         )}

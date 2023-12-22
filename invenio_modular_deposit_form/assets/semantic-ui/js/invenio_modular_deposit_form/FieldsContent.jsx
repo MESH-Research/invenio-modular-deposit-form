@@ -2,13 +2,11 @@ import React from "react";
 import { Form } from "semantic-ui-react";
 import { SectionWrapper } from "./field_components/SectionWrapper";
 
-const FormRow = ({ subsections, ...props }) => {
-  console.log("FormRow", props);
+const FormRow = ({ subsections, classnames, ...props }) => {
   return (
-    <Form.Group>
+    <Form.Group className={classnames ? classnames : null}>
       {subsections.map(({ section, component, ...innerProps }, index) => {
         const MyField = props.fieldComponents[component][0];
-        console.log("FormRow subsection", component, innerProps);
         return (
           <MyField
             {...{

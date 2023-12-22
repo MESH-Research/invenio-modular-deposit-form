@@ -36,8 +36,8 @@ const CustomFieldInjector = ({
   const templateLoaders = [
     (widget) => import(`@templates/custom_fields/${widget}.js`),
     (widget) => import(`@templates/custom_fields/${widget}.jsx`),
-    (widget) => import(`@js/invenio_rdm_records/src/deposit/customFields`),
-    (widget) => import(`react-invenio-forms`),
+    () => import(`@js/invenio_rdm_records/src/deposit/customFields`),
+    () => import(`react-invenio-forms`),
   ];
   const fieldPathPrefix = "custom_fields";
   useEffect(() => {
@@ -53,7 +53,7 @@ const CustomFieldInjector = ({
       componentName={idString}
       fieldPath={fieldPathPrefix + "." + fieldName}
       customFieldsUI={chosenSetConfig}
-      {...restArgs}
+      {...chosenFieldConfig.props}
     >
       {MyWidget}
       {/* FIXME: Do we have to load widget dynamically like this? */}

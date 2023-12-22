@@ -170,7 +170,7 @@ const AlternateIdentifiersComponent = ({ vocabularies, ...extraProps }) => {
       componentName="IdentifiersField"
       fieldPath="metadata.identifiers"
       label={i18next.t("URLs and Other Identifiers")}
-      labelIcon={"barcode"}
+      icon={"barcode"}
       {...extraProps}
     >
       <IdentifiersField
@@ -244,13 +244,18 @@ const ContributorsComponent = ({ config, vocabularies, ...extraProps }) => {
   );
 };
 
-const CreatorsComponent = ({ config, vocabularies, ...extraProps }) => {
+const CreatorsComponent = ({
+  config,
+  vocabularies,
+  currentUserProfile,
+  ...extraProps
+}) => {
   return (
     <FieldComponentWrapper
       componentName="CreatorsField"
       fieldPath="metadata.creators"
-      label={i18next.t(label) || i18next.t("Creators")}
-      labelIcon="user"
+      label={i18next.t("Creators")}
+      icon="user"
       description=""
       {...extraProps}
     >
@@ -259,6 +264,13 @@ const CreatorsComponent = ({ config, vocabularies, ...extraProps }) => {
         schema="creators"
         autocompleteNames={config.autocomplete_names}
         required
+        config={config}
+        addButtonLabel={i18next.t("Add creator")}
+        currentUserprofile={currentUserProfile}
+        modal={{
+          addLabel: i18next.t("Add creator"),
+          editLabel: i18next.t("Edit creator"),
+        }}
       />
     </FieldComponentWrapper>
   );
@@ -449,6 +461,7 @@ const ISBNComponent = ({ customFieldsUI, ...extraProps }) => {
       fieldName="imprint:imprint.isbn"
       idString="ImprintISBNField"
       customFieldsUI={customFieldsUI}
+      icon="barcode"
       description={""}
       {...extraProps}
     />
@@ -462,7 +475,7 @@ const JournalTitleComponent = ({ customFieldsUI, ...extraProps }) => {
       fieldName="journal:journal.title"
       idString="JournalTitleField"
       label="Journal title"
-      icon="book"
+      icon=""
       description=""
       customFieldsUI={customFieldsUI}
       {...extraProps}
@@ -479,6 +492,36 @@ const JournalISSNComponent = ({ customFieldsUI, ...extraProps }) => {
       label="ISSN"
       icon="barcode"
       description=""
+      customFieldsUI={customFieldsUI}
+      {...extraProps}
+    />
+  );
+};
+
+const JournalVolumeComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Journal"
+      fieldName="journal:journal.volume"
+      idString="JournalVolumeField"
+      label={i18next.t("Volume")}
+      description=""
+      icon="zip"
+      customFieldsUI={customFieldsUI}
+      {...extraProps}
+    />
+  );
+};
+
+const JournalIssueComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Journal"
+      fieldName="journal:journal.issue"
+      idString="JournalIssueField"
+      label={i18next.t("Issue")}
+      description=""
+      icon="book"
       customFieldsUI={customFieldsUI}
       {...extraProps}
     />
@@ -940,7 +983,7 @@ const TotalPagesComponent = ({ customFieldsUI, ...extraProps }) => {
       idString="ImprintPagesField"
       customFieldsUI={customFieldsUI}
       description={""}
-      label="Total book pages"
+      label={i18next.t("Total book pages")}
       icon="file outline"
       {...extraProps}
     />
@@ -990,9 +1033,10 @@ export {
   FilesUploadComponent,
   FundingComponent,
   ISBNComponent,
-  SectionPagesComponent,
-  JournalTitleComponent,
   JournalISSNComponent,
+  JournalIssueComponent,
+  JournalTitleComponent,
+  JournalVolumeComponent,
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
@@ -1004,6 +1048,7 @@ export {
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
+  SectionPagesComponent,
   SubjectsComponent,
   SubmissionComponent,
   SubmitterEmailComponent,

@@ -70,7 +70,7 @@ const ResourceTypeSelectorField = ({
   };
 
   const handleOtherToggleClick = () => {
-    setFieldValue("metadata.resource_type", null);
+    setFieldValue("metadata.resource_type", frontEndOptions[0].value);
     setOtherToggleActive(true);
 
     setTimeout(() => {
@@ -102,7 +102,7 @@ const ResourceTypeSelectorField = ({
     <Field id={fieldPath} name={fieldPath}>
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+        form: { touched, errors, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => (
         <Form.Field
