@@ -46,14 +46,15 @@ import { FundingField } from "@js/invenio_vocabularies";
 import { Grid, Message } from "semantic-ui-react";
 // import PropTypes from "prop-types";
 import Overridable from "react-overridable";
-import { CommunityField } from "../replacement_components/CommunityField";
-import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSelectorField";
-import { PIDField } from "../replacement_components/PIDField";
 import { DatesField } from "../replacement_components/DatesField";
+import { CommunityField } from "../replacement_components/CommunityField";
+import { PIDField } from "../replacement_components/PIDField";
+import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSelectorField";
+import { SizesField } from "../replacement_components/SizesField";
+import { SubmitButtonModal } from "../replacement_components/PublishButton/SubmitButton";
 import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
-import { SubmitButtonModal } from "../replacement_components/PublishButton/SubmitButton";
 import { FormValuesContext } from "../RDMDepositForm";
 
 const AbstractComponent = ({ record, vocabularies, ...extraProps }) => {
@@ -462,6 +463,7 @@ const ISBNComponent = ({ customFieldsUI, ...extraProps }) => {
       idString="ImprintISBNField"
       customFieldsUI={customFieldsUI}
       icon="barcode"
+      placeholder="e.g. 0-06-251587-X"
       description={""}
       {...extraProps}
     />
@@ -492,6 +494,7 @@ const JournalISSNComponent = ({ customFieldsUI, ...extraProps }) => {
       label="ISSN"
       icon="barcode"
       description=""
+      placeholder="e.g. 1234-5678"
       customFieldsUI={customFieldsUI}
       {...extraProps}
     />
@@ -638,6 +641,7 @@ const SectionPagesComponent = ({ customFieldsUI, ...extraProps }) => {
       description={""}
       label="Section pages"
       icon="file outline"
+      placeholder="e.g. 123-145"
       {...extraProps}
     />
   );
@@ -650,6 +654,7 @@ const PublisherComponent = ({ ...extraProps }) => {
       fieldPath="metadata.publisher"
       description=""
       helpText=""
+      placeholder={""}
       {...extraProps}
     >
       <PublisherField fieldPath="metadata.publisher" required />
@@ -667,6 +672,7 @@ const PublicationLocationComponent = ({ customFieldsUI, ...extraProps }) => {
       label={"Place of Publication"}
       icon={"map marker alternate"}
       description={""}
+      placeholder={"e.g. Lagos, Nigeria"}
       {...extraProps}
     />
   );
@@ -727,6 +733,20 @@ const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
         options={vocabularies.metadata.resource_type}
         required
       />
+    </FieldComponentWrapper>
+  );
+};
+
+const SizesComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <FieldComponentWrapper
+      componentName="SizeField"
+      fieldPath="metadata.sizes"
+      icon={"crop"}
+      label={i18next.t("Dimensions")}
+      {...extraProps}
+    >
+      <SizesField fieldPath="metadata.sizes" label="Size" />
     </FieldComponentWrapper>
   );
 };
@@ -1049,6 +1069,7 @@ export {
   RelatedWorksComponent,
   ResourceTypeComponent,
   SectionPagesComponent,
+  SizesComponent,
   SubjectsComponent,
   SubmissionComponent,
   SubmitterEmailComponent,

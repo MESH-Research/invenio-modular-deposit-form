@@ -1,28 +1,24 @@
 import React from "react";
-import { FastField, Field } from "formik";
+import { Field, FastField, getIn } from "formik";
 import { Form } from "semantic-ui-react";
-import { FieldLabel } from "react-invenio-forms";
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { ErrorLabel, FieldLabel } from "react-invenio-forms";
 import { getTouchedParent } from "../utils";
 
-const TextField = ({
-  fieldPath,
-  label,
-  labelIcon: label_icon,
-  inputIcon: input_icon = true,
-  required,
-  disabled,
-  error,
-  helpText,
-  optimized,
+const TextArea = ({
   classnames,
-  showLabel = true,
-  fluid = "true",
+  error,
+  fieldPath,
+  fluid = true,
+  helpText = "",
+  label,
   onBlur,
+  optimized = false,
+  required = false,
+  rows = 3,
+  showLabel = true,
   width,
   ...extraProps
 }) => {
-  const FormikField = optimized ? FastField : Field;
   // FIXME: This is a hack to remove the extra props that are not used by the
   // semantic-ui Form.Input component. We should probably remove these earlier
   // FIXME: Implement the extraRequiredFields and defaultFieldValues props
@@ -45,15 +41,24 @@ const TextField = ({
     priorityFieldValues,
     ...filteredProps
   } = extraProps;
-  console.log("filteredProps", filteredProps);
+
+  const FormikField = optimized ? FastField : Field;
+
   return (
-    <FormikField id={fieldPath} name={fieldPath}>
+    <FormikField
+      id={fieldPath}
+      key={fieldPath}
+      name={fieldPath}
+      fieldPath={fieldPath}
+      optimized={optimized}
+    >
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+        form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
         const touchedAncestor = getTouchedParent(touched, fieldPath);
+        console.log("TextArea", fieldPath, meta, touchedAncestor);
 
         return (
           <Form.Field
@@ -63,25 +68,23 @@ const TextField = ({
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)
-            className={`invenio-text-input-field ${classnames}`}
-            fluid={fluid}
+            className={`invenio-text-area-field ${classnames}`}
             width={width}
           >
             {showLabel && (
-              <FieldLabel htmlFor={fieldPath} icon={label_icon} label={label} />
+              <FieldLabel
+                htmlFor={fieldPath}
+                icon={labelIcon || icon}
+                label={label}
+              />
             )}
-            <Form.Input
-              error={
-                meta.error && (meta.touched || touchedAncestor)
-                  ? meta.error
-                  : undefined
-              }
-              disabled={disabled}
-              fluid={fluid}
-              icon={input_icon ? label_icon : undefined}
+            <Form.TextArea
               id={fieldPath}
               name={fieldPath}
-              aria-describedby={`${fieldPath}.helptext`}
+              rows={rows}
+              {...(helpText
+                ? { "aria-describedby": `${fieldPath}.helptext` }
+                : {})}
               {...field}
               {...(onBlur && {
                 onBlur: (e) => {
@@ -91,11 +94,9 @@ const TextField = ({
               })}
               {...filteredProps}
             />
-            {helpText && (
-              <div className="helptext" id={`${fieldPath}.helptext`}>
-                {i18next.t(helpText)}
-              </div>
-            )}
+            {/* {((!!meta.error && (!!meta.touched || touchedAncestor)) ||
+              !!error) && <ErrorLabel fieldPath={fieldPath} />} */}
+            {helpText && <label className="helptext">{description}</label>}
           </Form.Field>
         );
       }}
@@ -103,4 +104,4 @@ const TextField = ({
   );
 };
 
-export { TextField };
+export { TextArea };

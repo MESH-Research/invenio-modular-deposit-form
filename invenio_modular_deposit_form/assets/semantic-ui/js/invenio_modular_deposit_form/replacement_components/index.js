@@ -4,3 +4,6 @@ export * from "./PIDField";
 export * from "./ResourceTypeSelectorField";
 export * from "./CommunitySelectionModal";
 export * from "./PublishButton";
+export * from "./SelectField";
+export * from "./TextField";
+export * from "./TextArea";

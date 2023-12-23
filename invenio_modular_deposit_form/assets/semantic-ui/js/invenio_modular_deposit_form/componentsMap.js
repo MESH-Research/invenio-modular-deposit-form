@@ -22,12 +22,16 @@ import {
   JournalTitleComponent,
   LanguagesComponent,
   LicensesComponent,
+  MeetingDatesComponent,
+  MeetingPlaceComponent,
+  MeetingTitleComponent,
   MetadataOnlyComponent,
   PublisherComponent,
   PublicationLocationComponent,
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
+  SizesComponent,
   SectionPagesComponent,
   SubjectsComponent,
   SubmissionComponent,
@@ -37,11 +41,7 @@ import {
   VersionComponent,
 } from "./field_components/field_components";
 import {
-  BookDetailComponent,
-  BookSectionDetailComponent,
   CombinedDatesComponent,
-  CombinedTitlesComponent,
-  JournalDetailComponent,
   OrganizationDetailsComponent,
   PublicationDetailsComponent,
   SubmitActionsComponent,
@@ -52,6 +52,7 @@ import { FormRow } from "./FieldsContent";
 
 const fieldComponents = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
+  AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
   AdditionalDescriptionComponent: [
@@ -97,6 +98,18 @@ const fieldComponents = {
   LanguagesComponent: [LanguagesComponent, ["metadata.languages"]],
   LicensesComponent: [LicensesComponent, ["metadata.rights"]],
   MetadataOnlyComponent: [MetadataOnlyComponent, ["access.status"]],
+  MeetingDatesComponent: [
+    MeetingDatesComponent,
+    ["custom_fields.meeting:meeting.dates"],
+  ],
+  MeetingPlaceComponent: [
+    MeetingPlaceComponent,
+    ["custom_fields.meeting:meeting.place"],
+  ],
+  MeetingTitleComponent: [
+    MeetingTitleComponent,
+    ["custom_fields.meeting:meeting.title"],
+  ],
   PublisherComponent: [PublisherComponent, ["metadata.publisher"]],
   PublicationLocationComponent: [
     PublicationLocationComponent,
@@ -111,6 +124,7 @@ const fieldComponents = {
     SectionPagesComponent,
     ["custom_fields.journal:journal.pages"],
   ],
+  SizesComponent: [SizesComponent, ["metadata.sizes"]],
   SubjectsComponent: [SubjectsComponent, ["metadata.subjects"]],
   SubtitleComponent: [SubtitleComponent, ["metadata.additional_titles"]],
   TitleComponent: [TitleComponent, ["metadata.title"]],
@@ -120,31 +134,6 @@ const fieldComponents = {
   ],
   VersionComponent: [VersionComponent, ["metadata.version"]],
   // below are composite field components
-  AccessComponent: [AccessRightField, ["access"]],
-  AccessRightsComponent: [AccessRightsComponent, ["access"]],
-  BookDetailComponent: [
-    BookDetailComponent,
-    [
-      "custom_fields.imprint:imprint.isbn",
-      "metadata.version",
-      "metadata.publisher",
-      "custom_fields.imprint:imprint.place",
-    ],
-  ],
-  BookSectionDetailComponent: [
-    BookSectionDetailComponent,
-    [
-      "custom_fields.imprint:imprint.title",
-      "custom_fields.imprint:imprint.isbn",
-      "metadata.version",
-      "metadata.publisher",
-      "custom_fields.imprint:imprint.place",
-    ],
-  ],
-  CombinedTitlesComponent: [
-    CombinedTitlesComponent,
-    ["metadata.title", "metadata.additional_titles"],
-  ],
   CombinedDatesComponent: [
     CombinedDatesComponent,
     ["metadata.publication_date", "metadata.dates"],
@@ -155,16 +144,6 @@ const fieldComponents = {
   SectionPagesComponent: [
     SectionPagesComponent,
     ["custom_fields.journal:journal.pages"],
-  ],
-  JournalDetailComponent: [
-    JournalDetailComponent,
-    [
-      "custom_fields.journal:journal.issn",
-      "custom_fields.journal:journal.title",
-      "custom_fields.journal:journal.volume",
-      "custom_fields.journal:journal.issue",
-      "custom_fields.journal:journal.pages",
-    ],
   ],
   OrganizationDetailsComponent: [
     OrganizationDetailsComponent,

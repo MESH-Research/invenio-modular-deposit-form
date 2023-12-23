@@ -26,7 +26,9 @@ import {
   Button,
   Confirm,
   Container,
+  Icon,
   Grid,
+  Modal,
   Step,
   Transition,
 } from "semantic-ui-react";
@@ -310,6 +312,7 @@ export const RDMDepositForm = ({
     setCurrentValues(values);
     setCurrentResourceType(values.metadata.resource_type);
     setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
+    window.localStorage.setItem("rdmDepositFormValues", JSON.stringify(values));
   };
 
   // receive error values up from Formik context to main form context
@@ -446,19 +449,31 @@ export const RDMDepositForm = ({
               </Transition.Group>
 
               <Confirm
+                icon="question circle outline"
                 id="confirm-page-change"
                 className="confirm-page-change"
                 open={confirmingPageChange}
-                header={i18next.t("Problems with this form page")}
-                content={i18next.t(
-                  "There are problems with the information you've entered. Are you sure you want to continue?"
-                )}
+                header={i18next.t("Hmmm...")}
+                content={
+                  <Modal.Content image>
+                    <Icon name="question circle outline" size="huge" />
+                    <Modal.Description>
+                      {i18next.t(
+                        "There are problems with the information you've entered. Do you want to fix them before moving on?"
+                      )}
+                    </Modal.Description>
+                  </Modal.Content>
+                }
+                confirmButton={
+                  <button className="ui button">
+                    {i18next.t("Continue anyway")}
+                  </button>
+                }
                 cancelButton={
-                  <button className="ui button" ref={confirmModalRef}>
+                  <button className="ui button positive" ref={confirmModalRef}>
                     {i18next.t("Fix the problems")}
                   </button>
                 }
-                confirmButton={i18next.t("Continue anyway")}
                 onCancel={handlePageChangeCancel}
                 onConfirm={handlePageChangeConfirm}
               />

@@ -3,12 +3,15 @@ import { Form } from "semantic-ui-react";
 import { SectionWrapper } from "./field_components/SectionWrapper";
 
 const FormRow = ({ subsections, classnames, ...props }) => {
+  console.log("FormRow props", props);
+  console.log("FormRow subsections", subsections);
   return (
     <Form.Group className={classnames ? classnames : null}>
       {subsections.map(({ section, component, ...innerProps }, index) => {
         const MyField = props.fieldComponents[component][0];
         return (
           <MyField
+            key={index}
             {...{
               section,
               component,

@@ -52,7 +52,6 @@ const FieldComponentWrapper = ({
     priorityFieldValues && priorityFieldValues.hasOwnProperty(fieldPath)
       ? priorityFieldValues[fieldPath]
       : null;
-  console.log("extraProps", fieldPath, extraProps);
   // Remove undefined values from extraProps
   const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
   return (

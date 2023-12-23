@@ -37,6 +37,7 @@ const CustomFieldInjector = ({
     (widget) => import(`@templates/custom_fields/${widget}.js`),
     (widget) => import(`@templates/custom_fields/${widget}.jsx`),
     () => import(`@js/invenio_rdm_records/src/deposit/customFields`),
+    () => import(`@js/invenio_modular_deposit_form`),
     () => import(`react-invenio-forms`),
   ];
   const fieldPathPrefix = "custom_fields";

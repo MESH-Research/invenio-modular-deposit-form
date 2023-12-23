@@ -61,7 +61,6 @@ const SelectField = ({
         form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
-        console.log("SelectField", field);
         return (
           <Form.Field
             error={meta.error && meta.touched ? true : undefined}

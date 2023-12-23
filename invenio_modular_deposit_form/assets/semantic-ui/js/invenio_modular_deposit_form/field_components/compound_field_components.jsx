@@ -61,134 +61,11 @@ import {
 } from "./field_components";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 
-const BookDetailComponent = ({ customFieldsUI }) => {
-  return (
-    <>
-      <Form.Group>
-        <BookTitleComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-      <Form.Group>
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.isbn"
-          idString="ImprintISBNField"
-          description=""
-          customFieldsUI={customFieldsUI}
-        />
-        <VersionComponent description="" label="Edition or Version" icon="" />
-      </Form.Group>
-      <Form.Group>
-        <PublisherComponent />
-        <PublicationLocationComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-      <Form.Group>
-        <TotalPagesComponent
-          customFieldsUI={customFieldsUI}
-          description={""}
-          label="Number of Pages"
-          icon="file outline"
-        />
-      </Form.Group>
-    </>
-  );
-};
-
-const BookSectionDetailComponent = ({ customFieldsUI }) => {
-  return (
-    <>
-      <Form.Group widths="equal">
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.title"
-          idString="ImprintTitleField"
-          description=""
-          label="Book title"
-          icon="book"
-          customFieldsUI={customFieldsUI}
-        />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.isbn"
-          idString="ImprintISBNField"
-          description=""
-          customFieldsUI={customFieldsUI}
-        />
-        <VersionComponent description="" label="Edition or Version" icon="" />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <PublisherComponent />
-        <PublicationLocationComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-    </>
-  );
-};
-
 const CombinedDatesComponent = ({ vocabularies }) => {
   return (
     <>
       <DateComponent />
       <AdditionalDatesComponent vocabularies={vocabularies} />
-    </>
-  );
-};
-
-const CombinedTitlesComponent = ({ vocabularies, record, labelMods }) => {
-  return (
-    <>
-      <TitleComponent
-        vocabularies={vocabularies}
-        record={record}
-        labelMods={labelMods}
-      />
-    </>
-  );
-};
-
-const JournalDetailComponent = ({ customFieldsUI, labelMods }) => {
-  return (
-    <>
-      {/* <FieldLabel htmlFor={"imprint:imprint"}
-        icon={"book"}
-        label={"Book details"}
-      /> */}
-      <Form.Group widths="equal">
-        <JournalTitleComponent
-          customFieldsUI={customFieldsUI}
-          labelMods={labelMods}
-        />
-        <JournalISSNComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <CustomFieldInjector
-          sectionName="Journal"
-          fieldName="journal:journal.volume"
-          idString="JournalVolumeField"
-          label="Volume"
-          description=""
-          icon="zip"
-          customFieldsUI={customFieldsUI}
-        />
-        <CustomFieldInjector
-          sectionName="Journal"
-          fieldName="journal:journal.issue"
-          idString="JournalIssueField"
-          label="Issue"
-          description=""
-          customFieldsUI={customFieldsUI}
-        />
-        <SectionPagesComponent
-          customFieldsUI={customFieldsUI}
-          description={""}
-          label="Pages"
-          icon="file outline"
-        />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <PublisherComponent />
-        <PublicationLocationComponent customFieldsUI={customFieldsUI} />
-      </Form.Group>
     </>
   );
 };
@@ -276,11 +153,7 @@ const TypeTitleComponent = ({ vocabularies, record, labelMods }) => {
 };
 
 export {
-  BookDetailComponent,
-  BookSectionDetailComponent,
   CombinedDatesComponent,
-  CombinedTitlesComponent,
-  JournalDetailComponent,
   MeetingDetailsComponent,
   OrganizationDetailsComponent,
   PublicationDetailsComponent,
