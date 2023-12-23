@@ -43,7 +43,8 @@ const RESERVE_PID_STARTED = "RESERVE_PID_STARTED";
 
 const getFieldErrors = (form, fieldPath) => {
   return (
-    getIn(form.errors, fieldPath, null) || getIn(form.initialErrors, fieldPath, null)
+    getIn(form.errors, fieldPath, null) ||
+    getIn(form.initialErrors, fieldPath, null)
   );
 };
 
@@ -138,9 +139,13 @@ class ManagedUnmanagedSwitch extends Component {
     return (
       <Form.Group inline>
         <Form.Field>
-          <FieldLabel htmlFor={fieldPath} icon={""} label={i18next.t("Do you have a {{pidLabel}} for this work?", {
-            pidLabel: pidLabel,
-          })} />
+          <FieldLabel
+            htmlFor={fieldPath}
+            icon={""}
+            label={i18next.t("Do you have a {{pidLabel}} for this work?", {
+              pidLabel: pidLabel,
+            })}
+          />
         </Form.Field>
         <Form.Field width={2}>
           <Radio
@@ -225,7 +230,8 @@ class ManagedIdentifierComponent extends Component {
         disabled={disabled || hasIdentifier}
         label={btnLabelGetPID}
         loading={
-          actionState === RESERVE_PID_STARTED && actionStateExtra.pidType === pidType
+          actionState === RESERVE_PID_STARTED &&
+          actionStateExtra.pidType === pidType
         }
         handleReservePID={this.handleReservePID}
       />
@@ -237,7 +243,8 @@ class ManagedIdentifierComponent extends Component {
         label={btnLabelDiscardPID}
         handleDiscardPID={this.handleDiscardPID}
         loading={
-          actionState === DISCARD_PID_STARTED && actionStateExtra.pidType === pidType
+          actionState === DISCARD_PID_STARTED &&
+          actionStateExtra.pidType === pidType
         }
         pidType={pidType}
       />
@@ -247,18 +254,19 @@ class ManagedIdentifierComponent extends Component {
 
     return (
       <>
-          {hasIdentifier ? (
-          <Form.Group inline>
-            <Form.Field>
-              <label>{`https://doi.org/${identifier}`}</label>
-            </Form.Field>
-          </Form.Group>
-          ) : (null
-            // NOTE: This is a placeholder for the PID field. It is disabled
-            // <Form.Field width={4}>
-            //   <Form.Input disabled value="" placeholder={pidPlaceholder} width={16} />
-            // </Form.Field>
-          )}
+        {
+          hasIdentifier ? (
+            <Form.Group inline>
+              <Form.Field>
+                <label>{`https://doi.org/${identifier}`}</label>
+              </Form.Field>
+            </Form.Group>
+          ) : null
+          // NOTE: This is a placeholder for the PID field. It is disabled
+          // <Form.Field width={4}>
+          //   <Form.Input disabled value="" placeholder={pidPlaceholder} width={16} />
+          // </Form.Field>
+        }
 
         {/* ALERT: This is the widget to reserve a DOI before registration. It is disabled. */}
         {/* {!isEditingPublishedRecord &&
@@ -302,7 +310,10 @@ const mapStateToProps = (state) => ({
   actionStateExtra: state.deposit.actionStateExtra,
 });
 
-const ManagedIdentifierCmp = connect(mapStateToProps, null)(ManagedIdentifierComponent);
+const ManagedIdentifierCmp = connect(
+  mapStateToProps,
+  null
+)(ManagedIdentifierComponent);
 
 /**
  * Render identifier field to allow user to input
@@ -342,7 +353,7 @@ class UnmanagedIdentifierCmp extends Component {
     const fieldError = getFieldErrors(form, fieldPath);
     return (
       <>
-      {/* // <Form.Group> */}
+        {/* // <Form.Group> */}
         <Form.Field error={fieldError}>
           <Form.Input
             onChange={(e, { value }) => this.onChange(value)}
@@ -353,9 +364,13 @@ class UnmanagedIdentifierCmp extends Component {
           />
         </Form.Field>
         <Form.Field>
-        {helpText && <label id={`${fieldPath}.help-text`} className="helptext">{helpText}</label>}
+          {helpText && (
+            <label id={`${fieldPath}.help-text`} className="helptext">
+              {helpText}
+            </label>
+          )}
         </Form.Field>
-      {/* // </Form.Group> */}
+        {/* // </Form.Group> */}
       </>
     );
   }
@@ -393,8 +408,8 @@ class CustomPIDField extends Component {
   }
 
   componentDidMount() {
-    if ( this.props.form.values.pids?.doi?.identifier=="" ) {
-      this.props.form.setFieldValue('pids', {});
+    if (this.props.form.values.pids?.doi?.identifier == "") {
+      this.props.form.setFieldValue("pids", {});
     }
   }
 
@@ -405,21 +420,21 @@ class CustomPIDField extends Component {
       provider: PROVIDER_EXTERNAL,
     };
 
-    if ( identifier !== "" ) {
-      this.setState({isManagedSelected: false});
+    if (identifier !== "") {
+      this.setState({ isManagedSelected: false });
       this.debounced && this.debounced.cancel();
       this.debounced = _debounce(() => {
         form.setFieldValue(fieldPath, pid);
       }, UPDATE_PID_DEBOUNCE_MS);
       this.debounced();
     } else {
-      this.setState({isManagedSelected: true});
+      this.setState({ isManagedSelected: true });
       this.debounced && this.debounced.cancel();
       this.debounced = _debounce(() => {
-        form.setFieldValue('pids', {});
+        form.setFieldValue("pids", {});
       }, UPDATE_PID_DEBOUNCE_MS);
       this.debounced();
-      }
+    }
   };
 
   render() {
@@ -487,8 +502,7 @@ class CustomPIDField extends Component {
           />
         )}
 
-        {canBeManaged && _isManagedSelected
-        && (
+        {canBeManaged && _isManagedSelected && (
           <ManagedIdentifierCmp
             disabled={isEditingPublishedRecord}
             btnLabelDiscardPID={btnLabelDiscardPID}
@@ -501,8 +515,7 @@ class CustomPIDField extends Component {
             pidLabel={pidLabel}
             isEditingPublishedRecord={isEditingPublishedRecord}
           />
-        )
-        }
+        )}
 
         {canBeUnmanaged && !_isManagedSelected && (
           <UnmanagedIdentifierCmp
@@ -567,7 +580,9 @@ export class PIDField extends Component {
   render() {
     const { fieldPath } = this.props;
 
-    return <FastField name={fieldPath} component={CustomPIDField} {...this.props} />;
+    return (
+      <FastField name={fieldPath} component={CustomPIDField} {...this.props} />
+    );
   }
 }
 

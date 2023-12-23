@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useFormikContext } from "formik";
-import { Button, Icon } from "semantic-ui-react";
+import { i18next } from "@translations/invenio_app_rdm/i18next";
+import { Button, Icon, Modal } from "semantic-ui-react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FormValuesContext } from "./RDMDepositForm";
@@ -30,11 +31,69 @@ function useIsInViewport(ref) {
   return isIntersecting;
 }
 
+const RecoveryModal = ({
+  confirmModalRef,
+  focusFirstElement,
+  handleStorageData,
+  setRecoveryAsked,
+}) => {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <Modal
+      onClose={() => setOpen(false)}
+      onOpen={() => setOpen(true)}
+      open={open}
+    >
+      <Modal.Header>{i18next.t("Recover your draft deposit?")}</Modal.Header>
+      <Modal.Content>
+        <Modal.Description>
+          <p>
+            {i18next.t(
+              "This form was closed with unsaved information. Do you want to recover it and continue with the same work?"
+            )}
+          </p>
+        </Modal.Description>
+      </Modal.Content>
+      <Modal.Actions>
+        <Button
+          color="black"
+          content={i18next.t("No, start a new work")}
+          onClick={() => {
+            setOpen(false);
+            handleStorageData(false);
+            focusFirstElement();
+            setRecoveryAsked(true);
+          }}
+        />
+        <Button
+          content={i18next.t("Yes, recover the draft")}
+          labelPosition="right"
+          icon="checkmark"
+          onClick={() => {
+            setOpen(false);
+            handleStorageData(true);
+            focusFirstElement();
+            setRecoveryAsked(true);
+          }}
+          positive
+          ref={confirmModalRef}
+        />
+      </Modal.Actions>
+    </Modal>
+  );
+};
+
 const FormPage = ({
   commonFieldProps,
   currentFormPage,
+  focusFirstElement,
   id,
   pageNums,
+  recoveryAsked,
+  setRecoveryAsked,
+  storageDataPresent,
+  setStorageDataPresent,
   subsections,
   handleSettingFieldTouched,
 }) => {
@@ -47,6 +106,7 @@ const FormPage = ({
     setFieldValue,
     setFieldTouched,
     setTouched,
+    setValues,
     touched,
     validateField,
     validateForm,
@@ -72,8 +132,10 @@ const FormPage = ({
   const previousPage =
     previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
   const pageTargetRef = useRef(null);
+  const confirmModalRef = useRef(null);
   // FIXME: sticky footer deactivated
   const pageTargetInViewport = useIsInViewport(pageTargetRef);
+  const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
 
   //pass values up from Formik context to main form context
   useEffect(() => {
@@ -98,6 +160,35 @@ const FormPage = ({
     }
   }, []);
 
+  // on first load, check if there is data in local storage
+  useEffect(() => {
+    const user = commonFieldProps.currentUserprofile.id;
+    const storageValues = window.localStorage.getItem(
+      `rdmDepositFormValues.${user}`
+    );
+    const storageValuesObj = JSON.parse(storageValues);
+    console.log("storageValues", storageValuesObj?.id);
+    console.log("initialValues", initialValues?.id);
+    if (!!storageValues && storageValuesObj?.id === initialValues?.id) {
+      console.log("storageValues match");
+      setStorageDataPresent(true);
+      setRecoveredStorageValues(storageValuesObj);
+    }
+  }, []);
+
+  const handleStorageData = (recover) => {
+    const user = commonFieldProps.currentUserprofile.id;
+    if (recover) {
+      async function setinitialvalues() {
+        await setValues(recoveredStorageValues, false);
+      }
+      setinitialvalues();
+      window.localStorage.removeItem(`rdmDepositFormValues.${user}`);
+    } else {
+      window.localStorage.removeItem(`rdmDepositFormValues.${user}`);
+    }
+  };
+
   //pass setFieldTouched up from Formik context to main form context
   useEffect(() => {
     handleSettingFieldTouched(setFieldTouched);
@@ -119,6 +210,10 @@ const FormPage = ({
   }, [errors, touched]);
 
   const handleButtonClick = (event, { value }) => {
+    window.localStorage.setItem(
+      `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}`,
+      JSON.stringify(values)
+    );
     handleFormPageChange(event, { value });
   };
 
@@ -207,6 +302,15 @@ const FormPage = ({
         </div>
         <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
       </div>
+
+      {!recoveryAsked && storageDataPresent && (
+        <RecoveryModal
+          confirmModalRef={confirmModalRef}
+          focusFirstElement={focusFirstElement}
+          handleStorageData={handleStorageData}
+          setRecoveryAsked={setRecoveryAsked}
+        />
+      )}
     </DndProvider>
   );
 };

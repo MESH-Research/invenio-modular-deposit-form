@@ -68,6 +68,7 @@ const SubmitButtonComponent = ({
   isRecordSubmittedForReview,
   ...ui
 }) => {
+  console.log("SubmitButtonComponent", ui);
   const { values, errors, handleSubmit, isSubmitting } = useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
   const [noFilesOpen, setNoFilesOpen] = useState(false);
@@ -167,7 +168,7 @@ const SubmitButtonComponent = ({
         handleSubmit(event);
         setNoFilesOpen(false);
         setPublishConfirmOpen(false);
-        console.log("handleSaveOrSubmit clicked save");
+        window.localStorage.removeItem("deposit");
       });
   };
 

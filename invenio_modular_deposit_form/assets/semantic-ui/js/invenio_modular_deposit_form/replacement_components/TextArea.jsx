@@ -94,8 +94,8 @@ const TextArea = ({
               })}
               {...filteredProps}
             />
-            {/* {((!!meta.error && (!!meta.touched || touchedAncestor)) ||
-              !!error) && <ErrorLabel fieldPath={fieldPath} />} */}
+            {((!!meta.error && (!!meta.touched || touchedAncestor)) ||
+              !!error) && <ErrorLabel fieldPath={fieldPath} />}
             {helpText && <label className="helptext">{description}</label>}
           </Form.Field>
         );

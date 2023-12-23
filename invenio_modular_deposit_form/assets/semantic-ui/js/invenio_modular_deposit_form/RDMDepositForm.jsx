@@ -41,6 +41,7 @@ import {
 } from "./utils";
 import { fieldComponents } from "./componentsMap";
 import { FormPage } from "./FormPage";
+import { set } from "lodash";
 
 const validator = require(`@js/invenio_modular_deposit_form_extras/validator.js`);
 const validationSchema = validator?.validationSchema
@@ -99,11 +100,12 @@ export const RDMDepositForm = ({
     priorityFieldValues: priorityFieldValues[currentResourceType],
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
-  console.log("RDMDepositForm currentFieldMods", currentFieldMods);
   const customFieldsUI = config.custom_fields.ui;
   const [formPageFields, setFormPageFields] = useState({});
   console.log("RDMDepositForm values", currentValues);
-  const confirmModalRef = useRef(null);
+  const [recoveryAsked, setRecoveryAsked] = useState(false);
+  const [storageDataPresent, setStorageDataPresent] = useState(false);
+  const confirmModalRef = useRef();
 
   // fix sticky footer overlapping content when navigating by keyboard
   // combined with css scroll-margin-bottom
@@ -113,7 +115,7 @@ export const RDMDepositForm = ({
     );
     inputs.forEach((input) => {
       input.addEventListener("focus", (event) => {
-        event.target.scrollIntoView({ block: "end", behavior: "smooth" });
+        event.target.scrollIntoView({ block: "center", behavior: "smooth" });
       });
     });
     const textareas = document.querySelectorAll("#rdm-deposit-form textarea");
@@ -242,13 +244,15 @@ export const RDMDepositForm = ({
   }
 
   const focusFirstElement = () => {
-    const newPageWrapper = document.getElementById(
-      `InvenioAppRdm.Deposit.FormPage.${currentFormPage}`
-    );
-    const targetIndex = currentFormPage === "page-6" ? 1 : 0;
-    const newFirstInput =
-      newPageWrapper?.querySelectorAll("button, input")[targetIndex];
-    newFirstInput?.focus();
+    setTimeout(() => {
+      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
+      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
+      const newInputs = document.querySelectorAll(
+        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
+      );
+      const newFirstInput = newInputs[targetIndex];
+      newFirstInput?.focus();
+    }, 20);
   };
 
   // FIXME: workaround since file uploader has inaccessible first input
@@ -312,7 +316,6 @@ export const RDMDepositForm = ({
     setCurrentValues(values);
     setCurrentResourceType(values.metadata.resource_type);
     setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
-    window.localStorage.setItem("rdmDepositFormValues", JSON.stringify(values));
   };
 
   // receive error values up from Formik context to main form context
@@ -436,10 +439,15 @@ export const RDMDepositForm = ({
                           currentFormPage={section}
                           currentUserprofile={currentUserprofile}
                           commonFieldProps={commonFieldProps}
+                          focusFirstElement={focusFirstElement}
                           id={`InvenioAppRdm.Deposit.FormPage.${section}`}
-                          pageNums={formPages.map(({ section }) => section)}
-                          subsections={actualSubsections}
                           pageFields={formPageFields[section]}
+                          pageNums={formPages.map(({ section }) => section)}
+                          recoveryAsked={recoveryAsked}
+                          setRecoveryAsked={setRecoveryAsked}
+                          storageDataPresent={storageDataPresent}
+                          setStorageDataPresent={setStorageDataPresent}
+                          subsections={actualSubsections}
                           handleSettingFieldTouched={handleSettingFieldTouched}
                         />
                       </div>

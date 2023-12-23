@@ -45,7 +45,6 @@ const TextField = ({
     priorityFieldValues,
     ...filteredProps
   } = extraProps;
-  console.log("filteredProps", filteredProps);
   return (
     <FormikField id={fieldPath} name={fieldPath}>
       {({

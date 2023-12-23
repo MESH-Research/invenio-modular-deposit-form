@@ -780,7 +780,7 @@ const SubjectsComponent = ({ record, vocabularies, ...extraProps }) => {
   );
 };
 
-const SubmissionComponent = ({ record, permissions }) => {
+const SubmissionComponent = ({ record, permissions, config }) => {
   const { errors, values, setFieldValue } = useFormikContext();
   const { handleFormPageChange } = useContext(FormValuesContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
@@ -848,6 +848,7 @@ const SubmissionComponent = ({ record, permissions }) => {
               fluid
               actionName="saveDraft"
               aria-describedby="save-button-description"
+              currentUserProfile={config.currentUserProfile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -875,6 +876,7 @@ const SubmissionComponent = ({ record, permissions }) => {
               fluid
               actionName="preview"
               aria-describedby="preview-button-description"
+              currentUserProfile={config.currentUserProfile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -895,6 +897,7 @@ const SubmissionComponent = ({ record, permissions }) => {
             <SubmitButtonModal
               fluid
               actionName="publish"
+              currentUserProfile={config.currentUserProfile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}

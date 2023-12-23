@@ -41,7 +41,7 @@
   <input id="deposits-record-permissions" type="hidden" name="deposits-record-permissions" value='{{permissions | tojson }}'></input>
   {%- endif %}
   <div id="deposit-form"
-    data-current-userprofile='{{ dict(full_name=current_userprofile.full_name, affiliations=current_userprofile.affiliations) | tojson }}'
+    data-current-userprofile='{{ dict(id=current_userprofile.id, full_name=current_userprofile.full_name, affiliations=current_userprofile.affiliations) | tojson }}'
     data-common-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS", {}) | tojson }}'
     data-fields-by-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", {}) | tojson }}'
     data-label-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", {}) | tojson }}'
