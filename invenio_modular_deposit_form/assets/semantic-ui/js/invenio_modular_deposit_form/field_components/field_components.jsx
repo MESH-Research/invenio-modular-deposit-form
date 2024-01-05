@@ -351,17 +351,13 @@ const FilesUploadComponent = ({
       config={config}
       noFiles={noFiles}
     >*/}
-      {noFiles && record.is_published && (
-        <div className="text-align-center pb-10">
-          <em>{i18next.t("The record has no files.")}</em>
-        </div>
-      )}
       <FieldComponentWrapper
         componentName="FileUploader"
         fieldPath="files"
         {...extraProps}
       >
         <FileUploader
+          noFiles={noFiles}
           isDraftRecord={!record.is_published}
           quota={config.quota}
           decimalSizeDisplay={config.decimal_size_display}

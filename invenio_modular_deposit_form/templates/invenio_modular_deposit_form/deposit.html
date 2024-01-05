@@ -14,7 +14,7 @@
   see LICENSE file for more details.
 #}
 {%- if not record.is_published and record.versions.index and record.versions.index > 1%}
-{% from invenio_userprofiles.api import current_userprofile %}
+{# {% from invenio_userprofiles.api import current_userprofile %} #}
   {%- set title = _("New version") %}
 {%- elif not record.is_published %}
   {%- set title = _("New upload") %}
