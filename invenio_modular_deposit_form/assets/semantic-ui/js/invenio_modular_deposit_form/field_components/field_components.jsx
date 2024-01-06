@@ -328,6 +328,7 @@ const DoiComponent = ({ config, record, ...extraProps }) => {
             pidType={pid.scheme}
             unmanagedHelpText={pid.unmanaged_help_text}
             required
+            {...extraProps}
           />
         </Fragment>
       ))}
@@ -539,6 +540,12 @@ const LanguagesComponent = ({ record, ...extraProps }) => {
         initialOptions={_get(record, "ui.languages", []).filter(
           (lang) => lang !== null
         )} // needed because dumped empty record from backend gives [null]
+        placeholder={i18next.t(
+          'Type to search for a language (press "enter" to select)'
+        )}
+        description={i18next.t(
+          'Search for the language(s) of the resource (e.g., "eng", "fra", "Swahili"). Press enter to select each language.'
+        )}
         serializeSuggestions={(suggestions) =>
           suggestions.map((item) => ({
             text: item.title_l10n,
@@ -546,6 +553,7 @@ const LanguagesComponent = ({ record, ...extraProps }) => {
             key: item.id,
           }))
         }
+        aria-describedby="metadata.languages.helptext"
       />
     </FieldComponentWrapper>
   );
@@ -800,6 +808,13 @@ const SubmissionComponent = ({ record, permissions, config }) => {
     return values.metadata.identifiers;
   };
 
+  const fixEmptyPublisher = async () => {
+    if (values.metadata.publisher === "") {
+      setFieldValue("metadata.publisher", "unknown");
+    }
+    return values.metadata.publisher;
+  };
+
   const handleConfirmNoFiles = async () => {
     if (!hasFiles) {
       setConfirmedNoFiles(true);
@@ -816,6 +831,7 @@ const SubmissionComponent = ({ record, permissions, config }) => {
     // FIXME: This is a cludge to handle the automatic assignment of
     // the "url" scheme to the default empty URL identifier field
     await filterEmptyIdentifiers();
+    await fixEmptyPublisher();
     if (hasFiles && !filesEnabled) {
       await setFieldValue("files.enabled", true);
     }

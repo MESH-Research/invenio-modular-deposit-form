@@ -447,6 +447,7 @@ class CustomPIDField extends Component {
       form,
       fieldPath,
       fieldLabel,
+      icon,
       isEditingPublishedRecord,
       managedHelpText,
       pidLabel,
@@ -469,6 +470,7 @@ class CustomPIDField extends Component {
       managedIdentifier = !isProviderExternal ? currentIdentifier : "";
       unmanagedIdentifier = isProviderExternal ? currentIdentifier : "";
     }
+    console.log("managedIdentifier", managedIdentifier);
 
     const hasManagedIdentifier = managedIdentifier !== "";
 
@@ -481,10 +483,14 @@ class CustomPIDField extends Component {
     return (
       <>
         <Form.Field required={false} error={fieldError}>
-          <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
+          <FieldLabel
+            htmlFor={fieldPath}
+            icon={icon || pidIcon}
+            label={fieldLabel}
+          />
         </Form.Field>
 
-        {this.canBeManagedAndUnmanaged && (
+        {this.canBeManagedAndUnmanaged && managedIdentifier === "" && (
           <ManagedUnmanagedSwitch
             disabled={isEditingPublishedRecord || hasManagedIdentifier}
             isManagedSelected={_isManagedSelected}
