@@ -149,7 +149,8 @@ const ResourceTypeSelectorField = ({
               label={""}
               optimized
               options={frontEndOptions}
-              selectOnBlur={false}
+              selectOnBlur={true}
+              selectOnNavigation={true}
               search={true}
               placeholder={"choose another resource type..."}
               {...restProps}
