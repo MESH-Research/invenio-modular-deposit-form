@@ -55,28 +55,35 @@ const FieldComponentWrapper = ({
   // Remove undefined values from extraProps
   const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
   return (
-    <Overridable
-      id={`InvenioAppRdm.Deposit.${componentName}.container`}
-      fieldPath={fieldPath}
-    >
-      {children &&
-        React.cloneElement(
-          children,
-          {
-            defaultFieldValue: defaultFieldValue,
-            description: moddedDescription,
-            fieldPath: fieldPath,
-            helpText: moddedHelpText,
-            label: moddedLabel,
-            labelIcon: moddedIcon,
-            placeholder: moddedPlaceholder,
-            priorityFieldValues: priorityFieldValueSet,
-            required: moddedRequired,
-            ...cleanedExtraProps,
-          },
-          null
-        )}
-    </Overridable>
+    <>
+      <Overridable
+        id={`InvenioAppRdm.Deposit.${componentName}.container`}
+        fieldPath={fieldPath}
+      >
+        {children &&
+          React.cloneElement(
+            children,
+            {
+              defaultFieldValue: defaultFieldValue,
+              description: "",
+              fieldPath: fieldPath,
+              helptext: moddedHelpText ? moddedHelpText : moddedDescription,
+              label: moddedLabel,
+              labelIcon: moddedIcon,
+              placeholder: moddedPlaceholder,
+              priorityFieldValues: priorityFieldValueSet,
+              required: moddedRequired,
+              ...cleanedExtraProps,
+            },
+            null
+          )}
+      </Overridable>
+      {(moddedHelpText || moddedDescription) && (
+        <label id={`${fieldPath}.helptext`} className="helptext">
+          {moddedHelpText || moddedDescription}
+        </label>
+      )}
+    </>
   );
 };
 
