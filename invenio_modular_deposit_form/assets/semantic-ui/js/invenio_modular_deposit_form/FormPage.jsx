@@ -8,6 +8,7 @@ import { FormValuesContext } from "./RDMDepositForm";
 import { SectionWrapper } from "./field_components/SectionWrapper";
 import { FieldsContent } from "./FieldsContent";
 import { initial } from "lodash";
+import { areDeeplyEqual } from "./utils";
 
 function useIsInViewport(ref) {
   const [isIntersecting, setIsIntersecting] = useState(false);
@@ -35,6 +36,8 @@ const RecoveryModal = ({
   confirmModalRef,
   focusFirstElement,
   handleStorageData,
+  isDraft,
+  isVersionDraft,
   setRecoveryAsked,
 }) => {
   const [open, setOpen] = useState(true);
@@ -45,7 +48,9 @@ const RecoveryModal = ({
       onOpen={() => setOpen(true)}
       open={open}
     >
-      <Modal.Header>{i18next.t("Recover your draft deposit?")}</Modal.Header>
+      <Modal.Header>
+        <Icon name="redo" /> {i18next.t("Recover unsaved information?")}
+      </Modal.Header>
       <Modal.Content>
         <Modal.Description>
           <p>
@@ -58,7 +63,11 @@ const RecoveryModal = ({
       <Modal.Actions>
         <Button
           color="black"
-          content={i18next.t("No, start a new work")}
+          content={
+            isDraft
+              ? i18next.t("No, start a new work")
+              : i18next.t("No, start from the saved version")
+          }
           onClick={() => {
             setOpen(false);
             handleStorageData(false);
@@ -67,7 +76,11 @@ const RecoveryModal = ({
           }}
         />
         <Button
-          content={i18next.t("Yes, recover the draft")}
+          content={
+            isDraft
+              ? i18next.t("Yes, recover the unsaved draft")
+              : i18next.t("Yes, recover the unsaved changes")
+          }
           labelPosition="right"
           icon="checkmark"
           onClick={() => {
@@ -139,11 +152,12 @@ const FormPage = ({
 
   //pass values up from Formik context to main form context
   useEffect(() => {
-    if (
-      !!currentValues &&
-      currentValues.metadata?.resource_type !== values.metadata.resource_type
-    ) {
-      handleValuesChange(values);
+    handleValuesChange(values);
+    if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
+      window.localStorage.setItem(
+        `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}.${values.id}`,
+        JSON.stringify(values)
+      );
     }
   }, [values]);
 
@@ -162,30 +176,38 @@ const FormPage = ({
 
   // on first load, check if there is data in local storage
   useEffect(() => {
+    console.log("storageDataPresent", storageDataPresent);
     const user = commonFieldProps.currentUserprofile.id;
-    const storageValues = window.localStorage.getItem(
-      `rdmDepositFormValues.${user}`
-    );
+    const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
+    console.log("storageValuesKey", storageValuesKey);
+    const storageValues = window.localStorage.getItem(storageValuesKey);
+
     const storageValuesObj = JSON.parse(storageValues);
-    console.log("storageValues", storageValuesObj?.id);
-    console.log("initialValues", initialValues?.id);
-    if (!!storageValues && storageValuesObj?.id === initialValues?.id) {
-      console.log("storageValues match");
-      setStorageDataPresent(true);
+    console.log("storageValuesObj", storageValuesObj);
+    console.log("storageValuesObj initial", values);
+    console.log(
+      "storageValuesEqual?",
+      areDeeplyEqual(storageValuesObj, values, ["ui"])
+    );
+    if (
+      !recoveryAsked &&
+      !!storageValuesObj &&
+      !areDeeplyEqual(storageValuesObj, values, ["ui"])
+    ) {
+      console.log("new storageValues available");
       setRecoveredStorageValues(storageValuesObj);
+      setStorageDataPresent(true);
+    } else {
+      setRecoveryAsked(true);
     }
   }, []);
 
   const handleStorageData = (recover) => {
-    const user = commonFieldProps.currentUserprofile.id;
     if (recover) {
       async function setinitialvalues() {
         await setValues(recoveredStorageValues, false);
       }
       setinitialvalues();
-      window.localStorage.removeItem(`rdmDepositFormValues.${user}`);
-    } else {
-      window.localStorage.removeItem(`rdmDepositFormValues.${user}`);
     }
   };
 
@@ -210,10 +232,6 @@ const FormPage = ({
   }, [errors, touched]);
 
   const handleButtonClick = (event, { value }) => {
-    window.localStorage.setItem(
-      `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}`,
-      JSON.stringify(values)
-    );
     handleFormPageChange(event, { value });
   };
 
@@ -305,6 +323,8 @@ const FormPage = ({
 
       {!recoveryAsked && storageDataPresent && (
         <RecoveryModal
+          isDraft={values.status === "draft"}
+          isVersionDraft={values.status === "new_version_draft"}
           confirmModalRef={confirmModalRef}
           focusFirstElement={focusFirstElement}
           handleStorageData={handleStorageData}
