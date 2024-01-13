@@ -176,7 +176,7 @@ const AlternateIdentifiersComponent = ({ vocabularies, ...extraProps }) => {
     >
       <IdentifiersField
         schemeOptions={vocabularies.metadata.identifiers.scheme}
-        showEmptyValue
+        showEmptyValue={false}
       />
     </FieldComponentWrapper>
   );
