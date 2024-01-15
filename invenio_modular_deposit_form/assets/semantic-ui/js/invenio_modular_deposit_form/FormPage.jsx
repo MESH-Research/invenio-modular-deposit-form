@@ -41,6 +41,12 @@ const RecoveryModal = ({
   setRecoveryAsked,
 }) => {
   const [open, setOpen] = useState(true);
+  const firstButtonRef = useRef(null);
+  useEffect(() => {
+    window.setTimeout(() => {
+      firstButtonRef.current.focus();
+    }, 20);
+  }, []);
 
   return (
     <Modal
@@ -62,7 +68,7 @@ const RecoveryModal = ({
       </Modal.Content>
       <Modal.Actions>
         <Button
-          color="black"
+          // color="black"
           content={
             isDraft
               ? i18next.t("No, start a new work")
@@ -74,6 +80,7 @@ const RecoveryModal = ({
             focusFirstElement();
             setRecoveryAsked(true);
           }}
+          ref={firstButtonRef}
         />
         <Button
           content={
@@ -176,25 +183,16 @@ const FormPage = ({
 
   // on first load, check if there is data in local storage
   useEffect(() => {
-    console.log("storageDataPresent", storageDataPresent);
     const user = commonFieldProps.currentUserprofile.id;
     const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
-    console.log("storageValuesKey", storageValuesKey);
     const storageValues = window.localStorage.getItem(storageValuesKey);
 
     const storageValuesObj = JSON.parse(storageValues);
-    console.log("storageValuesObj", storageValuesObj);
-    console.log("storageValuesObj initial", values);
-    console.log(
-      "storageValuesEqual?",
-      areDeeplyEqual(storageValuesObj, values, ["ui"])
-    );
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
       !areDeeplyEqual(storageValuesObj, values, ["ui"])
     ) {
-      console.log("new storageValues available");
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
     } else {
@@ -208,7 +206,11 @@ const FormPage = ({
         await setValues(recoveredStorageValues, false);
       }
       setinitialvalues();
+      setRecoveredStorageValues(null);
     }
+    window.localStorage.removeItem(
+      `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}.${values.id}`
+    );
   };
 
   //pass setFieldTouched up from Formik context to main form context

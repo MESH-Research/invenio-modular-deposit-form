@@ -784,7 +784,7 @@ const SubjectsComponent = ({ record, vocabularies, ...extraProps }) => {
   );
 };
 
-const SubmissionComponent = ({ record, permissions, config }) => {
+const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
   const { errors, values, setFieldValue } = useFormikContext();
   const { handleFormPageChange } = useContext(FormValuesContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
@@ -828,8 +828,8 @@ const SubmissionComponent = ({ record, permissions, config }) => {
   };
 
   const sanitizeDataForSaving = async () => {
-    // FIXME: This is a cludge to handle the automatic assignment of
-    // the "url" scheme to the default empty URL identifier field
+    // FIXME: This is a cludge to fix invalid data before saving
+    // where we don't want to force users to fix it
     await filterEmptyIdentifiers();
     await fixEmptyPublisher();
     if (hasFiles && !filesEnabled) {
@@ -860,7 +860,7 @@ const SubmissionComponent = ({ record, permissions, config }) => {
               fluid
               actionName="saveDraft"
               aria-describedby="save-button-description"
-              currentUserProfile={config.currentUserProfile}
+              currentUserProfile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -888,7 +888,7 @@ const SubmissionComponent = ({ record, permissions, config }) => {
               fluid
               actionName="preview"
               aria-describedby="preview-button-description"
-              currentUserProfile={config.currentUserProfile}
+              currentUserProfile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -909,7 +909,7 @@ const SubmissionComponent = ({ record, permissions, config }) => {
             <SubmitButtonModal
               fluid
               actionName="publish"
-              currentUserProfile={config.currentUserProfile}
+              currentUserProfile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}

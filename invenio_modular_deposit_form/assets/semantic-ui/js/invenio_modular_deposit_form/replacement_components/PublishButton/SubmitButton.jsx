@@ -1,5 +1,5 @@
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 // import { Trans } from "react-i18next";
 import { connect } from "react-redux";
 import { useFormikContext } from "formik";
@@ -12,6 +12,7 @@ import { Button, Header, Icon, Message, Modal } from "semantic-ui-react";
 import _omit from "lodash/omit";
 import PropTypes from "prop-types";
 import { SubmitReviewModal } from "./SubmitReviewModal";
+import { first } from "lodash";
 
 const DRAFT_PREVIEW_STARTED = "DRAFT_PREVIEW_STARTED";
 const DRAFT_SAVE_STARTED = "DRAFT_SAVE_STARTED";
@@ -51,6 +52,7 @@ const SubmitButtonComponent = ({
   actionName,
   actionState = undefined,
   actionStateExtra,
+  currentUserProfile,
   record,
   publishWithoutCommunity,
   numberOfFiles = undefined,
@@ -68,15 +70,36 @@ const SubmitButtonComponent = ({
   isRecordSubmittedForReview,
   ...ui
 }) => {
-  console.log("SubmitButtonComponent", ui);
-  const { values, errors, handleSubmit, isSubmitting } = useFormikContext();
+  const { values, errors, handleSubmit, initialValues, isSubmitting } =
+    useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
   const [noFilesOpen, setNoFilesOpen] = useState(false);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const uiProps = _omit(ui, ["dispatch"]);
 
-  const handleNoFilesOpen = () => setNoFilesOpen(true);
-  const handlePublishConfirmOpen = () => setPublishConfirmOpen(true);
+  const firstButtonRefNoFiles = React.useRef(null);
+  const firstButtonRefPublish = React.useRef(null);
+  useEffect(() => {
+    window.setTimeout(() => {
+      if (noFilesOpen) {
+      } else if (publishConfirmOpen && !showSubmitForReviewButton) {
+        firstButtonRefPublish.current.focus();
+      }
+    }, 20);
+  }, []);
+
+  const handleNoFilesOpen = () => {
+    setNoFilesOpen(true);
+    window.setTimeout(() => {
+      firstButtonRefNoFiles.current.focus();
+    }, 20);
+  };
+  const handlePublishConfirmOpen = () => {
+    setPublishConfirmOpen(true);
+    window.setTimeout(() => {
+      firstButtonRefPublish.current.focus();
+    }, 20);
+  };
 
   const handleNoFilesCancel = () => {
     if (missingFiles) {
@@ -164,11 +187,14 @@ const SubmitButtonComponent = ({
     sanitizeDataForSaving()
       .then(handleConfirmNoFiles())
       .then(() => {
+        const storageValuesKey = `rdmDepositFormValues.${currentUserProfile.id}.${initialValues?.id}`;
+        window.localStorage.removeItem(storageValuesKey);
+      })
+      .then(() => {
         setSubmitContext(...action);
         handleSubmit(event);
         setNoFilesOpen(false);
         setPublishConfirmOpen(false);
-        window.localStorage.removeItem("deposit");
       });
   };
 
@@ -219,7 +245,6 @@ const SubmitButtonComponent = ({
       <Modal
         closeIcon
         open={noFilesOpen}
-        //   trigger={<Button>Show Modal</Button>}
         onClose={() => setNoFilesOpen(false)}
         onOpen={() => setNoFilesOpen(true)}
       >
@@ -233,7 +258,11 @@ const SubmitButtonComponent = ({
           </p>
         </Modal.Content>
         <Modal.Actions>
-          <Button negative onClick={handleNoFilesCancel}>
+          <Button
+            negative
+            onClick={handleNoFilesCancel}
+            ref={firstButtonRefNoFiles}
+          >
             <Icon name="remove" /> No, let me add files
           </Button>
           <Button positive onClick={handlePositiveNoFiles}>
@@ -273,7 +302,12 @@ const SubmitButtonComponent = ({
           )}
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={handlePublishConfirmCancel} floated="left" negative>
+          <Button
+            onClick={handlePublishConfirmCancel}
+            floated="left"
+            negative
+            ref={firstButtonRefPublish}
+          >
             <Icon name="remove" /> {i18next.t("Cancel")}
           </Button>
           <Button
@@ -288,6 +322,7 @@ const SubmitButtonComponent = ({
       {/* modal to confirm submitting to community */}
       {showSubmitForReviewButton && (
         <SubmitReviewModal
+          config={config}
           isConfirmModalOpen={publishConfirmOpen && showSubmitForReviewButton}
           initialReviewComment={actionStateExtra.reviewComment}
           onSubmit={handleSaveOrSubmit}
