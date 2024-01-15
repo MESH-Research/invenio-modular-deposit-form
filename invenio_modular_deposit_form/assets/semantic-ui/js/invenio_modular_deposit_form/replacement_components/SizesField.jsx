@@ -15,9 +15,7 @@ const SizesField = ({
   additionLabel,
   label = i18next.t("Sizes"),
   description,
-  placeholder = i18next.t(
-    "e.g., 32 x 24 cm or 1.5 GB (press 'enter' to add each size)"
-  ),
+  placeholder = i18next.t("e.g., 32 x 24 cm or 1.5 GB (press 'enter' to add)"),
   icon = "crop",
   classnames,
   required,
