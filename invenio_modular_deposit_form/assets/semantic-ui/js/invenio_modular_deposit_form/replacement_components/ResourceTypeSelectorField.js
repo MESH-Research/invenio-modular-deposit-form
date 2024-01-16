@@ -7,7 +7,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import { Form } from "semantic-ui-react";
@@ -15,6 +15,7 @@ import { FieldLabel, SelectField } from "react-invenio-forms";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { Field, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
+import { set } from "lodash";
 
 const ResourceTypeSelectorField = ({
   fieldPath,
@@ -25,8 +26,35 @@ const ResourceTypeSelectorField = ({
   required = false,
   ...restProps
 }) => {
-  const [otherToggleActive, setOtherToggleActive] = useState(false);
   const { values, errors, setFieldValue, initialValues } = useFormikContext();
+  const [otherToggleActive, setOtherToggleActive] = useState(false);
+
+  const buttonTypes = [
+    {
+      id: "textDocument-journalArticle",
+      label: "Journal Article",
+      icon: "file text",
+    },
+    { id: "textDocument-review", label: "Review", icon: "thumbs up" },
+    { id: "textDocument-book", label: "Book", icon: "book" },
+    { id: "textDocument-bookSection", label: "Book Section", icon: "book" },
+    {
+      id: "instructionalResource-syllabus",
+      label: "Syllabus",
+      icon: "graduation",
+    },
+  ];
+
+  useEffect(() => {
+    if (
+      values.metadata.resource_type &&
+      !buttonTypes.map((b) => b.id).includes(values.metadata.resource_type)
+    ) {
+      setOtherToggleActive(true);
+      // FIXME: this is a hack to get the formik validation not to complain
+      setFieldValue("metadata.resource_type", values.metadata.resource_type);
+    }
+  }, [values.metadata.resource_type]);
 
   /**
    * Generate label value
@@ -81,22 +109,6 @@ const ResourceTypeSelectorField = ({
         .focus();
     }, 200);
   };
-
-  const buttonTypes = [
-    {
-      id: "textDocument-journalArticle",
-      label: "Journal Article",
-      icon: "file text",
-    },
-    { id: "textDocument-review", label: "Review", icon: "thumbs up" },
-    { id: "textDocument-book", label: "Book", icon: "book" },
-    { id: "textDocument-bookSection", label: "Book Section", icon: "book" },
-    {
-      id: "instructionalResource-syllabus",
-      label: "Syllabus",
-      icon: "graduation",
-    },
-  ];
 
   return (
     <Field id={fieldPath} name={fieldPath}>
