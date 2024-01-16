@@ -32,6 +32,7 @@ const CustomFieldInjector = ({
   const chosenFieldConfig = chosenSetConfig[0].fields.find(
     (item) => item.field === fieldName
   );
+  console.log("chosenFieldConfig", chosenFieldConfig);
   chosenFieldConfig.props = { ...chosenFieldConfig.props, ...restArgs };
   const templateLoaders = [
     (widget) => import(`@templates/custom_fields/${widget}.js`),

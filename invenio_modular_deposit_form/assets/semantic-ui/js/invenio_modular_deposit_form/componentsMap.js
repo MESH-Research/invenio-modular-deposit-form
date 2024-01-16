@@ -7,6 +7,11 @@ import {
   AdditionalTitlesComponent,
   AlternateIdentifiersComponent,
   BookTitleComponent,
+  CodeRepositoryComponent,
+  CodeDevelopmentStatusComponent,
+  CodeOperatingSystemComponent,
+  CodeProgrammingLanguageComponent,
+  CodeRuntimePlatformComponent,
   CommunitiesComponent,
   ContributorsComponent,
   CreatorsComponent,
@@ -22,9 +27,13 @@ import {
   JournalTitleComponent,
   LanguagesComponent,
   LicensesComponent,
+  MeetingAcronymComponent,
   MeetingDatesComponent,
   MeetingPlaceComponent,
+  MeetingSessionComponent,
+  MeetingSessionPartComponent,
   MeetingTitleComponent,
+  MeetingURLComponent,
   MetadataOnlyComponent,
   PublisherComponent,
   PublicationLocationComponent,
@@ -72,6 +81,26 @@ const fieldComponents = {
     ["custom_fields.imprint:imprint.title"],
   ],
   CommunitiesComponent: [CommunitiesComponent, []],
+  CodeDevelopmentStatusComponent: [
+    CodeDevelopmentStatusComponent,
+    ["custom_fields.code:developmentStatus"],
+  ],
+  CodeRepositoryComponent: [
+    CodeRepositoryComponent,
+    ["custom_fields.code:codeRepository"],
+  ],
+  CodeProgrammingLanguageComponent: [
+    CodeProgrammingLanguageComponent,
+    ["custom_fields.code:programmingLanguage"],
+  ],
+  CodeOperatingSystemComponent: [
+    CodeOperatingSystemComponent,
+    ["custom_fields.code:operatingSystem"],
+  ],
+  CodeRuntimePlatformComponent: [
+    CodeRuntimePlatformComponent,
+    ["custom_fields.code:runtimePlatform"],
+  ],
   ContributorsComponent: [ContributorsComponent, ["metadata.contributors"]],
   CreatorsComponent: [CreatorsComponent, ["metadata.creators"]],
   DateComponent: [DateComponent, ["metadata.publication_date"]],
@@ -98,6 +127,10 @@ const fieldComponents = {
   LanguagesComponent: [LanguagesComponent, ["metadata.languages"]],
   LicensesComponent: [LicensesComponent, ["metadata.rights"]],
   MetadataOnlyComponent: [MetadataOnlyComponent, ["access.status"]],
+  MeetingAcronymComponent: [
+    MeetingAcronymComponent,
+    ["custom_fields.meeting:meeting.acronym"],
+  ],
   MeetingDatesComponent: [
     MeetingDatesComponent,
     ["custom_fields.meeting:meeting.dates"],
@@ -106,9 +139,21 @@ const fieldComponents = {
     MeetingPlaceComponent,
     ["custom_fields.meeting:meeting.place"],
   ],
+  MeetingSessionComponent: [
+    MeetingSessionComponent,
+    ["custom_fields.meeting:meeting.session"],
+  ],
+  MeetingSessionPartComponent: [
+    MeetingSessionPartComponent,
+    ["custom_fields.meeting:meeting.session_part"],
+  ],
   MeetingTitleComponent: [
     MeetingTitleComponent,
     ["custom_fields.meeting:meeting.title"],
+  ],
+  MeetingURLComponent: [
+    MeetingURLComponent,
+    ["custom_fields.meeting:meeting.url"],
   ],
   PublisherComponent: [PublisherComponent, ["metadata.publisher"]],
   PublicationLocationComponent: [

@@ -197,6 +197,74 @@ const BookTitleComponent = ({ customFieldsUI, ...extraProps }) => {
   );
 };
 
+const CodeDevelopmentStatusComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Software"
+      fieldName="code:developmentStatus"
+      idString="CodeDevelopmentStatusField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const CodeOperatingSystemComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Software"
+      fieldName="code:operatingSystem"
+      idString="CodeOperatingSystemField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const CodeProgrammingLanguageComponent = ({
+  customFieldsUI,
+  ...extraProps
+}) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Software"
+      fieldName="code:programmingLanguage"
+      idString="CodeProgrammingLanguageField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const CodeRepositoryComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Software"
+      fieldName="code:codeRepository"
+      idString="CodeRepositoryField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const CodeRuntimePlatformComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Software"
+      fieldName="code:runtimePlatform"
+      idString="CodeRuntimePlatformField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
 const CommonsDomainComponent = ({ customFieldsUI }) => {
   return (
     <CustomFieldInjector
@@ -596,25 +664,12 @@ const MetadataOnlyComponent = () => {
   return <></>;
 };
 
-const MeetingTitleComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingAcronymComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
-      sectionName="Conference / Workshop"
-      fieldName="meeting:meeting.title"
-      idString="MeetingTitleField"
-      customFieldsUI={customFieldsUI}
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingPlaceComponent = ({ customFieldsUI, ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference / Workshop"
-      fieldName="meeting:meeting.place"
-      idString="MeetingPlaceField"
+      sectionName="Conference"
+      fieldName="meeting:meeting.acronym"
+      idString="MeetingAcronymField"
       customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
@@ -625,9 +680,74 @@ const MeetingPlaceComponent = ({ customFieldsUI, ...extraProps }) => {
 const MeetingDatesComponent = ({ customFieldsUI, ...extraProps }) => {
   return (
     <CustomFieldInjector
-      sectionName="Conference / Workshop"
+      sectionName="Conference"
       fieldName="meeting:meeting.dates"
       idString="MeetingDatesField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const MeetingPlaceComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference"
+      fieldName="meeting:meeting.place"
+      idString="MeetingPlaceField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const MeetingSessionComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference"
+      fieldName="meeting:meeting.session"
+      idString="MeetingSessionField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const MeetingSessionPartComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference"
+      fieldName="meeting:meeting.session_part"
+      idString="MeetingSessionPartField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const MeetingTitleComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference"
+      fieldName="meeting:meeting.title"
+      idString="MeetingTitleField"
+      customFieldsUI={customFieldsUI}
+      description={""}
+      {...extraProps}
+    />
+  );
+};
+
+const MeetingURLComponent = ({ customFieldsUI, ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Conference"
+      fieldName="meeting:meeting.url"
+      idString="MeetingURLField"
       customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
@@ -1058,6 +1178,11 @@ export {
   AdditionalTitlesComponent,
   AlternateIdentifiersComponent,
   BookTitleComponent,
+  CodeDevelopmentStatusComponent,
+  CodeOperatingSystemComponent,
+  CodeProgrammingLanguageComponent,
+  CodeRepositoryComponent,
+  CodeRuntimePlatformComponent,
   CommonsDomainComponent,
   CommunitiesComponent,
   ContributorsComponent,
@@ -1075,9 +1200,13 @@ export {
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
+  MeetingAcronymComponent,
   MeetingDatesComponent,
   MeetingPlaceComponent,
+  MeetingSessionComponent,
+  MeetingSessionPartComponent,
   MeetingTitleComponent,
+  MeetingURLComponent,
   PublisherComponent,
   PublicationLocationComponent,
   ReferencesComponent,
