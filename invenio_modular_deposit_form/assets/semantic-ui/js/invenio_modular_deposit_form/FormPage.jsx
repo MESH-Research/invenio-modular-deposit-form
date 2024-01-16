@@ -282,6 +282,7 @@ const FormPage = ({
           }
         )}
 
+        <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
         <div
           className={`ui container ${
             // "sticky-footer-static"
@@ -294,7 +295,6 @@ const FormPage = ({
           {!!previousPage && (
             <Button
               type="button"
-              floated="left"
               onClick={handleButtonClick}
               value={previousPage}
               icon
@@ -309,7 +309,6 @@ const FormPage = ({
             <Button
               primary
               type="button"
-              floated="right"
               onClick={handleButtonClick}
               value={nextPage}
               icon
@@ -320,7 +319,6 @@ const FormPage = ({
             </Button>
           )}
         </div>
-        <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
       </div>
 
       {!recoveryAsked && storageDataPresent && (
