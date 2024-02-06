@@ -951,7 +951,9 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
     // FIXME: This is a cludge to fix invalid data before saving
     // where we don't want to force users to fix it
     await filterEmptyIdentifiers();
+    console.log("SubmissionComponent:", values.metadata);
     await fixEmptyPublisher();
+    console.log("SubmissionComponent:", values.metadata);
     if (hasFiles && !filesEnabled) {
       await setFieldValue("files.enabled", true);
     }

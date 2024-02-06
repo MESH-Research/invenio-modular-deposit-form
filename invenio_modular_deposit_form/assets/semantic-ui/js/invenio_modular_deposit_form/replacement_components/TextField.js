@@ -58,7 +58,9 @@ const TextField = ({
           <Form.Field
             required={!!required}
             error={
-              (!!meta.error && (!!meta.touched || touchedAncestor)) || !!error
+              (!!meta.error && (!!meta.touched || touchedAncestor)) ||
+              !!error ||
+              (!meta.touched && meta.initialError)
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)
@@ -71,7 +73,8 @@ const TextField = ({
             )}
             <Form.Input
               error={
-                meta.error && (meta.touched || touchedAncestor)
+                (meta.error && (meta.touched || touchedAncestor)) ||
+                (!meta.touched && meta.initialError)
                   ? meta.error
                   : undefined
               }

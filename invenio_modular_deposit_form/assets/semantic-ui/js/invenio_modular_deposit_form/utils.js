@@ -57,12 +57,14 @@ function flattenWrappers(page) {
   let flattened = [];
   if (page.subsections) {
     for (const sub of page.subsections) {
-      if (sub.component === "SectionWrapper") {
+      if (sub.subsections) {
         flattened = flattened.concat(flattenWrappers(sub));
       } else {
         flattened.push(sub);
       }
     }
+  } else {
+    flattened.push(page);
   }
   return flattened;
 }

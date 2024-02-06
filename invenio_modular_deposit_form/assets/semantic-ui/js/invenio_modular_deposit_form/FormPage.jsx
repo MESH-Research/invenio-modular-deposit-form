@@ -218,6 +218,19 @@ const FormPage = ({
     handleSettingFieldTouched(setFieldTouched);
   }, []);
 
+  //pass initialErrors up from Formik context to main form context
+  useEffect(() => {
+    if (initialErrors) {
+      handleErrorsChange(
+        errors,
+        touched,
+        initialErrors,
+        initialTouched,
+        isValid
+      );
+    }
+  }, []);
+
   //pass errors up from Formik context to main form context when they change
   useEffect(() => {
     console.log("errors or touched changed errors", errors);
