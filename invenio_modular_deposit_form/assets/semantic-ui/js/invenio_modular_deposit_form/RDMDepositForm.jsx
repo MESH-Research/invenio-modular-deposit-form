@@ -260,7 +260,7 @@ export const RDMDepositForm = ({
       );
       const newFirstInput = newInputs[targetIndex];
       newFirstInput?.focus();
-    }, 20);
+    }, 30);
   };
 
   // FIXME: workaround since file uploader has inaccessible first input
