@@ -929,7 +929,7 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
   };
 
   const fixEmptyPublisher = async () => {
-    if (values.metadata.publisher === "") {
+    if (values.metadata.publisher === "" || !values.metadata.publisher) {
       setFieldValue("metadata.publisher", "unknown");
     }
     return values.metadata.publisher;
@@ -944,16 +944,14 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
 
   const handleConfirmNeedsFiles = () => {
     setConfirmedNoFiles(false);
-    handleFormPageChange(null, { value: "5" });
+    handleFormPageChange(null, { value: "page-5" });
   };
 
   const sanitizeDataForSaving = async () => {
     // FIXME: This is a cludge to fix invalid data before saving
     // where we don't want to force users to fix it
     await filterEmptyIdentifiers();
-    console.log("SubmissionComponent:", values.metadata);
     await fixEmptyPublisher();
-    console.log("SubmissionComponent:", values.metadata);
     if (hasFiles && !filesEnabled) {
       await setFieldValue("files.enabled", true);
     }

@@ -94,6 +94,7 @@ const SubmitButtonComponent = ({
       firstButtonRefNoFiles.current.focus();
     }, 20);
   };
+
   const handlePublishConfirmOpen = () => {
     setPublishConfirmOpen(true);
     window.setTimeout(() => {
@@ -107,6 +108,7 @@ const SubmitButtonComponent = ({
     }
     setNoFilesOpen(false);
   };
+
   const handlePublishConfirmCancel = () => {
     setPublishConfirmOpen(false);
     setNoFilesOpen(false);
