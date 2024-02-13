@@ -111,20 +111,28 @@ export const RDMDepositForm = ({
   // fix sticky footer overlapping content when navigating by keyboard
   // combined with css scroll-margin-bottom
   useEffect(() => {
+    function handleFocus(event) {
+      event.target.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
     const inputs = document.querySelectorAll(
       "#rdm-deposit-form input, #rdm-deposit-form button, #rdm-deposit-form select"
     );
     inputs.forEach((input) => {
-      input.addEventListener("focus", (event) => {
-        event.target.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
+      input.addEventListener("focus", handleFocus);
     });
     const textareas = document.querySelectorAll("#rdm-deposit-form textarea");
     textareas.forEach((textarea) => {
-      textarea.addEventListener("focus", (event) => {
-        event.target.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
+      textarea.addEventListener("focus", handleFocus);
     });
+    return () => {
+      inputs.forEach((input) => {
+        input.removeEventListener("focus", handleFocus);
+      });
+      textareas.forEach((textarea) => {
+        textarea.removeEventListener("focus", handleFocus);
+      });
+    };
   }, [currentFormPage]);
 
   const setFormPageInHistory = (value) => {
@@ -253,6 +261,7 @@ export const RDMDepositForm = ({
 
   const focusFirstElement = () => {
     setTimeout(() => {
+      // FIXME: workaround since file uploader has inaccessible first input
       const targetIndex = currentFormPage === "page-6" ? 1 : 0;
       const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
       const newInputs = document.querySelectorAll(
@@ -260,10 +269,10 @@ export const RDMDepositForm = ({
       );
       const newFirstInput = newInputs[targetIndex];
       newFirstInput?.focus();
-    }, 30);
+      console.log("scrolling: focusing on", newFirstInput);
+    }, 100);
   };
 
-  // FIXME: workaround since file uploader has inaccessible first input
   useLayoutEffect(() => {
     focusFirstElement();
   }, [currentFormPage]);
@@ -283,16 +292,15 @@ export const RDMDepositForm = ({
   const handleFormPageChange = (event, { value }) => {
     for (const field of formPageFields[currentFormPage]) {
       fieldTouchHandler(field);
-      let str = `*[id*=${field}]`
-        .split(".")
-        .join("\\.")
-        .replace(":", "\\:")
-        .replace("_", "\\_");
-      console.log("handleFormPageChange str", str);
-      document.querySelectorAll(str).forEach((e) => {
-        e.focus();
-        e.blur();
-      });
+      // let str = `*[id*=${field}]`
+      //   .split(".")
+      //   .join("\\.")
+      //   .replace(":", "\\:")
+      //   .replace("_", "\\_");
+      // document.querySelectorAll(str).forEach((e) => {
+      //   e.focus();
+      //   e.blur();
+      // });
     }
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
       setConfirmingPageChange(true);
@@ -311,9 +319,19 @@ export const RDMDepositForm = ({
     let newTypeFields = {};
     for (const p of formPages) {
       // collect form widget slugs
+      let adjustedTypeFields = currentTypeFields;
+      if (
+        adjustedTypeFields &&
+        adjustedTypeFields[p.section] &&
+        adjustedTypeFields[p.section][0].same_as
+      ) {
+        const newType = currentTypeFields[p.section][0].same_as;
+        adjustedTypeFields = fieldsByType[newType];
+        setCurrentTypeFields(adjustedTypeFields);
+      }
       const pageFields =
-        !!currentTypeFields && !!currentTypeFields[p.section]
-          ? flattenWrappers({ subsections: currentTypeFields[p.section] })
+        !!adjustedTypeFields && !!adjustedTypeFields[p.section]
+          ? flattenWrappers({ subsections: adjustedTypeFields[p.section] })
           : flattenWrappers(p);
       // get form field label for each slug
       const pageMetaFields = pageFields.reduce((accum, { component }) => {
@@ -413,7 +431,6 @@ export const RDMDepositForm = ({
                 widths={formPages.length}
                 className="upload-form-pager"
                 fluid={true}
-                // ordered={true}
                 size={"small"}
               >
                 {formPages.map(({ section, label }, index) => (
