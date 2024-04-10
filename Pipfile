@@ -9,6 +9,7 @@ invenio-assets = "*"
 invenio-app-rdm = "*"
 
 [dev-packages]
+djlint = "*"
 
 [requires]
 python_version = "3.9"
