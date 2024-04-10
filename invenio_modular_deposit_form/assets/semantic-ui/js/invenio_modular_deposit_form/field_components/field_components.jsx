@@ -55,7 +55,6 @@ import { SubmitButtonModal } from "../replacement_components/PublishButton/Submi
 import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
-import { FormValuesContext } from "../RDMDepositForm";
 
 const AbstractComponent = ({ record, vocabularies, ...extraProps }) => {
   return (
@@ -944,6 +943,7 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
 
   const handleConfirmNeedsFiles = () => {
     setConfirmedNoFiles(false);
+    // FIXME:
     handleFormPageChange(null, { value: "page-5" });
   };
 

@@ -1,36 +1,12 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useFormikContext } from "formik";
+import React, { useEffect, useRef, useState } from "react";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
 import { Button, Icon, Modal } from "semantic-ui-react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { FormValuesContext } from "./RDMDepositForm";
 import { SectionWrapper } from "./field_components/SectionWrapper";
 import { FieldsContent } from "./FieldsContent";
-import { initial } from "lodash";
-import { areDeeplyEqual } from "./utils";
+import PropTypes from "prop-types";
 
-function useIsInViewport(ref) {
-  const [isIntersecting, setIsIntersecting] = useState(false);
-
-  const observer = useMemo(
-    () =>
-      new IntersectionObserver(([entry]) =>
-        setIsIntersecting(entry.isIntersecting)
-      ),
-    []
-  );
-
-  useEffect(() => {
-    observer.observe(ref.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [ref, observer]);
-
-  return isIntersecting;
-}
 
 const RecoveryModal = ({
   confirmModalRef,
@@ -106,150 +82,9 @@ const RecoveryModal = ({
 
 const FormPage = ({
   commonFieldProps,
-  currentFormPage,
-  focusFirstElement,
   id,
-  pageNums,
-  recoveryAsked,
-  setRecoveryAsked,
-  storageDataPresent,
-  setStorageDataPresent,
   subsections,
-  handleSettingFieldTouched,
 }) => {
-  const {
-    errors,
-    initialErrors,
-    initialTouched,
-    initialValues,
-    isValid,
-    setFieldValue,
-    setFieldTouched,
-    setTouched,
-    setValues,
-    touched,
-    validateField,
-    validateForm,
-    values,
-    ...otherProps
-  } = useFormikContext();
-  const {
-    currentValues,
-    handleValuesChange,
-    currentErrors,
-    currentTouched,
-    handleErrorsChange,
-    handleFormPageChange,
-  } = useContext(FormValuesContext);
-  // console.log("FormPage formik errors", errors);
-  // console.log("FormPage formik touched", touched);
-  // console.log("FormPage formik values", values);
-  const currentPageIndex = pageNums.indexOf(currentFormPage);
-  const nextPageIndex = currentPageIndex + 1;
-  const previousPageIndex = currentPageIndex - 1;
-  const nextPage =
-    nextPageIndex < pageNums.length ? pageNums[nextPageIndex] : null;
-  const previousPage =
-    previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
-  const pageTargetRef = useRef(null);
-  const confirmModalRef = useRef(null);
-  // FIXME: sticky footer deactivated
-  const pageTargetInViewport = useIsInViewport(pageTargetRef);
-  const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
-
-  //pass values up from Formik context to main form context
-  useEffect(() => {
-    handleValuesChange(values);
-    if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
-      window.localStorage.setItem(
-        `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}.${values.id}`,
-        JSON.stringify(values)
-      );
-    }
-  }, [values]);
-
-  //pass errors up from Formik context to main form context on initial render
-  useEffect(() => {
-    if (currentErrors !== errors) {
-      handleErrorsChange(
-        errors,
-        touched,
-        initialErrors,
-        initialTouched,
-        isValid
-      );
-    }
-  }, []);
-
-  // on first load, check if there is data in local storage
-  useEffect(() => {
-    const user = commonFieldProps.currentUserprofile.id;
-    const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
-    const storageValues = window.localStorage.getItem(storageValuesKey);
-
-    const storageValuesObj = JSON.parse(storageValues);
-    if (
-      !recoveryAsked &&
-      !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, values, ["ui"])
-    ) {
-      setRecoveredStorageValues(storageValuesObj);
-      setStorageDataPresent(true);
-    } else {
-      setRecoveryAsked(true);
-    }
-  }, []);
-
-  const handleStorageData = (recover) => {
-    if (recover) {
-      async function setinitialvalues() {
-        await setValues(recoveredStorageValues, false);
-      }
-      setinitialvalues();
-      setRecoveredStorageValues(null);
-    }
-    window.localStorage.removeItem(
-      `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}.${values.id}`
-    );
-  };
-
-  //pass setFieldTouched up from Formik context to main form context
-  useEffect(() => {
-    handleSettingFieldTouched(setFieldTouched);
-  }, []);
-
-  //pass initialErrors up from Formik context to main form context
-  useEffect(() => {
-    if (initialErrors) {
-      handleErrorsChange(
-        errors,
-        touched,
-        initialErrors,
-        initialTouched,
-        isValid
-      );
-    }
-  }, []);
-
-  //pass errors up from Formik context to main form context when they change
-  useEffect(() => {
-    console.log("errors or touched changed errors", errors);
-    console.log("errors or touched changed touched", touched);
-    if (currentErrors !== errors || currentTouched !== touched) {
-      handleErrorsChange(
-        errors,
-        touched,
-        initialErrors,
-        initialTouched,
-        isValid
-      );
-    }
-  }, [errors, touched]);
-
-  const handleButtonClick = (event, { value }) => {
-    handleFormPageChange(event, { value });
-  };
-
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="formPageWrapper" id={id}>
@@ -294,58 +129,15 @@ const FormPage = ({
             );
           }
         )}
-
-        <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
-        <div
-          className={`ui container ${
-            // "sticky-footer-static"
-            // FIXME: sticky footer deactivated
-            pageTargetInViewport
-              ? "sticky-footer-static"
-              : "sticky-footer-fixed"
-          }`}
-        >
-          {!!previousPage && (
-            <Button
-              type="button"
-              onClick={handleButtonClick}
-              value={previousPage}
-              icon
-              labelPosition="left"
-            >
-              <Icon name="left arrow" />
-              Back
-            </Button>
-          )}
-
-          {!!nextPage && (
-            <Button
-              primary
-              type="button"
-              onClick={handleButtonClick}
-              value={nextPage}
-              icon
-              labelPosition="right"
-            >
-              <Icon name="right arrow" />
-              Continue
-            </Button>
-          )}
-        </div>
       </div>
-
-      {!recoveryAsked && storageDataPresent && (
-        <RecoveryModal
-          isDraft={values.status === "draft"}
-          isVersionDraft={values.status === "new_version_draft"}
-          confirmModalRef={confirmModalRef}
-          focusFirstElement={focusFirstElement}
-          handleStorageData={handleStorageData}
-          setRecoveryAsked={setRecoveryAsked}
-        />
-      )}
     </DndProvider>
   );
 };
+
+PropTypes.FormPage = {
+  commonFieldProps: PropTypes.object.isRequired,
+  id: PropTypes.string.isRequired,
+  subsections: PropTypes.array.isRequired,
+}
 
 export { FieldsContent, FormPage };
