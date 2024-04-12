@@ -58,7 +58,7 @@ const TextArea = ({
         meta,
       }) => {
         const touchedAncestor = getTouchedParent(touched, fieldPath);
-        console.log("TextArea", fieldPath, meta, touchedAncestor);
+        // console.log("TextArea", fieldPath, meta, touchedAncestor);
 
         return (
           <Form.Field

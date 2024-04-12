@@ -15,6 +15,7 @@ import { Button, Icon, Form, Grid, Header } from "semantic-ui-react";
 // import { changeSelectedCommunity } from "../../state/actions";
 // import { CommunitySelectionModal } from "@js/invenio_rdm_records";
 import { CommunitySelectionModal } from "./CommunitySelectionModal/CommunitySelectionModal";
+import GeoPattern from "geopattern";
 
 export const changeSelectedCommunity = (community) => {
   return async (dispatch) => {
@@ -34,12 +35,24 @@ const CommunityFieldComponent = ({
   imagePlaceholderLink,
   showCommunitySelectionButton,
   disableCommunitySelectionButton,
+  label="Community submission",
 }) => {
   const [modalOpen, setModalOpen] = useState();
 
   const focusAddButtonHandler = () => {
     document.querySelectorAll(`.community-field-button`)[0].focus();
   };
+
+  const pattern = community?.slug ? GeoPattern.generate(community.slug) : GeoPattern.generate("default");
+
+  // // use rgba version of svg pattern color for header background
+  // const opacity = 0.1;
+  // const values = pattern.color.match(/\w\w/g);
+  // const [r, g, b] = values.map((k) => parseInt(k, 16));
+
+  // document.getElementsByClassName(
+  //   "page-subheader-outer"
+  // )[0].style.backgroundColor = `rgba( ${r}, ${g}, ${b}, ${opacity} )`;
 
   return (
     <>
@@ -49,7 +62,7 @@ const CommunityFieldComponent = ({
           className="field-label-class invenio-field-label"
         >
           <Icon name="users" />
-          Community submission
+          {label}
         </label>
       </Form.Field>
       <Form.Group>
@@ -60,8 +73,8 @@ const CommunityFieldComponent = ({
                 <Image
                   size="tiny"
                   className="community-header-logo"
-                  src={community.links?.logo || imagePlaceholderLink} // logo is undefined when new draft and no selection
-                  fallbackSrc={imagePlaceholderLink}
+                  src={community.links?.logo || pattern.toDataUri()}
+                  fallbackSrc={pattern.toDataUri()}
                 />
               </Grid.Column>
               <Grid.Column width={13}>
@@ -73,6 +86,7 @@ const CommunityFieldComponent = ({
         <Form.Field width={community ? 4 : 6} className="right-btn-column">
           {showCommunitySelectionButton && (
             <CommunitySelectionModal
+              modalHeader={i18next.t("Select a collection")}
               onCommunityChange={(community) => {
                 changeSelectedCommunity(community);
                 focusAddButtonHandler();

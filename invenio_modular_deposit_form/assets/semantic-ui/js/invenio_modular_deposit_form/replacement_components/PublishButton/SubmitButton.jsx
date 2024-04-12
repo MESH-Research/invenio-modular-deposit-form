@@ -52,6 +52,7 @@ const SubmitButtonComponent = ({
   actionName,
   actionState = undefined,
   actionStateExtra,
+  config,
   currentUserProfile,
   record,
   publishWithoutCommunity,
@@ -355,6 +356,7 @@ SubmitButtonComponent.propTypes = {
 const mapStateToProps = (state) => ({
   actionState: state.deposit.actionState,
   actionStateExtra: state.deposit.actionStateExtra,
+  config: state.deposit.config,
   record: state.deposit.record,
   numberOfFiles: Object.values(state.files.entries).length,
   publishModalExtraContent: state.deposit.config.publish_modal_extra,

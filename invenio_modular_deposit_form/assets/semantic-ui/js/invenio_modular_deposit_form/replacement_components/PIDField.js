@@ -470,7 +470,6 @@ class CustomPIDField extends Component {
       managedIdentifier = !isProviderExternal ? currentIdentifier : "";
       unmanagedIdentifier = isProviderExternal ? currentIdentifier : "";
     }
-    console.log("managedIdentifier", managedIdentifier);
 
     const hasManagedIdentifier = managedIdentifier !== "";
 

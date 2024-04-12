@@ -1,16 +1,13 @@
 import React, {
   createContext,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
-import { combineReducers } from "redux";
-import { useStore, useDispatch } from "react-redux";
+import { useStore } from "react-redux";
 import { useFormikContext } from "formik";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
 import { FormFeedback } from "@js/invenio_rdm_records";
-import { depositReducer, fileReducer } from "@js/invenio_rdm_records";
 import {
   Button,
   Confirm,
@@ -60,6 +57,7 @@ const InnerDepositForm = ({
   permissions=null,
   pidsConfigOverrides=undefined,
   placeholderModifications=undefined,
+  preselectedCommunity=undefined,
   priorityFieldValues=undefined,
   record,
   vocabularies,
@@ -82,6 +80,12 @@ const InnerDepositForm = ({
     ...otherProps
   } = useFormikContext();
 
+  const store = useStore();
+  const selectedCommunity = store.getState().deposit.editorState.selectedCommunity;
+  let selectedCommunityLabel = selectedCommunity?.metadata?.title;
+  if ( !selectedCommunityLabel?.toLowerCase().includes('collection') ) {
+    selectedCommunityLabel = `the ${selectedCommunityLabel} collection`;
+  };
 
   // state for handling form data local storage
   const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
@@ -129,7 +133,6 @@ const InnerDepositForm = ({
   };
   const customFieldsUI = config.custom_fields.ui;
   const [formPageFields, setFormPageFields] = useState({});
-  console.log("RDMDepositForm values", values);
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const [storageDataPresent, setStorageDataPresent] = useState(false);
   const confirmModalRef = useRef();
@@ -143,7 +146,6 @@ const InnerDepositForm = ({
   useEffect(() => {
     function handleFocus(event) {
       if (isNearViewportBottom(event.target, 100)) {
-        console.log("scrolling to input near bottom of page");
         event.target.scrollIntoView({ block: "center", behavior: "smooth" });
       }
     }
@@ -217,7 +219,6 @@ const InnerDepositForm = ({
   const updateFormErrorState = (errors, touched, initialErrors) => {
     const errorFields = flattenKeysDotJoined(errors);
     console.log("errors****************************", errors);
-    console.log("formpagefields****************************", formPageFields);
     const touchedFields = flattenKeysDotJoined(touched);
     const initialErrorFields = flattenKeysDotJoined(initialErrors);
     let errorPages = {};
@@ -269,12 +270,10 @@ const InnerDepositForm = ({
       const newInputs = document.querySelectorAll(
         `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
       );
-      console.log("newInputs", newInputs);
       const newFirstInput = newInputs[targetIndex];
       if ( newFirstInput !== undefined ) {
         newFirstInput?.focus();
         window.scrollTo(0, 0);
-        console.log("focusing on first input:", newFirstInput);
       }
     }, 100);
   };
@@ -424,10 +423,15 @@ const InnerDepositForm = ({
 
       <Grid className="mt-25">
         <Grid.Column mobile={16} tablet={16} computer={16}>
+          <Grid.Row className="deposit-form-header">
           <h2>
             {i18next.t(`${record.id !== null ? "Updating " : "New "}
             ${record.status === "draft" ? "Draft " : "Published "}Deposit`)}
           </h2>
+          {!!selectedCommunityLabel && (
+          <h3 className="preselected-community-header">for {selectedCommunityLabel}</h3>
+          )}
+          </Grid.Row>
           <Step.Group
             widths={formPages.length}
             className="upload-form-pager"
@@ -585,6 +589,7 @@ InnerDepositForm.propTypes = {
   permissions: PropTypes.object.isRequired,
   placeholderModifications: PropTypes.object,
   pidsConfigOverrides: PropTypes.object,
+  preselectedCommunity: PropTypes.object,
   priorityFieldValues: PropTypes.object,
   record: PropTypes.object.isRequired,
   vocabularies: PropTypes.object.isRequired,

@@ -9,7 +9,7 @@ import _capitalize from "lodash/capitalize";
 import PropTypes from "prop-types";
 import React, { useContext } from "react";
 import { Button, Icon, Label } from "semantic-ui-react";
-import { CommunityCompactItem } from "@js/invenio_communities/community";
+import { CommunityCompactItem } from "./CommunityCompactItem";
 import { CommunityContext } from "./CommunityContext";
 
 export const CommunityListItem = ({ result }) => {

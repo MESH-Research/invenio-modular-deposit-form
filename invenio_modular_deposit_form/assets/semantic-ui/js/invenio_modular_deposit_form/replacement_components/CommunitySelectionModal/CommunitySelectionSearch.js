@@ -87,7 +87,7 @@ export class CommunitySelectionSearch extends Component {
                     id="my-communities-tab"
                     aria-selected={selectedAppId === myCommunities.appId}
                     aria-controls={myCommunities.appId}
-                    name="My communities"
+                    name="My collections"
                     active={selectedAppId === myCommunities.appId}
                     onClick={() =>
                       this.setState({
@@ -95,7 +95,7 @@ export class CommunitySelectionSearch extends Component {
                       })
                     }
                   >
-                    {i18next.t("My communities")}
+                    {i18next.t("My collections")}
                   </Menu.Item>
                 </Menu>
               </Grid.Column>
@@ -167,7 +167,7 @@ CommunitySelectionSearch.defaultProps = {
         },
       },
       appId: "ReactInvenioDeposit.CommunitySelectionSearch.AllCommunities",
-      toggleText: "Search in all communities",
+      toggleText: "Search in all collections",
     },
     myCommunities: {
       initialQueryState: { size: 5, page: 1 },
@@ -178,7 +178,7 @@ CommunitySelectionSearch.defaultProps = {
         },
       },
       appId: "ReactInvenioDeposit.CommunitySelectionSearch.MyCommunities",
-      toggleText: "Search in my communities",
+      toggleText: "Search in my collections",
     },
   },
 };

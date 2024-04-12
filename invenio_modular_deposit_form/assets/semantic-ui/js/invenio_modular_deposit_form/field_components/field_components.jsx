@@ -278,14 +278,17 @@ const CommonsDomainComponent = ({ customFieldsUI }) => {
   );
 };
 
-const CommunitiesComponent = () => {
+const CommunitiesComponent = ({ ...extraProps }) => {
   {
     /* <Overridable id="InvenioAppRdm.Deposit.CommunityHeader.container">
     <CommunityHeader imagePlaceholderLink="/static/images/square-placeholder.png" />
   </Overridable> */
   }
   return (
-    <CommunityField imagePlaceholderLink="/static/images/square-placeholder.png" />
+    <CommunityField
+      imagePlaceholderLink="/static/images/square-placeholder.png"
+      {...extraProps}
+    />
   );
 };
 

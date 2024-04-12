@@ -124,7 +124,6 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
       return false;
 
     for (let key in obj1) {
-      console.log(obj1[key], obj2[key]);
       let isEqual = areDeeplyEqual(obj1[key], obj2[key]);
       if (!isEqual) {
         return false;
