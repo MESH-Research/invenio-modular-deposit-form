@@ -55,6 +55,7 @@ import { SubmitButtonModal } from "../replacement_components/PublishButton/Submi
 import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
+import { FormUIStateContext } from "../InnerDepositForm";
 
 const AbstractComponent = ({ record, vocabularies, ...extraProps }) => {
   return (
@@ -905,7 +906,7 @@ const SubjectsComponent = ({ record, vocabularies, ...extraProps }) => {
 
 const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
   const { errors, values, setFieldValue } = useFormikContext();
-  const { handleFormPageChange } = useContext(FormValuesContext);
+  const { handleFormPageChange } = useContext(FormUIStateContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 

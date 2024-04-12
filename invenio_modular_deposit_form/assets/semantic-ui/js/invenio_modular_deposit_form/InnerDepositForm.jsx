@@ -1,12 +1,16 @@
 import React, {
+  createContext,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
 } from "react";
+import { combineReducers } from "redux";
+import { useStore, useDispatch } from "react-redux";
 import { useFormikContext } from "formik";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
 import { FormFeedback } from "@js/invenio_rdm_records";
+import { depositReducer, fileReducer } from "@js/invenio_rdm_records";
 import {
   Button,
   Confirm,
@@ -19,44 +23,25 @@ import {
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import Overridable from "react-overridable";
-import { FormPage } from "./FormPage";
+import { FormPage } from "./framing_components/FormPage";
 import {
+  areDeeplyEqual,
   flattenKeysDotJoined,
   flattenWrappers,
   getTouchedParent,
+  isNearViewportBottom,
 } from "./utils";
+import {
+  RecoveryModal,
+} from "./framing_components/RecoveryModal";
+import { useIsInViewport } from "./hooks/useIsInViewport";
 
-
-/*
-A helper hook to determine if a target element is in the viewport.
-*/
-function useIsInViewport(ref) {
-  const [isIntersecting, setIsIntersecting] = useState(false);
-
-  const observer = useMemo(
-    () =>
-      new IntersectionObserver(([entry]) =>
-        setIsIntersecting(entry.isIntersecting)
-      ),
-    []
-  );
-
-  useEffect(() => {
-    observer.observe(ref.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [ref, observer]);
-
-  return isIntersecting;
-}
-
+const FormUIStateContext = createContext();
 
 /*
 This component provides the frame for deposit form page navigation and error handling. State for form values and errors are handled by Formik and accessed from the Formik context. This component manages form *ui* state.
 
-Visually, this component renders the form page navigation stepper and the form pages themselves. It also provides the confirmation modal for navigating between form pages with errors.
+Visually, this component renders the form page navigation stepper and the form pages themselves. It also provides the confirmation modals for navigating between form pages with errors and for recovering autosaved form values.
 */
 const InnerDepositForm = ({
   commonFields,
@@ -80,22 +65,6 @@ const InnerDepositForm = ({
   vocabularies,
 }) => {
 
-  // React Context to track the current form values.
-  // Will contain the Formik values object passed up from a
-  // form field.
-  // const FormValuesContext = createContext();
-  // Was providing this
-    // <FormValuesContext.Provider
-    //   value={{
-    //     currentValues,
-    //     handleValuesChange,
-    //     currentErrors,
-    //     currentTouched,
-    //     handleErrorsChange,
-    //     handleFormPageChange,
-    //   }}
-    // ></FormValuesContext.Provider>
-
   const {
     errors,
     initialErrors,
@@ -113,6 +82,7 @@ const InnerDepositForm = ({
     ...otherProps
   } = useFormikContext();
 
+
   // state for handling form data local storage
   const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
 
@@ -129,6 +99,7 @@ const InnerDepositForm = ({
   const formPages = commonFields[0].subsections;
   const formPageSlugs = formPages.map(({ section }) => section);
   const [currentFormPage, setCurrentFormPage] = useState(formPages[0].section);
+  const pageNums = formPages.map(({ section }) => section);
   const currentPageIndex = pageNums.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
   const previousPageIndex = currentPageIndex - 1;
@@ -171,7 +142,10 @@ const InnerDepositForm = ({
   // combined with css scroll-margin-bottom
   useEffect(() => {
     function handleFocus(event) {
-      event.target.scrollIntoView({ block: "center", behavior: "smooth" });
+      if (isNearViewportBottom(event.target, 100)) {
+        console.log("scrolling to input near bottom of page");
+        event.target.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
     }
 
     const inputs = document.querySelectorAll(
@@ -242,6 +216,8 @@ const InnerDepositForm = ({
   // handle form page error state for client-side validation
   const updateFormErrorState = (errors, touched, initialErrors) => {
     const errorFields = flattenKeysDotJoined(errors);
+    console.log("errors****************************", errors);
+    console.log("formpagefields****************************", formPageFields);
     const touchedFields = flattenKeysDotJoined(touched);
     const initialErrorFields = flattenKeysDotJoined(initialErrors);
     let errorPages = {};
@@ -283,7 +259,8 @@ const InnerDepositForm = ({
   }, [errors, touched, initialErrors]);
 
   // make sure first page element is focused when navigating
-  const focusFirstElement = () => {
+  // passed down to FormPage but also called by confirm modal
+  const focusFirstElement = (currentFormPage) => {
     // FIXME: timing issue
     setTimeout(() => {
       // FIXME: workaround since file uploader has inaccessible first input
@@ -292,20 +269,20 @@ const InnerDepositForm = ({
       const newInputs = document.querySelectorAll(
         `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
       );
+      console.log("newInputs", newInputs);
       const newFirstInput = newInputs[targetIndex];
-      newFirstInput?.focus();
-      console.log("scrolling: focusing on", newFirstInput);
+      if ( newFirstInput !== undefined ) {
+        newFirstInput?.focus();
+        window.scrollTo(0, 0);
+        console.log("focusing on first input:", newFirstInput);
+      }
     }, 100);
   };
-
-  useLayoutEffect(() => {
-    focusFirstElement();
-  }, [currentFormPage]);
 
   // handlers for page change confirmation modal
   const handlePageChangeCancel = () => {
     setConfirmingPageChange(false);
-    focusFirstElement();
+    focusFirstElement(currentFormPage);
   };
 
   const handlePageChangeConfirm = () => {
@@ -431,6 +408,9 @@ const InnerDepositForm = ({
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
+      <FormUIStateContext.Provider value={
+        {handleFormPageChange: handleFormPageChange}
+      }>
       <Overridable
         id="InvenioAppRdm.Deposit.FormFeedback.container"
         labels={config.custom_fields.error_labels}
@@ -492,6 +472,8 @@ const InnerDepositForm = ({
                   <div key={index}>
                     <FormPage
                       commonFieldProps={commonFieldProps}
+                      currentFormPage={currentFormPage}
+                      focusFirstElement={focusFirstElement}
                       id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                       subsections={actualSubsections}
                     />
@@ -581,6 +563,7 @@ const InnerDepositForm = ({
 
         </Grid.Column>
       </Grid>
+      </FormUIStateContext.Provider>
     </Container>
   );
 };
@@ -607,4 +590,4 @@ InnerDepositForm.propTypes = {
   vocabularies: PropTypes.object.isRequired,
 };
 
-export { InnerDepositForm };
+export { InnerDepositForm, FormUIStateContext };

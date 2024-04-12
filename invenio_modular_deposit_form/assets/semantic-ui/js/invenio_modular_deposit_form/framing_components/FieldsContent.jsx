@@ -1,6 +1,6 @@
 import React from "react";
 import { Form } from "semantic-ui-react";
-import { SectionWrapper } from "./field_components/SectionWrapper";
+import { SectionWrapper } from "../field_components/SectionWrapper";
 
 const FormRow = ({ subsections, classnames, ...props }) => {
   console.log("FormRow props", props);

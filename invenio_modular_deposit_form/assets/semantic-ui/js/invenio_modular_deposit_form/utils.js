@@ -147,10 +147,18 @@ function excludeObjectKeys(obj, keys) {
   return newObj;
 }
 
+function isNearViewportBottom(el, offset = 0) {
+  const { bottom } = el.getBoundingClientRect();
+  return (
+    (bottom + offset) >= window.innerHeight
+  );
+};
+
 export {
   areDeeplyEqual,
   excludeObjectKeys,
   getTouchedParent,
+  isNearViewportBottom,
   scrollTop,
   moveToArrayStart,
   pushToArrayEnd,

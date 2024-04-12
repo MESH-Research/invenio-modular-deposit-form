@@ -57,7 +57,7 @@ import {
   ThesisDetailsComponent,
   TypeTitleComponent,
 } from "./field_components/compound_field_components";
-import { FormRow } from "./FieldsContent";
+import { FormRow } from "./framing_components/FieldsContent";
 
 const fieldComponents = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
