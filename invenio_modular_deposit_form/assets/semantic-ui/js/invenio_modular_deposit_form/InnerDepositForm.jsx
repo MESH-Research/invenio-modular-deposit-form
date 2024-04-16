@@ -83,7 +83,7 @@ const InnerDepositForm = ({
   const store = useStore();
   const selectedCommunity = store.getState().deposit.editorState.selectedCommunity;
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
-  if ( !selectedCommunityLabel?.toLowerCase().includes('collection') ) {
+  if ( !!selectedCommunityLabel && !selectedCommunityLabel?.toLowerCase().includes('collection') ) {
     selectedCommunityLabel = `the ${selectedCommunityLabel} collection`;
   };
 
