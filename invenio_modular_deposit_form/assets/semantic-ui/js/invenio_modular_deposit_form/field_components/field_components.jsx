@@ -30,7 +30,6 @@ import {
   FormFeedback,
   IdentifiersField,
   PreviewButton,
-  LanguagesField,
   LicenseField,
   PublicationDateField,
   PublishButton,
@@ -48,6 +47,7 @@ import { Grid, Message } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { DatesField } from "../replacement_components/DatesField";
 import { CommunityField } from "../replacement_components/CommunityField";
+import { LanguagesField } from "../replacement_components/LanguagesField";
 import { PIDField } from "../replacement_components/PIDField";
 import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSelectorField";
 import { SizesField } from "../replacement_components/SizesField";
@@ -600,6 +600,7 @@ const JournalIssueComponent = ({ customFieldsUI, ...extraProps }) => {
 };
 
 const LanguagesComponent = ({ record, ...extraProps }) => {
+  console.log("LanguagesComponent", extraProps);
   return (
     <FieldComponentWrapper
       componentName="LanguagesField"
@@ -614,9 +615,7 @@ const LanguagesComponent = ({ record, ...extraProps }) => {
         placeholder={i18next.t(
           'Type to search for a language (press "enter" to select)'
         )}
-        description={i18next.t(
-          'Search for the language(s) of the resource (e.g., "eng", "fra", "Swahili"). Press enter to select each language.'
-        )}
+        description={i18next.t(extraProps.description)}
         serializeSuggestions={(suggestions) =>
           suggestions.map((item) => ({
             text: item.title_l10n,
@@ -624,7 +623,9 @@ const LanguagesComponent = ({ record, ...extraProps }) => {
             key: item.id,
           }))
         }
+        noQueryMessage={" "}
         aria-describedby="metadata.languages.helptext"
+        multiple={true}
       />
     </FieldComponentWrapper>
   );
@@ -848,6 +849,7 @@ const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
         />
       </Overridable> */
   }
+  console.log("extraProps", extraProps);
   const fieldPath = "metadata.resource_type";
   return (
     <FieldComponentWrapper
@@ -858,7 +860,7 @@ const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
       <ResourceTypeSelectorField
         fieldPath={fieldPath}
         options={vocabularies.metadata.resource_type}
-        required
+        required={true}
       />
     </FieldComponentWrapper>
   );

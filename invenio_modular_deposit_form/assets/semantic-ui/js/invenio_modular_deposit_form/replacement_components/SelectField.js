@@ -4,13 +4,15 @@ import _isEmpty from "lodash/isEmpty";
 
 import { Dropdown, Form } from "semantic-ui-react";
 import { FieldLabel } from "react-invenio-forms";
-import { set } from "lodash";
+import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 const SelectField = ({
   defaultValue = "",
+  description = undefined,
   error = undefined,
   errorDirection = "above",
   fieldPath,
+  helpText = undefined,
   label = "",
   labelIcon = undefined,
   onAddItem = undefined,
@@ -52,36 +54,48 @@ const SelectField = ({
 
   const handleChange = (e, { value }) => {
     setFieldValue(fieldPath, value);
+    console.log("handleChange*************", value);
   };
 
   return (
-    <FormikField id={fieldPath} name={fieldPath} as="select" {...otherProps}>
+    <FormikField id={fieldPath} name={fieldPath} fieldPath={fieldPath} as="select" {...otherProps}>
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
+        form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
+        console.log("SelectField", field.value);
+        console.log("SelectField otherProps", otherProps);
+        console.log("SelectField field", field);
+        console.log("SelectField field", multiple);
+        const _defaultValue = defaultValue || (multiple ? [] : "");
         return (
           <Form.Field
             error={meta.error && meta.touched ? true : undefined}
             width={width}
           >
             <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+            {description && (
+              <div className="helptext" id={`${fieldPath}.helptext`}>
+                {i18next.t(description)}
+              </div>
+            )}
             <Dropdown
+              fluid
               className="invenio-select-field"
+              selection
               error={meta.error && meta.touched ? true : undefined}
-              fluid={true}
               id={fieldPath}
               multiple={multiple}
-              name={fieldPath}
+              label={{ children: label }}
+              // name={fieldPath}
               options={options}
-              selection={true}
-              selectOnBlur={selectOnBlur}
               {...field}
               {...otherProps}
+              selectOnBlur={selectOnBlur}
               onChange={handleChange}
               onAddItem={onAddItem}
-              value={field.value || defaultValue}
+              value={field.value || _defaultValue}
             />
             {meta.error && meta.touched && (
               <div
@@ -90,6 +104,11 @@ const SelectField = ({
                 aria-atomic="true"
               >
                 {meta.error}
+              </div>
+            )}
+            {helpText && (
+              <div className="helptext" id={`${fieldPath}.helptext`}>
+                {i18next.t(helpText)}
               </div>
             )}
           </Form.Field>

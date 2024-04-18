@@ -6,6 +6,7 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { getTouchedParent } from "../utils";
 
 const TextField = ({
+  description,
   fieldPath,
   label,
   labelIcon: label_icon,
@@ -71,6 +72,11 @@ const TextField = ({
             {showLabel && (
               <FieldLabel htmlFor={fieldPath} icon={label_icon} label={label} />
             )}
+            {description && (
+              <div className="helptext" id={`${fieldPath}.helptext`}>
+                {i18next.t(description)}
+              </div>
+            )}
             <Form.Input
               error={
                 (meta.error && (meta.touched || touchedAncestor)) ||
@@ -80,7 +86,7 @@ const TextField = ({
               }
               disabled={disabled}
               fluid={fluid}
-              icon={input_icon ? label_icon : undefined}
+              icon={input_icon || undefined}
               id={fieldPath}
               name={fieldPath}
               aria-describedby={`${fieldPath}.helptext`}

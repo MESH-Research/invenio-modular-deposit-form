@@ -65,9 +65,9 @@ const FieldComponentWrapper = ({
             children,
             {
               defaultFieldValue: defaultFieldValue,
-              description: "",
+              description: moddedDescription,
               fieldPath: fieldPath,
-              helptext: moddedHelpText ? moddedHelpText : moddedDescription,
+              helpText: moddedHelpText,
               label: moddedLabel,
               labelIcon: moddedIcon,
               placeholder: moddedPlaceholder,
@@ -78,11 +78,6 @@ const FieldComponentWrapper = ({
             null
           )}
       </Overridable>
-      {(moddedHelpText || moddedDescription) && (
-        <label id={`${fieldPath}.helptext`} className="helptext">
-          {moddedHelpText || moddedDescription}
-        </label>
-      )}
     </>
   );
 };

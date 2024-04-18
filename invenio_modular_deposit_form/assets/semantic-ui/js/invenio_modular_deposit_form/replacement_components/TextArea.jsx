@@ -6,10 +6,11 @@ import { getTouchedParent } from "../utils";
 
 const TextArea = ({
   classnames,
+  description,
   error,
   fieldPath,
   fluid = true,
-  helpText = "",
+  helpText = undefined,
   label,
   onBlur,
   optimized = false,
@@ -43,6 +44,8 @@ const TextArea = ({
   } = extraProps;
 
   const FormikField = optimized ? FastField : Field;
+
+  // console.log("TextArea", fieldPath, extraProps, filteredProps, helpText);
 
   return (
     <FormikField
@@ -78,6 +81,7 @@ const TextArea = ({
                 label={label}
               />
             )}
+            {helpText && <label id={`${fieldPath}.helptext`} className={`helptext`}>{description}</label>}
             <Form.TextArea
               id={fieldPath}
               name={fieldPath}
@@ -94,9 +98,13 @@ const TextArea = ({
               })}
               {...filteredProps}
             />
+            {helpText && (
+              <div className="helptext" id={`${fieldPath}.helptext`}>
+                {i18next.t(helpText)}
+              </div>
+            )}
             {((!!meta.error && (!!meta.touched || touchedAncestor)) ||
               !!error) && <ErrorLabel fieldPath={fieldPath} />}
-            {helpText && <label className="helptext">{description}</label>}
           </Form.Field>
         );
       }}

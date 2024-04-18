@@ -496,6 +496,8 @@ const InnerDepositForm = ({
                 : "sticky-footer-fixed"
             }`}
           >
+            <Grid className="deposit-form-footer">
+            <Grid.Column width={3}>
             {!!previousFormPage && (
               <Button
                 type="button"
@@ -508,7 +510,13 @@ const InnerDepositForm = ({
                 Back
               </Button>
             )}
+            </Grid.Column>
 
+            <Grid.Column className="footer-message" width={10}>
+              Your current form values are backed up automatically <i>in this browser</i>.<br />Save a persistent draft to the cloud on the "Save & Publish" tab.
+            </Grid.Column>
+
+            <Grid.Column width={3}>
             {!!nextFormPage && (
               <Button
                 primary
@@ -521,7 +529,8 @@ const InnerDepositForm = ({
                 <Icon name="right arrow" />
                 Continue
               </Button>
-            )}
+            )}</Grid.Column>
+            </Grid>
           </div>
 
           <Confirm

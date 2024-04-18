@@ -23,7 +23,7 @@ const ResourceTypeSelectorField = ({
   labelIcon = "tag",
   options,
   labelclassname = "field-label-class",
-  required = false,
+  required,
   ...restProps
 }) => {
   const { values, errors, setFieldValue, initialValues } = useFormikContext();
@@ -44,6 +44,7 @@ const ResourceTypeSelectorField = ({
       icon: "graduation",
     },
   ];
+  console.log("required", required);
 
   useEffect(() => {
     if (
