@@ -20,26 +20,14 @@ const TextArea = ({
   width,
   ...extraProps
 }) => {
-  // FIXME: This is a hack to remove the extra props that are not used by the
-  // semantic-ui Form.Input component. We should probably remove these earlier
   // FIXME: Implement the extraRequiredFields and defaultFieldValues props
+  // FIXME: reimplement the richtext editor
   const {
-    customFieldsUI,
-    currentResourceType,
-    currentUserprofile,
-    descriptionMods,
     defaultFieldValue,
-    extraRequiredFields,
-    fieldComponents,
-    helpTextMods,
+    editorConfig,
     icon,
-    iconMods,
     inputIcon,
     labelIcon,
-    labelMods,
-    noFiles,
-    placeholderMods,
-    priorityFieldValues,
     ...filteredProps
   } = extraProps;
 

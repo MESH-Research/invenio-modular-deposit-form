@@ -54,21 +54,30 @@ const SelectField = ({
 
   const handleChange = (e, { value }) => {
     setFieldValue(fieldPath, value);
-    console.log("handleChange*************", value);
   };
 
-  return (
-    <FormikField id={fieldPath} name={fieldPath} fieldPath={fieldPath} as="select" {...otherProps}>
+  const {
+    noQueryMessage,
+    noResultsMessage,
+    defaultFieldValue,
+    ...uiProps
+  } = otherProps;
+
+  // TODO: implement extraRequiredFields, priorityFieldValues and defaultFieldValue
+
+   return (
+    <FormikField name={fieldPath} fieldPath={fieldPath} as="select" {...uiProps}>
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
+        form: { touched, errors, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
         console.log("SelectField", field.value);
         console.log("SelectField otherProps", otherProps);
-        console.log("SelectField field", field);
+        console.log("SelectField options", options);
         console.log("SelectField field", multiple);
         const _defaultValue = defaultValue || (multiple ? [] : "");
+        const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
         return (
           <Form.Field
             error={meta.error && meta.touched ? true : undefined}
@@ -84,18 +93,24 @@ const SelectField = ({
               fluid
               className="invenio-select-field"
               selection
+              search
               error={meta.error && meta.touched ? true : undefined}
               id={fieldPath}
               multiple={multiple}
               label={{ children: label }}
-              // name={fieldPath}
+              name={fieldPath}
               options={options}
               {...field}
-              {...otherProps}
+              {...uiProps}
               selectOnBlur={selectOnBlur}
-              onChange={handleChange}
+              {...(onChange && {
+                onChange: (event, data) => {
+                  onChange({event, data, formikProps});
+                  handleChange(event, data);
+                },
+              })} // override onChange if extra logic is passed
               onAddItem={onAddItem}
-              value={field.value || _defaultValue}
+              // value={field.value}
             />
             {meta.error && meta.touched && (
               <div

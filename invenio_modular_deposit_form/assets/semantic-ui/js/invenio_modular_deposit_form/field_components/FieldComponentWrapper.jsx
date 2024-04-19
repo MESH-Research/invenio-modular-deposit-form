@@ -1,27 +1,31 @@
-import React from "react";
+import React, { useContext } from "react";
 import Overridable from "react-overridable";
 import { pickBy } from "lodash";
+import { FormUIStateContext } from "../InnerDepositForm";
 
 const FieldComponentWrapper = ({
   children,
   componentName,
   fieldPath,
   icon,
-  iconMods,
   label,
-  labelMods,
-  defaultFieldValues,
   description,
-  descriptionMods,
-  extraRequiredFields,
   helpText,
-  helpTextMods,
   placeholder,
-  placeholderMods,
-  priorityFieldValues,
   required,
   ...extraProps
 }) => {
+  const { currentFieldMods } = useContext(FormUIStateContext);
+  const {
+    defaultFieldValues,
+    descriptionMods,
+    helpTextMods,
+    iconMods,
+    labelMods,
+    placeholderMods,
+    priorityFieldValues,
+    extraRequiredFields,
+  } = currentFieldMods;
   const moddedIcon =
     iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
   const moddedLabel =
@@ -54,6 +58,10 @@ const FieldComponentWrapper = ({
       : null;
   // Remove undefined values from extraProps
   const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
+  // const {
+  //   ...filteredExtraProps
+  // } = cleanedExtraProps
+
   return (
     <>
       <Overridable

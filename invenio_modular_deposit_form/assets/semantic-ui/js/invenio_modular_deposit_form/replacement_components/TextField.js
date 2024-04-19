@@ -29,21 +29,10 @@ const TextField = ({
   // FIXME: Implement the extraRequiredFields and defaultFieldValues props
   const {
     customFieldsUI,
-    currentResourceType,
-    currentUserprofile,
-    descriptionMods,
     defaultFieldValue,
-    extraRequiredFields,
-    fieldComponents,
-    helpTextMods,
     icon,
-    iconMods,
     inputIcon,
     labelIcon,
-    labelMods,
-    noFiles,
-    placeholderMods,
-    priorityFieldValues,
     ...filteredProps
   } = extraProps;
   return (

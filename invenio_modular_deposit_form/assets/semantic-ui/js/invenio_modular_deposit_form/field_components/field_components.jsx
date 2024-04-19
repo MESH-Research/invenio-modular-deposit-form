@@ -16,7 +16,7 @@ import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
 import { useFormikContext } from "formik";
-import { useStore } from "react-redux";
+import { ReactReduxContext, useStore } from "react-redux";
 import { AccordionField } from "react-invenio-forms";
 import {
   AccessRightField,
@@ -57,7 +57,10 @@ import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { FormUIStateContext } from "../InnerDepositForm";
 
-const AbstractComponent = ({ record, vocabularies, ...extraProps }) => {
+const AbstractComponent = ({ ...extraProps }) => {
+  const record = useStore().getState().deposit.record;
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     // <Overridable
     //   id="InvenioAppRdm.Deposit.DescriptionsField.container"
@@ -94,7 +97,11 @@ const AbstractComponent = ({ record, vocabularies, ...extraProps }) => {
   );
 };
 
-const AccessRightsComponent = ({ permissions, ...extraProps }) => {
+const AccessRightsComponent = ({ ...extraProps }) => {
+
+  const store = useStore();
+  const permissions = store.getState().deposit.permissions;
+
   return (
     <FieldComponentWrapper
       componentName="AccessRightField"
@@ -112,7 +119,9 @@ const AccessRightsComponent = ({ permissions, ...extraProps }) => {
   );
 };
 
-const AdditionalDatesComponent = ({ vocabularies, ...extraProps }) => {
+const AdditionalDatesComponent = ({ ...extraProps }) => {
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="DateField"
@@ -128,11 +137,11 @@ const AdditionalDatesComponent = ({ vocabularies, ...extraProps }) => {
   );
 };
 
-const AdditionalDescriptionComponent = ({
-  record,
-  vocabularies,
-  ...extraProps
-}) => {
+const AdditionalDescriptionComponent = ({ ...extraProps }) => {
+
+  const record = useStore().getState().deposit.record;
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="DescriptionsField"
@@ -165,7 +174,10 @@ const AdditionalTitlesComponent = () => {
   return <></>;
 };
 
-const AlternateIdentifiersComponent = ({ vocabularies, ...extraProps }) => {
+const AlternateIdentifiersComponent = ({ ...extraProps }) => {
+
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="IdentifiersField"
@@ -182,13 +194,12 @@ const AlternateIdentifiersComponent = ({ vocabularies, ...extraProps }) => {
   );
 };
 
-const BookTitleComponent = ({ customFieldsUI, ...extraProps }) => {
+const BookTitleComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.title"
       idString="ImprintTitleField"
-      customFieldsUI={customFieldsUI}
       description={""}
       label={"Book title"}
       icon={"book"}
@@ -197,81 +208,72 @@ const BookTitleComponent = ({ customFieldsUI, ...extraProps }) => {
   );
 };
 
-const CodeDevelopmentStatusComponent = ({ customFieldsUI, ...extraProps }) => {
+const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Software"
       fieldName="code:developmentStatus"
       idString="CodeDevelopmentStatusField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const CodeOperatingSystemComponent = ({ customFieldsUI, ...extraProps }) => {
+const CodeOperatingSystemComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Software"
       fieldName="code:operatingSystem"
       idString="CodeOperatingSystemField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const CodeProgrammingLanguageComponent = ({
-  customFieldsUI,
-  ...extraProps
-}) => {
+const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Software"
       fieldName="code:programmingLanguage"
       idString="CodeProgrammingLanguageField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const CodeRepositoryComponent = ({ customFieldsUI, ...extraProps }) => {
+const CodeRepositoryComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Software"
       fieldName="code:codeRepository"
       idString="CodeRepositoryField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const CodeRuntimePlatformComponent = ({ customFieldsUI, ...extraProps }) => {
+const CodeRuntimePlatformComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Software"
       fieldName="code:runtimePlatform"
       idString="CodeRuntimePlatformField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const CommonsDomainComponent = ({ customFieldsUI }) => {
+const CommonsDomainComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Commons admin info"
       fieldName="kcr:commons_domain"
       idString="CommonsDomainField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
@@ -292,7 +294,11 @@ const CommunitiesComponent = ({ ...extraProps }) => {
   );
 };
 
-const ContributorsComponent = ({ config, vocabularies, ...extraProps }) => {
+const ContributorsComponent = ({ ...extraProps }) => {
+
+  const config = useStore().getState().deposit.config;
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="ContibutorsField"
@@ -316,12 +322,11 @@ const ContributorsComponent = ({ config, vocabularies, ...extraProps }) => {
   );
 };
 
-const CreatorsComponent = ({
-  config,
-  vocabularies,
-  currentUserProfile,
-  ...extraProps
-}) => {
+const CreatorsComponent = ({ ...extraProps }) => {
+
+  const config = useStore().getState().deposit.config;
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="CreatorsField"
@@ -338,7 +343,6 @@ const CreatorsComponent = ({
         required
         config={config}
         addButtonLabel={i18next.t("Add creator")}
-        currentUserprofile={currentUserProfile}
         modal={{
           addLabel: i18next.t("Add creator"),
           editLabel: i18next.t("Edit creator"),
@@ -360,7 +364,10 @@ const DateComponent = ({ ...extraProps }) => {
   );
 };
 
-const DeleteComponent = ({ permissions, record, ...extraProps }) => {
+const DeleteComponent = ({ ...extraProps }) => {
+
+  const permissions = useStore().getState().deposit.permissions;
+
   return (
     <>
       {permissions?.can_delete_draft ? (
@@ -376,12 +383,16 @@ const DeleteComponent = ({ permissions, record, ...extraProps }) => {
   );
 };
 
-const DoiComponent = ({ config, record, ...extraProps }) => {
+const DoiComponent = ({ ...extraProps }) => {
+  const store = useStore();
+  const pids = store.getState().deposit.config.pids;
+  const record = store.getState().deposit.record;
+
   return (
     // FIXME: PIDField doesn't play nicely with FieldComponentWrapper
     // <FieldComponentWrapper componentName="PIDField" {...extraProps}>
     <Fragment>
-      {config.pids.map((pid) => (
+      {pids.map((pid) => (
         <Fragment key={pid.scheme}>
           <PIDField
             btnLabelDiscardPID={pid.btn_label_discard_pid}
@@ -408,13 +419,11 @@ const DoiComponent = ({ config, record, ...extraProps }) => {
   );
 };
 
-const FilesUploadComponent = ({
-  config,
-  noFiles,
-  record,
-  permissions,
-  ...extraProps
-}) => {
+const FilesUploadComponent = ({ ...extraProps }) => {
+
+  const { config, record } = useStore().getState().deposit;
+  const { noFiles } = useContext(FormUIStateContext);
+
   return (
     <>
       {/* <Overridable
@@ -523,13 +532,12 @@ const FundingComponent = ({ ...extraProps }) => {
   );
 };
 
-const ISBNComponent = ({ customFieldsUI, ...extraProps }) => {
+const ISBNComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.isbn"
       idString="ImprintISBNField"
-      customFieldsUI={customFieldsUI}
       icon="barcode"
       placeholder="e.g. 0-06-251587-X"
       description={""}
@@ -538,7 +546,7 @@ const ISBNComponent = ({ customFieldsUI, ...extraProps }) => {
   );
 };
 
-const JournalTitleComponent = ({ customFieldsUI, ...extraProps }) => {
+const JournalTitleComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
@@ -547,13 +555,12 @@ const JournalTitleComponent = ({ customFieldsUI, ...extraProps }) => {
       label="Journal title"
       icon=""
       description=""
-      customFieldsUI={customFieldsUI}
       {...extraProps}
     />
   );
 };
 
-const JournalISSNComponent = ({ customFieldsUI, ...extraProps }) => {
+const JournalISSNComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
@@ -563,13 +570,12 @@ const JournalISSNComponent = ({ customFieldsUI, ...extraProps }) => {
       icon="barcode"
       description=""
       placeholder="e.g. 1234-5678"
-      customFieldsUI={customFieldsUI}
       {...extraProps}
     />
   );
 };
 
-const JournalVolumeComponent = ({ customFieldsUI, ...extraProps }) => {
+const JournalVolumeComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
@@ -578,13 +584,12 @@ const JournalVolumeComponent = ({ customFieldsUI, ...extraProps }) => {
       label={i18next.t("Volume")}
       description=""
       icon="zip"
-      customFieldsUI={customFieldsUI}
       {...extraProps}
     />
   );
 };
 
-const JournalIssueComponent = ({ customFieldsUI, ...extraProps }) => {
+const JournalIssueComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
@@ -593,14 +598,16 @@ const JournalIssueComponent = ({ customFieldsUI, ...extraProps }) => {
       label={i18next.t("Issue")}
       description=""
       icon="book"
-      customFieldsUI={customFieldsUI}
       {...extraProps}
     />
   );
 };
 
-const LanguagesComponent = ({ record, ...extraProps }) => {
+const LanguagesComponent = ({ ...extraProps }) => {
+
+  const record = useStore().getState().deposit.record;
   console.log("LanguagesComponent", extraProps);
+
   return (
     <FieldComponentWrapper
       componentName="LanguagesField"
@@ -668,104 +675,96 @@ const MetadataOnlyComponent = () => {
   return <></>;
 };
 
-const MeetingAcronymComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingAcronymComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.acronym"
       idString="MeetingAcronymField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const MeetingDatesComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingDatesComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.dates"
       idString="MeetingDatesField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const MeetingPlaceComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingPlaceComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.place"
       idString="MeetingPlaceField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const MeetingSessionComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingSessionComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.session"
       idString="MeetingSessionField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const MeetingSessionPartComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingSessionPartComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.session_part"
       idString="MeetingSessionPartField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const MeetingTitleComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingTitleComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.title"
       idString="MeetingTitleField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const MeetingURLComponent = ({ customFieldsUI, ...extraProps }) => {
+const MeetingURLComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Conference"
       fieldName="meeting:meeting.url"
       idString="MeetingURLField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const SectionPagesComponent = ({ customFieldsUI, ...extraProps }) => {
+const SectionPagesComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Journal"
       fieldName="journal:journal.pages"
       idString="JournalPagesField"
-      customFieldsUI={customFieldsUI}
       description={""}
       label="Section pages"
       icon="file outline"
@@ -790,13 +789,12 @@ const PublisherComponent = ({ ...extraProps }) => {
   );
 };
 
-const PublicationLocationComponent = ({ customFieldsUI, ...extraProps }) => {
+const PublicationLocationComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.place"
       idString="ImprintPlaceField"
-      customFieldsUI={customFieldsUI}
       label={"Place of Publication"}
       icon={"map marker alternate"}
       description={""}
@@ -806,7 +804,10 @@ const PublicationLocationComponent = ({ customFieldsUI, ...extraProps }) => {
   );
 };
 
-const ReferencesComponent = ({ vocabularies, ...extraProps }) => {
+const ReferencesComponent = ({ ...extraProps }) => {
+
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="ReferencesField"
@@ -819,7 +820,10 @@ const ReferencesComponent = ({ vocabularies, ...extraProps }) => {
   );
 };
 
-const RelatedWorksComponent = ({ vocabularies, ...extraProps }) => {
+const RelatedWorksComponent = ({ ...extraProps }) => {
+
+  const { vocabularies } = useContext(FormUIStateContext);
+
   return (
     <FieldComponentWrapper
       componentName="RelatedWorksField"
@@ -835,7 +839,7 @@ const RelatedWorksComponent = ({ vocabularies, ...extraProps }) => {
   );
 };
 
-const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
+const ResourceTypeComponent = ({ ...extraProps }) => {
   {
     /* <Overridable
         id="InvenioAppRdm.Deposit.ResourceTypeField.container"
@@ -849,7 +853,7 @@ const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
         />
       </Overridable> */
   }
-  console.log("extraProps", extraProps);
+  const { vocabularies } = useContext(FormUIStateContext);
   const fieldPath = "metadata.resource_type";
   return (
     <FieldComponentWrapper
@@ -866,7 +870,7 @@ const ResourceTypeComponent = ({ vocabularies, ...extraProps }) => {
   );
 };
 
-const SizesComponent = ({ customFieldsUI, ...extraProps }) => {
+const SizesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="SizeField"
@@ -880,12 +884,16 @@ const SizesComponent = ({ customFieldsUI, ...extraProps }) => {
   );
 };
 
-const SubjectsComponent = ({ record, vocabularies, ...extraProps }) => {
+const SubjectsComponent = ({ ...extraProps }) => {
+
+  const { vocabularies } = useContext(FormUIStateContext);
+  const record = useStore().getState().deposit.record;
+
   let myLimitToOptions = [...vocabularies.metadata.subjects.limit_to];
   myLimitToOptions.reverse();
   myLimitToOptions = moveToArrayStart(
     myLimitToOptions,
-    ["FOS", "FAST-topical", "all"],
+    ["FAST-topical", "all"],
     "value"
   );
   return (
@@ -909,12 +917,13 @@ const SubjectsComponent = ({ record, vocabularies, ...extraProps }) => {
   );
 };
 
-const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
+const SubmissionComponent = () => {
   const { errors, values, setFieldValue } = useFormikContext();
-  const { handleFormPageChange } = useContext(FormUIStateContext);
+  const { currentUserprofile, handleFormPageChange } = useContext(FormUIStateContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 
+  const { record, permissions } = store.getState().deposit;
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
   const missingFiles = filesEnabled && !hasFiles;
@@ -986,7 +995,7 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
               fluid
               actionName="saveDraft"
               aria-describedby="save-button-description"
-              currentUserProfile={currentUserprofile}
+              currentUserprofile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -1014,7 +1023,7 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
               fluid
               actionName="preview"
               aria-describedby="preview-button-description"
-              currentUserProfile={currentUserprofile}
+              currentUserprofile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -1035,7 +1044,7 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
             <SubmitButtonModal
               fluid
               actionName="publish"
-              currentUserProfile={currentUserprofile}
+              currentUserprofile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
@@ -1089,26 +1098,24 @@ const SubmissionComponent = ({ record, permissions, currentUserprofile }) => {
   );
 };
 
-const SubmitterEmailComponent = ({ customFieldsUI, ...extraProps }) => {
+const SubmitterEmailComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Commons admin info"
       fieldName="kcr:submitter_email"
       idString="SubmitterEmailField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
   );
 };
 
-const SubmitterUsernameComponent = ({ customFieldsUI, ...extraProps }) => {
+const SubmitterUsernameComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Commons admin info"
       fieldName="kcr:submitter_username"
       idString="SubmitterUsernameField"
-      customFieldsUI={customFieldsUI}
       description={""}
       {...extraProps}
     />
@@ -1118,7 +1125,9 @@ const SubtitleComponent = () => {
   return <></>;
 };
 
-const TitleComponent = ({ vocabularies, record, ...extraProps }) => {
+const TitleComponent = ({ ...extraProps }) => {
+  const { vocabularies } = useContext(FormUIStateContext);
+  const record = useStore().getState().deposit.record;
   return (
     <FieldComponentWrapper
       componentName="TitlesField"
@@ -1136,13 +1145,12 @@ const TitleComponent = ({ vocabularies, record, ...extraProps }) => {
   );
 };
 
-const TotalPagesComponent = ({ customFieldsUI, ...extraProps }) => {
+const TotalPagesComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.pages"
       idString="ImprintPagesField"
-      customFieldsUI={customFieldsUI}
       description={""}
       label={i18next.t("Total book pages")}
       icon="file outline"
@@ -1151,13 +1159,12 @@ const TotalPagesComponent = ({ customFieldsUI, ...extraProps }) => {
   );
 };
 
-const UniversityComponent = ({ customFieldsUI, ...extraProps }) => {
+const UniversityComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="KCR Book information"
       fieldName="thesis:university"
       idString="ThesisUniversity"
-      customFieldsUI={customFieldsUI}
       {...extraProps}
     />
   );

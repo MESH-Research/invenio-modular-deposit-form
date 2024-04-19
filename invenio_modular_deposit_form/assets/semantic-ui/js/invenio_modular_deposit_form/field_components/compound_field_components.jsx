@@ -11,42 +11,14 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React from "react";
+import React, { useContext } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
-import { i18next } from "@translations/invenio_app_rdm/i18next";
-import {
-  AccessRightField,
-  DescriptionsField,
-  CreatibutorsField,
-  DeleteButton,
-  DepositFormApp,
-  DepositStatusBox,
-  FileUploader,
-  FormFeedback,
-  IdentifiersField,
-  LanguagesField,
-  LicenseField,
-  PublicationDateField,
-  PublishButton,
-  PublisherField,
-  ReferencesField,
-  RelatedWorksField,
-  SubjectsField,
-  TitlesField,
-  VersionField,
-  CommunityHeader,
-} from "@js/invenio_rdm_records";
 import { Form, Grid } from "semantic-ui-react";
-import Overridable from "react-overridable";
 import {
   AccessRightsComponent,
   AdditionalDatesComponent,
-  BookTitleComponent,
   DateComponent,
-  SectionPagesComponent,
-  JournalTitleComponent,
-  JournalISSNComponent,
   MeetingDatesComponent,
   MeetingPlaceComponent,
   MeetingTitleComponent,
@@ -55,13 +27,15 @@ import {
   ResourceTypeComponent,
   SubmissionComponent,
   TitleComponent,
-  TotalPagesComponent,
   VersionComponent,
   UniversityComponent,
 } from "./field_components";
 import { CustomFieldInjector } from "./CustomFieldInjector";
+import { FormUIStateContext } from "../InnerDepositForm";
+import { useStore } from "react-redux";
 
-const CombinedDatesComponent = ({ vocabularies }) => {
+const CombinedDatesComponent = () => {
+  const { vocabularies } = useContext(FormUIStateContext);
   return (
     <>
       <DateComponent />
@@ -88,7 +62,7 @@ const OrganizationDetailsComponent = ({ customFieldsUI }) => {
   );
 };
 
-const PublicationDetailsComponent = ({ customFieldsUI }) => {
+const PublicationDetailsComponent = () => {
   return (
     <>
       <Form.Group widths="equal">
@@ -98,19 +72,22 @@ const PublicationDetailsComponent = ({ customFieldsUI }) => {
           idString="ImprintISBNField"
           description="e.g. 0-06-251587-X"
           placeholder=""
-          customFieldsUI={customFieldsUI}
         />
         <VersionComponent description="" />
       </Form.Group>
       <Form.Group widths="equal">
         <PublisherComponent />
-        <PublicationLocationComponent customFieldsUI={customFieldsUI} />
+        <PublicationLocationComponent />
       </Form.Group>
     </>
   );
 };
 
-const SubmitActionsComponent = ({ permissions, record }) => {
+const SubmitActionsComponent = () => {
+  const store = useStore();
+  const record = store.getState().deposit.record;
+  const permissions = store.getState().deposit.permissions;
+
   return (
     <Grid className="submit-actions">
       <Grid.Row>
@@ -125,28 +102,33 @@ const SubmitActionsComponent = ({ permissions, record }) => {
   );
 };
 
-const ThesisDetailsComponent = ({ customFieldsUI, labelMods }) => {
+const ThesisDetailsComponent = () => {
+  const { currentFieldMods } = useContext(FormUIStateContext);
+
   return (
     <>
       <UniversityComponent
-        customFieldsUI={customFieldsUI}
-        labelMods={labelMods}
+        labelMods={currentFieldMods.labelMods}
       />
     </>
   );
 };
 
-const TypeTitleComponent = ({ vocabularies, record, labelMods }) => {
+const TypeTitleComponent = () => {
+  const store = useStore();
+  const storeState = store.getState();
+  const { currentFieldMods, vocabularies } = useContext(FormUIStateContext);
+
   return (
     <>
       <TitleComponent
         vocabularies={vocabularies}
-        record={record}
-        labelMods={labelMods}
+        record={storeState.deposit.record}
+        labelMods={currentFieldMods.labelMods}
       />
       <ResourceTypeComponent
         vocabularies={vocabularies}
-        labelMods={labelMods}
+        labelMods={currentFieldMods.labelMods}
       />
     </>
   );

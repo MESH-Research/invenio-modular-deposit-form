@@ -10,9 +10,10 @@ import _debounce from "lodash/debounce";
 import _uniqBy from "lodash/uniqBy";
 import PropTypes from "prop-types";
 import queryString from "query-string";
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { Message } from "semantic-ui-react";
 import { SelectField } from "./SelectField";
+import { getIn, useFormikContext } from "formik";
 
 const DEFAULT_SUGGESTION_SIZE = 20;
 
@@ -23,89 +24,93 @@ const serializeSuggestions = (suggestions) =>
     key: item.id,
   }));
 
-export class RemoteSelectField extends Component {
-  constructor(props) {
-    super(props);
-    const initialSuggestions = props.initialSuggestions
-      ? props.serializeSuggestions(props.initialSuggestions)
+const RemoteSelectField = ({
+  debounceTime = 500,
+  fieldPath,
+  initialSuggestions = [],
+  isFocused = false,
+  loadingMessage = "Loading...",
+  multiple = true,
+  noQueryMessage = "Search...",
+  noResultsMessage = "No results found.",
+  onValueChange = undefined,
+  preSearchChange = (x) => x,
+  search = true,
+  serializeAddedValue = undefined,
+  serializeSuggestions = serializeSuggestions,
+  suggestionAPIUrl,
+  suggestionAPIQueryParams = {},
+  suggestionAPIHeaders = {},
+  suggestionsErrorMessage = "Something went wrong...",
+  ...uiProps
+}) => {
+  const _initialSuggestions = initialSuggestions
+      ? serializeSuggestions(initialSuggestions)
       : [];
-    this.state = {
-      isFetching: false,
-      suggestions: initialSuggestions,
-      selectedSuggestions: initialSuggestions,
-      error: false,
-      searchQuery: null,
-      open: false,
-    };
-  }
+  const [isFetching, setIsFetching] = useState(false);
+  const [suggestions, setSuggestions] = useState(_initialSuggestions);
+  const [selectedSuggestions, setSelectedSuggestions] = useState(_initialSuggestions);
+  const [error, setError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [open, setOpen] = useState(false);
+  const { values } = useFormikContext();
 
-  onSelectValue = (event, { options, value }, callbackFunc) => {
-    const { multiple } = this.props;
+  useEffect(() => {
+    const startingValues = getIn(values, fieldPath);
+    console.log("startingValues", values);
+    if ( !!startingValues && startingValues.length > 0 && !!startingValues[0]) {
+      setTimeout(() => {
+        console.log("startingValues", serializeSuggestions(values));
+        setSuggestions([...initialSuggestions, ...serializeSuggestions(startingValues)]);
+        setSelectedSuggestions([...initialSuggestions, ...serializeSuggestions(startingValues)]);
+      }, 100);
+    }
+  }, []);
+
+
+  const onSelectValue = (event, { options, value }, callbackFunc) => {
     const newSelectedSuggestions = options.filter((item) => value.includes(item.value));
-
-    this.setState(
-      {
-        selectedSuggestions: newSelectedSuggestions,
-        searchQuery: null,
-        error: false,
-        open: !!multiple,
-      },
-      () => callbackFunc(newSelectedSuggestions)
-    );
+    setSelectedSuggestions(newSelectedSuggestions);
+    setSearchQuery(null);
+    setError(false);
+    setOpen(!!multiple);
+    callbackFunc(newSelectedSuggestions);  // TODO: check if this fires too soon
   };
 
-  handleAddition = (e, { value }, callbackFunc) => {
-    const { serializeAddedValue } = this.props;
-    const { selectedSuggestions } = this.state;
+  const handleAddition = (e, { value }, callbackFunc) => {
     const selectedSuggestion = serializeAddedValue
       ? serializeAddedValue(value)
       : { text: value, value, key: value, name: value };
 
     const newSelectedSuggestions = [...selectedSuggestions, selectedSuggestion];
-
-    this.setState(
-      (prevState) => ({
-        selectedSuggestions: newSelectedSuggestions,
-        suggestions: _uniqBy(
-          [...prevState.suggestions, ...newSelectedSuggestions],
-          "value"
-        ),
-      }),
-      () => callbackFunc(newSelectedSuggestions)
-    );
+    const prevSuggestions = suggestions;
+    setSelectedSuggestions(newSelectedSuggestions);
+    setSuggestions(_uniqBy([...prevSuggestions, ...newSelectedSuggestions], "value"));
+    callbackFunc(newSelectedSuggestions)  // TODO: check if this fires too soon
   };
 
-  onSearchChange = _debounce(async (e, { searchQuery }) => {
-    const { preSearchChange, serializeSuggestions } = this.props;
+  const onSearchChange = _debounce(async (e, { searchQuery }) => {
     const query = preSearchChange(searchQuery);
-    this.setState({ isFetching: true, searchQuery: query });
+    setIsFetching(true);
+    setSearchQuery(query);
     try {
-      const suggestions = await this.fetchSuggestions(query);
+      const suggestions = await fetchSuggestions(query);
 
       const serializedSuggestions = serializeSuggestions(suggestions);
-      this.setState((prevState) => ({
-        suggestions: _uniqBy(
-          [...prevState.selectedSuggestions, ...serializedSuggestions],
-          "value"
-        ),
-        isFetching: false,
-        error: false,
-        open: true,
-      }));
+      const prevSuggestions = selectedSuggestions;
+      setSuggestions(_uniqBy([...prevSuggestions, ...serializedSuggestions], "value"));
+      setIsFetching(false);
+      setError(false);
+      setOpen(true);
     } catch (e) {
       console.error(e);
-      this.setState({
-        error: true,
-        isFetching: false,
-      });
+      setError(true);
+      setIsFetching(false);
     }
     // eslint-disable-next-line react/destructuring-assignment
-  }, this.props.debounceTime);
+  }, debounceTime);
 
-  fetchSuggestions = async (searchQuery) => {
-    const { suggestionAPIUrl, suggestionAPIQueryParams, suggestionAPIHeaders } =
-      this.props;
-
+  const fetchSuggestions = async (searchQuery) => {
     try {
       const response = await axios.get(suggestionAPIUrl, {
         params: {
@@ -126,14 +131,7 @@ export class RemoteSelectField extends Component {
     }
   };
 
-  getNoResultsMessage = () => {
-    const {
-      loadingMessage,
-      suggestionsErrorMessage,
-      noQueryMessage,
-      noResultsMessage,
-    } = this.props;
-    const { isFetching, error, searchQuery } = this.state;
+  const getNoResultsMessage = () => {
     if (isFetching) {
       return loadingMessage;
     }
@@ -146,126 +144,96 @@ export class RemoteSelectField extends Component {
     return noResultsMessage;
   };
 
-  onClose = () => {
-    this.setState({ open: false });
+  const onClose = () => {
+    setOpen(false);
   };
 
-  onBlur = () => {
-    this.setState((prevState) => ({
-      open: false,
-      error: false,
-      searchQuery: null,
-      suggestions: [...prevState.selectedSuggestions],
-    }));
+  const onBlur = () => {
+    const prevSuggestions = selectedSuggestions;
+    setOpen(false);
+    setError(false);
+    setSearchQuery(null);
+    setSuggestions(prevSuggestions);
   };
 
-  onFocus = () => {
-    this.setState({ open: true });
+  const onFocus = () => {
+    setOpen(true);
   };
 
-  getProps = () => {
-    const {
-      fieldPath,
-      suggestionAPIUrl,
-      suggestionAPIQueryParams,
-      serializeSuggestions,
-      serializeAddedValue,
-      suggestionAPIHeaders,
-      debounceTime,
-      noResultsMessage,
-      loadingMessage,
-      suggestionsErrorMessage,
-      noQueryMessage,
-      initialSuggestions,
-      preSearchChange,
-      onValueChange,
-      search,
-      isFocused,
-      ...uiProps
-    } = this.props;
-    const compProps = {
-      fieldPath,
-      suggestionAPIUrl,
-      suggestionAPIQueryParams,
-      suggestionAPIHeaders,
-      serializeSuggestions,
-      serializeAddedValue,
-      debounceTime,
-      noResultsMessage,
-      loadingMessage,
-      suggestionsErrorMessage,
-      noQueryMessage,
-      initialSuggestions,
-      preSearchChange,
-      onValueChange,
-      search,
-      isFocused,
-    };
-    return { compProps, uiProps };
+  const compProps = {
+    fieldPath,
+    suggestionAPIUrl,
+    suggestionAPIQueryParams,
+    suggestionAPIHeaders,
+    serializeSuggestions,
+    serializeAddedValue,
+    debounceTime,
+    noResultsMessage,
+    loadingMessage,
+    suggestionsErrorMessage,
+    noQueryMessage,
+    initialSuggestions,
+    preSearchChange,
+    onValueChange,
+    search,
+    isFocused,
   };
 
-  render() {
-    const { compProps, uiProps } = this.getProps();
-    const { error, suggestions, open, isFetching } = this.state;
-    console.log("RemoteSelectField");
-    console.log(compProps);
-    console.log(uiProps);
-    console.log(suggestions);
-    return (
-      <SelectField
-        {...uiProps}
-        // additionLabel
-        allowAdditions={error ? false : uiProps.allowAdditions}
-        className="invenio-remote-select-field"
-        clearable
-        defaultValue={[]}
-        description={uiProps.description}
-        fieldPath={compProps.fieldPath}
-        helpText={uiProps.helpText}
-        // label
-        lazyLoad
-        loading={isFetching}
-        multiple={uiProps.multiple || true}
-        noResultsMessage={this.getNoResultsMessage()}
-        noQueryMessage={uiProps.noQueryMessage}
-        onClose={this.onClose}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-        onSearchChange={this.onSearchChange}
-        onAddItem={({ event, data, formikProps }) => {
-          this.handleAddition(event, data, (selectedSuggestions) => {
-            if (compProps.onValueChange) {
-              compProps.onValueChange(
-                { event, data, formikProps },
-                selectedSuggestions
-              );
-            }
-          });
-        }}
-        onChange={({ event, data, formikProps }) => {
-          this.onSelectValue(event, data, (selectedSuggestions) => {
-            if (compProps.onValueChange) {
-              compProps.onValueChange(
-                { event, data, formikProps },
-                selectedSuggestions
-              );
-            } else {
-              formikProps.form.setFieldValue(compProps.fieldPath, data.value);
-            }
-          });
-        }}
-        open={open}
-        options={suggestions}
-        placeholder={uiProps.placeholder}
-        required={uiProps.required}
-        search={compProps.search}
-        searchInput={{
-          id: compProps.fieldPath,
-          autoFocus: compProps.isFocused,
-        }}
-      />
-    );
-  }
+  console.log("RemoteSelectField");
+  console.log(compProps);
+  console.log(uiProps);
+  console.log("suggestions", suggestions);
+  console.log("initialSuggestions", initialSuggestions);
+  console.log("selectedSuggestions", selectedSuggestions);
+  return (
+    <SelectField
+      {...uiProps}
+      // additionLabel
+      allowAdditions={error ? false : uiProps.allowAdditions}
+      className="invenio-remote-select-field"
+      clearable
+      defaultValue={[]}
+      description={uiProps.description}
+      fieldPath={fieldPath}
+      helpText={uiProps.helpText}
+      label={uiProps.label}
+      lazyLoad
+      loading={isFetching}
+      multiple={multiple}
+      noResultsMessage={getNoResultsMessage()}
+      noQueryMessage={noQueryMessage}
+      onClose={onClose}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onSearchChange={onSearchChange}
+      onAddItem={({ event, data, formikProps }) => {
+        handleAddition(event, data, (selectedSuggestions) => {
+          if (onValueChange) {
+            onValueChange({ event, data, formikProps }, selectedSuggestions);
+          }
+        });
+      }}
+      onChange={({ event, data, formikProps }) => {
+        onSelectValue(event, data, (selectedSuggestions) => {
+          if (onValueChange) {
+            onValueChange({event, data, formikProps}, selectedSuggestions);
+          } else {
+            formikProps.form.setFieldValue(fieldPath, data.value);
+          }
+        });
+      }}
+      open={open}
+      options={suggestions}
+      placeholder={uiProps.placeholder}
+      required={uiProps.required}
+      search={search}
+      searchInput={{
+        id: fieldPath,
+        autoFocus: isFocused,
+      }}
+      value={selectedSuggestions.map((item) => item.value)}
+    />
+  );
 }
 
 RemoteSelectField.propTypes = {
@@ -291,20 +259,4 @@ RemoteSelectField.propTypes = {
   isFocused: PropTypes.bool,
 };
 
-RemoteSelectField.defaultProps = {
-  debounceTime: 500,
-  suggestionAPIQueryParams: {},
-  suggestionAPIHeaders: {},
-  serializeSuggestions: serializeSuggestions,
-  suggestionsErrorMessage: "Something went wrong...",
-  noQueryMessage: "Search...",
-  noResultsMessage: "No results found.",
-  loadingMessage: "Loading...",
-  preSearchChange: (x) => x,
-  search: true,
-  multiple: false,
-  serializeAddedValue: undefined,
-  initialSuggestions: [],
-  onValueChange: undefined,
-  isFocused: false,
-};
+export { RemoteSelectField };

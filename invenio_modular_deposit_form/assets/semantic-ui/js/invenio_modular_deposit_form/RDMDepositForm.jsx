@@ -86,6 +86,12 @@ export const RDMDepositForm = ({
     },
   };
 
+  if (!!pidsConfigOverrides?.doi) {
+    Object.assign(
+      config.pids.filter((pid) => pid.scheme === "doi")[0],
+      pidsConfigOverrides.doi
+    );
+  }
 
   return (
       <DepositFormApp
@@ -101,7 +107,6 @@ export const RDMDepositForm = ({
         {/* InnerDepositForm is the main form component. It needs to be inside DepositFormApp because that (and its invisible child DepositBootstrap) provide the Formik context. InnerDepositForm is the parent of all the form fields and handles the form page navigation. */}
         <InnerDepositForm {...{
           commonFields,
-          config,
           currentUserprofile,
           defaultFieldValues,
           defaultResourceType,

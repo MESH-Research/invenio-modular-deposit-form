@@ -42,7 +42,6 @@ Visually, this component renders the form page navigation stepper and the form p
 */
 const InnerDepositForm = ({
   commonFields,
-  config,
   currentUserprofile,
   defaultFieldValues,
   defaultResourceType,
@@ -55,7 +54,6 @@ const InnerDepositForm = ({
   iconModifications=undefined,
   labelModifications=undefined,
   permissions=null,
-  pidsConfigOverrides=undefined,
   placeholderModifications=undefined,
   preselectedCommunity=undefined,
   priorityFieldValues=undefined,
@@ -81,6 +79,7 @@ const InnerDepositForm = ({
   } = useFormikContext();
 
   const store = useStore();
+  const config = store.getState().deposit.config;
   const selectedCommunity = store.getState().deposit.editorState.selectedCommunity;
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
   if ( !!selectedCommunityLabel && !selectedCommunityLabel?.toLowerCase().includes('collection') ) {
@@ -131,7 +130,6 @@ const InnerDepositForm = ({
     priorityFieldValues: priorityFieldValues[currentResourceType],
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
-  const customFieldsUI = config.custom_fields.ui;
   const [formPageFields, setFormPageFields] = useState({});
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const [storageDataPresent, setStorageDataPresent] = useState(false);
@@ -342,31 +340,11 @@ const InnerDepositForm = ({
     setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
   }, [values.metadata.resource_type]);
 
-  if (!!pidsConfigOverrides?.doi) {
-    Object.assign(
-      config.pids.filter((pid) => pid.scheme === "doi")[0],
-      pidsConfigOverrides.doi
-    );
-  }
-
-  const commonFieldProps = {
-    config: config,
-    currentUserprofile: currentUserprofile,
-    fieldComponents: fieldComponents,
-    noFiles: noFiles,
-    record: record,
-    vocabularies: vocabularies,
-    permissions: permissions,
-    customFieldsUI: customFieldsUI,
-    currentResourceType: currentResourceType,
-    ...currentFieldMods,
-  };
-
   //keep changed values in local storage
   useEffect(() => {
     if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
       window.localStorage.setItem(
-        `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}.${values.id}`,
+        `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`,
         JSON.stringify(values)
       );
     }
@@ -374,7 +352,7 @@ const InnerDepositForm = ({
 
   // on first load, check if there is data in local storage
   useEffect(() => {
-    const user = commonFieldProps.currentUserprofile.id;
+    const user = currentUserprofile.id;
     const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
     const storageValues = window.localStorage.getItem(storageValuesKey);
 
@@ -400,7 +378,7 @@ const InnerDepositForm = ({
       setRecoveredStorageValues(null);
     }
     window.localStorage.removeItem(
-      `rdmDepositFormValues.${commonFieldProps.currentUserprofile.id}.${values.id}`
+      `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`
     );
   };
 
@@ -408,7 +386,14 @@ const InnerDepositForm = ({
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
       <FormUIStateContext.Provider value={
-        {handleFormPageChange: handleFormPageChange}
+        {handleFormPageChange: handleFormPageChange,
+         currentUserprofile: currentUserprofile,
+         currentFieldMods: currentFieldMods,
+         currentResourceType: currentResourceType,
+         fieldComponents: fieldComponents,
+         noFiles: noFiles,
+         vocabularies: vocabularies,
+        }
       }>
       <Overridable
         id="InvenioAppRdm.Deposit.FormFeedback.container"
@@ -475,7 +460,6 @@ const InnerDepositForm = ({
                 currentFormPage === section && (
                   <div key={index}>
                     <FormPage
-                      commonFieldProps={commonFieldProps}
                       currentFormPage={currentFormPage}
                       focusFirstElement={focusFirstElement}
                       id={`InvenioAppRdm.Deposit.FormPage.${section}`}
@@ -597,7 +581,6 @@ InnerDepositForm.propTypes = {
   labelModifications: PropTypes.object,
   permissions: PropTypes.object.isRequired,
   placeholderModifications: PropTypes.object,
-  pidsConfigOverrides: PropTypes.object,
   preselectedCommunity: PropTypes.object,
   priorityFieldValues: PropTypes.object,
   record: PropTypes.object.isRequired,

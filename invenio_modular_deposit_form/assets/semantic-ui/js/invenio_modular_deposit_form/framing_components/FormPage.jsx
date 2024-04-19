@@ -8,7 +8,6 @@ import PropTypes from "prop-types";
 
 
 const FormPage = ({
-  commonFieldProps,
   currentFormPage,
   focusFirstElement,
   id,
@@ -45,7 +44,6 @@ const FormPage = ({
                       component,
                       wrapped,
                       index,
-                      commonFieldProps,
                       ...innerProps,
                     }}
                   />
@@ -58,7 +56,6 @@ const FormPage = ({
                   component,
                   wrapped,
                   index,
-                  commonFieldProps,
                   ...props,
                 }}
               />
@@ -71,7 +68,6 @@ const FormPage = ({
 };
 
 PropTypes.FormPage = {
-  commonFieldProps: PropTypes.object.isRequired,
   focusFirstElement: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
   subsections: PropTypes.array.isRequired,

@@ -13,6 +13,7 @@ import _omit from "lodash/omit";
 import PropTypes from "prop-types";
 import { SubmitReviewModal } from "./SubmitReviewModal";
 import { first } from "lodash";
+import { FormUIStateContext } from "../../InnerDepositForm";
 
 const DRAFT_PREVIEW_STARTED = "DRAFT_PREVIEW_STARTED";
 const DRAFT_SAVE_STARTED = "DRAFT_SAVE_STARTED";
@@ -53,7 +54,6 @@ const SubmitButtonComponent = ({
   actionState = undefined,
   actionStateExtra,
   config,
-  currentUserProfile,
   record,
   publishWithoutCommunity,
   numberOfFiles = undefined,
@@ -71,6 +71,7 @@ const SubmitButtonComponent = ({
   isRecordSubmittedForReview,
   ...ui
 }) => {
+  const { currentUserprofile } = useContext(FormUIStateContext);
   const { values, errors, handleSubmit, initialValues, isSubmitting } =
     useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
@@ -190,7 +191,7 @@ const SubmitButtonComponent = ({
     sanitizeDataForSaving()
       .then(handleConfirmNoFiles())
       .then(() => {
-        const storageValuesKey = `rdmDepositFormValues.${currentUserProfile.id}.${initialValues?.id}`;
+        const storageValuesKey = `rdmDepositFormValues.${currentUserprofile.id}.${initialValues?.id}`;
         window.localStorage.removeItem(storageValuesKey);
       })
       .then(() => {

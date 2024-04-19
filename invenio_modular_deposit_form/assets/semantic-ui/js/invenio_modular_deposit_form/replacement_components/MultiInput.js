@@ -24,8 +24,7 @@ function MultiInput({
       key: item,
       value: item,
     }));
-
-  console.log("additionLabel", additionLabel);
+  console.log("MultiInput", fieldPath, options, values);
 
   return (
     <>
@@ -37,9 +36,9 @@ function MultiInput({
         className="invenio-multi-input"
         clearable
         defaultValue={[]}
-        description={description}
+        description={""}
         fieldPath={fieldPath}
-        helpText={helpText}
+        helpText={""}
         label={""}
         multiple
         noQueryMessage={noQueryMessage}
