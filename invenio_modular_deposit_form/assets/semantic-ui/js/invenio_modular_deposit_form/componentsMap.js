@@ -51,11 +51,6 @@ import {
 } from "./field_components/field_components";
 import {
   CombinedDatesComponent,
-  OrganizationDetailsComponent,
-  PublicationDetailsComponent,
-  SubmitActionsComponent,
-  ThesisDetailsComponent,
-  TypeTitleComponent,
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
 
@@ -190,29 +185,8 @@ const fieldComponents = {
     SectionPagesComponent,
     ["custom_fields.journal:journal.pages"],
   ],
-  OrganizationDetailsComponent: [
-    OrganizationDetailsComponent,
-    ["custom_fields.imprint:imprint.place"],
-  ],
-  PublicationDetailsComponent: [
-    PublicationDetailsComponent,
-    [
-      "custom_fields.imprint:imprint.isbn",
-      "metadata.version",
-      "metadata.publisher",
-      "custom_fields.imprint:imprint.place",
-    ],
-  ],
   SubmissionComponent: [SubmissionComponent, []],
-  SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
-  ThesisDetailsComponent: [
-    ThesisDetailsComponent,
-    ["custom_fields.thesis:university"],
-  ],
-  TypeTitleComponent: [
-    TypeTitleComponent,
-    ["metadata.title", "metadata.resource_type"],
-  ],
+  // SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
 };
 
 const extras = require(`@js/invenio_modular_deposit_form_extras/componentsMap.js`);

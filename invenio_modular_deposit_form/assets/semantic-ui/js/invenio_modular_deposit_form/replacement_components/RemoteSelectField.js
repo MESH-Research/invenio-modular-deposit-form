@@ -54,21 +54,6 @@ const RemoteSelectField = ({
   const [error, setError] = useState(false);
   const [searchQuery, setSearchQuery] = useState(null);
   const [open, setOpen] = useState(false);
-  const { values } = useFormikContext();
-
-  useEffect(() => {
-    const startingValues = getIn(values, fieldPath);
-    console.log("startingValues", values);
-    console.log("startingValues", startingValues);
-    if ( !!startingValues && startingValues.length > 0 && !!startingValues[0]) {
-      setTimeout(() => {
-        console.log("startingValues", serializeSuggestionsFunc(startingValues));
-        setSuggestions([...initialSuggestions, ...serializeSuggestionsFunc(startingValues)]);
-        setSelectedSuggestions([...initialSuggestions, ...serializeSuggestionsFunc(startingValues)]);
-      }, 100);
-    }
-  }, []);
-
 
   const onSelectValue = (event, { options, value }, callbackFunc) => {
     const newSelectedSuggestions = options.filter((item) => value.includes(item.value));
@@ -184,9 +169,9 @@ const RemoteSelectField = ({
   console.log("RemoteSelectField");
   console.log(compProps);
   console.log(uiProps);
-  console.log("suggestions", suggestions);
-  console.log("initialSuggestions", initialSuggestions);
-  console.log("selectedSuggestions", selectedSuggestions);
+  console.log("RemoteSelectField suggestions", suggestions);
+  console.log("RemoteSelectField initialSuggestions", initialSuggestions);
+  console.log("RemoteSelectField selectedSuggestions", selectedSuggestions);
   return (
     <SelectField
       {...uiProps}

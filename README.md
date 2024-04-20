@@ -339,11 +339,6 @@ Custom field values have to be accessed differently from built-in field values. 
   VersionComponent,
 
   CombinedDatesComponent,
-  OrganizationDetailsComponent,
-  PublicationDetailsComponent,
-  SubmitActionsComponent,
-  ThesisDetailsComponent,
-  TypeTitleComponent,
 
 InvenioRDM includes field-level React components that are exposed for import. These cannot be included directly because ???:
 

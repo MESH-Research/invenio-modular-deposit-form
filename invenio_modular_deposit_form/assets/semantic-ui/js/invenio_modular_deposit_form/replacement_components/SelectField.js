@@ -85,11 +85,14 @@ const SelectField = ({
           >
             <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
             {description && (
-              <div className="helptext" id={`${fieldPath}.helptext`}>
+              <div className="helptext label top" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
               </div>
             )}
             <Dropdown
+              {...((!!description || !!helpText) && {
+                "aria-describedby": `${fieldPath}.helptext`
+              })}
               fluid
               className="invenio-select-field"
               selection
@@ -127,7 +130,7 @@ const SelectField = ({
               </div>
             )}
             {helpText && (
-              <div className="helptext" id={`${fieldPath}.helptext`}>
+              <div className="helptext label" id={`${fieldPath}.helptext`}>
                 {i18next.t(helpText)}
               </div>
             )}

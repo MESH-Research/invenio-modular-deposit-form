@@ -15,6 +15,7 @@ function MultiInput({
   icon = undefined,
   noQueryMessage,
   required = false,
+  ...extraProps
 }) {
   const [options, setOptions] = useState([]);
   const { values } = useFormikContext();
@@ -28,7 +29,7 @@ function MultiInput({
   return (
     <>
       <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
-      {description && <label className="helptext">{description}</label>}
+      {description && <label className="helptext label top">{description}</label>}
       <SelectField
         additionLabel={additionLabel}
         allowAdditions
@@ -54,6 +55,7 @@ function MultiInput({
         placeholder={placeholder}
         required={required}
         search
+        {...extraProps}
       />
       {helpText && <label className="helptext">{helpText}</label>}
     </>

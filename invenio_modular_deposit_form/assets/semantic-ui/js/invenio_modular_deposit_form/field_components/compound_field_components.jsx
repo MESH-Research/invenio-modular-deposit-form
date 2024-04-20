@@ -14,132 +14,42 @@
 import React, { useContext } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
-import { Form, Grid } from "semantic-ui-react";
 import {
-  AccessRightsComponent,
   AdditionalDatesComponent,
   DateComponent,
-  MeetingDatesComponent,
-  MeetingPlaceComponent,
-  MeetingTitleComponent,
-  PublisherComponent,
-  PublicationLocationComponent,
-  ResourceTypeComponent,
-  SubmissionComponent,
-  TitleComponent,
-  VersionComponent,
-  UniversityComponent,
 } from "./field_components";
-import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FormUIStateContext } from "../InnerDepositForm";
-import { useStore } from "react-redux";
 
-const CombinedDatesComponent = () => {
+const CombinedDatesComponent = ({ ...extraProps }) => {
   const { vocabularies } = useContext(FormUIStateContext);
   return (
     <>
-      <DateComponent />
+      <DateComponent {...extraProps } />
       <AdditionalDatesComponent vocabularies={vocabularies} />
     </>
   );
 };
 
-const MeetingDetailsComponent = ({ customFieldsUI }) => {
-  return (
-    <>
-      <MeetingTitleComponent customFieldsUI={customFieldsUI} />
-      <MeetingDatesComponent customFieldsUI={customFieldsUI} />
-      <MeetingPlaceComponent customFieldsUI={customFieldsUI} />
-    </>
-  );
-};
+// const SubmitActionsComponent = () => {
+//   const store = useStore();
+//   const record = store.getState().deposit.record;
+//   const permissions = store.getState().deposit.permissions;
 
-const OrganizationDetailsComponent = ({ customFieldsUI }) => {
-  return (
-    <>
-      <PublicationLocationComponent customFieldsUI={customFieldsUI} />
-    </>
-  );
-};
-
-const PublicationDetailsComponent = () => {
-  return (
-    <>
-      <Form.Group widths="equal">
-        <CustomFieldInjector
-          sectionName="Book / Report / Chapter"
-          fieldName="imprint:imprint.isbn"
-          idString="ImprintISBNField"
-          description="e.g. 0-06-251587-X"
-          placeholder=""
-        />
-        <VersionComponent description="" />
-      </Form.Group>
-      <Form.Group widths="equal">
-        <PublisherComponent />
-        <PublicationLocationComponent />
-      </Form.Group>
-    </>
-  );
-};
-
-const SubmitActionsComponent = () => {
-  const store = useStore();
-  const record = store.getState().deposit.record;
-  const permissions = store.getState().deposit.permissions;
-
-  return (
-    <Grid className="submit-actions">
-      <Grid.Row>
-        <Grid.Column width="16">
-          <AccessRightsComponent permissions={permissions} />
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row className="submit-buttons-row">
-        <SubmissionComponent record={record} permissions={permissions} />
-      </Grid.Row>
-    </Grid>
-  );
-};
-
-const ThesisDetailsComponent = () => {
-  const { currentFieldMods } = useContext(FormUIStateContext);
-
-  return (
-    <>
-      <UniversityComponent
-        labelMods={currentFieldMods.labelMods}
-      />
-    </>
-  );
-};
-
-const TypeTitleComponent = () => {
-  const store = useStore();
-  const storeState = store.getState();
-  const { currentFieldMods, vocabularies } = useContext(FormUIStateContext);
-
-  return (
-    <>
-      <TitleComponent
-        vocabularies={vocabularies}
-        record={storeState.deposit.record}
-        labelMods={currentFieldMods.labelMods}
-      />
-      <ResourceTypeComponent
-        vocabularies={vocabularies}
-        labelMods={currentFieldMods.labelMods}
-      />
-    </>
-  );
-};
+//   return (
+//     <Grid className="submit-actions">
+//       <Grid.Row>
+//         <Grid.Column width="16">
+//           <AccessRightsComponent permissions={permissions} />
+//         </Grid.Column>
+//       </Grid.Row>
+//       <Grid.Row className="submit-buttons-row">
+//         <SubmissionComponent record={record} permissions={permissions} />
+//       </Grid.Row>
+//     </Grid>
+//   );
+// };
 
 export {
   CombinedDatesComponent,
-  MeetingDetailsComponent,
-  OrganizationDetailsComponent,
-  PublicationDetailsComponent,
-  SubmitActionsComponent,
-  ThesisDetailsComponent,
-  TypeTitleComponent,
+  // SubmitActionsComponent,
 };
