@@ -25,6 +25,7 @@ const serializeSuggestionsDefault = (suggestions) =>
   }));
 
 const RemoteSelectField = ({
+  classnames = undefined,
   debounceTime = 500,
   fieldPath,
   initialSuggestions = [],
@@ -147,37 +148,31 @@ const RemoteSelectField = ({
     setOpen(true);
   };
 
-  const compProps = {
-    fieldPath,
-    suggestionAPIUrl,
-    suggestionAPIQueryParams,
-    suggestionAPIHeaders,
-    serializeSuggestions: serializeSuggestionsFunc,
-    serializeAddedValue,
-    debounceTime,
-    noResultsMessage,
-    loadingMessage,
-    suggestionsErrorMessage,
-    noQueryMessage,
-    initialSuggestions,
-    preSearchChange,
-    onValueChange,
-    search,
-    isFocused,
-  };
+  // const compProps = {
+  //   fieldPath,
+  //   suggestionAPIUrl,
+  //   suggestionAPIQueryParams,
+  //   suggestionAPIHeaders,
+  //   serializeSuggestions: serializeSuggestionsFunc,
+  //   serializeAddedValue,
+  //   debounceTime,
+  //   noResultsMessage,
+  //   loadingMessage,
+  //   suggestionsErrorMessage,
+  //   noQueryMessage,
+  //   initialSuggestions,
+  //   preSearchChange,
+  //   onValueChange,
+  //   search,
+  //   isFocused,
+  // };
 
-  console.log("RemoteSelectField");
-  console.log(compProps);
-  console.log(uiProps);
-  console.log("RemoteSelectField suggestions", suggestions);
-  console.log("RemoteSelectField initialSuggestions", initialSuggestions);
-  console.log("RemoteSelectField selectedSuggestions", selectedSuggestions);
   return (
     <SelectField
       {...uiProps}
       // additionLabel
       allowAdditions={error ? false : uiProps.allowAdditions}
-      className="invenio-remote-select-field"
+      classnames={classnames ? "invenio-remote-select-field" + classnames : "invenio-remote-select-field"}
       clearable
       defaultValue={[]}
       description={uiProps.description}
@@ -224,6 +219,7 @@ const RemoteSelectField = ({
 }
 
 RemoteSelectField.propTypes = {
+  classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   suggestionAPIUrl: PropTypes.string.isRequired,
   suggestionAPIQueryParams: PropTypes.object,

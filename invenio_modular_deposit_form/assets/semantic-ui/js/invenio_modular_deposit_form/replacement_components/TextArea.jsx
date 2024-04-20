@@ -6,7 +6,7 @@ import { getTouchedParent } from "../utils";
 
 const TextArea = ({
   classnames,
-  description,
+  description = undefined,
   error,
   fieldPath,
   fluid = true,
@@ -28,12 +28,10 @@ const TextArea = ({
     icon,
     inputIcon,
     labelIcon,
-    ...filteredProps
+    ...uiProps
   } = extraProps;
 
   const FormikField = optimized ? FastField : Field;
-
-  // console.log("TextArea", fieldPath, extraProps, filteredProps, helpText);
 
   return (
     <FormikField
@@ -59,7 +57,9 @@ const TextArea = ({
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)
-            className={`invenio-text-area-field ${classnames}`}
+            className={`invenio-text-area-field ${
+              classnames ? classnames : ""
+            }`}
             width={width}
           >
             {showLabel && (
@@ -69,7 +69,14 @@ const TextArea = ({
                 label={label}
               />
             )}
-            {helpText && <label id={`${fieldPath}.helptext`} className={`helptext`}>{description}</label>}
+            {description && description !== " " && (
+              <label
+                id={`${fieldPath}.helptext`}
+                className={`helptext label top`}
+              >
+                {i18next.t(description)}
+              </label>
+            )}
             <Form.TextArea
               id={fieldPath}
               name={fieldPath}
@@ -84,10 +91,10 @@ const TextArea = ({
                   field.onBlur(e);
                 },
               })}
-              {...filteredProps}
+              {...uiProps}
             />
-            {helpText && (
-              <div className="helptext" id={`${fieldPath}.helptext`}>
+            {helpText && helpText !== " " && (
+              <div className="helptext label" id={`${fieldPath}.helptext`}>
                 {i18next.t(helpText)}
               </div>
             )}

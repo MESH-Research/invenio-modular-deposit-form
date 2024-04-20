@@ -18,13 +18,16 @@ import { Icon, Label } from "semantic-ui-react";
 import { set } from "lodash";
 
 const ResourceTypeSelectorField = ({
+  classnames = undefined,
+  description = undefined,
   fieldPath,
+  helpText = undefined,
   label = i18next.t("Resource type"),
   labelIcon = "tag",
   options,
   labelclassname = "field-label-class",
   required,
-  ...restProps
+  ...uiProps
 }) => {
   const { values, errors, setFieldValue, initialValues } = useFormikContext();
   const [otherToggleActive, setOtherToggleActive] = useState(false);
@@ -123,6 +126,9 @@ const ResourceTypeSelectorField = ({
           error={!!meta.error && !!meta.touched}
         >
           <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+          {description && description !== " " && (
+            <label className="helptext label top">{i18next.t(description)}</label>
+          )}
           <div className="ui compact fluid icon labeled six item menu">
             {buttonTypes.map((buttonType, index) => (
               <button
@@ -166,13 +172,16 @@ const ResourceTypeSelectorField = ({
               selectOnNavigation={true}
               search={true}
               placeholder={"choose another resource type..."}
-              {...restProps}
+              {...uiProps}
             />
           )}
           {meta.error && meta.touched && (
             <Label pointing className="prompt error">
               {meta.error}
             </Label>
+          )}
+          {helpText && helpText !== " " && (
+            <label className="helptext">{i18next.t(helpText)}</label>
           )}
         </Form.Field>
       )}
@@ -181,7 +190,9 @@ const ResourceTypeSelectorField = ({
 };
 
 ResourceTypeSelectorField.propTypes = {
+  description: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
+  helpText: PropTypes.string,
   label: PropTypes.string,
   labelIcon: PropTypes.string,
   labelclassname: PropTypes.string,

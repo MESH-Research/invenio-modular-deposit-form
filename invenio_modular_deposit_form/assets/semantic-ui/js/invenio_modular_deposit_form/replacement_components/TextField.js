@@ -6,26 +6,24 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { getTouchedParent } from "../utils";
 
 const TextField = ({
+  classnames,
   description,
-  fieldPath,
-  label,
-  labelIcon: label_icon,
-  inputIcon: input_icon = true,
-  required,
   disabled,
   error,
-  helpText,
-  optimized,
-  classnames,
-  showLabel = true,
+  fieldPath,
   fluid = "true",
+  helpText,
+  inputIcon: input_icon = true,
+  label,
+  labelIcon: label_icon,
   onBlur,
+  optimized,
+  required,
+  showLabel = true,
   width,
   ...extraProps
 }) => {
   const FormikField = optimized ? FastField : Field;
-  // FIXME: This is a hack to remove the extra props that are not used by the
-  // semantic-ui Form.Input component. We should probably remove these earlier
   // FIXME: Implement the extraRequiredFields and defaultFieldValues props
   const {
     customFieldsUI,
@@ -33,7 +31,7 @@ const TextField = ({
     icon,
     inputIcon,
     labelIcon,
-    ...filteredProps
+    ...uiProps
   } = extraProps;
   return (
     <FormikField id={fieldPath} name={fieldPath}>
@@ -54,14 +52,14 @@ const TextField = ({
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)
-            className={`invenio-text-input-field ${classnames}`}
+            className={`invenio-text-input-field ${classnames ? classnames : ""}`}
             fluid={fluid}
             width={width}
           >
             {showLabel && (
               <FieldLabel htmlFor={fieldPath} icon={label_icon} label={label} />
             )}
-            {description && (
+            {description && description !== " " && (
               <div className="helptext" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
               </div>
@@ -86,9 +84,9 @@ const TextField = ({
                   field.onBlur(e);
                 },
               })}
-              {...filteredProps}
+              {...uiProps}
             />
-            {helpText && (
+            {helpText && helpText !== " " && (
               <div className="helptext" id={`${fieldPath}.helptext`}>
                 {i18next.t(helpText)}
               </div>

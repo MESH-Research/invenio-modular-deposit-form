@@ -7,6 +7,7 @@ import { FieldLabel } from "react-invenio-forms";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 const SelectField = ({
+  classnames = undefined,
   defaultValue = "",
   description = undefined,
   error = undefined,
@@ -84,7 +85,7 @@ const SelectField = ({
             width={width}
           >
             <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-            {description && (
+            {description && description !== " " && (
               <div className="helptext label top" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
               </div>
@@ -94,7 +95,7 @@ const SelectField = ({
                 "aria-describedby": `${fieldPath}.helptext`
               })}
               fluid
-              className="invenio-select-field"
+              className={`invenio-select-field ${classnames ? classnames : ""}`}
               selection
               search
               error={meta.error && meta.touched ? true : undefined}
@@ -129,7 +130,7 @@ const SelectField = ({
                 {displayError(meta).content}
               </div>
             )}
-            {helpText && (
+            {helpText && helpText !== " " && (
               <div className="helptext label" id={`${fieldPath}.helptext`}>
                 {i18next.t(helpText)}
               </div>

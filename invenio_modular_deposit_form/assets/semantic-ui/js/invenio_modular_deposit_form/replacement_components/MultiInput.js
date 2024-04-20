@@ -1,21 +1,23 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useFormikContext, getIn } from "formik";
+import { i18next } from "@translations/invenio_app_rdm/i18next";
 
 import { FieldLabel } from "react-invenio-forms";
 import { SelectField } from "./SelectField";
 
 function MultiInput({
   additionLabel = undefined,
-  description,
-  placeholder,
+  classnames = undefined,
+  description = undefined,
+  placeholder = undefined,
   fieldPath,
-  helpText,
+  helpText = undefined,
   label,
   icon = undefined,
   noQueryMessage,
   required = false,
-  ...extraProps
+  ...uiProps
 }) {
   const [options, setOptions] = useState([]);
   const { values } = useFormikContext();
@@ -29,9 +31,10 @@ function MultiInput({
   return (
     <>
       <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
-      {description && <label className="helptext label top">{description}</label>}
+      {description && description !== " " && <label className="helptext label top">{i18next.t(description)}</label>}
       <SelectField
         additionLabel={additionLabel}
+        classnames={classnames}
         allowAdditions
         className="invenio-multi-input"
         clearable
@@ -55,14 +58,15 @@ function MultiInput({
         placeholder={placeholder}
         required={required}
         search
-        {...extraProps}
+        {...uiProps}
       />
-      {helpText && <label className="helptext">{helpText}</label>}
+      {helpText && helpText !== " " && <label className="helptext">{i18next.t(helpText)}</label>}
     </>
   );
 }
 
 MultiInput.propTypes = {
+  classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
   placeholder: PropTypes.string.isRequired,

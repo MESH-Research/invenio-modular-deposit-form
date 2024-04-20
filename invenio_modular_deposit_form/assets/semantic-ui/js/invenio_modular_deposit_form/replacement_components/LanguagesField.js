@@ -15,12 +15,13 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 export class LanguagesField extends Component {
   render() {
     const {
+      classnames = undefined,
       fieldPath,
       label,
       labelIcon,
       required,
       multiple=true,
-      placeholder,
+      placeholder=i18next.t('Search for a language by name (e.g "eng", "fra" or "Polish")'),
       clearable,
       initialOptions,
       serializeSuggestions: serializeSuggestionsFunc,
@@ -30,6 +31,7 @@ export class LanguagesField extends Component {
 
     return (
       <RemoteSelectField
+        classnames={classnames}
         fieldPath={fieldPath}
         suggestionAPIUrl="/api/vocabularies/languages"
         suggestionAPIHeaders={{
@@ -50,6 +52,7 @@ export class LanguagesField extends Component {
 }
 
 LanguagesField.propTypes = {
+  classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
   labelIcon: PropTypes.string,

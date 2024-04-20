@@ -34,15 +34,19 @@ export const emptyDate = {
  * @param  {Array} arrayOfValues The array of values for the field
  * @return {Object} The required option if any
  */
-const DatesField = ({ requiredOptions=[],
-                      fieldPath,
-                      options,
-                      label=i18next.t("Dates"),
-                      addButtonLabel=i18next.t("Add another date"),
-                      labelIcon="calendar",
-                      placeholderDate=i18next.t("YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"),
-                      required=false,
-                      showEmptyValue=false  } ) => {
+const DatesField = ({
+  addButtonLabel=i18next.t("Add another date"),
+  classnames=undefined,
+  fieldPath,
+  label=i18next.t("Dates"),
+  labelIcon="calendar",
+  options,
+  placeholderDate=i18next.t("YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"),
+  required=false,
+  requiredOptions=[],
+  showEmptyValue=false,
+  ...uiProps
+} ) => {
   const { values } = useFormikContext();
   const [datesLength, setDatesLength] = useState(-1);
   const [haveChangedNumber, setHaveChangedNumber] = useState(false);
@@ -91,6 +95,7 @@ const DatesField = ({ requiredOptions=[],
       required={required}
       requiredOptions={requiredOptions}
       showEmptyValue={showEmptyValue}
+      {...( !!classnames && {className: classnames})}
       render={arrayHelpers => (
       <>
         { values.metadata.dates.map((value, index) => {
@@ -159,6 +164,7 @@ const DatesField = ({ requiredOptions=[],
 }
 
 DatesField.propTypes = {
+  classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
   labelIcon: PropTypes.string,
