@@ -20,6 +20,7 @@ const SelectField = ({
   optimized = false,
   options,
   multiple = false,
+  noResultsMessage = "No results found.",
   required = false,
   selectOnBlur = false,
   width = undefined,
@@ -58,7 +59,6 @@ const SelectField = ({
 
   const {
     noQueryMessage,
-    noResultsMessage,
     defaultFieldValue,
     ...uiProps
   } = otherProps;
@@ -75,9 +75,9 @@ const SelectField = ({
         console.log("SelectField", field.value);
         console.log("SelectField otherProps", otherProps);
         console.log("SelectField options", options);
-        console.log("SelectField field", multiple);
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
+        console.log("SelectField formikProps", formikProps);
         return (
           <Form.Field
             error={meta.error && meta.touched ? true : undefined}
@@ -109,8 +109,13 @@ const SelectField = ({
                   handleChange(event, data);
                 },
               })} // override onChange if extra logic is passed
-              onAddItem={onAddItem}
-              // value={field.value}
+              {...(onAddItem && {
+                onAddItem: (event, data) => {
+                  onAddItem({event, data, formikProps});
+                }
+              })}
+              value={field.value || _defaultValue}
+              noResultsMessage={noResultsMessage}
             />
             {meta.error && meta.touched && (
               <div
@@ -118,7 +123,7 @@ const SelectField = ({
                 role="alert"
                 aria-atomic="true"
               >
-                {meta.error}
+                {displayError(meta).content}
               </div>
             )}
             {helpText && (

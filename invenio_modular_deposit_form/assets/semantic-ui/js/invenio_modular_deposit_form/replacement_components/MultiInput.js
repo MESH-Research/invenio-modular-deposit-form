@@ -24,7 +24,6 @@ function MultiInput({
       key: item,
       value: item,
     }));
-  console.log("MultiInput", fieldPath, options, values);
 
   return (
     <>
@@ -42,6 +41,7 @@ function MultiInput({
         label={""}
         multiple
         noQueryMessage={noQueryMessage}
+        noResultsMessage={""}
         onChange={({ data, formikProps }) => {
           setOptions(serializeValues(data.value));
           formikProps.form.setFieldValue(fieldPath, data.value);

@@ -17,7 +17,7 @@ import { getIn, useFormikContext } from "formik";
 
 const DEFAULT_SUGGESTION_SIZE = 20;
 
-const serializeSuggestions = (suggestions) =>
+const serializeSuggestionsDefault = (suggestions) =>
   suggestions.map((item) => ({
     text: item.title,
     value: item.id,
@@ -37,15 +37,16 @@ const RemoteSelectField = ({
   preSearchChange = (x) => x,
   search = true,
   serializeAddedValue = undefined,
-  serializeSuggestions = serializeSuggestions,
+  serializeSuggestions = undefined,
   suggestionAPIUrl,
   suggestionAPIQueryParams = {},
   suggestionAPIHeaders = {},
   suggestionsErrorMessage = "Something went wrong...",
   ...uiProps
 }) => {
+  const serializeSuggestionsFunc = serializeSuggestions || serializeSuggestionsDefault;
   const _initialSuggestions = initialSuggestions
-      ? serializeSuggestions(initialSuggestions)
+      ? serializeSuggestionsFunc(initialSuggestions)
       : [];
   const [isFetching, setIsFetching] = useState(false);
   const [suggestions, setSuggestions] = useState(_initialSuggestions);
@@ -58,11 +59,12 @@ const RemoteSelectField = ({
   useEffect(() => {
     const startingValues = getIn(values, fieldPath);
     console.log("startingValues", values);
+    console.log("startingValues", startingValues);
     if ( !!startingValues && startingValues.length > 0 && !!startingValues[0]) {
       setTimeout(() => {
-        console.log("startingValues", serializeSuggestions(values));
-        setSuggestions([...initialSuggestions, ...serializeSuggestions(startingValues)]);
-        setSelectedSuggestions([...initialSuggestions, ...serializeSuggestions(startingValues)]);
+        console.log("startingValues", serializeSuggestionsFunc(startingValues));
+        setSuggestions([...initialSuggestions, ...serializeSuggestionsFunc(startingValues)]);
+        setSelectedSuggestions([...initialSuggestions, ...serializeSuggestionsFunc(startingValues)]);
       }, 100);
     }
   }, []);
@@ -96,7 +98,7 @@ const RemoteSelectField = ({
     try {
       const suggestions = await fetchSuggestions(query);
 
-      const serializedSuggestions = serializeSuggestions(suggestions);
+      const serializedSuggestions = serializeSuggestionsFunc(suggestions);
       const prevSuggestions = selectedSuggestions;
       setSuggestions(_uniqBy([...prevSuggestions, ...serializedSuggestions], "value"));
       setIsFetching(false);
@@ -165,7 +167,7 @@ const RemoteSelectField = ({
     suggestionAPIUrl,
     suggestionAPIQueryParams,
     suggestionAPIHeaders,
-    serializeSuggestions,
+    serializeSuggestions: serializeSuggestionsFunc,
     serializeAddedValue,
     debounceTime,
     noResultsMessage,
