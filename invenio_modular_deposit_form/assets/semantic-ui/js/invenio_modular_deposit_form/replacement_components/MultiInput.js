@@ -59,6 +59,7 @@ function MultiInput({
         required={required}
         search
         {...uiProps}
+        icon={null}
       />
       {helpText && helpText !== " " && <label className="helptext">{i18next.t(helpText)}</label>}
     </>

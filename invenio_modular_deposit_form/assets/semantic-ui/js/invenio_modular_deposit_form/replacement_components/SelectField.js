@@ -59,6 +59,7 @@ const SelectField = ({
   };
 
   const {
+    customFieldsUI,
     noQueryMessage,
     defaultFieldValue,
     ...uiProps
