@@ -106,10 +106,9 @@ const InnerDepositForm = ({
   const currentPageIndex = pageNums.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
   const previousPageIndex = currentPageIndex - 1;
-  const nextFormPage =
-    nextPageIndex < pageNums.length ? pageNums[nextPageIndex] : null;
-  const previousFormPage =
-    previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
+  const nextFormPage = nextPageIndex < pageNums.length ? pageNums[nextPageIndex] : null;
+  const previousFormPage = previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
+  const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
   const [pagesWithErrors, setPagesWithErrors] = useState({});
   const [pagesWithTouchedErrors, setPagesWithTouchedErrors] = useState({});
@@ -144,12 +143,13 @@ const InnerDepositForm = ({
   useEffect(() => {
     function handleFocus(event) {
       if (isNearViewportBottom(event.target, 100)) {
+        console.log("scrolling to sticky footer");
         event.target.scrollIntoView({ block: "center", behavior: "smooth" });
       }
     }
 
     const inputs = document.querySelectorAll(
-      "#rdm-deposit-form input, #rdm-deposit-form button, #rdm-deposit-form select"
+      "#rdm-deposit-form input, #rdm-deposit-form button:not(.back-button):not(.continue-button), #rdm-deposit-form select"
     );
     inputs.forEach((input) => {
       input.addEventListener("focus", handleFocus);
@@ -279,13 +279,15 @@ const InnerDepositForm = ({
   // handlers for page change confirmation modal
   const handlePageChangeCancel = () => {
     setConfirmingPageChange(false);
+    setDestFormPage(null);
     focusFirstElement(currentFormPage);
   };
 
   const handlePageChangeConfirm = () => {
     setConfirmingPageChange(false);
+    setDestFormPage(null);
     handleFormPageChange(null, {
-      value: nextFormPage,
+      value: destFormPage,
     });
   };
 
@@ -295,11 +297,13 @@ const InnerDepositForm = ({
     }
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
       setConfirmingPageChange(true);
+      setDestFormPage(value);
       setTimeout(() => {
         confirmModalRef.current.focus();
       }, 20);
       // setNextFormPage(value);
     } else {
+      setDestFormPage(null);
       setCurrentFormPage(value);
       setFormPageInHistory(value);
     }
@@ -489,6 +493,7 @@ const InnerDepositForm = ({
                 value={previousFormPage}
                 icon
                 labelPosition="left"
+                className="back-button"
               >
                 <Icon name="left arrow" />
                 Back
@@ -509,6 +514,7 @@ const InnerDepositForm = ({
                 value={nextFormPage}
                 icon
                 labelPosition="right"
+                className="continue-button"
               >
                 <Icon name="right arrow" />
                 Continue
