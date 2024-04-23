@@ -42,7 +42,7 @@ function MultiInput({
         description={""}
         fieldPath={fieldPath}
         helpText={""}
-        label={""}
+        label={null}
         multiple
         noQueryMessage={noQueryMessage}
         noResultsMessage={""}
@@ -58,8 +58,9 @@ function MultiInput({
         placeholder={placeholder}
         required={required}
         search
+        showLabel={false}
         {...uiProps}
-        icon={null}
+        icon={undefined}
       />
       {helpText && helpText !== " " && <label className="helptext">{i18next.t(helpText)}</label>}
     </>

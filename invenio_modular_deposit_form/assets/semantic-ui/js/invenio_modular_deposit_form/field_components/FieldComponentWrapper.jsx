@@ -77,7 +77,7 @@ const FieldComponentWrapper = ({
               fieldPath: fieldPath,
               helpText: moddedHelpText,
               label: moddedLabel,
-              labelIcon: moddedIcon,
+              icon: moddedIcon,
               placeholder: moddedPlaceholder,
               priorityFieldValues: priorityFieldValueSet,
               required: moddedRequired,

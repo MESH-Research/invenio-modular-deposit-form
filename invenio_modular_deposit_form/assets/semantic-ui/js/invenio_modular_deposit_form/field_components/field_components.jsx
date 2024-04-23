@@ -304,7 +304,7 @@ const ContributorsComponent = ({ ...extraProps }) => {
       componentName="ContibutorsField"
       fieldPath="metadata.contributors"
       label={i18next.t("Contributors")}
-      labelIcon="user plus"
+      icon="user plus"
       {...extraProps}
     >
       <CreatibutorsField
@@ -478,6 +478,7 @@ const FundingComponent = ({ ...extraProps }) => {
         }}
         label="Funding"
         labelIcon="money bill alternate outline"
+        icon="money bill alternate outline"
         deserializeAward={(award) => {
           return {
             title: award.title_l10n,

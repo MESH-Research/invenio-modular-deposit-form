@@ -18,7 +18,7 @@ export class LanguagesField extends Component {
       classnames = undefined,
       fieldPath,
       label,
-      labelIcon,
+      icon,
       required,
       multiple=true,
       placeholder=i18next.t('Search for a language by name (e.g "eng", "fra" or "Polish")'),
@@ -42,7 +42,7 @@ export class LanguagesField extends Component {
         clearable={clearable}
         multiple={multiple}
         initialSuggestions={initialOptions}
-        label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
+        label={<FieldLabel htmlFor={fieldPath} icon={icon} label={label} />}
         noQueryMessage={i18next.t("Search for languages...")}
         {...(serializeSuggestions && { serializeSuggestions })}
         {...uiProps}
@@ -55,7 +55,7 @@ LanguagesField.propTypes = {
   classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
-  labelIcon: PropTypes.string,
+  icon: PropTypes.string,
   required: PropTypes.bool,
   multiple: PropTypes.bool,
   clearable: PropTypes.bool,
@@ -72,7 +72,7 @@ LanguagesField.propTypes = {
 
 LanguagesField.defaultProps = {
   label: i18next.t("Languages"),
-  labelIcon: "globe",
+  icon: "globe",
   multiple: true,
   clearable: true,
   placeholder: i18next.t('Search for a language by name (e.g "eng", "fr" or "Polish")'),

@@ -39,7 +39,7 @@ const DatesField = ({
   classnames=undefined,
   fieldPath,
   label=i18next.t("Dates"),
-  labelIcon="calendar",
+  icon="calendar",
   options,
   placeholderDate=i18next.t("YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"),
   required=false,
@@ -91,7 +91,7 @@ const DatesField = ({
       //   "Format: DATE or DATE/DATE where DATE is YYYY or YYYY-MM or YYYY-MM-DD."
       // )}
       // label={""}
-      // labelIcon={""}
+      // icon={""}
       required={required}
       requiredOptions={requiredOptions}
       showEmptyValue={showEmptyValue}
@@ -167,7 +167,7 @@ DatesField.propTypes = {
   classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
-  labelIcon: PropTypes.string,
+  icon: PropTypes.string,
   options: PropTypes.shape({
     type: PropTypes.arrayOf(
       PropTypes.shape({

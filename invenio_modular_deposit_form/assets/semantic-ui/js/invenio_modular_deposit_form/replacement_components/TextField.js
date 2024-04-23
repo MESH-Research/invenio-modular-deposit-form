@@ -13,9 +13,8 @@ const TextField = ({
   fieldPath,
   fluid = "true",
   helpText,
-  inputIcon: input_icon = true,
+  icon,
   label,
-  labelIcon: label_icon,
   onBlur,
   optimized,
   required,
@@ -28,9 +27,6 @@ const TextField = ({
   const {
     customFieldsUI,
     defaultFieldValue,
-    icon,
-    inputIcon,
-    labelIcon,
     ...uiProps
   } = extraProps;
   return (
@@ -57,7 +53,7 @@ const TextField = ({
             width={width}
           >
             {showLabel && (
-              <FieldLabel htmlFor={fieldPath} icon={label_icon} label={label} />
+              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
             )}
             {description && description !== " " && (
               <div className="helptext" id={`${fieldPath}.helptext`}>
@@ -73,7 +69,7 @@ const TextField = ({
               }
               disabled={disabled}
               fluid={fluid}
-              icon={input_icon || undefined}
+              icon={undefined}
               id={fieldPath}
               name={fieldPath}
               aria-describedby={`${fieldPath}.helptext`}

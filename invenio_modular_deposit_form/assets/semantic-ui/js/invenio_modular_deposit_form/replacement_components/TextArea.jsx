@@ -27,8 +27,6 @@ const TextArea = ({
     defaultFieldValue,
     editorConfig,
     icon,
-    inputIcon,
-    labelIcon,
     ...uiProps
   } = extraProps;
 
@@ -66,7 +64,7 @@ const TextArea = ({
             {showLabel && (
               <FieldLabel
                 htmlFor={fieldPath}
-                icon={labelIcon}
+                icon={icon}
                 label={label}
               />
             )}

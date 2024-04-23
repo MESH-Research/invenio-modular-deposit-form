@@ -15,7 +15,7 @@ const SelectField = ({
   fieldPath,
   helpText = undefined,
   label = "",
-  labelIcon = undefined,
+  icon = undefined,
   onAddItem = undefined,
   onChange = undefined,
   optimized = false,
@@ -24,6 +24,7 @@ const SelectField = ({
   noResultsMessage = "No results found.",
   required = false,
   selectOnBlur = false,
+  showLabel= true,
   width = undefined,
   ...otherProps
 }) => {
@@ -62,6 +63,8 @@ const SelectField = ({
     customFieldsUI,
     noQueryMessage,
     defaultFieldValue,
+    initialOptions,
+    labelIcon,  // core Invenio prop name that we've renamed to icon
     ...uiProps
   } = otherProps;
 
@@ -74,18 +77,18 @@ const SelectField = ({
         form: { touched, errors, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
-        console.log("SelectField", field.value);
-        console.log("SelectField otherProps", otherProps);
-        console.log("SelectField options", options);
+
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
-        console.log("SelectField formikProps", formikProps);
+
         return (
           <Form.Field
             error={meta.error && meta.touched ? true : undefined}
             width={width}
           >
-            <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+            {showLabel && (
+            <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
+            )}
             {description && description !== " " && (
               <div className="helptext label top" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
@@ -95,15 +98,14 @@ const SelectField = ({
               {...((!!description || !!helpText) && {
                 "aria-describedby": `${fieldPath}.helptext`
               })}
-              fluid
               className={`invenio-select-field ${classnames ? classnames : ""}`}
-              selection
-              search
               error={meta.error && meta.touched ? true : undefined}
+              fluid
               id={fieldPath}
-              multiple={multiple}
               label={{ children: label }}
+              multiple={multiple}
               name={fieldPath}
+              noResultsMessage={noResultsMessage}
               options={options}
               {...field}
               {...uiProps}
@@ -119,8 +121,9 @@ const SelectField = ({
                   onAddItem({event, data, formikProps});
                 }
               })}
+              selection
+              search
               value={field.value || _defaultValue}
-              noResultsMessage={noResultsMessage}
             />
             {meta.error && meta.touched && (
               <div

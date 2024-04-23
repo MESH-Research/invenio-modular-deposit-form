@@ -23,7 +23,7 @@ const ResourceTypeSelectorField = ({
   fieldPath,
   helpText = undefined,
   label = i18next.t("Resource type"),
-  labelIcon = "tag",
+  icon = "tag",
   options,
   labelclassname = "field-label-class",
   required,
@@ -125,7 +125,7 @@ const ResourceTypeSelectorField = ({
           required={!!required}
           error={!!meta.error && !!meta.touched}
         >
-          <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+          <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
           {description && description !== " " && (
             <label className="helptext label top">{i18next.t(description)}</label>
           )}
@@ -194,7 +194,7 @@ ResourceTypeSelectorField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   helpText: PropTypes.string,
   label: PropTypes.string,
-  labelIcon: PropTypes.string,
+  icon: PropTypes.string,
   labelclassname: PropTypes.string,
   options: PropTypes.arrayOf(
     PropTypes.shape({
