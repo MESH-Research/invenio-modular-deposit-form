@@ -413,12 +413,12 @@ const InnerDepositForm = ({
       <Grid className="mt-25">
         <Grid.Column mobile={16} tablet={16} computer={16}>
           <Grid.Row className="deposit-form-header">
-          <h2>
+          <h1 className="ui header">
             {i18next.t(`${record.id !== null ? "Updating " : "New "}
             ${record.status === "draft" ? "Draft " : "Published "}Deposit`)}
-          </h2>
+          </h1>
           {!!selectedCommunityLabel && (
-          <h3 className="preselected-community-header">for {selectedCommunityLabel}</h3>
+          <h2 className="ui header preselected-community-header">for {selectedCommunityLabel}</h2>
           )}
           </Grid.Row>
           <Step.Group
