@@ -410,7 +410,7 @@ const InnerDepositForm = ({
         />
       </Overridable>
 
-      <Grid className="mt-25">
+      <Grid>
         <Grid.Column mobile={16} tablet={16} computer={16}>
           <Grid.Row className="deposit-form-header">
           <h1 className="ui header">
@@ -508,7 +508,6 @@ const InnerDepositForm = ({
             <Grid.Column width={3}>
             {!!nextFormPage && (
               <Button
-                primary
                 type="button"
                 onClick={handleFormPageChange}
                 value={nextFormPage}
