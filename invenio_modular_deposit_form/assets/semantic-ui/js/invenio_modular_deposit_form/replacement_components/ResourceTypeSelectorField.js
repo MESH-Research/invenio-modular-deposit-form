@@ -172,6 +172,7 @@ const ResourceTypeSelectorField = ({
               selectOnNavigation={true}
               search={true}
               placeholder={"choose another resource type..."}
+              upward={false}
               {...uiProps}
             />
           )}
