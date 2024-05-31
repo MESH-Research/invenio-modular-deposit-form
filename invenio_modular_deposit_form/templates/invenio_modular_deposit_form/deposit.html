@@ -24,7 +24,7 @@
 {%- extends config.BASE_TEMPLATE %}
 
   {% set cu = current_userprofile %}
-  {% set cu_dict = dict(id=(cu.id if cu.id else ""), full_name=(cu.full_name if cu.full_name else ""), affiliations=cu.user_profile.affiliations, identifiers=(cu.user_profile.identifiers if cu.user_profile.identifiers else []), name_parts=(cu.user_profile.name_parts if cu.user_profile.name_parts else {})) %}
+  {% set cu_dict = dict(id=(cu.id if cu.id else ""), full_name=(cu.full_name if cu.full_name else ""), affiliations=(cu.user_profile.affiliations if cu.user_profile.affiliations else ""), identifiers=(cu.user_profile.identifiers if cu.user_profile.identifiers else []), name_parts=(cu.user_profile.name_parts if cu.user_profile.name_parts else {})) %}
 
 {%- block page_body %}
 
