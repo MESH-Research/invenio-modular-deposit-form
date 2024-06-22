@@ -28,6 +28,8 @@ export class LanguagesField extends Component {
       ...uiProps
     } = this.props;
     const serializeSuggestions = serializeSuggestionsFunc || null;
+    console.log('LanguagesField: initialOptions', initialOptions)
+    console.log('LanguagesField: serializeSuggestions', serializeSuggestions)
 
     return (
       <RemoteSelectField
@@ -41,9 +43,11 @@ export class LanguagesField extends Component {
         required={required}
         clearable={clearable}
         multiple={multiple}
+        upward={false}
         initialSuggestions={initialOptions}
         label={<FieldLabel htmlFor={fieldPath} icon={icon} label={label} />}
-        noQueryMessage={i18next.t("Search for languages...")}
+        noQueryMessage={i18next.t("Type the full name of a language to search...")}
+        noResultsMessage={i18next.t("Type the full name of a language to search...")}
         {...(serializeSuggestions && { serializeSuggestions })}
         {...uiProps}
       />

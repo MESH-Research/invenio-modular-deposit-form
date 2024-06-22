@@ -80,6 +80,7 @@ const SelectField = ({
 
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
+        console.log("values", values);
 
         return (
           <Form.Field

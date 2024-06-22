@@ -47,7 +47,6 @@ const ResourceTypeSelectorField = ({
       icon: "graduation",
     },
   ];
-  console.log("required", required);
 
   useEffect(() => {
     if (

@@ -607,7 +607,9 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 const LanguagesComponent = ({ ...extraProps }) => {
 
   const record = useStore().getState().deposit.record;
-  console.log("LanguagesComponent", extraProps);
+  const initialOptions = _get(record, "ui.languages", []).filter(
+    (lang) => lang !== null
+  ); // needed because dumped empty record from backend gives [null]
 
   return (
     <FieldComponentWrapper
@@ -617,9 +619,7 @@ const LanguagesComponent = ({ ...extraProps }) => {
     >
       <LanguagesField
         fieldPath="metadata.languages"
-        initialOptions={_get(record, "ui.languages", []).filter(
-          (lang) => lang !== null
-        )} // needed because dumped empty record from backend gives [null]
+        initialOptions={initialOptions}
         placeholder={i18next.t(
           'Type to search for a language (press "enter" to select)'
         )}

@@ -135,7 +135,7 @@ const DatesField = ({
             <Form.Field>
               <Button
                 aria-label={i18next.t("Remove item")}
-                className="close-btn"
+                className="close-btn no-label"
                 disabled={!_isEmpty(requiredOption)}
                 icon
                 onClick={() => handleRemove(arrayHelpers, index)}

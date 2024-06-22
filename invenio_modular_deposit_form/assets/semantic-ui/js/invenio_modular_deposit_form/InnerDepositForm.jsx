@@ -143,7 +143,6 @@ const InnerDepositForm = ({
   useEffect(() => {
     function handleFocus(event) {
       if (isNearViewportBottom(event.target, 100)) {
-        console.log("scrolling to sticky footer");
         event.target.scrollIntoView({ block: "center", behavior: "smooth" });
       }
     }
@@ -216,7 +215,6 @@ const InnerDepositForm = ({
   // handle form page error state for client-side validation
   const updateFormErrorState = (errors, touched, initialErrors) => {
     const errorFields = flattenKeysDotJoined(errors);
-    console.log("errors****************************", errors);
     const touchedFields = flattenKeysDotJoined(touched);
     const initialErrorFields = flattenKeysDotJoined(initialErrors);
     let errorPages = {};
@@ -513,7 +511,7 @@ const InnerDepositForm = ({
                 value={nextFormPage}
                 icon
                 labelPosition="right"
-                className="continue-button"
+                className="continue-button primary"
               >
                 <Icon name="right arrow" />
                 Continue
