@@ -5,17 +5,15 @@ import PropsTypes from "prop-types";
 
 const RecoveryModal = ({
   confirmModalRef,
-  focusFirstElement,
   handleStorageData,
   isDraft,
   isVersionDraft,
   setRecoveryAsked,
 }) => {
   const [open, setOpen] = useState(true);
-  const firstButtonRef = useRef(null);
   useEffect(() => {
     window.setTimeout(() => {
-      firstButtonRef.current.focus();
+      document.getElementById("recovery-modal-no-button").focus();
     }, 20);
   }, []);
 
@@ -47,11 +45,10 @@ const RecoveryModal = ({
           }
           onClick={() => {
             setOpen(false);
-            handleStorageData(false);
-            focusFirstElement();
             setRecoveryAsked(true);
+            handleStorageData(false);
           }}
-          ref={firstButtonRef}
+          id="recovery-modal-no-button"
         />
         <Button
           content={
@@ -63,9 +60,8 @@ const RecoveryModal = ({
           icon="checkmark"
           onClick={() => {
             setOpen(false);
-            handleStorageData(true);
-            focusFirstElement();
             setRecoveryAsked(true);
+            handleStorageData(true);
           }}
           positive
           ref={confirmModalRef}
@@ -77,7 +73,6 @@ const RecoveryModal = ({
 
 RecoveryModal.propTypes = {
   confirmModalRef: PropsTypes.object.isRequired,
-  focusFirstElement: PropsTypes.func.isRequired,
   handleStorageData: PropsTypes.func.isRequired,
   isDraft: PropsTypes.bool.isRequired,
   isVersionDraft: PropsTypes.bool.isRequired,

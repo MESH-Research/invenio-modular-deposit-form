@@ -257,21 +257,29 @@ const InnerDepositForm = ({
 
   // make sure first page element is focused when navigating
   // passed down to FormPage but also called by confirm modal
-  const focusFirstElement = (currentFormPage) => {
+  const focusFirstElement = (currentFormPage, recoveryAskedFlag=false) => {
     // FIXME: timing issue
     setTimeout(() => {
-      // FIXME: workaround since file uploader has inaccessible first input
-      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
-      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
-      const newInputs = document.querySelectorAll(
-        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
-      );
-      const newFirstInput = newInputs[targetIndex];
-      if ( newFirstInput !== undefined ) {
-        newFirstInput?.focus();
-        window.scrollTo(0, 0);
+      // NOTE: recoveryAsked is true by default if no recovery data present
+      if ( recoveryAsked || recoveryAskedFlag ) {
+        // FIXME: workaround since file uploader has inaccessible first input
+        const targetIndex = currentFormPage === "page-6" ? 1 : 0;
+        const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
+        const newInputs = document.querySelectorAll(
+          `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
+        );
+        const newFirstInput = newInputs[targetIndex];
+        if ( newFirstInput !== undefined ) {
+          newFirstInput?.focus();
+          window.scrollTo(0, 0);
+        }
       }
     }, 100);
+  };
+
+  const handleRecoveryAsked = () => {
+    setRecoveryAsked(true);
+    focusFirstElement(currentFormPage, true);
   };
 
   // handlers for page change confirmation modal
@@ -555,9 +563,8 @@ const InnerDepositForm = ({
               isDraft={values.status === "draft"}
               isVersionDraft={values.status === "new_version_draft"}
               confirmModalRef={confirmModalRef}
-              focusFirstElement={focusFirstElement}
               handleStorageData={handleStorageData}
-              setRecoveryAsked={setRecoveryAsked}
+              setRecoveryAsked={handleRecoveryAsked}
             />
           )}
 
