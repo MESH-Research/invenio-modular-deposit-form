@@ -11,14 +11,15 @@ const FormPage = ({
   currentFormPage,
   focusFirstElement,
   id,
+  recoveryAsked,
   subsections,
 }) => {
 
   useLayoutEffect(() => {
     window.setTimeout(() => {
-      focusFirstElement(currentFormPage);
+      focusFirstElement(currentFormPage, recoveryAsked);
     }, 200);
-  }, []);
+  }, [recoveryAsked]);
 
   return (
     <DndProvider backend={HTML5Backend}>

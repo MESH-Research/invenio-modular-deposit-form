@@ -286,7 +286,7 @@ const InnerDepositForm = ({
   const handlePageChangeCancel = () => {
     setConfirmingPageChange(false);
     setDestFormPage(null);
-    focusFirstElement(currentFormPage);
+    focusFirstElement(currentFormPage, recoveryAsked=true);
   };
 
   const handlePageChangeConfirm = () => {
@@ -473,6 +473,7 @@ const InnerDepositForm = ({
                       currentFormPage={currentFormPage}
                       focusFirstElement={focusFirstElement}
                       id={`InvenioAppRdm.Deposit.FormPage.${section}`}
+                      recoveryAsked={recoveryAsked}
                       subsections={actualSubsections}
                     />
                   </div>
@@ -480,7 +481,6 @@ const InnerDepositForm = ({
               );
             })}
           </Transition.Group>
-
 
           <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
           <div
