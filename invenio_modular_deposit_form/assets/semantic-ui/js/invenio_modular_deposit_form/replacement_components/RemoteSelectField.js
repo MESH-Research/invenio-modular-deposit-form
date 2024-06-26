@@ -26,6 +26,7 @@ const serializeSuggestionsDefault = (suggestions) =>
 
 const RemoteSelectField = ({
   classnames = undefined,
+  clearable = true,
   debounceTime = 500,
   fieldPath,
   initialSuggestions = [],
@@ -173,17 +174,16 @@ const RemoteSelectField = ({
       // additionLabel
       allowAdditions={error ? false : uiProps.allowAdditions}
       classnames={classnames ? "invenio-remote-select-field" + classnames : "invenio-remote-select-field"}
-      clearable
-      defaultValue={[]}
-      description={uiProps.description}
       fieldPath={fieldPath}
-      helpText={uiProps.helpText}
-      label={uiProps.label}
-      lazyLoad
-      loading={isFetching}
-      multiple={multiple}
+      options={suggestions}
       noResultsMessage={getNoResultsMessage()}
-      noQueryMessage={noQueryMessage}
+      search={search}
+      searchInput={{
+        id: fieldPath,
+        autoFocus: isFocused,
+      }}
+      lazyLoad
+      open={open}
       onClose={onClose}
       onFocus={onFocus}
       onBlur={onBlur}
@@ -204,15 +204,16 @@ const RemoteSelectField = ({
           }
         });
       }}
-      open={open}
-      options={suggestions}
+      loading={isFetching}
+
+      description={uiProps.description}
+      clearable={clearable}
+      helpText={uiProps.helpText}
+      label={uiProps.label}
+      multiple={multiple}
+      noQueryMessage={noQueryMessage}
       placeholder={uiProps.placeholder}
       required={uiProps.required}
-      search={search}
-      searchInput={{
-        id: fieldPath,
-        autoFocus: isFocused,
-      }}
       value={selectedSuggestions.map((item) => item.value)}
     />
   );

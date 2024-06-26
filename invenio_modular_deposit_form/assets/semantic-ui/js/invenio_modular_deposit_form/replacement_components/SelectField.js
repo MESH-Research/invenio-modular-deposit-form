@@ -1,5 +1,5 @@
 import React from "react";
-import { FastField, Field, useFormikContext } from "formik";
+import { FastField, Field, getIn, useFormikContext } from "formik";
 import _isEmpty from "lodash/isEmpty";
 
 import { Dropdown, Form } from "semantic-ui-react";
@@ -55,10 +55,6 @@ const SelectField = ({
       : null;
   };
 
-  const handleChange = (e, { value }) => {
-    setFieldValue(fieldPath, value);
-  };
-
   const {
     customFieldsUI,
     noQueryMessage,
@@ -74,13 +70,12 @@ const SelectField = ({
     <FormikField name={fieldPath} fieldPath={fieldPath} as="select" {...uiProps}>
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
+        form: { touched, errors, handleBlur, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
 
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
-        console.log("values", values);
 
         return (
           <Form.Field
@@ -96,35 +91,37 @@ const SelectField = ({
               </div>
             )}
             <Dropdown
+              id={fieldPath}
               {...((!!description || !!helpText) && {
                 "aria-describedby": `${fieldPath}.helptext`
               })}
-              className={`invenio-select-field ${classnames ? classnames : ""}`}
-              error={meta.error && meta.touched ? true : undefined}
               fluid
-              id={fieldPath}
+              className={`invenio-select-field ${classnames ? classnames : ""}`}
+              selection
+              error={meta.error && meta.touched ? true : undefined}
               label={{ children: label }}
-              multiple={multiple}
               name={fieldPath}
               noResultsMessage={noResultsMessage}
-              options={options}
-              {...field}
-              {...uiProps}
-              selectOnBlur={selectOnBlur}
-              {...(onChange && {
-                onChange: (event, data) => {
+              // {...field}
+              onBlur={handleBlur}
+              onChange={(event, data) => {
+                if (onChange) {
                   onChange({event, data, formikProps});
-                  handleChange(event, data);
-                },
-              })} // override onChange if extra logic is passed
-              {...(onAddItem && {
-                onAddItem: (event, data) => {
+                  event.target.value = "";
+                } else {
+                  setFieldValue(fieldPath, field.value);
+                }
+              }}
+              onAddItem={(event, data) => {
+                if (onAddItem) {
                   onAddItem({event, data, formikProps});
                 }
-              })}
-              selection
-              search
+              }}
+              options={options}
               value={field.value || _defaultValue}
+              multiple={multiple}
+              selectOnBlur={selectOnBlur}
+              {...uiProps}
             />
             {meta.error && meta.touched && (
               <div
