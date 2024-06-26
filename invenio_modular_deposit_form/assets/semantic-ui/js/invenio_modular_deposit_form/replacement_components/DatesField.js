@@ -109,7 +109,7 @@ const DatesField = ({
             <TextField
               fieldPath={`${fieldPathPrefix}.date`}
               id={`${fieldPathPrefix}.date`}
-              label={index===0 ? i18next.t("Date") : ""}
+              label={i18next.t("Date")}
               placeholder={placeholderDate}
               disabled={hasRequiredDateValue}
               required
@@ -118,7 +118,7 @@ const DatesField = ({
             <SelectField
               fieldPath={`${fieldPathPrefix}.type`}
               id={`${fieldPathPrefix}.type`}
-              label={index===0 ? i18next.t("Type") : ""}
+              label={i18next.t("Type")}
               options={sortOptions(options.type)}
               disabled={hasRequiredTypeValue}
               required
@@ -128,7 +128,7 @@ const DatesField = ({
             <TextField
               fieldPath={`${fieldPathPrefix}.description`}
               id={`${fieldPathPrefix}.description`}
-              label={index===0 ? i18next.t("Description") : ""}
+              label={i18next.t("Description")}
               disabled={hasRequiredDescriptionValue}
               width={5}
             />
