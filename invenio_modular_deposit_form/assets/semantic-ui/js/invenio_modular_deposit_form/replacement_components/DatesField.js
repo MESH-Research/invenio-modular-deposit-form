@@ -8,7 +8,9 @@
 
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { ArrayField, GroupField, SelectField, TextField } from "react-invenio-forms";
+import { ArrayField, GroupField } from "react-invenio-forms";
+import { TextField } from "./TextField";
+import { SelectField } from "./SelectField";
 import { Button, Form, Icon } from "semantic-ui-react";
 import _isEmpty from "lodash/isEmpty";
 import _matches from "lodash/matches";

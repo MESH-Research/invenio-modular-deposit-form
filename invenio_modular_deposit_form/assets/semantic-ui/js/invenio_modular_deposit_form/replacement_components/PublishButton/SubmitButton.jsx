@@ -242,6 +242,7 @@ const SubmitButtonComponent = ({
         type={missingFiles || showSubmitForReviewButton ? "button" : "submit"}
         // positive={showDirectPublishButton}
         // primary={!showDirectPublishButton}
+        size="large"
         {...uiProps}
       />
 

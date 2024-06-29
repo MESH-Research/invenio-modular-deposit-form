@@ -43,8 +43,8 @@ const TextField = ({
             required={!!required}
             error={
               (!!meta.error && (!!meta.touched || touchedAncestor)) ||
-              !!error ||
-              (!meta.touched && meta.initialError)
+              !!error //||
+              // (!meta.touched && meta.initialError)
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)

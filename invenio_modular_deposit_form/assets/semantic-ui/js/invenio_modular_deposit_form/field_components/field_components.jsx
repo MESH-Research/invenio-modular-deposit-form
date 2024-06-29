@@ -98,7 +98,6 @@ const AbstractComponent = ({ ...extraProps }) => {
 };
 
 const AccessRightsComponent = ({ ...extraProps }) => {
-
   const store = useStore();
   const permissions = store.getState().deposit.permissions;
 
@@ -138,7 +137,6 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
 };
 
 const AdditionalDescriptionComponent = ({ ...extraProps }) => {
-
   const record = useStore().getState().deposit.record;
   const { vocabularies } = useContext(FormUIStateContext);
 
@@ -175,7 +173,6 @@ const AdditionalTitlesComponent = () => {
 };
 
 const AlternateIdentifiersComponent = ({ ...extraProps }) => {
-
   const { vocabularies } = useContext(FormUIStateContext);
 
   return (
@@ -295,7 +292,6 @@ const CommunitiesComponent = ({ ...extraProps }) => {
 };
 
 const ContributorsComponent = ({ ...extraProps }) => {
-
   const config = useStore().getState().deposit.config;
   const { vocabularies } = useContext(FormUIStateContext);
 
@@ -323,7 +319,6 @@ const ContributorsComponent = ({ ...extraProps }) => {
 };
 
 const CreatorsComponent = ({ ...extraProps }) => {
-
   const config = useStore().getState().deposit.config;
   const { vocabularies } = useContext(FormUIStateContext);
 
@@ -365,7 +360,6 @@ const DateComponent = ({ ...extraProps }) => {
 };
 
 const DeleteComponent = ({ ...extraProps }) => {
-
   const permissions = useStore().getState().deposit.permissions;
 
   return (
@@ -420,7 +414,6 @@ const DoiComponent = ({ ...extraProps }) => {
 };
 
 const FilesUploadComponent = ({ ...extraProps }) => {
-
   const { config, record } = useStore().getState().deposit;
   const { noFiles } = useContext(FormUIStateContext);
 
@@ -605,7 +598,6 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 };
 
 const LanguagesComponent = ({ ...extraProps }) => {
-
   const record = useStore().getState().deposit.record;
   const initialOptions = _get(record, "ui.languages", []).filter(
     (lang) => lang !== null
@@ -806,7 +798,6 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
 };
 
 const ReferencesComponent = ({ ...extraProps }) => {
-
   const { vocabularies } = useContext(FormUIStateContext);
 
   return (
@@ -822,7 +813,6 @@ const ReferencesComponent = ({ ...extraProps }) => {
 };
 
 const RelatedWorksComponent = ({ ...extraProps }) => {
-
   const { vocabularies } = useContext(FormUIStateContext);
 
   return (
@@ -886,7 +876,6 @@ const SizesComponent = ({ ...extraProps }) => {
 };
 
 const SubjectsComponent = ({ ...extraProps }) => {
-
   const { vocabularies } = useContext(FormUIStateContext);
   const record = useStore().getState().deposit.record;
 
@@ -920,11 +909,12 @@ const SubjectsComponent = ({ ...extraProps }) => {
 
 const SubmissionComponent = () => {
   const { errors, values, setFieldValue } = useFormikContext();
-  const { currentUserprofile, handleFormPageChange } = useContext(FormUIStateContext);
+  const { currentUserprofile, handleFormPageChange } =
+    useContext(FormUIStateContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 
-  const { record, permissions } = store.getState().deposit;
+  const { actionState, actionStateExtra, config, record, permissions } = store.getState().deposit;
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
   const missingFiles = filesEnabled && !hasFiles;
@@ -973,12 +963,31 @@ const SubmissionComponent = () => {
     }
   };
 
+  const getAlertClass = () => {
+    let alertClass = "";
+    if (actionState && actionState.includes("SUCCEEDED")) {
+      alertClass = "positive";
+    } else if (actionState && actionState.includes("FAILED") ) {
+      alertClass = "negative";
+    } else if (actionState && actionState.includes("ERROR")) {
+      alertClass = "warning";
+    } else if (errors && !_isEmpty(errors)) {
+      alertClass = "negative";
+    }
+    return alertClass;
+  };
+
+  console.log("actionState", actionState);
+  console.log("errors", errors);
+  console.log(!_isEmpty(errors));
+
   return (
     <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
-      <Grid relaxed className="save-submit-buttons">
-        {errors && !_isEmpty(errors) && (
+      <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
           <Grid.Row>
             <Grid.Column computer="8" tablet="6">
+        {/* { && (
+          // For client-side error handling
               <Message
                 visible
                 negative
@@ -987,11 +996,22 @@ const SubmissionComponent = () => {
                   "There are problems with your submission. Please fix the highlighted sections."
                 )}
               />
-            </Grid.Column>
-          </Grid.Row>
+        )} */}
+
+        {/* Server side messages */}
+        {(actionState || errors && !_isEmpty(errors)) && (
+              <Overridable
+                id="InvenioAppRdm.Deposit.FormFeedback.container"
+                labels={config.custom_fields.error_labels}
+                fieldPath="message"
+              >
+                <FormFeedback
+                  fieldPath="message"
+                  labels={config.custom_fields.error_labels}
+                  clientErrors={errors}
+                />
+              </Overridable>
         )}
-        <Grid.Row>
-          <Grid.Column computer="8" tablet="6">
             <SubmitButtonModal
               fluid
               actionName="saveDraft"
@@ -1002,6 +1022,37 @@ const SubmissionComponent = () => {
               sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
               disabled={errors && !_isEmpty(errors)}
+            />
+
+            <SubmitButtonModal
+              fluid
+              actionName="preview"
+              aria-describedby="preview-button-description"
+              currentUserprofile={currentUserprofile}
+              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
+              handleConfirmNoFiles={handleConfirmNoFiles}
+              sanitizeDataForSaving={sanitizeDataForSaving}
+              missingFiles={missingFiles}
+              disabled={errors && !_isEmpty(errors)}
+            />
+            <SubmitButtonModal
+              fluid
+              actionName="publish"
+              currentUserprofile={currentUserprofile}
+              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
+              handleConfirmNoFiles={handleConfirmNoFiles}
+              sanitizeDataForSaving={sanitizeDataForSaving}
+              missingFiles={missingFiles}
+              aria-describedby="publish-button-description"
+              id="deposit-form-publish-button"
+              positive
+              disabled={errors && !_isEmpty(errors)}
+            />
+            <DeleteComponent
+              permissions={permissions}
+              record={record}
+              aria-describedby="delete-button-description"
+              icon="trash alternate outline"
             />
           </Grid.Column>
           <Grid.Column
@@ -1015,54 +1066,6 @@ const SubmissionComponent = () => {
               {permissions?.can_delete_draft && ", deleted,"} and the files can
               be added or changed.
             </p>
-          </Grid.Column>
-        </Grid.Row>
-
-        <Grid.Row>
-          <Grid.Column computer={8} tablet={6}>
-            <SubmitButtonModal
-              fluid
-              actionName="preview"
-              aria-describedby="preview-button-description"
-              currentUserprofile={currentUserprofile}
-              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
-              handleConfirmNoFiles={handleConfirmNoFiles}
-              sanitizeDataForSaving={sanitizeDataForSaving}
-              missingFiles={missingFiles}
-              disabled={errors && !_isEmpty(errors)}
-            />
-          </Grid.Column>
-          <Grid.Column
-            tablet="10"
-            computer="8"
-            id="preview-button-description"
-            className="helptext"
-          ></Grid.Column>
-        </Grid.Row>
-
-        <Grid.Row>
-          <Grid.Column computer={8} tablet={6} className="">
-            <SubmitButtonModal
-              fluid
-              actionName="publish"
-              currentUserprofile={currentUserprofile}
-              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
-              handleConfirmNoFiles={handleConfirmNoFiles}
-              sanitizeDataForSaving={sanitizeDataForSaving}
-              missingFiles={missingFiles}
-              aria-describedby="publish-button-description"
-              size="massive"
-              id="deposit-form-publish-button"
-              positive
-              disabled={errors && !_isEmpty(errors)}
-            />
-          </Grid.Column>
-          <Grid.Column
-            tablet="10"
-            computer="8"
-            id="publish-button-description"
-            className="helptext"
-          >
             <p>
               <b>Published deposits</b> can still be edited, but you will no
               longer be able to{" "}
@@ -1070,23 +1073,6 @@ const SubmissionComponent = () => {
               the attached files. To add or change files for a published deposit
               you must create a new version of the record.
             </p>
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column computer={8} tablet={6}>
-            <DeleteComponent
-              permissions={permissions}
-              record={record}
-              aria-describedby="delete-button-description"
-              icon="trash alternate outline"
-            />
-          </Grid.Column>
-          <Grid.Column
-            tablet="10"
-            computer="8"
-            id="delete-button-description"
-            className="helptext"
-          >
             <p>
               Deposits can only be <b>deleted while they are drafts</b>. Once
               you publish your deposit, you can only restrict access and/or
