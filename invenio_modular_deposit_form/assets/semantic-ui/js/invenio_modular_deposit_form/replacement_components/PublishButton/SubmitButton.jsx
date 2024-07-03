@@ -120,7 +120,7 @@ const SubmitButtonComponent = ({
     preview: {
       name: "preview",
       buttonLabel: i18next.t("Preview"),
-      actionText: i18next.t("preview this deposit"),
+      actionText: i18next.t("preview this work"),
       icon: "eye",
       action: [DepositFormSubmitActions.PREVIEW],
       newActionState: DRAFT_PREVIEW_STARTED,
@@ -136,7 +136,7 @@ const SubmitButtonComponent = ({
     publish: {
       name: "publish",
       buttonLabel: i18next.t("Publish"),
-      actionText: i18next.t("publish this deposit"),
+      actionText: i18next.t("publish this work"),
       icon: "upload",
       action: [
         publishWithoutCommunity
@@ -150,7 +150,7 @@ const SubmitButtonComponent = ({
       buttonLabel: isRecordSubmittedForReview
         ? i18next.t("Submitted for review")
         : i18next.t("Submit for review"),
-      actionText: i18next.t("submit this deposit for community review"),
+      actionText: i18next.t("submit this deposit for collection review"),
       icon: "upload",
       action: [
         DepositFormSubmitActions.SUBMIT_REVIEW,
@@ -163,8 +163,8 @@ const SubmitButtonComponent = ({
     },
     directPublish: {
       name: "SubmitReview",
-      buttonLabel: i18next.t("Publish to community"),
-      actionText: i18next.t("publish this deposit"),
+      buttonLabel: i18next.t("Publish to collection"),
+      actionText: i18next.t("publish this work"),
       icon: "upload",
       action: [
         DepositFormSubmitActions.SUBMIT_REVIEW,
