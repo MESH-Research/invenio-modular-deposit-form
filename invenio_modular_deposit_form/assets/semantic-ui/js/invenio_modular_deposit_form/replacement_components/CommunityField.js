@@ -113,7 +113,7 @@ const CommunityFieldComponent = ({
                   {/* <Icon name={!community ? "add" : "undo"} /> */}
                   {community
                     ? i18next.t("Change")
-                    : i18next.t("Select a community")}
+                    : i18next.t("Select a collection")}
                 </Button>
               }
               focusAddButtonHandler={focusAddButtonHandler}
@@ -143,7 +143,7 @@ const CommunityFieldComponent = ({
           <Form.Field width={11} className="communities-helptext-wrapper">
             <label htmlFor="community-selector" className="helptext">
               {i18next.t(
-                "Select a community where you want this deposit to be published."
+                "Select a collection where you want this deposit to be published."
               )}
             </label>
           </Form.Field>

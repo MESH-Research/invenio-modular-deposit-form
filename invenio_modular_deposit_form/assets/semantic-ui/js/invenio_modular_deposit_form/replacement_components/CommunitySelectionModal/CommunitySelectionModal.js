@@ -125,7 +125,7 @@ CommunitySelectionModalComponent.propTypes = {
 CommunitySelectionModalComponent.defaultProps = {
   chosenCommunity: undefined,
   extraContentComponents: undefined,
-  modalHeader: i18next.t("Select a community"),
+  modalHeader: i18next.t("Select a collection"),
   onModalChange: undefined,
   displaySelected: false,
   modalOpen: false,
