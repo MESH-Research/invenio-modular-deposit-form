@@ -219,26 +219,26 @@ const InnerDepositForm = ({
   // all fields must be set touched to trigger validation before submit
   // but then untouched after submission
   const updateFormErrorState = (errors, touched, initialErrors) => {
-    console.log("errorMessages: updateFormErrorState errors", errors);
-    console.log("errorMessages: updateFormErrorState touched", touched);
-    console.log(
-      "errorMessages: updateFormErrorState initialErrors",
-      initialErrors
-    );
-    console.log(
-      "errorMessages: updateFormErrorState store",
-      store.getState().deposit?.errors
-    );
+    // console.log("errorMessages: updateFormErrorState errors", errors);
+    // console.log("errorMessages: updateFormErrorState touched", touched);
+    // console.log(
+    //   "errorMessages: updateFormErrorState initialErrors",
+    //   initialErrors
+    // );
+    // console.log(
+    //   "errorMessages: updateFormErrorState store",
+    //   store.getState().deposit?.errors
+    // );
     const errorFields = flattenKeysDotJoined(errors);
-    console.log("errorMessages: updateFormErrorState errorFields", errorFields);
+    // console.log("errorMessages: updateFormErrorState errorFields", errorFields);
     const touchedFields = flattenKeysDotJoined(touched);
-    console.log("errorMessages: updateFormErrorState touchedFields", touchedFields);
+    // console.log("errorMessages: updateFormErrorState touchedFields", touchedFields);
     const touchedErrorFields = errorFields?.filter((item) =>
       touchedFields.includes(item) || getTouchedParent(touched, item)
     );
-    console.log("errorMessages: updateFormErrorState touchedErrorFields", touchedErrorFields);
+    // console.log("errorMessages: updateFormErrorState touchedErrorFields", touchedErrorFields);
     const initialErrorFields = flattenKeysDotJoined(initialErrors);
-    console.log("errorMessages: updateFormErrorState initialErrorFields", initialErrorFields);
+    // console.log("errorMessages: updateFormErrorState initialErrorFields", initialErrorFields);
     const initialUntouchedFields = initialErrorFields?.filter(
       (item) => !touchedFields.includes(item)
     );
@@ -256,9 +256,9 @@ const InnerDepositForm = ({
       initialUnchangedFields?.length > 0 ||
       initialUnflaggedFields?.length > 0
     ) {
-      console.log("errorMessages: updateFormErrorState initialUntouchedFields", initialUntouchedFields);
-      console.log("errorMessages: updateFormErrorState initialUnchangedFields", initialUnchangedFields);
-      console.log("errorMessages: updateFormErrorState initialUnflaggedFields", initialUnflaggedFields);
+      // console.log("errorMessages: updateFormErrorState initialUntouchedFields", initialUntouchedFields);
+      // console.log("errorMessages: updateFormErrorState initialUnchangedFields", initialUnchangedFields);
+      // console.log("errorMessages: updateFormErrorState initialUnflaggedFields", initialUnflaggedFields);
       const backendErrorFields = [
         ...new Set([...initialUntouchedFields, ...initialUnchangedFields]),
       ];

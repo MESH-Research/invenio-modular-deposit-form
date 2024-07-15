@@ -28,8 +28,8 @@ export class LanguagesField extends Component {
       ...uiProps
     } = this.props;
     const serializeSuggestions = serializeSuggestionsFunc || null;
-    console.log('LanguagesField: initialOptions', initialOptions)
-    console.log('LanguagesField: serializeSuggestions', serializeSuggestions)
+    // console.log('LanguagesField: initialOptions', initialOptions)
+    // console.log('LanguagesField: serializeSuggestions', serializeSuggestions)
 
     return (
       <RemoteSelectField
