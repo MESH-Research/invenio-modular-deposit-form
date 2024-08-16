@@ -24,10 +24,13 @@
 {%- extends config.BASE_TEMPLATE %}
 
   {% set cu = current_userprofile %}
-  {% set cu_dict = dict(id=(cu.id if cu.id else ""), full_name=(cu.full_name if cu.full_name else ""), affiliations=(cu.user_profile.affiliations if cu.user_profile.affiliations else ""), identifiers=(cu.user_profile.identifiers if cu.user_profile.identifiers else []), name_parts=(cu.user_profile.name_parts if cu.user_profile.name_parts else {})) %}
+  {% set profile_fields = config.get("ACCOUNTS_USER_PROFILE_SCHEMA")().fields.keys() %}
+  {% set cu_dict = {'id': cu.id if cu.id else ""} %}
+  {% for f in profile_fields %}
+    {% set _ = cu_dict.update({f: cu[f] if cu[f] else ""}) %}
+  {% endfor %}
 
 {%- block page_body %}
-
   {%- if record %}
   <input id="deposits-record" type="hidden" name="deposits-record" value='{{record | tojson }}'></input>
   {%- endif %}
