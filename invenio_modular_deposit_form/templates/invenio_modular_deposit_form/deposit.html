@@ -27,7 +27,7 @@
   {% set profile_fields = config.get("ACCOUNTS_USER_PROFILE_SCHEMA")().fields.keys() %}
   {% set cu_dict = {'id': cu.id if cu.id else ""} %}
   {% for f in profile_fields %}
-    {% set _ = cu_dict.update({f: cu[f] if cu[f] else ""}) %}
+    {% set _ = cu_dict.update({f: cu["user_profile"][f] if cu["user_profile"][f] else ""}) %}
   {% endfor %}
 
 {%- block page_body %}
