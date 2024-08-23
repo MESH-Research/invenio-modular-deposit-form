@@ -105,11 +105,10 @@ const SelectField = ({
               // {...field}
               onBlur={handleBlur}
               onChange={(event, data) => {
-                if (onChange) {
+                if (onChange!==undefined) {
                   onChange({event, data, formikProps});
-                  event.target.value = "";
                 } else {
-                  setFieldValue(fieldPath, field.value);
+                  setFieldValue(fieldPath, data.value);
                 }
               }}
               onAddItem={(event, data) => {
