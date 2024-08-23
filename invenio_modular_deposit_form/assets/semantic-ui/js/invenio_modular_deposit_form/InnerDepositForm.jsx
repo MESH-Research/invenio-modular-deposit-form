@@ -649,7 +649,6 @@ const InnerDepositForm = ({
 
 InnerDepositForm.propTypes = {
   commonFields: PropTypes.array.isRequired,
-  config: PropTypes.object.isRequired,
   currentUserprofile: PropTypes.object.isRequired,
   defaultFieldValues: PropTypes.object.isRequired,
   defaultResourceType: PropTypes.string.isRequired,
