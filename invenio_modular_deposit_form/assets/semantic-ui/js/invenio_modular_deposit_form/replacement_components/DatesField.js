@@ -8,7 +8,6 @@
 
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { ArrayField, GroupField } from "react-invenio-forms";
 import { TextField } from "./TextField";
 import { SelectField } from "./SelectField";
 import { Button, Form, Icon } from "semantic-ui-react";

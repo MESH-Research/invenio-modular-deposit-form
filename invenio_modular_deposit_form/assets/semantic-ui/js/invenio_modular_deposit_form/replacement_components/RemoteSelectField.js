@@ -10,10 +10,9 @@ import _debounce from "lodash/debounce";
 import _uniqBy from "lodash/uniqBy";
 import PropTypes from "prop-types";
 import queryString from "query-string";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Message } from "semantic-ui-react";
 import { SelectField } from "./SelectField";
-import { getIn, useFormikContext } from "formik";
 
 const DEFAULT_SUGGESTION_SIZE = 20;
 

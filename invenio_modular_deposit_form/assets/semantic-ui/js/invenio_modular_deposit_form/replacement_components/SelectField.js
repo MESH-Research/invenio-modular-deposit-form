@@ -76,11 +76,17 @@ const SelectField = ({
 
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
+        const showError = (!!meta.error && !!meta.touched ||
+                !!error ||
+                (field.value === meta.initialValue) && !!meta.initialError
+              ) ? true : false;
 
         return (
           <Form.Field
-            error={meta.error && meta.touched ? true : undefined}
+            error={showError}
             width={width}
+            {...(required && { required: true })}
+            {...(!!uiProps.fluid && { fluid: true })}
           >
             {showLabel && (
             <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
@@ -98,8 +104,8 @@ const SelectField = ({
               fluid
               className={`invenio-select-field ${classnames ? classnames : ""}`}
               selection
-              error={meta.error && meta.touched ? true : undefined}
-              label={{ children: label }}
+              error={!!showError ? true : false}
+              label={null}
               name={fieldPath}
               noResultsMessage={noResultsMessage}
               // {...field}
@@ -122,7 +128,7 @@ const SelectField = ({
               selectOnBlur={selectOnBlur}
               {...uiProps}
             />
-            {meta.error && meta.touched && (
+            {!!showError && (
               <div
                 className={`ui pointing above ${errorDirection} prompt label `}
                 role="alert"

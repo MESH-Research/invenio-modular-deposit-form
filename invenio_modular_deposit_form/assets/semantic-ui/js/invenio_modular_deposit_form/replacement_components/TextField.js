@@ -36,18 +36,17 @@ const TextField = ({
         form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
-        const touchedAncestor = getTouchedParent(touched, fieldPath);
+        console.log("TextField", fieldPath, meta);
 
         return (
           <Form.Field
             required={!!required}
-            error={
-              (!!meta.error && (!!meta.touched || touchedAncestor)) ||
-              !!error //||
-              // (!meta.touched && meta.initialError)
+            error={(
+              (!!meta.error && (!!meta.touched)) ||
+              !!error ||
+              (meta.value === meta.initialValue) && !!meta.initialError
+            ) ? true : false
             }
-            // (!!meta.touched && !!meta.errors) ||
-            // (!meta.touched && meta.initialError)
             className={`invenio-text-input-field ${classnames ? classnames : ""}`}
             fluid={fluid}
             width={width}
@@ -62,8 +61,9 @@ const TextField = ({
             )}
             <Form.Input
               error={
-                (meta.error && (meta.touched || touchedAncestor)) ||
-                (!meta.touched && meta.initialError)
+                (!!meta.error && !!meta.touched ||
+                !!error ||
+                (field.value === meta.initialValue) && !!meta.initialError)
                   ? meta.error
                   : undefined
               }

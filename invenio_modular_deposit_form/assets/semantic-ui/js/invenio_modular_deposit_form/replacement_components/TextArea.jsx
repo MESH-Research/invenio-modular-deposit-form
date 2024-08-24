@@ -45,14 +45,14 @@ const TextArea = ({
         form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
-        const touchedAncestor = getTouchedParent(touched, fieldPath);
-        // console.log("TextArea", fieldPath, meta, touchedAncestor);
 
         return (
           <Form.Field
             required={!!required}
             error={
-              (!!meta.error && (!!meta.touched || touchedAncestor)) || !!error
+              !!meta.error && !!meta.touched ||
+              !!error ||
+              (field.value === meta.initialValue) && !!meta.initialError
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)
@@ -97,8 +97,10 @@ const TextArea = ({
                 {i18next.t(helpText)}
               </div>
             )}
-            {((!!meta.error && (!!meta.touched || touchedAncestor)) ||
-              !!error) && <ErrorLabel fieldPath={fieldPath} />}
+            {(!!meta.error && !!meta.touched ||
+              !!error ||
+              (field.value === meta.initialValue) && !!meta.initialError
+              ) && <ErrorLabel fieldPath={fieldPath} />}
           </Form.Field>
         );
       }}
