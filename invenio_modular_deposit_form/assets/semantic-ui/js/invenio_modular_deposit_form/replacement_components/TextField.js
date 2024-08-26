@@ -38,16 +38,18 @@ const TextField = ({
       }) => {
         console.log("TextField", fieldPath, meta);
 
+        const showError = (!!meta.error && !!meta.touched ||
+                !!error ||
+                (field.value === meta.initialValue) && !!meta.initialError
+              ) ? true : false;
+        console.log("TextField label", label?.length);
+
+
         return (
           <Form.Field
             required={!!required}
-            error={(
-              (!!meta.error && (!!meta.touched)) ||
-              !!error ||
-              (meta.value === meta.initialValue) && !!meta.initialError
-            ) ? true : false
-            }
-            className={`invenio-text-input-field ${classnames ? classnames : ""}`}
+            error={showError}
+            className={`invenio-text-input-field ${classnames ? classnames : ""} ${!!label?.length<1 ? "no-label" : ""}`}
             fluid={fluid}
             width={width}
           >
@@ -55,18 +57,12 @@ const TextField = ({
               <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
             )}
             {description && description !== " " && (
-              <div className="helptext" id={`${fieldPath}.helptext`}>
+              <div className="helptext label" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
               </div>
             )}
             <Form.Input
-              error={
-                (!!meta.error && !!meta.touched ||
-                !!error ||
-                (field.value === meta.initialValue) && !!meta.initialError)
-                  ? meta.error
-                  : undefined
-              }
+              error={showError ? meta.error : undefined}
               disabled={disabled}
               fluid={fluid}
               icon={undefined}
@@ -83,7 +79,7 @@ const TextField = ({
               {...uiProps}
             />
             {helpText && helpText !== " " && (
-              <div className="helptext" id={`${fieldPath}.helptext`}>
+              <div className="helptext label" id={`${fieldPath}.helptext`}>
                 {i18next.t(helpText)}
               </div>
             )}

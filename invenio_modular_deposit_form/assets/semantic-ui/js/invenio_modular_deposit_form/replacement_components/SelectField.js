@@ -87,6 +87,7 @@ const SelectField = ({
             width={width}
             {...(required && { required: true })}
             {...(!!uiProps.fluid && { fluid: true })}
+            className={`invenio-select-field ${classnames ? classnames : ""}`}
           >
             {showLabel && (
             <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />

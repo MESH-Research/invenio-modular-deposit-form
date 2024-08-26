@@ -977,9 +977,8 @@ const SubmissionComponent = () => {
     return alertClass;
   };
 
-  console.log("actionState", actionState);
-  console.log("errors", errors);
-  console.log(!_isEmpty(errors));
+  console.log("SubmissionComponent actionState", actionState);
+  console.log("SubmissionComponent errors", errors);
 
   return (
     <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
@@ -1009,6 +1008,8 @@ const SubmissionComponent = () => {
                   fieldPath="message"
                   labels={config.custom_fields.error_labels}
                   clientErrors={errors}
+                  clientInitialErrors={errors}
+                  clientInitialValues={values}
                 />
               </Overridable>
         )}
