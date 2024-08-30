@@ -36,20 +36,20 @@ const TextField = ({
         form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
-        console.log("TextField", fieldPath, meta);
 
         const showError = (!!meta.error && !!meta.touched ||
                 !!error ||
                 (field.value === meta.initialValue) && !!meta.initialError
               ) ? true : false;
         console.log("TextField label", label?.length);
+        console.log("TextField label", label);
 
 
         return (
           <Form.Field
             required={!!required}
             error={showError}
-            className={`invenio-text-input-field ${classnames ? classnames : ""} ${!!label?.length<1 ? "no-label" : ""}`}
+            className={`invenio-text-input-field ${classnames ? classnames : ""} ${label?.length<1 ? "no-label" : ""}`}
             fluid={fluid}
             width={width}
           >
