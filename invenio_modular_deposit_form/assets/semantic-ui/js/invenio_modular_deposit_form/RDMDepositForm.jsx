@@ -53,6 +53,7 @@ export const RDMDepositForm = ({
   placeholderModifications,
   preselectedCommunity,
   priorityFieldValues,
+  previewableExtensions, // Add this new prop
 }) => {
 
 
@@ -123,6 +124,7 @@ export const RDMDepositForm = ({
           placeholderModifications,
           preselectedCommunity,
           priorityFieldValues,
+          previewableExtensions,
           record,
           vocabularies,
         }} />
@@ -137,10 +139,12 @@ RDMDepositForm.propTypes = {
   preselectedCommunity: PropTypes.object,
   files: PropTypes.object,
   permissions: PropTypes.object,
+  previewableExtensions: PropTypes.array, // Add this new prop type
 };
 
 RDMDepositForm.defaultProps = {
   preselectedCommunity: undefined,
   permissions: null,
   files: null,
+  previewableExtensions: [], // Add a default value if needed
 };

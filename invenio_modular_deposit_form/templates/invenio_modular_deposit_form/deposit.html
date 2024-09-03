@@ -56,6 +56,7 @@
     data-icon-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", {}) | tojson }}'
     data-help-text-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", {}) | tojson }}'
     data-default-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", {}) | tojson }}'
+    data-previewable-extensions='{{ "" | previewable_extensions | tojson }}'
     data-priority-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", {}) | tojson }}'
     data-extra-required-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", {}) | tojson }}'
     data-default-resource-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", {}) | tojson }}'

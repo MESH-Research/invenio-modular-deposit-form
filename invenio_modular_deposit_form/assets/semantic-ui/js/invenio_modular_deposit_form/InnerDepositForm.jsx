@@ -51,6 +51,7 @@ const InnerDepositForm = ({
   placeholderModifications = undefined,
   preselectedCommunity = undefined,
   priorityFieldValues = undefined,
+  previewableExtensions = [], // Add this new prop with a default value
   record,
   vocabularies,
 }) => {
@@ -474,6 +475,7 @@ const InnerDepositForm = ({
           fieldComponents: fieldComponents,
           noFiles: noFiles,
           vocabularies: vocabularies,
+          previewableExtensions: previewableExtensions,
         }}
       >
         <Grid>
@@ -664,6 +666,7 @@ InnerDepositForm.propTypes = {
   placeholderModifications: PropTypes.object,
   preselectedCommunity: PropTypes.object,
   priorityFieldValues: PropTypes.object,
+  previewableExtensions: PropTypes.array, // Add this new prop type
   record: PropTypes.object.isRequired,
   vocabularies: PropTypes.object.isRequired,
 };

@@ -15,6 +15,8 @@ const overriddenComponents = overrideStore.getAll();
 const formDiv = document.getElementById("deposit-form");
 const dataSet = formDiv.dataset;
 
+// FIXME: previewableExtensions depends on the custom jinja filter
+// defined in invenio_modular_detail_page/filters/previewable_extensions.py
 ReactDOM.render(
   <OverridableContext.Provider value={overriddenComponents}>
     <RDMDepositForm
@@ -34,6 +36,7 @@ ReactDOM.render(
       pidsConfigOverrides={JSON.parse(dataSet.pidsConfigOverrides)}
       placeholderModifications={JSON.parse(dataSet.placeholderModifications)}
       preselectedCommunity={getInputFromDOM("deposits-draft-community")}
+      previewableExtensions={JSON.parse(dataSet.previewableExtensions)}
       priorityFieldValues={JSON.parse(dataSet.priorityFieldValues)}
       record={getInputFromDOM("deposits-record")}
     />
