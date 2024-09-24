@@ -6,11 +6,12 @@ name = "pypi"
 [packages]
 invenio-i18n = "*"
 invenio-assets = "*"
-invenio-app-rdm = "*"
+invenio-app-rdm = ">=12.0.0,<13.0.0"
 
 [dev-packages]
 djlint = "*"
+build = "*"
+twine = "*"
 
 [requires]
-python_version = "3.9"
-python_full_version = "3.9.16"
+python_version = ">=3.9"

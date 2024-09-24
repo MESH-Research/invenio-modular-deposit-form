@@ -1,6 +1,8 @@
-# invenio-modular-deposit-form
+# Invenio Modular Deposit Form
 
-** PRE-ALPHA **
+Version 0.1.0.dev1
+
+**ALPHA**
 
 A more modular and configurable deposit form framework for InvenioRDM. This extension provides a replacement framework for the InvenioRDM deposit form that allows:
 

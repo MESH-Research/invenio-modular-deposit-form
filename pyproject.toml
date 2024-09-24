@@ -1,0 +1,126 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "invenio-modular-deposit-form"
+version = "0.1.0.dev1"
+description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Mesh Research", email = "scottia4@msu.edu"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+]
+keywords = ["invenio", "invenio-rdm", "deposit-form", "ui", "extensions"]
+requires-python = ">=3.9"
+dependencies = [
+    "invenio-app-rdm>=12.0.0,<13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "sphinx>=4.5.0",
+]
+tests = [
+    "pytest-invenio>=2.1.0,<3.0.0",
+    "pytest-black>=0.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/MESH-Research/invenio-modular-deposit-form"
+
+[project.entry-points."invenio_base.apps"]
+invenio_modular_deposit_form = "invenio_modular_deposit_form:InvenioModularDepositForm"
+
+[project.entry-points."invenio_base.blueprints"]
+invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:create_blueprint"
+
+[project.entry-points."invenio_i18n.translations"]
+messages = "invenio_modular_deposit_form"
+
+[project.entry-points."invenio_assets.webpack"]
+invenio_modular_deposit_form_theme = "invenio_modular_deposit_form.webpack:theme"
+
+[tool.pytest.ini_options]
+addopts = "--black --isort --pydocstyle --doctest-glob=\"*.rst\" --doctest-modules --cov=invenio_modular_deposit_form --cov-report=term-missing"
+testpaths = ["docs", "tests", "invenio_modular_deposit_form"]
+
+[tool.pydocstyle]
+add-ignore = ["D401"]
+
+[tool.isort]
+profile = "black"
+
+[tool.babel.compile_catalog]
+directory = "invenio_modular_deposit_form/translations/"
+use-fuzzy = true
+
+[tool.babel.extract_messages]
+copyright_holder = "Mesh Research"
+msgid_bugs_address = "scottia4@msu.edu"
+mapping-file = "babel.ini"
+output-file = "invenio_modular_deposit_form/translations/messages.pot"
+add-comments = "NOTE"
+
+[tool.babel.init_catalog]
+# input-file = "invenio_modular_deposit_form/translations/messages.pot"
+output-dir = "invenio_modular_deposit_form/translations/"
+
+[tool.babel.update_catalog]
+input-file = "invenio_modular_deposit_form/translations/messages.pot"
+output-dir = "invenio_modular_deposit_form/translations/"
+
+[tool.check-manifest]
+ignore = [
+  "* .mo",
+  "*.bin",
+  "*.gitkeep",
+  ".*-requirements.txt",
+  ".bzrignore",
+  ".DS_Store",
+  ".egg-info",
+  ".egg-info/*",
+  ".gitattributes",
+  ".github/*",
+  ".gitignore",
+  ".hgsigs",
+  ".hgtags",
+  ".hgignore",
+  ".travis.yml",
+  "Jenkinsfile",
+  "PKG-INFO",
+  "setup.cfg",
+  "*.lock",
+  "Pipfile",
+  ".vscode/*",
+]
+
+[tool.bumpver]
+current_version = "0.1.0.dev1"
+version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
+commit_message = "Bumping version {old_version} -> {new_version}."
+tag_message = "{new_version}"
+tag_scope = "default"
+pre_commit_hook = ""
+post_commit_hook = ""
+commit = true
+tag = true
+push = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    '^version = "{version}"',
+    '^current_version = "{version}"',
+]
+"README.md" = [
+    '^Version {version}',
+]
+VERSION = [
+    '^"{version}"',
+]
+"invenio_remote_user_data_kcworks/__init__.py" = [
+    '^__version__ = "{version}"',
+]
