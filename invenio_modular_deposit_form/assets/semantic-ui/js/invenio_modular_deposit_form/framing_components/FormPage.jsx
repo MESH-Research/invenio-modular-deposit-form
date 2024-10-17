@@ -52,6 +52,7 @@ const FormPage = ({
               </SectionWrapper>
             ) : (
               <FieldsContent
+                key={index}
                 {...{
                   section,
                   component,
