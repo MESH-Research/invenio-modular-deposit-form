@@ -112,15 +112,17 @@ const InnerDepositForm = ({
     previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
   const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
+
+  // state for form page error handling
   const [pagesWithErrors, setPagesWithErrors] = useState({});
   const [pagesWithFlaggedErrors, setPagesWithFlaggedErrors] = useState({});
 
+  // state for adapting fields to resource type
   const [currentResourceType, setCurrentResourceType] =
     useState(defaultResourceType);
   const [currentTypeFields, setCurrentTypeFields] = useState(
     fieldsByType[defaultResourceType]
   );
-  // const [fieldTouchHandler, setFieldTouchHandler] = useState();
   const currentFieldMods = {
     labelMods: labelModifications[currentResourceType],
     iconMods: iconModifications[currentResourceType],
@@ -132,6 +134,8 @@ const InnerDepositForm = ({
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
   const [formPageFields, setFormPageFields] = useState({});
+
+  // state for recovering unsaved form values
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const [storageDataPresent, setStorageDataPresent] = useState(false);
   const confirmModalRef = useRef();
@@ -348,6 +352,8 @@ const InnerDepositForm = ({
     }, 100);
   };
 
+  // handlers for recoveryAsked
+  // focus first element when modal is closed to allow keyboard navigation
   const handleRecoveryAsked = () => {
     setRecoveryAsked(true);
     focusFirstElement(currentFormPage, true);
@@ -368,6 +374,7 @@ const InnerDepositForm = ({
     });
   };
 
+  // handlers for form page navigation
   const handleFormPageChange = (event, { value }) => {
     for (const field of formPageFields[currentFormPage]) {
       setFieldTouched(field);
@@ -421,7 +428,7 @@ const InnerDepositForm = ({
     setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
   }, [values.metadata.resource_type]);
 
-  //keep changed values in local storage
+  //keep changed form values in local storage
   useEffect(() => {
     if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
       window.localStorage.setItem(
@@ -433,19 +440,28 @@ const InnerDepositForm = ({
 
   // on first load, check if there is data in local storage
   useEffect(() => {
+    console.log("starting useEffect ++++++++++++++++++++++++++++++++++++++++++++++");
+    console.log("recoveryAsked", recoveryAsked);
     const user = currentUserprofile.id;
+    console.log("user", user);
+    console.log("initialValues", initialValues);
+    console.log("values", values);
     const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
+    console.log("storageValuesKey", storageValuesKey);
     const storageValues = window.localStorage.getItem(storageValuesKey);
-
+    console.log("storageValues", storageValues);
     const storageValuesObj = JSON.parse(storageValues);
+    console.log("storageValuesObj", storageValuesObj);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
       !areDeeplyEqual(storageValuesObj, values, ["ui"])
     ) {
+      console.log("setting recovered storage values");
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
     } else {
+      console.log("setting recoveryAsked to true");
       setRecoveryAsked(true);
     }
   }, []);
