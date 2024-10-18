@@ -440,28 +440,18 @@ const InnerDepositForm = ({
 
   // on first load, check if there is data in local storage
   useEffect(() => {
-    console.log("starting useEffect ++++++++++++++++++++++++++++++++++++++++++++++");
-    console.log("recoveryAsked", recoveryAsked);
     const user = currentUserprofile.id;
-    console.log("user", user);
-    console.log("initialValues", initialValues);
-    console.log("values", values);
     const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
-    console.log("storageValuesKey", storageValuesKey);
     const storageValues = window.localStorage.getItem(storageValuesKey);
-    console.log("storageValues", storageValues);
     const storageValuesObj = JSON.parse(storageValues);
-    console.log("storageValuesObj", storageValuesObj);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, values, ["ui"])
+      !areDeeplyEqual(storageValuesObj, values, ["ui", "metadata.resource_type", "metadata.publication_date", "pids.doi"])
     ) {
-      console.log("setting recovered storage values");
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
     } else {
-      console.log("setting recoveryAsked to true");
       setRecoveryAsked(true);
     }
   }, []);

@@ -87,63 +87,48 @@ function getTouchedParent(touched, fieldPath) {
 // Returns true if the objects are deeply equal, false otherwise
 // If ignoreKeys is not passed, it compares the objects deeply without ignoring any keys
 //
-// param obj1: first object to compare
-// param obj2: second object to compare
-// param ignoreKeys: array of keys to ignore when comparing the objects
-// returns: true if the objects are deeply equal, false otherwise
+// param obj1(object): first object to compare
+// param obj2(object): second object to compare
+// param ignoreKeys(array): array of dot-separated key paths to ignore when
+// comparing the objects. Array items in the object can be ignored by
+// passing the array index as the key path.
+// returns(boolean): true if the objects are deeply equal, false otherwise
 function areDeeplyEqual(obj1, obj2, ignoreKeys) {
-  if (ignoreKeys) {
-    obj1 = excludeObjectKeys(obj1, ignoreKeys);
-    obj2 = excludeObjectKeys(obj2, ignoreKeys);
-  }
-  if (obj1 === obj2) return true;
 
-  if (Array.isArray(obj1) && Array.isArray(obj2)) {
-    if (obj1.length !== obj2.length) return false;
-
-    return obj1.every((elem, index) => {
-      return areDeeplyEqual(elem, obj2[index]);
-    });
+  if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
+    return obj1 === obj2;
   }
 
-  if (
-    typeof obj1 === "object" &&
-    typeof obj2 === "object" &&
-    obj1 !== null &&
-    obj2 !== null
-  ) {
-    if (Array.isArray(obj1) || Array.isArray(obj2)) return false;
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
 
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
+  if (keys1.length !== keys2.length) return false;
 
-    if (
-      keys1.length !== keys2.length ||
-      !keys1.every((key) => keys2.includes(key))
-    )
-      return false;
-
-    for (let key in obj1) {
-      let isEqual = areDeeplyEqual(obj1[key], obj2[key]);
-      if (!isEqual) {
-        return false;
-      }
+  for (let key of keys1) {
+    if ( ignoreKeys.some(ignoreKey => key === ignoreKey?.split(".")[0])) {
+      continue;
     }
 
-    return true;
+    if (!keys2.includes(key)) return false;
+
+    if (!areDeeplyEqual(obj1[key], obj2[key], getSubKeys(key, ignoreKeys))) {
+        return false;
+    }
   }
 
-  return false;
+  return true;
 }
 
-function excludeObjectKeys(obj, keys) {
-  const newObj = {};
-  for (const key in obj) {
-    if (!keys.includes(key)) {
-      newObj[key] = obj[key];
-    }
-  }
-  return newObj;
+// Given an array of dot-separated key paths, returns new array representing
+// the paths below a given key
+//
+// param key(string): key string or dot-separated key path
+// param ignoreKeys(array): array of dot-separated key paths
+// returns(array): array of the paths below the given key or path
+function getSubKeys(key, ignoreKeys) {
+  return ignoreKeys
+    .filter(ignoreKey => ignoreKey.startsWith(key + '.'))
+    .map(ignoreKey => ignoreKey.slice(key.length + 1));
 }
 
 function isNearViewportBottom(el, offset = 0) {
@@ -155,7 +140,6 @@ function isNearViewportBottom(el, offset = 0) {
 
 export {
   areDeeplyEqual,
-  excludeObjectKeys,
   getTouchedParent,
   isNearViewportBottom,
   scrollTop,
