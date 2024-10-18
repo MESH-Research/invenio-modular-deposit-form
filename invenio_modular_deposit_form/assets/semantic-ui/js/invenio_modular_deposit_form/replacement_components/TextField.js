@@ -41,8 +41,6 @@ const TextField = ({
                 !!error ||
                 (field.value === meta.initialValue) && !!meta.initialError
               ) ? true : false;
-        console.log("TextField label", label?.length);
-        console.log("TextField label", label);
 
 
         return (
