@@ -473,7 +473,7 @@ const InnerDepositForm = ({
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
-      <Message warning className="mobile-warning mobile only">
+      <Message warning className="mobile-deposit-warning mobile only">
         <Message.Header>
           <Icon name="info circle" />
           Mobile device support is coming!
