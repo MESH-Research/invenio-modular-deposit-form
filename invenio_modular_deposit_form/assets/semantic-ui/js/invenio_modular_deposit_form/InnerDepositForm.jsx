@@ -472,6 +472,13 @@ const InnerDepositForm = ({
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
+      <Message warning className="mobile-warning mobile only">
+        <Message.Header>
+          <Icon name="info circle" />
+          Mobile device support is coming!
+        </Message.Header>
+        <p>We are working to optimize this deposit form for mobile devices. In the meantime, please use a device with a larger screen to deposit your work.</p>
+      </Message>
       <FormUIStateContext.Provider
         value={{
           handleFormPageChange: handleFormPageChange,
