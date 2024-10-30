@@ -977,8 +977,8 @@ const SubmissionComponent = () => {
     return alertClass;
   };
 
-  console.log("SubmissionComponent actionState", actionState);
-  console.log("SubmissionComponent errors", errors);
+  // console.log("SubmissionComponent actionState", actionState);
+  // console.log("SubmissionComponent errors", errors);
 
   return (
     <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
