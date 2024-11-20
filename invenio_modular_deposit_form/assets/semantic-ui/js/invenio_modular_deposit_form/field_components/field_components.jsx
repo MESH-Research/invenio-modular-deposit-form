@@ -935,7 +935,7 @@ const SubmissionComponent = () => {
 
   const fixEmptyPublisher = async () => {
     if (values.metadata.publisher === "" || !values.metadata.publisher) {
-      setFieldValue("metadata.publisher", "unknown");
+      setFieldValue("metadata.publisher", "Knowledge Commons");
     }
     return values.metadata.publisher;
   };
