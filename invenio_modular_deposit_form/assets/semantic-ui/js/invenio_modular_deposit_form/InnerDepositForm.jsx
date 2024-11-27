@@ -135,6 +135,7 @@ const InnerDepositForm = ({
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
   const [formPageFields, setFormPageFields] = useState({});
+  const isNewVersionDraft = record.status === "new_version_draft" ? true : false;
 
   // state for recovering unsaved form values
   const [recoveryAsked, setRecoveryAsked] = useState(false);
@@ -496,7 +497,7 @@ const InnerDepositForm = ({
           <Grid.Column mobile={16} tablet={16} computer={16}>
             <Grid.Row className="deposit-form-header">
               <h1 className="ui header">
-                {i18next.t(`${record.id !== null ? "Updating " : "New "}
+                {i18next.t(`${record.id !== null ? (isNewVersionDraft ? "New Version of " : "Updating ") : "New "}
             ${
               ["draft", "draft_with_review"].includes(record.status)
                 ? "Draft "
