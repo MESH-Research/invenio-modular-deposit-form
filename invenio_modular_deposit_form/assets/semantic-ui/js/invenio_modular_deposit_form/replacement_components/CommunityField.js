@@ -9,6 +9,7 @@
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
+import { useStore } from "react-redux";
 import { Image } from "react-invenio-forms";
 import { connect } from "react-redux";
 import { Button, Icon, Form, Grid, Header } from "semantic-ui-react";
@@ -38,21 +39,18 @@ const CommunityFieldComponent = ({
   label="Community submission",
 }) => {
   const [modalOpen, setModalOpen] = useState();
+  const store = useStore();
+  const isPublished = store.getState().deposit.record?.is_published;
+  const isNewVersion = store.getState().deposit.record?.status === "new_version_draft";
+  const recordLink = store.getState().deposit.record?.links?.self_html;
+  const communities = store.getState().deposit.record?.parent?.communities?.entries;
+  const otherCommunities = community && communities ? communities.filter((c) => c.id !== community.id) : [];
 
   const focusAddButtonHandler = () => {
     document.querySelectorAll(`.community-field-button`)[0].focus();
   };
 
   const pattern = community?.slug ? GeoPattern.generate(community.slug) : GeoPattern.generate("default");
-
-  // // use rgba version of svg pattern color for header background
-  // const opacity = 0.1;
-  // const values = pattern.color.match(/\w\w/g);
-  // const [r, g, b] = values.map((k) => parseInt(k, 16));
-
-  // document.getElementsByClassName(
-  //   "page-subheader-outer"
-  // )[0].style.backgroundColor = `rgba( ${r}, ${g}, ${b}, ${opacity} )`;
 
   return (
     <>
@@ -68,7 +66,7 @@ const CommunityFieldComponent = ({
       <Form.Group>
         {community && (
           <Form.Field width={12}>
-            <Grid fluid>
+            <Grid fluid className="mt-0 mb-0">
               <Grid.Column width={3}>
                 <Image
                   size="tiny"
@@ -80,11 +78,34 @@ const CommunityFieldComponent = ({
               <Grid.Column width={13}>
                 <Header size="small">{community.metadata.title}</Header>
               </Grid.Column>
+              {otherCommunities.map((c) => (
+                <>
+                  <Grid.Column width={3}>
+                    <Image
+                    size="tiny"
+                    className="community-header-logo"
+                    src={c.links?.logo || GeoPattern.generate(c.slug).toDataUri()}
+                    fallbackSrc={GeoPattern.generate(c.slug).toDataUri()}
+                  />
+                  </Grid.Column>
+                  <Grid.Column width={13}>
+                    <Header size="small">{c.metadata.title}</Header>
+                  </Grid.Column>
+                </>
+              ))}
             </Grid>
           </Form.Field>
         )}
         <Form.Field width={community ? 4 : 6} className="right-btn-column">
-          {showCommunitySelectionButton && (
+          {community && (isPublished || isNewVersion) ? (
+            <p>
+              {i18next.t("Add or change collections for a published work from the work's ")}
+              <a href={recordLink} target="_blank" rel="noopener noreferrer">
+                {i18next.t("detail page")}
+              </a>
+            </p>
+          ) : (
+            <>
             <CommunitySelectionModal
               modalHeader={i18next.t("Select a collection")}
               onCommunityChange={(community) => {
@@ -102,7 +123,7 @@ const CommunityFieldComponent = ({
               trigger={
                 <Button
                   className="community-field-button add-button"
-                  disabled={disableCommunitySelectionButton}
+                  disabled={disableCommunitySelectionButton || !showCommunitySelectionButton}
                   onClick={() => setModalOpen(true)}
                   name="setting"
                   // icon
@@ -110,7 +131,6 @@ const CommunityFieldComponent = ({
                   type="button"
                   floated={!community ? "left" : ""}
                 >
-                  {/* <Icon name={!community ? "add" : "undo"} /> */}
                   {community
                     ? i18next.t("Change")
                     : i18next.t("Select a collection")}
@@ -118,32 +138,31 @@ const CommunityFieldComponent = ({
               }
               focusAddButtonHandler={focusAddButtonHandler}
             />
-          )}
-          {community && (
-            // <Button
-            //   mini
-            //   className="community-field-button"
-            //   onClick={() => changeSelectedCommunity(null)}
-            //   content={i18next.t("Remove")}
-            //   icon="close"
-            //   disabled={disableCommunitySelectionButton}
-            // />
-            <Button
-              aria-label={i18next.t("Remove item")}
-              className="close-btn"
-              icon
-              onClick={() => changeSelectedCommunity(null)}
-              disabled={!showCommunitySelectionButton}
-            >
-              <Icon name="close" />
-            </Button>
+            {community && (
+              <Button
+                aria-label={i18next.t("Remove item")}
+                className="close-btn"
+                icon
+                onClick={() => changeSelectedCommunity(null)}
+                disabled={!showCommunitySelectionButton || disableCommunitySelectionButton}
+              >
+                <Icon name="close" />
+              </Button>
+            )}
+            </>
           )}
         </Form.Field>
         {!community && (
           <Form.Field width={11} className="communities-helptext-wrapper">
             <label htmlFor="community-selector" className="helptext">
-              {i18next.t(
-                "Select a collection where you want this deposit to be published."
+              {showCommunitySelectionButton ? (
+                i18next.t(
+                  "Select a collection where you want this deposit to be published."
+                )
+              ) : (
+                i18next.t(
+                  "Add or change collections for a published work from the work's detail page."
+                )
               )}
             </label>
           </Form.Field>
