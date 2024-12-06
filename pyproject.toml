@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "invenio-modular-deposit-form"
-version = "0.2.0-dev0"
+version = "0.3.0-dev0"
 description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
 readme = "README.md"
 license = {file = "LICENSE"}
