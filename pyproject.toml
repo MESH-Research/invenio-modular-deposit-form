@@ -99,7 +99,7 @@ ignore = [
 ]
 
 [tool.bumpver]
-current_version = "0.1.0.dev1"
+current_version = "0.1.0-dev1"
 version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
 commit_message = "Bumping version {old_version} -> {new_version}."
 tag_message = "{new_version}"

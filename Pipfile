@@ -12,6 +12,7 @@ invenio-app-rdm = ">=12.0.0,<13.0.0"
 djlint = "*"
 build = "*"
 twine = "*"
+bumpver = "*"
 
 [requires]
 python_version = ">=3.9"
