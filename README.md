@@ -1,6 +1,6 @@
 # Invenio Modular Deposit Form
 
-Version 0.1.0-dev1
+Version 0.2.0-dev0
 
 **ALPHA**
 
