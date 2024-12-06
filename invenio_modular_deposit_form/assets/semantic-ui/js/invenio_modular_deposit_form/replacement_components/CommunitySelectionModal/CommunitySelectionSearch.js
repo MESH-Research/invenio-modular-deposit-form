@@ -6,7 +6,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { OverridableContext } from "react-overridable";
 import {
   EmptyResults,
@@ -17,10 +17,40 @@ import {
   ResultsList,
   ResultsLoader,
   SearchBar,
+  withState,
 } from "react-searchkit";
 import { Container, Grid, Menu, Modal, Segment } from "semantic-ui-react";
 import { CommunityListItem } from "./CommunityListItem";
 import PropTypes from "prop-types";
+
+const CommunitySearchBarElement = ({
+  toggleText,
+  currentQueryState,
+  updateQueryState,
+}) => {
+
+  const executeSearch = () => {
+    currentQueryState["sortBy"] = "bestmatch";
+    updateQueryState(currentQueryState);
+  };
+
+  return (
+    <SearchBar
+      placeholder={toggleText}
+      autofocus
+      actionProps={{
+        icon: "search",
+        content: null,
+        className: "search",
+        "aria-label": i18next.t("Search"),
+      }}
+      onBtnSearchClick={executeSearch}
+      executeSearch={executeSearch}
+    />
+  );
+};
+
+const CommunitySearchBar = withState(CommunitySearchBarElement);
 
 export class CommunitySelectionSearch extends Component {
   constructor(props) {
@@ -100,16 +130,7 @@ export class CommunitySelectionSearch extends Component {
                 </Menu>
               </Grid.Column>
               <Grid.Column width={8} floated="right" verticalAlign="middle">
-                <SearchBar
-                  placeholder={toggleText}
-                  autofocus
-                  actionProps={{
-                    "icon": "search",
-                    "content": null,
-                    "className": "search",
-                    "aria-label": i18next.t("Search"),
-                  }}
-                />
+                <CommunitySearchBar toggleText={toggleText} />
               </Grid.Column>
             </Grid.Row>
 
