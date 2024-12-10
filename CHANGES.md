@@ -7,6 +7,12 @@ more details. -->
 Changes
 =======
 
+
+## Version 0.3.1-dev0 (2024-12-10)
+
+-  Fixed bug in search results sort order in community selection modal
+-  Added handling for '/' in community search query string
+
 ## Version 0.3.0-dev0 (2024-12-06)
 
 -  Added proper messages to collections widget for published records
