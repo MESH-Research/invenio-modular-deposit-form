@@ -12,6 +12,7 @@ import React, { useState } from "react";
 import { useStore } from "react-redux";
 import { Image } from "react-invenio-forms";
 import { connect } from "react-redux";
+import Overridable from "react-overridable";
 import { Button, Icon, Form, Grid, Header } from "semantic-ui-react";
 // import { changeSelectedCommunity } from "../../state/actions";
 // import { CommunitySelectionModal } from "@js/invenio_rdm_records";
@@ -121,33 +122,40 @@ const CommunityFieldComponent = ({
               chosenCommunity={community}
               displaySelected
               trigger={
-                <Button
-                  className="community-field-button add-button"
-                  disabled={disableCommunitySelectionButton || !showCommunitySelectionButton}
-                  onClick={() => setModalOpen(true)}
-                  name="setting"
-                  // icon
-                  id="community-selector"
-                  type="button"
-                  floated={!community ? "left" : ""}
-                >
-                  {community
-                    ? i18next.t("Change")
-                    : i18next.t("Select a collection")}
-                </Button>
+                <Overridable id="InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container">
+                  <Button
+                    className="community-field-button add-button"
+                    disabled={disableCommunitySelectionButton || !showCommunitySelectionButton}
+                    onClick={() => setModalOpen(true)}
+                    name="setting"
+                    // icon
+                    id="community-selector"
+                    type="button"
+                    floated={!community ? "left" : ""}
+                  >
+                    {community
+                      ? i18next.t("Change")
+                      : i18next.t("Select a collection")}
+                  </Button>
+                </Overridable>
               }
               focusAddButtonHandler={focusAddButtonHandler}
             />
             {community && (
-              <Button
-                aria-label={i18next.t("Remove item")}
-                className="close-btn"
-                icon
-                onClick={() => changeSelectedCommunity(null)}
-                disabled={!showCommunitySelectionButton || disableCommunitySelectionButton}
+              <Overridable
+                id="InvenioRdmRecords.CommunityHeader.RemoveCommunityButton.Container"
+                community={community}
               >
-                <Icon name="close" />
-              </Button>
+                <Button
+                  aria-label={i18next.t("Remove item")}
+                  className="close-btn"
+                  icon
+                  onClick={() => changeSelectedCommunity(null)}
+                  disabled={!showCommunitySelectionButton || disableCommunitySelectionButton}
+                >
+                  <Icon name="close" />
+                </Button>
+              </Overridable>
             )}
             </>
           )}

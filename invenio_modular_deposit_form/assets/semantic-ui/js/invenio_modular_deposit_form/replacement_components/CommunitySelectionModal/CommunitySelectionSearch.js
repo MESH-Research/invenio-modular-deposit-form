@@ -2,12 +2,16 @@
 // Copyright (C) 2020-2023 CERN.
 // Copyright (C) 2020-2022 Northwestern University.
 //
-// Invenio-RDM-Records is free software; you can redistribute it and/or modify it
-// under the terms of the MIT License; see LICENSE file for more details.
+// Customized for Knowledge Commons Works
+// Copyright (C) 2024 Mesh Research
+//
+// Invenio-RDM-Records and Knowledge Commons Works are free software;
+// you can redistribute and/or modify them under the terms of the MIT License;
+// see LICENSE file for more details.
 
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import React, { Component } from "react";
-import { OverridableContext } from "react-overridable";
+import React, { Component, useState, useEffect, useRef } from "react";
+import { OverridableContext, parametrize } from "react-overridable";
 import {
   EmptyResults,
   Error,
@@ -16,11 +20,103 @@ import {
   ReactSearchKit,
   ResultsList,
   ResultsLoader,
-  SearchBar,
+  // SearchBar,
+  withState,
 } from "react-searchkit";
-import { Container, Grid, Menu, Modal, Segment } from "semantic-ui-react";
+import { Grid, Input, Menu, Modal } from "semantic-ui-react";
 import { CommunityListItem } from "./CommunityListItem";
 import PropTypes from "prop-types";
+
+const Element = ({
+  actionProps,
+  autofocus,
+  onBtnSearchClick,
+  onInputChange,
+  onKeyPress,
+  placeholder,
+  queryString,
+}) => {
+
+  const focusInput = useRef(null);
+
+  useEffect(() => {
+    if (autofocus && focusInput.current) {
+      focusInput.current.focus();
+    }
+  }, []);
+
+  return (
+    <Input
+      action={{
+        content: "Search",
+        onClick: onBtnSearchClick,
+        ...actionProps,
+      }}
+      fluid
+      placeholder={placeholder || "Type something"}
+      onChange={(_, { value }) => {
+        onInputChange(value);
+      }}
+      value={queryString}
+      onKeyPress={onKeyPress}
+      ref={focusInput}
+    />
+  );
+}
+
+const CommunitySearchBarElement = ({
+  toggleText,
+  currentQueryState,
+  updateQueryState,
+}) => {
+  const [currentValue, setCurrentValue] = useState("");
+
+  const executeSearch = () => {
+    // Allow for '/' in query string, e.g. for ARLIS/NA
+    currentQueryState["queryString"] = currentValue.replace('/', '%2F');
+    updateQueryState(currentQueryState);
+  };
+
+  const onInputChange = (queryString) => {
+    setCurrentValue(queryString);
+  };
+
+  const onKeyPress = (e) => {
+    if (e.key === "Enter") {
+      executeSearch();
+    }
+  };
+
+  return (
+    <Element
+      actionProps={{
+        icon: "search",
+        content: null,
+        className: "search",
+        "aria-label": i18next.t("Search"),
+      }}
+      autofocus={true}
+      onBtnSearchClick={executeSearch}
+      onInputChange={onInputChange}
+      onKeyPress={onKeyPress}
+      placeholder={toggleText}
+      queryString={currentValue}
+    />
+
+    // <SearchBar
+    //   placeholder={toggleText}
+    //   autofocus
+    //   actionProps={{
+    //     icon: "search",
+    //     content: null,
+    //     className: "search",
+    //     "aria-label": i18next.t("Search"),
+    //   }}
+    // />
+  )
+};
+
+const CommunitySearchBar = withState(CommunitySearchBarElement);
 
 export class CommunitySelectionSearch extends Component {
   constructor(props) {
@@ -29,10 +125,8 @@ export class CommunitySelectionSearch extends Component {
       apiConfigs: { allCommunities },
     } = this.props;
 
-    const defaultConfig = allCommunities;
-
     this.state = {
-      selectedConfig: defaultConfig,
+      selectedConfig: allCommunities,
     };
   }
 
@@ -47,10 +141,15 @@ export class CommunitySelectionSearch extends Component {
     } = this.state;
     const {
       apiConfigs: { allCommunities, myCommunities },
+      record,
+      isInitialSubmission,
     } = this.props;
     const searchApi = new InvenioSearchApi(selectedsearchApi);
     const overriddenComponents = {
-      [`${selectedAppId}.ResultsList.item`]: CommunityListItem,
+      [`${selectedAppId}.ResultsList.item`]: parametrize(CommunityListItem, {
+        record: record,
+        isInitialSubmission: isInitialSubmission,
+      }),
     };
     return (
       <OverridableContext.Provider value={overriddenComponents}>
@@ -60,10 +159,18 @@ export class CommunitySelectionSearch extends Component {
           searchApi={searchApi}
           key={selectedAppId}
           initialQueryState={selectedInitialQueryState}
+          defaultSortingOnEmptyQueryString={this.state.selectedConfig.defaultSortingOnEmptyQueryString}
         >
-          <Grid>
-            <Grid.Row verticalAlign="middle">
-              <Grid.Column width={8} textAlign="left" floated="left">
+          <>
+            <Modal.Content as={Grid} verticalAlign="middle" className="m-0 pb-0">
+              <Grid.Column
+                tablet={8}
+                computer={8}
+                mobile={16}
+                textAlign="left"
+                floated="left"
+                className="pt-0 pl-0"
+              >
                 <Menu role="tablist" compact>
                   <Menu.Item
                     as="button"
@@ -99,42 +206,35 @@ export class CommunitySelectionSearch extends Component {
                   </Menu.Item>
                 </Menu>
               </Grid.Column>
-              <Grid.Column width={8} floated="right" verticalAlign="middle">
-                <SearchBar
-                  placeholder={toggleText}
-                  autofocus
-                  actionProps={{
-                    "icon": "search",
-                    "content": null,
-                    "className": "search",
-                    "aria-label": i18next.t("Search"),
-                  }}
-                />
+              <Grid.Column
+                tablet={8}
+                computer={8}
+                mobile={16}
+                floated="right"
+                verticalAlign="middle"
+                className="pt-0 pr-0 pl-0"
+              >
+                <CommunitySearchBar toggleText={toggleText} />
               </Grid.Column>
-            </Grid.Row>
+            </Modal.Content>
 
-            <Grid.Row verticalAlign="middle">
-              <Grid.Column>
-                <ResultsLoader>
-                  <Segment className="community-list-container p-0">
-                    <Modal.Content
-                      role="tabpanel"
-                      id={selectedAppId}
-                      scrolling
-                      className="community-list-results"
-                    >
-                      <EmptyResults />
-                      <Error />
-                      <ResultsList />
-                    </Modal.Content>
-                  </Segment>
-                  <Container textAlign="center">
-                    <Pagination />
-                  </Container>
-                </ResultsLoader>
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
+            <Modal.Content
+              role="tabpanel"
+              id={selectedAppId}
+              scrolling
+              className="community-list-results"
+            >
+              <ResultsLoader>
+                <EmptyResults />
+                <Error />
+                <ResultsList />
+              </ResultsLoader>
+            </Modal.Content>
+
+            <Modal.Content className="text-align-center">
+              <Pagination />
+            </Modal.Content>
+          </>
         </ReactSearchKit>
       </OverridableContext.Provider>
     );
@@ -154,12 +254,14 @@ CommunitySelectionSearch.propTypes = {
       searchApi: PropTypes.object.isRequired,
     }),
   }),
+  record: PropTypes.object.isRequired,
+  isInitialSubmission: PropTypes.bool,
 };
 
 CommunitySelectionSearch.defaultProps = {
   apiConfigs: {
     allCommunities: {
-      initialQueryState: { size: 5, page: 1 },
+      initialQueryState: { size: 5, page: 1, sortBy: "bestmatch" },
       searchApi: {
         axios: {
           url: "/api/communities",
@@ -170,7 +272,7 @@ CommunitySelectionSearch.defaultProps = {
       toggleText: "Search in all collections",
     },
     myCommunities: {
-      initialQueryState: { size: 5, page: 1 },
+      initialQueryState: { size: 5, page: 1, sortBy: "bestmatch" },
       searchApi: {
         axios: {
           url: "/api/user/communities",
