@@ -70,10 +70,16 @@ const CommunitySearchBarElement = ({
   updateQueryState,
 }) => {
   const [currentValue, setCurrentValue] = useState("");
+  console.log("currentQueryState in CommunitySearchBarElement");
+  console.log(currentQueryState);
 
   const executeSearch = () => {
     // Allow for '/' in query string, e.g. for ARLIS/NA
     currentQueryState["queryString"] = currentValue.replace('/', '%2F');
+    // FIXME: Hack to remove sortBy from currentQueryState to avoid it
+    // constantly reverting to "newest" when searching from deposit form.
+    // It's not clear why this is happening.
+    currentQueryState["sortBy"] = null;
     updateQueryState(currentQueryState);
   };
 

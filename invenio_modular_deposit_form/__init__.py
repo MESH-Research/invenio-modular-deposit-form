@@ -10,6 +10,6 @@
 
 from .ext import InvenioModularDepositForm
 
-__version__ = "0.3.2-dev0"
+__version__ = "0.3.3-dev1"
 
 __all__ = ("__version__", "InvenioModularDepositForm")

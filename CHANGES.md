@@ -7,6 +7,9 @@ more details. -->
 Changes
 =======
 
+## Version 0.3.3-dev1 (2025-01-09)
+
+-  Fixed bug in search results sort order in community selection modal for upload form (original fix only worked in detail page)
 
 ## Version 0.3.1-dev0 (2024-12-10)
 

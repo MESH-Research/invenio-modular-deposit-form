@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "invenio-modular-deposit-form"
-version = "0.3.2-dev0"
+version = "0.3.3-dev1"
 description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -99,16 +99,16 @@ ignore = [
 ]
 
 [tool.bumpver]
-current_version = "0.3.2-dev0"
+current_version = "0.3.3-dev1"
 version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
 commit_message = "Bumping version {old_version} -> {new_version}."
 tag_message = "{new_version}"
 tag_scope = "default"
 pre_commit_hook = ""
 post_commit_hook = ""
-commit = true
-tag = true
-push = true
+commit = false
+tag = false
+push = false
 
 [tool.bumpver.file_patterns]
 "pyproject.toml" = [
