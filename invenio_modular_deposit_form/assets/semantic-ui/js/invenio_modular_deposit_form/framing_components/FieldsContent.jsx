@@ -1,30 +1,6 @@
 import React, { useContext } from "react";
-import { Form } from "semantic-ui-react";
 import { SectionWrapper } from "../field_components/SectionWrapper";
 import { FormUIStateContext } from "../InnerDepositForm";
-
-const FormRow = ({ subsections, classnames, ...props }) => {
-  return (
-    <Form.Group className={classnames ? classnames : null}>
-      {subsections.map(({ section, component, ...innerProps }, index) => {
-        const { fieldComponents } = useContext(FormUIStateContext);
-        const MyField = fieldComponents[component][0];
-        return (
-          <MyField
-            key={index}
-            {...{
-              section,
-              component,
-              index,
-              ...props,
-              ...innerProps,
-            }}
-          />
-        );
-      })}
-    </Form.Group>
-  );
-};
 
 const FieldsContent = ({
   section,
@@ -51,4 +27,4 @@ const FieldsContent = ({
   );
 };
 
-export { FieldsContent, FormRow };
+export { FieldsContent };

@@ -52,11 +52,12 @@ import {
 import {
   CombinedDatesComponent,
 } from "./field_components/compound_field_components";
-import { FormRow } from "./framing_components/FieldsContent";
+import { FormRow } from "./field_components/FormRow";
+import { fieldWrapperHOC } from "./fieldWrapperHOC";
 
 const fieldComponents = {
-  AbstractComponent: [AbstractComponent, ["metadata.description"]],
-  AccessComponent: [AccessRightField, ["access"]],
+  AbstractComponent: [fieldWrapperHOC(AbstractComponent), ["metadata.description"]],
+  AccessComponent: [fieldWrapperHOC(AccessRightField), ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
   AdditionalDescriptionComponent: [

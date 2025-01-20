@@ -1,7 +1,7 @@
 {#
   This file is part of Invenio Modular Deposit Form
 
-  Copyright (C) 2023 Mesh Research.
+  Copyright (C) 2023-2024 Mesh Research.
 
   This is an extension for the InvenioRDM platform and was adapted from
   files in InvenioRDM. InvenioRDM is:
@@ -14,7 +14,6 @@
   see LICENSE file for more details.
 #}
 {%- if not record.is_published and record.versions.index and record.versions.index > 1 %}
-{# {% from invenio_userprofiles.api import current_userprofile %} #}
   {%- set title = _("New version") %}
 {%- elif not record.is_published %}
   {%- set title = _("New upload") %}
@@ -23,44 +22,36 @@
 {%- endif %}
 {%- extends config.BASE_TEMPLATE %}
 
-  {% set cu = current_userprofile %}
-  {% set profile_fields = config.get("ACCOUNTS_USER_PROFILE_SCHEMA").fields.keys() %}
-  {% set cu_dict = {'id': cu.id if cu.id else ""} %}
-  {% for f in profile_fields %}
-    {% set _ = cu_dict.update({f: cu["user_profile"][f] if cu["user_profile"][f] else ""}) %}
-  {% endfor %}
+{# Provide user profile data to form #}
+{% set cu = current_userprofile %}
+{% set profile_fields = config.get("ACCOUNTS_USER_PROFILE_SCHEMA").fields.keys() %}
+{% set cu_dict = {'id': cu.id if cu.id else ""} %}
+{% for f in profile_fields %}
+  {% set _ = cu_dict.update({f: cu["user_profile"][f] if cu["user_profile"][f] else ""}) %}
+{% endfor %}
 
 {%- block page_body %}
-  {%- if record %}
-  <input id="deposits-record" type="hidden" name="deposits-record" value='{{ record | tojson }}'></input>
-  {%- endif %}
-  {%- if preselectedCommunity %}
-  <input id="deposits-draft-community" type="hidden" name="deposits-draft-community" value='{{ preselectedCommunity | tojson }}'></input>
-  {%- endif %}
-  {%- if files %}
-  <input id="deposits-record-files" type="hidden" name="deposits-record-files" value='{{ files | tojson }}'></input>
-  {%- endif %}
-  {%- if forms_config %}
-  <input type="hidden" name="deposits-config" value='{{ forms_config | tojson }}'></input>
-  {%- endif %}
-  {%- if permissions %}
-  <input id="deposits-record-permissions" type="hidden" name="deposits-record-permissions" value='{{ permissions | tojson }}'></input>
-  {%- endif %}
   <div id="deposit-form"
-    data-current-userprofile='{{ cu_dict | tojson }}'
     data-common-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS", {}) | tojson }}'
-    data-fields-by-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", {}) | tojson }}'
-    data-label-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", {}) | tojson }}'
-    data-placeholder-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS", {}) | tojson }}'
-    data-description-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS", {}) | tojson }}'
-    data-icon-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", {}) | tojson }}'
-    data-help-text-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", {}) | tojson }}'
+    data-community-term='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_COMMUNITY_TERM", "community") }}'
+    data-current-userprofile='{{ cu_dict | tojson }}'
     data-default-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", {}) | tojson }}'
+    data-default-resource-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", {}) | tojson }}'
+    data-depositConfig='{{ forms_config or {} | tojson }}'
+    data-description-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS", {}) | tojson }}'
+    data-extra-required-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", {}) | tojson }}'
+    data-fields-by-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", {}) | tojson }}'
+    data-files='{{ files or {} | tojson }}'
+    data-help-text-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", {}) | tojson }}'
+    data-icon-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", {}) | tojson }}'
+    data-label-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", {}) | tojson }}'
+    data-permissions='{{ permissions or {} | tojson }}'
+    data-pids-config-overrides='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", {}) | tojson }}'
+    data-placeholder-modifications='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS", {}) | tojson }}'
+    data-preselected-community='{{ preselectedCommunity or {} | tojson }}'
     data-previewable-extensions='{{ "" | previewable_extensions | tojson }}'
     data-priority-field-values='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", {}) | tojson }}'
-    data-extra-required-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", {}) | tojson }}'
-    data-default-resource-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", {}) | tojson }}'
-    data-pids-config-overrides='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", {}) | tojson }}'
+    data-record='{{ record or {} | tojson }}'
   ></div>
 {%- endblock page_body %}
 

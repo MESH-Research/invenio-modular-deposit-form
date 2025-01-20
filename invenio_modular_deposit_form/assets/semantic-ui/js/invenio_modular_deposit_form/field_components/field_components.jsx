@@ -56,83 +56,59 @@ import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { FormUIStateContext } from "../InnerDepositForm";
+import { fieldWrapperHOC } from "../fieldWrapperHOC";
 
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    // <Overridable
-    //   id="InvenioAppRdm.Deposit.DescriptionsField.container"
-    //   record={record}
-    //   vocabularies={vocabularies}
-    //   fieldPath="metadata.description"
-    // >
-    <FieldComponentWrapper
-      componentName="DescriptionsField"
+  return fieldWrapperHOC(
+    <DescriptionsField
       fieldPath="metadata.description"
+      options={vocabularies.metadata.descriptions}
+      recordUI={_get(record, "ui", null)}
+      editorConfig={{
+        removePlugins: [
+          "Image",
+          "ImageCaption",
+          "ImageStyle",
+          "ImageToolbar",
+          "ImageUpload",
+          "MediaEmbed",
+          "Table",
+          "TableToolbar",
+          "TableProperties",
+          "TableCellProperties",
+        ],
+      }}
       {...extraProps}
-    >
-      <DescriptionsField
-        fieldPath="metadata.description"
-        options={vocabularies.metadata.descriptions}
-        recordUI={_get(record, "ui", null)}
-        label={extraProps.label || "Description"}
-        editorConfig={{
-          removePlugins: [
-            "Image",
-            "ImageCaption",
-            "ImageStyle",
-            "ImageToolbar",
-            "ImageUpload",
-            "MediaEmbed",
-            "Table",
-            "TableToolbar",
-            "TableProperties",
-            "TableCellProperties",
-          ],
-        }}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
-const AccessRightsComponent = ({ ...extraProps }) => {
+const AccessRightsComponent = () => {
   const store = useStore();
   const permissions = store.getState().deposit.permissions;
 
-  return (
-    <FieldComponentWrapper
-      componentName="AccessRightField"
+  return fieldWrapperHOC(
+    <AccessRightField
       fieldPath="access"
-      {...extraProps}
-      icon={extraProps.icon || "shield"}
-      label={extraProps.label || i18next.t("Public access")}
-    >
-      <AccessRightField
-        fieldPath="access"
-        showMetadataAccess={permissions?.can_manage_record_access}
-        fluid
-      />
-    </FieldComponentWrapper>
+      showMetadataAccess={permissions?.can_manage_record_access}
+      fluid
+    />
   );
 };
 
 const AdditionalDatesComponent = ({ ...extraProps }) => {
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="DateField"
+  return fieldWrapperHOC(
+    <DatesField
       fieldPath="metadata.dates"
+      options={vocabularies.metadata.dates}
+      showEmptyValue={false}
       {...extraProps}
-    >
-      <DatesField
-        fieldPath="metadata.dates"
-        options={vocabularies.metadata.dates}
-        showEmptyValue={false}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
@@ -140,31 +116,27 @@ const AdditionalDescriptionComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="DescriptionsField"
+  return fieldWrapperHOC(
+    <DescriptionsField
       fieldPath="metadata.description"
+      options={vocabularies.metadata.descriptions}
+      recordUI={_get(record, "ui", null)}
+      editorConfig={{
+        removePlugins: [
+          "Image",
+          "ImageCaption",
+          "ImageStyle",
+          "ImageToolbar",
+          "ImageUpload",
+          "MediaEmbed",
+          "Table",
+          "TableToolbar",
+          "TableProperties",
+          "TableCellProperties",
+        ],
+      }}
       {...extraProps}
-    >
-      <DescriptionsField
-        options={vocabularies.metadata.descriptions}
-        recordUI={_get(record, "ui", null)}
-        editorConfig={{
-          removePlugins: [
-            "Image",
-            "ImageCaption",
-            "ImageStyle",
-            "ImageToolbar",
-            "ImageUpload",
-            "MediaEmbed",
-            "Table",
-            "TableToolbar",
-            "TableProperties",
-            "TableCellProperties",
-          ],
-        }}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
@@ -175,19 +147,13 @@ const AdditionalTitlesComponent = () => {
 const AlternateIdentifiersComponent = ({ ...extraProps }) => {
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="IdentifiersField"
+  return fieldWrapperHOC(
+    <IdentifiersField
       fieldPath="metadata.identifiers"
-      label={i18next.t("URLs and Other Identifiers")}
-      icon={"barcode"}
+      schemeOptions={vocabularies.metadata.identifiers.scheme}
+      showEmptyValue={false}
       {...extraProps}
-    >
-      <IdentifiersField
-        schemeOptions={vocabularies.metadata.identifiers.scheme}
-        showEmptyValue={false}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
@@ -295,26 +261,20 @@ const ContributorsComponent = ({ ...extraProps }) => {
   const config = useStore().getState().deposit.config;
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="ContibutorsField"
+  return fieldWrapperHOC(
+    <CreatibutorsField
       fieldPath="metadata.contributors"
-      label={i18next.t("Contributors")}
-      icon="user plus"
       {...extraProps}
-    >
-      <CreatibutorsField
-        addButtonLabel={i18next.t("Add contributor")}
-        roleOptions={vocabularies.metadata.contributors.role}
-        schema="contributors"
-        autocompleteNames={config.autocomplete_names}
-        modal={{
-          addLabel: "Add contributor",
-          editLabel: "Edit contributor",
-        }}
-        id="InvenioAppRdm.Deposit.ContributorsField.card"
-      />
-    </FieldComponentWrapper>
+      addButtonLabel={i18next.t("Add contributor")}
+      roleOptions={vocabularies.metadata.contributors.role}
+      schema="contributors"
+      autocompleteNames={config.autocomplete_names}
+      modal={{
+        addLabel: "Add contributor",
+        editLabel: "Edit contributor",
+      }}
+      id="InvenioAppRdm.Deposit.ContributorsField.card"
+    />
   );
 };
 
@@ -322,40 +282,31 @@ const CreatorsComponent = ({ ...extraProps }) => {
   const config = useStore().getState().deposit.config;
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="CreatorsField"
+  return fieldWrapperHOC(
+    <CreatibutorsField
       fieldPath="metadata.creators"
-      label={i18next.t("Creators")}
-      icon="user"
-      description=""
       {...extraProps}
-    >
-      <CreatibutorsField
-        roleOptions={vocabularies.metadata.creators.role}
-        schema="creators"
-        autocompleteNames={config.autocomplete_names}
-        required
-        config={config}
-        addButtonLabel={i18next.t("Add creator")}
-        modal={{
-          addLabel: i18next.t("Add creator"),
-          editLabel: i18next.t("Edit creator"),
-        }}
-      />
-    </FieldComponentWrapper>
+      roleOptions={vocabularies.metadata.creators.role}
+      schema="creators"
+      autocompleteNames={config.autocomplete_names}
+      required
+      config={config}
+      addButtonLabel={i18next.t("Add creator")}
+      modal={{
+        addLabel: i18next.t("Add creator"),
+        editLabel: i18next.t("Edit creator"),
+      }}
+    />
   );
 };
 
 const DateComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="PublicationDateField"
+  return fieldWrapperHOC(
+    <PublicationDateField
+      required
       fieldPath="metadata.publication_date"
       {...extraProps}
-    >
-      <PublicationDateField required fieldPath="metadata.publication_date" />
-    </FieldComponentWrapper>
+    />
   );
 };
 
@@ -364,15 +315,9 @@ const DeleteComponent = ({ ...extraProps }) => {
 
   return (
     <>
-      {permissions?.can_delete_draft ? (
-        <FieldComponentWrapper
-          componentName="CardDeleteButton"
-          fieldPath={""}
-          {...extraProps}
-        >
-          <DeleteButton fluid />
-        </FieldComponentWrapper>
-      ) : null}
+      {permissions?.can_delete_draft
+        ? fieldWrapperHOC(<DeleteButton fieldPath={""} fluid {...extraProps} />)
+        : null}
     </>
   );
 };
@@ -417,112 +362,89 @@ const FilesUploadComponent = ({ ...extraProps }) => {
   const { config, record } = useStore().getState().deposit;
   const { noFiles } = useContext(FormUIStateContext);
 
-  return (
-    <>
-      {/* <Overridable
-      id="InvenioAppRdm.Deposit.AccordionFieldFiles.container"
-      record={record}
-      config={config}
+  return fieldWrapperHOC(
+    <FileUploader
+      fieldPath="files"
       noFiles={noFiles}
-    >*/}
-      <FieldComponentWrapper
-        componentName="FileUploader"
-        fieldPath="files"
-        {...extraProps}
-      >
-        <FileUploader
-          noFiles={noFiles}
-          isDraftRecord={!record.is_published}
-          quota={config.quota}
-          decimalSizeDisplay={config.decimal_size_display}
-          showMetadataOnlyToggle={false} //{permissions?.can_manage_files}
-        />
-      </FieldComponentWrapper>
-      {/*</Overridable> */}
-    </>
+      isDraftRecord={!record.is_published}
+      quota={config.quota}
+      decimalSizeDisplay={config.decimal_size_display}
+      showMetadataOnlyToggle={false} //{permissions?.can_manage_files}
+      {...extraProps}
+    />
   );
 };
 
 const FundingComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="FundingField"
+  return fieldWrapperHOC(
+    <FundingField
       fieldPath="metadata.funding"
       {...extraProps}
-    >
-      <FundingField
-        searchConfig={{
-          searchApi: {
-            axios: {
-              headers: {
-                Accept: "application/vnd.inveniordm.v1+json",
-              },
-              url: "/api/awards",
-              withCredentials: false,
+      searchConfig={{
+        searchApi: {
+          axios: {
+            headers: {
+              Accept: "application/vnd.inveniordm.v1+json",
             },
+            url: "/api/awards",
+            withCredentials: false,
           },
-          initialQueryState: {
-            sortBy: "bestmatch",
-            sortOrder: "asc",
-            layout: "list",
-            page: 1,
-            size: 5,
-          },
-        }}
-        label="Funding"
-        labelIcon="money bill alternate outline"
-        icon="money bill alternate outline"
-        deserializeAward={(award) => {
-          return {
-            title: award.title_l10n,
-            number: award.number,
-            funder: award.funder ?? "",
-            id: award.id,
-            ...(award.identifiers && {
-              identifiers: award.identifiers,
-            }),
-            ...(award.acronym && { acronym: award.acronym }),
-          };
-        }}
-        deserializeFunder={(funder) => {
-          return {
-            id: funder.id,
-            name: funder.name,
-            ...(funder.title_l10n && { title: funder.title_l10n }),
-            ...(funder.pid && { pid: funder.pid }),
-            ...(funder.country && { country: funder.country }),
-            ...(funder.identifiers && {
-              identifiers: funder.identifiers,
-            }),
-          };
-        }}
-        computeFundingContents={(funding) => {
-          let headerContent,
-            descriptionContent,
-            awardOrFunder = "";
+        },
+        initialQueryState: {
+          sortBy: "bestmatch",
+          sortOrder: "asc",
+          layout: "list",
+          page: 1,
+          size: 5,
+        },
+      }}
+      deserializeAward={(award) => {
+        return {
+          title: award.title_l10n,
+          number: award.number,
+          funder: award.funder ?? "",
+          id: award.id,
+          ...(award.identifiers && {
+            identifiers: award.identifiers,
+          }),
+          ...(award.acronym && { acronym: award.acronym }),
+        };
+      }}
+      deserializeFunder={(funder) => {
+        return {
+          id: funder.id,
+          name: funder.name,
+          ...(funder.title_l10n && { title: funder.title_l10n }),
+          ...(funder.pid && { pid: funder.pid }),
+          ...(funder.country && { country: funder.country }),
+          ...(funder.identifiers && {
+            identifiers: funder.identifiers,
+          }),
+        };
+      }}
+      computeFundingContents={(funding) => {
+        let headerContent,
+          descriptionContent,
+          awardOrFunder = "";
 
-          if (funding.funder) {
-            const funderName =
-              funding.funder?.name ??
-              funding.funder?.title ??
-              funding.funder?.id ??
-              "";
-            awardOrFunder = "funder";
-            headerContent = funderName;
-            descriptionContent = "";
+        if (funding.funder) {
+          const funderName =
+            funding.funder?.name ?? funding.funder?.title ?? funding.funder?.id ?? "";
+          awardOrFunder = "funder";
+          headerContent = funderName;
+          descriptionContent = "";
 
-            // there cannot be an award without a funder
-            if (funding.award) {
-              awardOrFunder = "award";
-              descriptionContent = funderName;
-              headerContent = funding.award.title;
-            }
+          // there cannot be an award without a funder
+          if (funding.award) {
+            awardOrFunder = "award";
+            descriptionContent = funderName;
+            headerContent = funding.award.title;
           }
+        }
 
-          return { headerContent, descriptionContent, awardOrFunder };
-        }}
-      />
-    </FieldComponentWrapper>
+        return { headerContent, descriptionContent, awardOrFunder };
+      }}
+    />
   );
 };
 
@@ -603,64 +525,51 @@ const LanguagesComponent = ({ ...extraProps }) => {
     (lang) => lang !== null
   ); // needed because dumped empty record from backend gives [null]
 
-  return (
-    <FieldComponentWrapper
-      componentName="LanguagesField"
+  return fieldWrapperHOC(
+    <LanguagesField
       fieldPath="metadata.languages"
+      initialOptions={initialOptions}
+      serializeSuggestions={(suggestions) =>
+        suggestions.map((item) => ({
+          text: item.title_l10n,
+          value: item.id,
+          key: item.id,
+        }))
+      }
+      noQueryMessage={" "}
+      aria-describedby="metadata.languages.helptext"
+      multiple={true}
       {...extraProps}
-    >
-      <LanguagesField
-        fieldPath="metadata.languages"
-        initialOptions={initialOptions}
-        placeholder={i18next.t(
-          'Type to search for a language (press "enter" to select)'
-        )}
-        description={i18next.t(extraProps.description)}
-        serializeSuggestions={(suggestions) =>
-          suggestions.map((item) => ({
-            text: item.title_l10n,
-            value: item.id,
-            key: item.id,
-          }))
-        }
-        noQueryMessage={" "}
-        aria-describedby="metadata.languages.helptext"
-        multiple={true}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
 const LicensesComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="LicenseField"
+  return fieldWrapperHOC(
+    <LicenseField
       fieldPath="metadata.rights"
-      {...extraProps}
-    >
-      <LicenseField
-        searchConfig={{
-          searchApi: {
-            axios: {
-              headers: {
-                Accept: "application/vnd.inveniordm.v1+json",
-              },
-              url: "/api/vocabularies/licenses",
-              withCredentials: false,
+      searchConfig={{
+        searchApi: {
+          axios: {
+            headers: {
+              Accept: "application/vnd.inveniordm.v1+json",
             },
+            url: "/api/vocabularies/licenses",
+            withCredentials: false,
           },
-          initialQueryState: {
-            filters: [["tags", "recommended"]],
-          },
-        }}
-        serializeLicenses={(result) => ({
-          title: result.title_l10n,
-          description: result.description_l10n,
-          id: result.id,
-          link: result.props.url,
-        })}
-      />
-    </FieldComponentWrapper>
+        },
+        initialQueryState: {
+          filters: [["tags", "recommended"]],
+        },
+      }}
+      serializeLicenses={(result) => ({
+        title: result.title_l10n,
+        description: result.description_l10n,
+        id: result.id,
+        link: result.props.url,
+      })}
+      {...extraProps}
+    />
   );
 };
 
@@ -768,17 +677,8 @@ const SectionPagesComponent = ({ ...extraProps }) => {
 };
 
 const PublisherComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="PublisherField"
-      fieldPath="metadata.publisher"
-      description=""
-      helpText=""
-      placeholder={""}
-      {...extraProps}
-    >
-      <PublisherField fieldPath="metadata.publisher" required />
-    </FieldComponentWrapper>
+  return fieldWrapperHOC(
+    <PublisherField fieldPath="metadata.publisher" required {...extraProps} />
   );
 };
 
@@ -800,78 +700,45 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
 const ReferencesComponent = ({ ...extraProps }) => {
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="ReferencesField"
+  return fieldWrapperHOC(
+    <ReferencesField
       fieldPath={"metadata.references"}
       vocabularies={vocabularies}
+      showEmptyValue
       {...extraProps}
-    >
-      <ReferencesField showEmptyValue />
-    </FieldComponentWrapper>
+    />
   );
 };
 
 const RelatedWorksComponent = ({ ...extraProps }) => {
   const { vocabularies } = useContext(FormUIStateContext);
 
-  return (
-    <FieldComponentWrapper
-      componentName="RelatedWorksField"
-      fieldPath={"metadata.related_identifiers"}
+  return fieldWrapperHOC(
+    <RelatedWorksField
+      fieldPath="metadata.related_identifiers"
+      options={vocabularies.metadata.identifiers}
+      showEmptyValue={false}
       {...extraProps}
-    >
-      <RelatedWorksField
-        fieldPath="metadata.related_identifiers"
-        options={vocabularies.metadata.identifiers}
-        showEmptyValue={false}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
 const ResourceTypeComponent = ({ ...extraProps }) => {
-  {
-    /* <Overridable
-        id="InvenioAppRdm.Deposit.ResourceTypeField.container"
-        vocabularies={vocabularies}
-        fieldPath="metadata.resource_type"
-      >
-        <ResourceTypeField
-          options={vocabularies.metadata.resource_type}
-          fieldPath="metadata.resource_type"
-          required
-        />
-      </Overridable> */
-  }
   const { vocabularies } = useContext(FormUIStateContext);
-  const fieldPath = "metadata.resource_type";
-  return (
-    <FieldComponentWrapper
-      componentName="ResourceTypeSelectorField"
-      fieldPath={fieldPath}
+
+  return fieldWrapperHOC(
+    <ResourceTypeSelectorField
+      fieldPath="metadata.resource_type"
+      options={vocabularies.metadata.resource_type}
+      required={true}
       {...extraProps}
-    >
-      <ResourceTypeSelectorField
-        fieldPath={fieldPath}
-        options={vocabularies.metadata.resource_type}
-        required={true}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
 const SizesComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="SizeField"
-      fieldPath="metadata.sizes"
-      icon={"crop"}
-      label={i18next.t("Dimensions")}
-      {...extraProps}
-    >
-      <SizesField fieldPath="metadata.sizes" label="Size" />
-    </FieldComponentWrapper>
+  return fieldWrapperHOC(
+    <SizesField fieldPath="metadata.sizes" label="Size" {...extraProps} />
   );
 };
 
@@ -886,48 +753,34 @@ const SubjectsComponent = ({ ...extraProps }) => {
     ["FAST-topical", "all"],
     "value"
   );
-  return (
-    <FieldComponentWrapper
-      componentName="SubjectsField"
+  return fieldWrapperHOC(
+    <SubjectsField
       fieldPath="metadata.subjects"
-      placeholder={i18next.t(
-        "Search for a subject by name (press 'enter' to select)"
-      )}
-      label="Subjects"
-      description={i18next.t(
-        "These standardized subject headings help people to find your materials!"
-      )}
+      initialOptions={_get(record, "ui.subjects", null)}
+      limitToOptions={myLimitToOptions}
       {...extraProps}
-    >
-      <SubjectsField
-        initialOptions={_get(record, "ui.subjects", null)}
-        limitToOptions={myLimitToOptions}
-      />
-    </FieldComponentWrapper>
+    />
   );
 };
 
 const SubmissionComponent = () => {
   const { errors, values, setFieldValue } = useFormikContext();
-  const { currentUserprofile, handleFormPageChange } =
-    useContext(FormUIStateContext);
+  const { currentUserprofile, handleFormPageChange } = useContext(FormUIStateContext);
   const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 
-  const { actionState, actionStateExtra, config, record, permissions } = store.getState().deposit;
+  const { actionState, actionStateExtra, config, record, permissions } =
+    store.getState().deposit;
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
   const missingFiles = filesEnabled && !hasFiles;
 
   const filterEmptyIdentifiers = async () => {
     if (values.metadata.identifiers.length) {
-      let filteredIdentifiers = values.metadata.identifiers.reduce(
-        (newList, item) => {
-          if (item.identifier !== "" && item.scheme !== "") newList.push(item);
-          return newList;
-        },
-        []
-      );
+      let filteredIdentifiers = values.metadata.identifiers.reduce((newList, item) => {
+        if (item.identifier !== "" && item.scheme !== "") newList.push(item);
+        return newList;
+      }, []);
       setFieldValue("metadata.identifiers", filteredIdentifiers);
     }
     return values.metadata.identifiers;
@@ -967,7 +820,7 @@ const SubmissionComponent = () => {
     let alertClass = "";
     if (actionState && actionState.includes("SUCCEEDED")) {
       alertClass = "positive";
-    } else if (actionState && actionState.includes("FAILED") ) {
+    } else if (actionState && actionState.includes("FAILED")) {
       alertClass = "negative";
     } else if (actionState && actionState.includes("ERROR")) {
       alertClass = "warning";
@@ -983,9 +836,9 @@ const SubmissionComponent = () => {
   return (
     <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
       <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
-          <Grid.Row>
-            <Grid.Column computer="8" tablet="6">
-        {/* { && (
+        <Grid.Row>
+          <Grid.Column computer="8" tablet="6">
+            {/* { && (
           // For client-side error handling
               <Message
                 visible
@@ -997,8 +850,8 @@ const SubmissionComponent = () => {
               />
         )} */}
 
-        {/* Server side messages */}
-        {(actionState || errors && !_isEmpty(errors)) && (
+            {/* Server side messages */}
+            {(actionState || (errors && !_isEmpty(errors))) && (
               <Overridable
                 id="InvenioAppRdm.Deposit.FormFeedback.container"
                 labels={config.custom_fields.error_labels}
@@ -1012,7 +865,7 @@ const SubmissionComponent = () => {
                   clientInitialValues={values}
                 />
               </Overridable>
-        )}
+            )}
             <SubmitButtonModal
               fluid
               actionName="saveDraft"
@@ -1064,20 +917,19 @@ const SubmissionComponent = () => {
           >
             <p>
               <b>Draft deposits</b> can be edited
-              {permissions?.can_delete_draft && ", deleted,"} and the files can
-              be added or changed.
+              {permissions?.can_delete_draft && ", deleted,"} and the files can be added
+              or changed.
             </p>
             <p>
-              <b>Published deposits</b> can still be edited, but you will no
-              longer be able to{" "}
-              {permissions?.can_delete_draft && "delete the deposit or "}change
-              the attached files. To add or change files for a published deposit
-              you must create a new version of the record.
+              <b>Published deposits</b> can still be edited, but you will no longer be
+              able to {permissions?.can_delete_draft && "delete the deposit or "}change
+              the attached files. To add or change files for a published deposit you
+              must create a new version of the record.
             </p>
             <p>
-              Deposits can only be <b>deleted while they are drafts</b>. Once
-              you publish your deposit, you can only restrict access and/or
-              create a new version.
+              Deposits can only be <b>deleted while they are drafts</b>. Once you
+              publish your deposit, you can only restrict access and/or create a new
+              version.
             </p>
           </Grid.Column>
         </Grid.Row>
@@ -1159,15 +1011,8 @@ const UniversityComponent = ({ ...extraProps }) => {
 };
 
 const VersionComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="VersionField"
-      fieldPath="metadata.version"
-      helpText=""
-      {...extraProps}
-    >
-      <VersionField />
-    </FieldComponentWrapper>
+  return fieldWrapperHOC(
+      <VersionField fieldPath="metadata.version" {...extraProps} />
   );
 };
 

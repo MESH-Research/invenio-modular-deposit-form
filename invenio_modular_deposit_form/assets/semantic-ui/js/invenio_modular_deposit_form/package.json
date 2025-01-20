@@ -1,0 +1,45 @@
+{
+  "name": "invenio-modular-deposit-form",
+  "version": "0.3.0-dev0",
+  "description": "Version 0.3.0-dev0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MESH-Research/invenio-modular-deposit-form.git"
+  },
+  "keywords": [
+    "invenio",
+    "invenio-module",
+    "invenio-deposit-form"
+  ],
+  "author": "MESH Research",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MESH-Research/invenio-modular-deposit-form/issues"
+  },
+  "homepage": "https://github.com/MESH-Research/invenio-modular-deposit-form#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^29.7.0",
+    "formik": "^2.4.6",
+    "jest": "^29.7.0",
+    "prop-types": "^15.8.1",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.26.3",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.2.0",
+    "react": "^18.0.0",
+    "react-overridable": "^0.0.3"
+  },
+  "type": "module"
+}

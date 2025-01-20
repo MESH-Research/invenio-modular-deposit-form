@@ -6,7 +6,9 @@
 # and/or modify it under the terms of the MIT License; see LICENSE file for
 # more details.
 
-"""An InvenioRDM extension that adds a more modular and customizable version of the record deposit form."""
+"""An InvenioRDM extension that adds a more modular and customizable version
+of the record deposit form.
+"""
 
 from .ext import InvenioModularDepositForm
 

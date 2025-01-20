@@ -30,30 +30,31 @@ const validate = validator?.validate ? validator?.validate : null;
 /*
 RDMDepositForm is the main component that we override to customize the deposit form. Whatever data preprocessing does not rely on form state happens at this level (e.g. generating vocabularies). But everything effected by form state and form values is handled by the child components.
 
-Its child DepositFormApp (which further wraps DepositBootstrap) provides the Formik context and the api communication with InvenioRDM's back-end. We do not modify these higher-order components. Client-side form validators/validation schemas must be passed to DepositFormApp as props.
+Its child DepositFormApp (which further wraps DepositBootstrap) provides the Formik context, the api communication with InvenioRDM's back-end, and the Redux store. We do not modify these higher-order components. Client-side form validators/validation schemas must be passed to DepositFormApp as props.
 
 InnerDepositForm is a custom component that serves as the parent of all the form fields and handles the form page navigation. We pass all of the form UI configuration values directly to InnerDepositForm as props.
 */
 export const RDMDepositForm = ({
   commonFields,
+  communityTerm,
   config,
   currentUserprofile,
   defaultFieldValues,
   defaultResourceType,
   descriptionModifications,
   extraRequiredFields,
-  files,
+  files = null,
   fieldsByType,
   helpTextModifications,
   iconModifications,
   labelModifications,
   record,
-  permissions,
+  permissions = null,
   pidsConfigOverrides,
   placeholderModifications,
-  preselectedCommunity,
+  preselectedCommunity = undefined,
   priorityFieldValues,
-  previewableExtensions, // Add this new prop
+  previewableExtensions = [],
 }) => {
 
 
@@ -105,28 +106,25 @@ export const RDMDepositForm = ({
         validationSchema={validationSchema}
       >
 
-        {/* InnerDepositForm is the main form component. It needs to be inside DepositFormApp because that (and its invisible child DepositBootstrap) provide the Formik context. InnerDepositForm is the parent of all the form fields and handles the form page navigation. */}
+        {/* InnerDepositForm is the main form component. It needs to be inside DepositFormApp because that (and its invisible child DepositBootstrap) provide the Formik context, api configuration, and Redux store. InnerDepositForm is the parent of all the form fields and handles form page navigation as well as other form state. */}
         <InnerDepositForm {...{
-          commonFields,
-          currentUserprofile,
-          defaultFieldValues,
-          defaultResourceType,
-          descriptionModifications,
-          extraRequiredFields,
-          fieldsByType,
-          fieldComponents,
-          files,
-          helpTextModifications,
-          iconModifications,
-          labelModifications,
-          pidsConfigOverrides,
-          permissions,
-          placeholderModifications,
-          preselectedCommunity,
-          priorityFieldValues,
-          previewableExtensions,
-          record,
-          vocabularies,
+          commonFields: commonFields,
+          communityTerm: communityTerm,
+          currentUserprofile: currentUserprofile,
+          defaultFieldValues: defaultFieldValues,
+          defaultResourceType: defaultResourceType,
+          descriptionModifications: descriptionModifications,
+          extraRequiredFields: extraRequiredFields,
+          fieldsByType: fieldsByType,
+          fieldComponents: fieldComponents,
+          helpTextModifications: helpTextModifications,
+          iconModifications: iconModifications,
+          labelModifications: labelModifications,
+          pidsConfigOverrides: pidsConfigOverrides,
+          placeholderModifications: placeholderModifications,
+          priorityFieldValues: priorityFieldValues,
+          previewableExtensions: previewableExtensions,
+          vocabularies: vocabularies,
         }} />
 
       </DepositFormApp>
@@ -134,17 +132,24 @@ export const RDMDepositForm = ({
 };
 
 RDMDepositForm.propTypes = {
+  commonFields: PropTypes.object.isRequired,
+  communityTerm: PropTypes.string.isRequired,
   config: PropTypes.object.isRequired,
-  record: PropTypes.object.isRequired,
-  preselectedCommunity: PropTypes.object,
+  currentUserprofile: PropTypes.object.isRequired,
+  defaultFieldValues: PropTypes.object,
+  defaultResourceType: PropTypes.object,
+  descriptionModifications: PropTypes.object,
+  extraRequiredFields: PropTypes.object,
+  fieldsByType: PropTypes.object,
   files: PropTypes.object,
+  helpTextModifications: PropTypes.object,
+  iconModifications: PropTypes.object,
+  labelModifications: PropTypes.object,
   permissions: PropTypes.object,
-  previewableExtensions: PropTypes.array, // Add this new prop type
-};
-
-RDMDepositForm.defaultProps = {
-  preselectedCommunity: undefined,
-  permissions: null,
-  files: null,
-  previewableExtensions: [], // Add a default value if needed
+  pidsConfigOverrides: PropTypes.object,
+  placeholderModifications: PropTypes.object,
+  preselectedCommunity: PropTypes.object,
+  previewableExtensions: PropTypes.array,
+  priorityFieldValues: PropTypes.object,
+  record: PropTypes.object.isRequired,
 };

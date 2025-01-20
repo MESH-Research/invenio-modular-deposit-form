@@ -1,4 +1,3 @@
-import { func } from "prop-types";
 import { getIn } from "formik";
 
 /**
@@ -12,26 +11,65 @@ function scrollTop() {
   });
 }
 
+// Given an array of objects, moves the items with a given key value to the start
+//
+// The moved elements will remain in the same order as they were in the
+// moveTargets array.
+//
+// Note: This function creates a new array and does not modify the original array.
+//
+// param startingArray(array): array of objects to reorder elements
+// param moveTargets(array): array of target values to move to the start of the array
+// param keyLabel(string): key to use to find the target values in the array
+// returns(array): new array with the target values moved to the start
 function moveToArrayStart(startingArray, moveTargets, keyLabel) {
   let newArray = [...startingArray];
-  for (const target of moveTargets) {
-    const index = newArray.findIndex((item) => item[keyLabel] === target);
-    newArray.unshift(...newArray.splice(index, 1));
+  for (const target of moveTargets.slice().reverse()) {
+    // Process targets in reverse order to avoid index shifting issues
+    // And ensure that the moveTargets are processed end up in the order
+    // they were passed in
+    const index = newArray.findIndex((item) => item[keyLabel] === target[keyLabel]);
+    if (index !== -1) {
+      newArray.unshift(...newArray.splice(index, 1));
+    }
   }
   return newArray;
 }
 
-function pushToArrayEnd(startingArray, targetValue, keyLabel) {
+// Given an array of objects and a target value, pushes the elements with the
+// target values to the end of the array
+//
+// The moved elements will remain in the same order as they were in the
+// targetValues array.
+//
+// Note: This function creates a new array and does not modify the original array.
+//
+// param startingArray(array): array to move elements from
+// param targetValue(array): values to move to the end of the array
+// param keyLabel(string): key to use to find the target value in the array
+// returns(array): new array with the target value moved to the end
+function pushToArrayEnd(startingArray, targetValues, keyLabel) {
   let newArray = [...startingArray];
-  newArray.push(
-    ...newArray.splice(
-      newArray.findIndex((item) => item[keyLabel] === targetValue),
-      1
-    )
-  );
+  for (const target of targetValues) {
+    newArray.push(
+      ...newArray.splice(
+        newArray.findIndex((item) => item[keyLabel] === target[keyLabel]),
+        1
+      )
+    );
+  }
   return newArray;
 }
 
+// Given an object, returns an array of dot-separated key paths
+//
+// The results represent the deepest leaves of each branch of the object's tree,
+// traversed in left-depth-first order.
+//
+// Note: This function creates a new array and does not modify the original array.
+//
+// param val(object): object to flatten
+// returns(array): array of dot-separated key paths
 function flattenKeysDotJoined(val) {
   const keysArray = Object.keys(val);
   let newArray = [];
@@ -69,6 +107,12 @@ function flattenWrappers(page) {
   return flattened;
 }
 
+// Given a formik touched object and a field path, returns the true if the
+// field or any of its ancestors is touched, false otherwise
+//
+// param touched(object): formik touched object
+// param fieldPath(string): dot-separated field path
+// returns(boolean): true if the field or any of its ancestors is touched, false otherwise
 function getTouchedParent(touched, fieldPath) {
   const fieldParts = fieldPath.split(".");
   let touchedAncestor = false;
@@ -76,7 +120,7 @@ function getTouchedParent(touched, fieldPath) {
   for (let i = fieldParts.length; i > 1; i--) {
     let currentPath = fieldParts.slice(0, i).join(".");
     if (getIn(touched, currentPath) === true) {
-      touchedAncestor = true;
+      touchedAncestor = currentPath;
       break;
     }
   }
@@ -93,7 +137,7 @@ function getTouchedParent(touched, fieldPath) {
 // comparing the objects. Array items in the object can be ignored by
 // passing the array index as the key path.
 // returns(boolean): true if the objects are deeply equal, false otherwise
-function areDeeplyEqual(obj1, obj2, ignoreKeys) {
+function areDeeplyEqual(obj1, obj2, ignoreKeys=[]) {
 
   if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
     return obj1 === obj2;

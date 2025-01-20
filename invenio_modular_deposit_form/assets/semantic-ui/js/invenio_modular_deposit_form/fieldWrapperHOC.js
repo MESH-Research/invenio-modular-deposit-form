@@ -1,7 +1,4 @@
-import React, { useContext } from "react";
-import Overridable from "react-overridable";
 import { pickBy } from "lodash";
-import { FormUIStateContext } from "../InnerDepositForm";
 
 const findFieldProps = (fieldPath, currentFieldMods, icon, label, description, placeholder, helpText, required, defaultFieldValue ) => {
   const {
@@ -55,60 +52,46 @@ const findFieldProps = (fieldPath, currentFieldMods, icon, label, description, p
   };
 };
 
-const FieldComponentWrapper = ({
-  children,
-  componentName,
-  fieldPath,
-  icon,
-  label,
-  description,
-  helpText,
-  placeholder,
-  required,
-  ...extraProps
-}) => {
-  const { currentFieldMods } = useContext(FormUIStateContext);
-  const {
-    moddedIcon,
-    moddedLabel,
-    moddedDescription,
-    moddedPlaceholder,
-    moddedHelpText,
-    moddedRequired,
-    defaultFieldValue,
-  } = findFieldProps(fieldPath, currentFieldMods, icon, label, description, placeholder, helpText, required, defaultFieldValue);
-  // Remove undefined values from extraProps
-  const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
-  // const {
-  //   ...filteredExtraProps
-  // } = cleanedExtraProps
+const fieldWrapperHOC = (Component) => {
+  return (props) => {
+    const { currentFieldMods } = useContext(FormUIStateContext);
+    const { fieldPath, icon, label, description, placeholder, helpText, required, defaultFieldValue, ...extraProps } = props;
+    const {
+      moddedIcon,
+      moddedLabel,
+      moddedDescription,
+      moddedPlaceholder,
+      moddedHelpText,
+      moddedRequired,
+      moddedDefaultFieldValue,
+    } = findFieldProps(fieldPath, currentFieldMods, icon, label, description, placeholder, helpText, required, defaultFieldValue);
 
-  return (
-    <>
-      <Overridable
-        id={`InvenioAppRdm.Deposit.${componentName}.container`}
-        fieldPath={fieldPath}
-      >
-        {children &&
-          React.cloneElement(
-            children,
-            {
-              defaultFieldValue: defaultFieldValue,
-              description: moddedDescription,
-              fieldPath: fieldPath,
-              helpText: moddedHelpText,
-              label: moddedLabel,
-              icon: moddedIcon,
-              placeholder: moddedPlaceholder,
-              priorityFieldValues: priorityFieldValueSet,
-              required: moddedRequired,
-              ...cleanedExtraProps,
-            },
-            null
-          )}
-      </Overridable>
-    </>
-  );
+    // Remove undefined values from extraProps
+    const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
+
+    return (
+      <>
+        <Overridable
+          id={`InvenioAppRdm.Deposit.${componentName}.container`}
+          fieldPath={fieldPath}
+        >
+          <Component
+            defaultFieldValue={moddedDefaultFieldValue}
+            description={moddedDescription}
+            fieldPath={fieldPath}
+            helpText={moddedHelpText}
+            label={moddedLabel}
+            icon={moddedIcon}
+            placeholder={moddedPlaceholder}
+            priorityFieldValues={priorityFieldValueSet}
+            required={moddedRequired}
+            {...cleanedExtraProps}
+            data-testid={`${fieldPath}-field`}
+          />
+        </Overridable>
+      </>
+    );
+  };
 };
 
-export { FieldComponentWrapper };
+export { fieldWrapperHOC };

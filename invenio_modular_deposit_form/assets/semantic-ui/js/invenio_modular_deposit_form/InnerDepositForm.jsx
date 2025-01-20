@@ -2,7 +2,6 @@ import React, { createContext, useEffect, useRef, useState } from "react";
 import { useStore } from "react-redux";
 import { useFormikContext } from "formik";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
-import { FormFeedback } from "@js/invenio_rdm_records";
 import {
   Button,
   Confirm,
@@ -11,11 +10,13 @@ import {
   Grid,
   Message,
   Modal,
-  Step,
   Transition,
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import Overridable from "react-overridable";
+import { ConfirmNavModal } from "./framing_components/ConfirmNavModal";
+import { FormHeader } from "./framing_components/FormHeader";
+import { FormPager } from "./framing_components/FormPager";
 import { FormPage } from "./framing_components/FormPage";
 import {
   areDeeplyEqual,
@@ -28,15 +29,174 @@ import { RecoveryModal } from "./framing_components/RecoveryModal";
 import { useIsInViewport } from "./hooks/useIsInViewport";
 import { get, isEqual } from "lodash";
 
+
+// make sure first page element is focused when navigating
+// passed down to FormPage but also called by confirm modal
+function focusFirstElement(currentFormPage, recoveryAskedFlag = false) {
+  // FIXME: timing issue
+  setTimeout(() => {
+    // NOTE: recoveryAsked is true by default if no recovery data present
+    if (recoveryAsked || recoveryAskedFlag) {
+      // FIXME: workaround since file uploader has inaccessible first input
+      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
+      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
+      const newInputs = document.querySelectorAll(
+        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
+      );
+      const newFirstInput = newInputs[targetIndex];
+      if (newFirstInput !== undefined) {
+        newFirstInput?.focus();
+        window.scrollTo(0, 0);
+      }
+    }
+  }, 100);
+};
+
+
+// update form error state for client-side validation
+function updateFormErrorState(errors, touched, initialErrors, formPages, formPageFields) {
+  // console.log("errorMessages: updateFormErrorState errors", errors);
+  // console.log("errorMessages: updateFormErrorState touched", touched);
+  // console.log(
+  //   "errorMessages: updateFormErrorState initialErrors",
+  //   initialErrors
+  // );
+  // console.log(
+  //   "errorMessages: updateFormErrorState store",
+  //   store.getState().deposit?.errors
+  // );
+  const errorFields = flattenKeysDotJoined(errors);
+  // console.log("errorMessages: updateFormErrorState errorFields", errorFields);
+  const touchedFields = flattenKeysDotJoined(touched);
+  // console.log("errorMessages: updateFormErrorState touchedFields", touchedFields);
+  const touchedErrorFields = errorFields?.filter((item) =>
+    touchedFields.includes(item) || getTouchedParent(touched, item)
+  );
+  // console.log("errorMessages: updateFormErrorState touchedErrorFields", touchedErrorFields);
+  const initialErrorFields = flattenKeysDotJoined(initialErrors);
+  // console.log("errorMessages: updateFormErrorState initialErrorFields", initialErrorFields);
+  const initialUntouchedFields = initialErrorFields?.filter(
+    (item) => !touchedFields.includes(item)
+  );
+  const initialUnchangedFields = initialErrorFields?.filter(
+    (item) => isEqual(get(values, item), get(initialValues, item))
+  );
+
+  const initialUnflaggedFields = initialErrorFields?.filter(
+    (item) => ![...initialUntouchedFields, ...initialUnchangedFields].includes(item)
+  );
+
+  // update form error state with backend errors
+  if (
+    initialUntouchedFields?.length > 0 ||
+    initialUnchangedFields?.length > 0 ||
+    initialUnflaggedFields?.length > 0
+  ) {
+    // console.log("errorMessages: updateFormErrorState initialUntouchedFields", initialUntouchedFields);
+    // console.log("errorMessages: updateFormErrorState initialUnchangedFields", initialUnchangedFields);
+    // console.log("errorMessages: updateFormErrorState initialUnflaggedFields", initialUnflaggedFields);
+    const backendErrorFields = [
+      ...new Set([...initialUntouchedFields, ...initialUnchangedFields]),
+    ];
+    backendErrorFields.forEach((field) => {
+      const fieldError = get(initialErrors, field);
+      setFieldError(field, fieldError);
+    });
+    // initialUnflaggedFields.forEach((field) => {
+    //   console.log("errorMessages: updateFormErrorState unsetting error field", field);
+    //   setFieldError(field, undefined);
+    // });
+  }
+
+  // track which pages have fields with errors
+  let errorPages = {};
+  let flaggedErrorPages = {};
+
+  for (const p of formPages) {
+    const pageErrorFields = formPageFields[p.section]?.filter((item) =>
+      errorFields.includes(item)
+    );
+    const pageTouchedErrorFields = pageErrorFields?.filter(
+      (item) =>
+        touchedFields.includes(item) || getTouchedParent(touched, item)
+    );
+    const pageInitialErrorFields = formPageFields[p.section]?.filter((item) =>
+      initialErrorFields.includes(item)
+    );
+    const pageInitialUntouchedFields = pageInitialErrorFields?.filter(
+      (item) => initialUntouchedFields.includes(item)
+    );
+    const pageInitialUnchangedFields = pageInitialErrorFields?.filter(
+      (item) => initialUnchangedFields.includes(item)
+    );
+    if (
+      pageErrorFields?.length > 0 ||
+      pageInitialUntouchedFields?.length > 0 ||
+      pageInitialUnchangedFields?.length > 0
+    ) {
+      errorPages[p.section] = [
+        ...new Set([...pageErrorFields, ...pageInitialUnchangedFields, ...pageInitialUntouchedFields]),
+      ];
+    }
+    if (
+      pageTouchedErrorFields?.length > 0 ||
+      pageInitialUntouchedFields?.length > 0 ||
+      pageInitialUnchangedFields?.length > 0
+    ) {
+      flaggedErrorPages[p.section] = [
+        ...new Set([
+          ...pageTouchedErrorFields,
+          ...pageInitialUntouchedFields,
+          ...pageInitialUnchangedFields,
+        ]),
+      ];
+    }
+  }
+
+  setPagesWithErrors(errorPages);
+  setPagesWithFlaggedErrors(flaggedErrorPages);
+};
+
+// handle form page navigation by history
+function setFormPageInHistory(value, currentFormPage) {
+  if (value === undefined) {
+    value = currentFormPage;
+  }
+  let urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.has("depositFormPage")) {
+    urlParams.append("depositFormPage", value);
+  } else if (!urlParams.depositFormPage !== value) {
+    urlParams.set("depositFormPage", value);
+  }
+  const currentBaseURL = window.location.origin;
+  const currentPath = window.location.pathname;
+  const currentParams = urlParams.toString();
+  const newCurrentURL = `${currentBaseURL}${currentPath}?${currentParams}`;
+  window.history.pushState("fake-route", document.title, newCurrentURL);
+};
+
+// handle form page navigation by URL param
+function handleFormPageParam(formPageSlugs) {
+  const urlParams = new URLSearchParams(window.location.search);
+  let urlFormPage = urlParams.get("depositFormPage");
+  if (!!urlFormPage && formPageSlugs.includes(urlFormPage)) {
+    setCurrentFormPage(urlFormPage);
+  } else {
+    urlFormPage = "1";
+  }
+  return urlFormPage;
+};
+
 const FormUIStateContext = createContext();
 
 /*
-This component provides the frame for deposit form page navigation and error handling. State for form values and errors are handled by Formik and accessed from the Formik context. This component manages form *ui* state.
+This component provides the frame for deposit form page navigation and error display handling. State for form values and errors are handled by Formik and accessed from the Formik context. This component manages form *ui* state.
 
 Visually, this component renders the form page navigation stepper and the form pages themselves. It also provides the confirmation modals for navigating between form pages with errors and for recovering autosaved form values.
 */
 const InnerDepositForm = ({
   commonFields,
+  communityTerm,
   currentUserprofile,
   defaultFieldValues,
   defaultResourceType,
@@ -44,13 +204,10 @@ const InnerDepositForm = ({
   extraRequiredFields = undefined,
   fieldsByType,
   fieldComponents,
-  files = null,
   helpTextModifications = undefined,
   iconModifications = undefined,
   labelModifications = undefined,
-  permissions = null,
   placeholderModifications = undefined,
-  preselectedCommunity = undefined,
   priorityFieldValues = undefined,
   previewableExtensions = [], // Add this new prop with a default value
   record,
@@ -76,15 +233,16 @@ const InnerDepositForm = ({
   } = useFormikContext();
 
   const store = useStore();
-  const config = store.getState().deposit.config;
+  const record = store.getState().deposit.record;
+  const files = store.getState().files;
   const selectedCommunity =
     store.getState().deposit.editorState.selectedCommunity;
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
   if (
     !!selectedCommunityLabel &&
-    !selectedCommunityLabel?.toLowerCase().includes("collection")
+    !selectedCommunityLabel?.toLowerCase().includes(communityTerm)
   ) {
-    selectedCommunityLabel = `the "${selectedCommunityLabel}" collection`;
+    selectedCommunityLabel = `the "${selectedCommunityLabel}" ${communityTerm}`;
   }
 
   // state for handling form data local storage
@@ -103,14 +261,13 @@ const InnerDepositForm = ({
   const formPages = commonFields[0].subsections;
   const formPageSlugs = formPages.map(({ section }) => section);
   const [currentFormPage, setCurrentFormPage] = useState(formPages[0].section);
-  const pageNums = formPages.map(({ section }) => section);
-  const currentPageIndex = pageNums.indexOf(currentFormPage);
+  const currentPageIndex = formPageSlugs.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
   const previousPageIndex = currentPageIndex - 1;
   const nextFormPage =
-    nextPageIndex < pageNums.length ? pageNums[nextPageIndex] : null;
+    nextPageIndex < formPageSlugs.length ? formPageSlugs[nextPageIndex] : null;
   const previousFormPage =
-    previousPageIndex >= 0 ? pageNums[previousPageIndex] : null;
+    previousPageIndex >= 0 ? formPageSlugs[previousPageIndex] : null;
   const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
 
@@ -135,7 +292,6 @@ const InnerDepositForm = ({
     extraRequiredFields: extraRequiredFields[currentResourceType],
   };
   const [formPageFields, setFormPageFields] = useState({});
-  const isNewVersionDraft = record.status === "new_version_draft" ? true : false;
 
   // state for recovering unsaved form values
   const [recoveryAsked, setRecoveryAsked] = useState(false);
@@ -156,63 +312,29 @@ const InnerDepositForm = ({
     }
 
     const inputs = document.querySelectorAll(
-      "#rdm-deposit-form input, #rdm-deposit-form button:not(.back-button):not(.continue-button), #rdm-deposit-form select"
+      "#rdm-deposit-form input, #rdm-deposit-form button:not(.back-button):not(.continue-button), #rdm-deposit-form select, #rdm-deposit-form textarea"
     );
     inputs.forEach((input) => {
       input.addEventListener("focus", handleFocus);
-    });
-    const textareas = document.querySelectorAll("#rdm-deposit-form textarea");
-    textareas.forEach((textarea) => {
-      textarea.addEventListener("focus", handleFocus);
     });
     return () => {
       inputs.forEach((input) => {
         input.removeEventListener("focus", handleFocus);
       });
-      textareas.forEach((textarea) => {
-        textarea.removeEventListener("focus", handleFocus);
-      });
     };
   }, [currentFormPage]);
 
   // handle form page navigation by URL param and history
-  const setFormPageInHistory = (value) => {
-    if (value === undefined) {
-      value = currentFormPage;
-    }
-    let urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.has("depositFormPage")) {
-      urlParams.append("depositFormPage", value);
-    } else if (!urlParams.depositFormPage !== value) {
-      urlParams.set("depositFormPage", value);
-    }
-    const currentBaseURL = window.location.origin;
-    const currentPath = window.location.pathname;
-    const currentParams = urlParams.toString();
-    const newCurrentURL = `${currentBaseURL}${currentPath}?${currentParams}`;
-    window.history.pushState("fake-route", document.title, newCurrentURL);
-  };
-
-  const handleFormPageParam = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    let urlFormPage = urlParams.get("depositFormPage");
-    if (!!urlFormPage && formPageSlugs.includes(urlFormPage)) {
-      setCurrentFormPage(urlFormPage);
-    } else {
-      urlFormPage = "1";
-    }
-    return urlFormPage;
-  };
-
   useEffect(() => {
-    const startingParam = handleFormPageParam();
-    // Add a fake history event so that the back button does nothing if pressed once
-    setFormPageInHistory(startingParam);
+    const startingParam = handleFormPageParam(formPageSlugs);
+    // Add fake history event so that the back button does nothing if pressed once
+    setFormPageInHistory(startingParam, currentFormPage);
     window.addEventListener("popstate", handleFormPageParam);
 
     return () => {
       window.removeEventListener("popstate", handleFormPageParam);
-      // If we left without using the back button, aka by using a button on the page, we need to clear out that fake history event
+      // If we left without using the back button, aka by using a button on
+      // the page, we need to clear out that fake history event
       if (window.history.state === "fake-route") {
         window.history.back();
       }
@@ -220,139 +342,14 @@ const InnerDepositForm = ({
   }, []);
 
   // handle form page error state for client-side validation
-  // NOTE: fields marked if error + touched or if initial error + untouched
+  // NOTE: fields are marked if error + touched or if initial error + untouched
   //       or initial error + touched + value unchanged
   //       (initial errors should become errors when touched and not fixed)
   // all fields must be set touched to trigger validation before submit
   // but then untouched after submission
-  const updateFormErrorState = (errors, touched, initialErrors) => {
-    // console.log("errorMessages: updateFormErrorState errors", errors);
-    // console.log("errorMessages: updateFormErrorState touched", touched);
-    // console.log(
-    //   "errorMessages: updateFormErrorState initialErrors",
-    //   initialErrors
-    // );
-    // console.log(
-    //   "errorMessages: updateFormErrorState store",
-    //   store.getState().deposit?.errors
-    // );
-    const errorFields = flattenKeysDotJoined(errors);
-    // console.log("errorMessages: updateFormErrorState errorFields", errorFields);
-    const touchedFields = flattenKeysDotJoined(touched);
-    // console.log("errorMessages: updateFormErrorState touchedFields", touchedFields);
-    const touchedErrorFields = errorFields?.filter((item) =>
-      touchedFields.includes(item) || getTouchedParent(touched, item)
-    );
-    // console.log("errorMessages: updateFormErrorState touchedErrorFields", touchedErrorFields);
-    const initialErrorFields = flattenKeysDotJoined(initialErrors);
-    // console.log("errorMessages: updateFormErrorState initialErrorFields", initialErrorFields);
-    const initialUntouchedFields = initialErrorFields?.filter(
-      (item) => !touchedFields.includes(item)
-    );
-    const initialUnchangedFields = initialErrorFields?.filter(
-      (item) => isEqual(get(values, item), get(initialValues, item))
-    );
-
-    const initialUnflaggedFields = initialErrorFields?.filter(
-      (item) => ![...initialUntouchedFields, ...initialUnchangedFields].includes(item)
-    );
-
-    // update form error state with backend errors
-    if (
-      initialUntouchedFields?.length > 0 ||
-      initialUnchangedFields?.length > 0 ||
-      initialUnflaggedFields?.length > 0
-    ) {
-      // console.log("errorMessages: updateFormErrorState initialUntouchedFields", initialUntouchedFields);
-      // console.log("errorMessages: updateFormErrorState initialUnchangedFields", initialUnchangedFields);
-      // console.log("errorMessages: updateFormErrorState initialUnflaggedFields", initialUnflaggedFields);
-      const backendErrorFields = [
-        ...new Set([...initialUntouchedFields, ...initialUnchangedFields]),
-      ];
-      backendErrorFields.forEach((field) => {
-        const fieldError = get(initialErrors, field);
-        setFieldError(field, fieldError);
-      });
-      // initialUnflaggedFields.forEach((field) => {
-      //   console.log("errorMessages: updateFormErrorState unsetting error field", field);
-      //   setFieldError(field, undefined);
-      // });
-    }
-
-    // track which pages have fields with errors
-    let errorPages = {};
-    let flaggedErrorPages = {};
-
-    for (const p of formPages) {
-      const pageErrorFields = formPageFields[p.section]?.filter((item) =>
-        errorFields.includes(item)
-      );
-      const pageTouchedErrorFields = pageErrorFields?.filter(
-        (item) =>
-          touchedFields.includes(item) || getTouchedParent(touched, item)
-      );
-      const pageInitialErrorFields = formPageFields[p.section]?.filter((item) =>
-        initialErrorFields.includes(item)
-      );
-      const pageInitialUntouchedFields = pageInitialErrorFields?.filter(
-        (item) => initialUntouchedFields.includes(item)
-      );
-      const pageInitialUnchangedFields = pageInitialErrorFields?.filter(
-        (item) => initialUnchangedFields.includes(item)
-      );
-      if (
-        pageErrorFields?.length > 0 ||
-        pageInitialUntouchedFields?.length > 0 ||
-        pageInitialUnchangedFields?.length > 0
-      ) {
-        errorPages[p.section] = [
-          ...new Set([...pageErrorFields, ...pageInitialUnchangedFields, ...pageInitialUntouchedFields]),
-        ];
-      }
-      if (
-        pageTouchedErrorFields?.length > 0 ||
-        pageInitialUntouchedFields?.length > 0 ||
-        pageInitialUnchangedFields?.length > 0
-      ) {
-        flaggedErrorPages[p.section] = [
-          ...new Set([
-            ...pageTouchedErrorFields,
-            ...pageInitialUntouchedFields,
-            ...pageInitialUnchangedFields,
-          ]),
-        ];
-      }
-    }
-
-    setPagesWithErrors(errorPages);
-    setPagesWithFlaggedErrors(flaggedErrorPages);
-  };
-
   useEffect(() => {
-    updateFormErrorState(errors, touched, initialErrors);
+    updateFormErrorState(errors, touched, initialErrors, formPages, formPageFields);
   }, [errors, touched, initialErrors]);
-
-  // make sure first page element is focused when navigating
-  // passed down to FormPage but also called by confirm modal
-  const focusFirstElement = (currentFormPage, recoveryAskedFlag = false) => {
-    // FIXME: timing issue
-    setTimeout(() => {
-      // NOTE: recoveryAsked is true by default if no recovery data present
-      if (recoveryAsked || recoveryAskedFlag) {
-        // FIXME: workaround since file uploader has inaccessible first input
-        const targetIndex = currentFormPage === "page-6" ? 1 : 0;
-        const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
-        const newInputs = document.querySelectorAll(
-          `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
-        );
-        const newFirstInput = newInputs[targetIndex];
-        if (newFirstInput !== undefined) {
-          newFirstInput?.focus();
-          window.scrollTo(0, 0);
-        }
-      }
-    }, 100);
-  };
 
   // handlers for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
@@ -474,191 +471,112 @@ const InnerDepositForm = ({
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
-      <Message warning className="mobile-deposit-warning mobile only">
-        <Message.Header>
-          <Icon name="info circle" />
-          Mobile device support is coming!
-        </Message.Header>
-        <p>We are working to optimize this deposit form for mobile devices. In the meantime, please use a device with a larger screen to deposit your work.</p>
-      </Message>
+
       <FormUIStateContext.Provider
         value={{
-          handleFormPageChange: handleFormPageChange,
-          currentUserprofile: currentUserprofile,
+          communityTerm: communityTerm,
           currentFieldMods: currentFieldMods,
           currentResourceType: currentResourceType,
+          currentUserprofile: currentUserprofile,
           fieldComponents: fieldComponents,
+          handleFormPageChange: handleFormPageChange,
           noFiles: noFiles,
-          vocabularies: vocabularies,
           previewableExtensions: previewableExtensions,
+          vocabularies: vocabularies,
         }}
       >
-        <Grid>
-          <Grid.Column mobile={16} tablet={16} computer={16}>
-            <Grid.Row className="deposit-form-header">
-              <h1 className="ui header">
-                {i18next.t(`${record.id !== null ? (isNewVersionDraft ? "New Version of " : "Updating ") : "New "}
-            ${
-              ["draft", "draft_with_review"].includes(record.status)
-                ? "Draft "
-                : "Published "
-            }Work`)}
-              </h1>
-              {!!selectedCommunityLabel && (
-                <h2 className="ui header preselected-community-header">
-                  for {selectedCommunityLabel}
-                </h2>
-              )}
-            </Grid.Row>
-            <Step.Group
-              widths={formPages.length}
-              className="upload-form-pager"
-              fluid={true}
-              size={"small"}
-            >
-              {formPages.map(({ section, label }, index) => (
-                <Step
-                  key={index}
-                  as={Button}
-                  active={currentFormPage === section}
-                  link
-                  onClick={handleFormPageChange}
-                  value={section}
-                  formNoValidate
-                  className={`ui button upload-form-stepper-step ${section}
-                    ${!!pagesWithFlaggedErrors[section] ? "has-error" : ""}`}
-                  type="button"
+        <Overridable id="InvenioAppRdm.Deposit.Form.layout">
+
+          <Overridable id="InvenioAppRdm.Deposit.FormBanner.container">
+            <FormBanner />
+          </Overridable>
+
+          <Grid>
+            <Grid.Column mobile={16} tablet={16} computer={16}>
+
+              <Overridable id="InvenioAppRdm.Deposit.FormHeader.container">
+                <FormHeader
+                  record={record}
+                  selectedCommunityLabel={selectedCommunityLabel}
+                />
+              </Overridable>
+
+              <Overridable id="InvenioAppRdm.Deposit.FormPager.container">
+                <FormPager
+                  formPages={formPages}
+                  currentFormPage={currentFormPage}
+                  handleFormPageChange={handleFormPageChange}
+                  pagesWithFlaggedErrors={pagesWithFlaggedErrors}
+                />
+              </Overridable>
+
+              <Overridable id="InvenioAppRdm.Deposit.FormContent.container">
+                <Transition.Group
+                  animation="fade"
+                  duration={{ show: 1000, hide: 20 }}
                 >
-                  <Step.Content>
-                    <Step.Title>{i18next.t(label)}</Step.Title>
-                  </Step.Content>
-                </Step>
-              ))}
-            </Step.Group>
+                  {formPages.map(({ section, subsections }, index) => {
+                    let actualSubsections = subsections;
+                    if (!!currentTypeFields && !!currentTypeFields[section]) {
+                      actualSubsections = currentTypeFields[section];
+                      // allow for use of "same_as" key in fields configuration
+                      if (!!actualSubsections[0].same_as) {
+                        actualSubsections =
+                          fieldsByType[actualSubsections[0].same_as][section];
+                      }
+                    }
+                    return (
+                      currentFormPage === section && (
+                        <div key={index}>
+                          <FormPage
+                            currentFormPage={currentFormPage}
+                            focusFirstElement={focusFirstElement}
+                            id={`InvenioAppRdm.Deposit.FormPage.${section}`}
+                            recoveryAsked={recoveryAsked}
+                            subsections={actualSubsections}
+                          />
+                        </div>
+                      )
+                    );
+                  })}
+                </Transition.Group>
+              </Overridable>
 
-            <Transition.Group
-              animation="fade"
-              duration={{ show: 1000, hide: 20 }}
-            >
-              {formPages.map(({ section, subsections }, index) => {
-                let actualSubsections = subsections;
-                if (!!currentTypeFields && !!currentTypeFields[section]) {
-                  actualSubsections = currentTypeFields[section];
-                  if (!!actualSubsections[0].same_as) {
-                    actualSubsections =
-                      fieldsByType[actualSubsections[0].same_as][section];
-                  }
-                }
-                return (
-                  currentFormPage === section && (
-                    <div key={index}>
-                      <FormPage
-                        currentFormPage={currentFormPage}
-                        focusFirstElement={focusFirstElement}
-                        id={`InvenioAppRdm.Deposit.FormPage.${section}`}
-                        recoveryAsked={recoveryAsked}
-                        subsections={actualSubsections}
-                      />
-                    </div>
-                  )
-                );
-              })}
-            </Transition.Group>
+              <Overridable id="InvenioAppRdm.Deposit.FormFooter.container">
+                <FormFooter
+                  previousFormPage={previousFormPage}
+                  nextFormPage={nextFormPage}
+                  handleFormPageChange={handleFormPageChange}
+                  pageTargetRef={pageTargetRef}
+                  pageTargetInViewport={pageTargetInViewport}
+                />
+              </Overridable>
 
-            <div
-              id="sticky-footer-observation-target"
-              ref={pageTargetRef}
-            ></div>
-            <div
-              className={`ui container ${
-                pageTargetInViewport
-                  ? "sticky-footer-static"
-                  : "sticky-footer-fixed"
-              }`}
-            >
-              <Grid className="deposit-form-footer">
-                <Grid.Column width={3}>
-                  {!!previousFormPage && (
-                    <Button
-                      type="button"
-                      onClick={handleFormPageChange}
-                      value={previousFormPage}
-                      icon
-                      labelPosition="left"
-                      className="back-button"
-                    >
-                      <Icon name="left arrow" />
-                      Back
-                    </Button>
-                  )}
-                </Grid.Column>
+              <Overridable id="InvenioAppRdm.Deposit.ConfirmModal.container">
+                <ConfirmNavModal
+                  confirmModalRef={confirmModalRef}
+                  handlePageChangeCancel={handlePageChangeCancel}
+                  handlePageChangeConfirm={handlePageChangeConfirm}
+                  confirmingPageChange={confirmingPageChange}
+                />
+              </Overridable>
 
-                <Grid.Column className="footer-message" width={10}>
-                  Your current form values are backed up automatically{" "}
-                  <i>in this browser</i>.<br />
-                  Save a persistent draft to the cloud on the "Save & Publish"
-                  tab.
-                </Grid.Column>
+              {!recoveryAsked && storageDataPresent && (
+                <Overridable id="InvenioAppRdm.Deposit.RecoveryModal.container">
+                  <RecoveryModal
+                    isDraft={values.status === "draft"}
+                    isVersionDraft={values.status === "new_version_draft"}
+                    confirmModalRef={confirmModalRef}
+                    handleStorageData={handleStorageData}
+                    setRecoveryAsked={handleRecoveryAsked}
+                  />
+                </Overridable>
+              )}
 
-                <Grid.Column width={3}>
-                  {!!nextFormPage && (
-                    <Button
-                      type="button"
-                      onClick={handleFormPageChange}
-                      value={nextFormPage}
-                      icon
-                      labelPosition="right"
-                      className="continue-button primary"
-                    >
-                      <Icon name="right arrow" />
-                      Continue
-                    </Button>
-                  )}
-                </Grid.Column>
-              </Grid>
-            </div>
+            </Grid.Column>
+          </Grid>
+        </Overridable>
 
-            <Confirm
-              icon="question circle outline"
-              id="confirm-page-change"
-              className="confirm-page-change"
-              open={confirmingPageChange}
-              header={i18next.t("Hmmm...")}
-              content={
-                <Modal.Content image>
-                  <Icon name="question circle outline" size="huge" />
-                  <Modal.Description>
-                    {i18next.t(
-                      "There are problems with the information you've entered. Do you want to fix them before moving on?"
-                    )}
-                  </Modal.Description>
-                </Modal.Content>
-              }
-              confirmButton={
-                <button className="ui button">
-                  {i18next.t("Continue anyway")}
-                </button>
-              }
-              cancelButton={
-                <button className="ui button positive" ref={confirmModalRef}>
-                  {i18next.t("Fix the problems")}
-                </button>
-              }
-              onCancel={handlePageChangeCancel}
-              onConfirm={handlePageChangeConfirm}
-            />
-
-            {!recoveryAsked && storageDataPresent && (
-              <RecoveryModal
-                isDraft={values.status === "draft"}
-                isVersionDraft={values.status === "new_version_draft"}
-                confirmModalRef={confirmModalRef}
-                handleStorageData={handleStorageData}
-                setRecoveryAsked={handleRecoveryAsked}
-              />
-            )}
-          </Grid.Column>
-        </Grid>
       </FormUIStateContext.Provider>
     </Container>
   );
@@ -666,6 +584,7 @@ const InnerDepositForm = ({
 
 InnerDepositForm.propTypes = {
   commonFields: PropTypes.array.isRequired,
+  communityTerm: PropTypes.string,
   currentUserprofile: PropTypes.object.isRequired,
   defaultFieldValues: PropTypes.object.isRequired,
   defaultResourceType: PropTypes.string.isRequired,
@@ -677,12 +596,9 @@ InnerDepositForm.propTypes = {
   helpTextModifications: PropTypes.object,
   iconModifications: PropTypes.object,
   labelModifications: PropTypes.object,
-  permissions: PropTypes.object.isRequired,
   placeholderModifications: PropTypes.object,
-  preselectedCommunity: PropTypes.object,
   priorityFieldValues: PropTypes.object,
-  previewableExtensions: PropTypes.array, // Add this new prop type
-  record: PropTypes.object.isRequired,
+  previewableExtensions: PropTypes.array,
   vocabularies: PropTypes.object.isRequired,
 };
 

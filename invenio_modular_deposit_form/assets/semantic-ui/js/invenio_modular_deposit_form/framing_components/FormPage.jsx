@@ -15,6 +15,7 @@ const FormPage = ({
   subsections,
 }) => {
 
+  // focusing first element after delay to allow for page transition time
   useLayoutEffect(() => {
     window.setTimeout(() => {
       focusFirstElement(currentFormPage, recoveryAsked);
@@ -22,50 +23,52 @@ const FormPage = ({
   }, [recoveryAsked]);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="formPageWrapper" id={id}>
-        {subsections.map(
-          (
-            {
-              section,
-              component,
-              wrapped,
-              subsections: innerSections,
-              ...props
-            },
-            index
-          ) => {
-            return component === "SectionWrapper" ? (
-              <SectionWrapper sectionName={section} key={section} {...props}>
-                {innerSections.map(({ component, ...innerProps }, index) => (
-                  <FieldsContent
-                    key={index}
-                    {...{
-                      section,
-                      component,
-                      wrapped,
-                      index,
-                      ...innerProps,
-                    }}
-                  />
-                ))}
-              </SectionWrapper>
-            ) : (
-              <FieldsContent
-                key={index}
-                {...{
-                  section,
-                  component,
-                  wrapped,
-                  index,
-                  ...props,
-                }}
-              />
-            );
-          }
-        )}
-      </div>
-    </DndProvider>
+    <Overridable id="InvenioAppRdm.Deposit.FormPage.container">
+      <DndProvider backend={HTML5Backend}>
+        <div className="formPageWrapper" id={id}>
+          {subsections.map(
+            (
+              {
+                section,
+                component,
+                wrapped,
+                subsections: innerSections,
+                ...props
+              },
+              index
+            ) => {
+              return component === "SectionWrapper" ? (
+                <SectionWrapper sectionName={section} key={section} {...props}>
+                  {innerSections.map(({ component, ...innerProps }, index) => (
+                    <FieldsContent
+                      key={index}
+                      {...{
+                        section,
+                        component,
+                        wrapped,
+                        index,
+                        ...innerProps,
+                      }}
+                    />
+                  ))}
+                </SectionWrapper>
+              ) : (
+                <FieldsContent
+                  key={index}
+                  {...{
+                    section,
+                    component,
+                    wrapped,
+                    index,
+                    ...props,
+                  }}
+                />
+              );
+            }
+          )}
+        </div>
+      </DndProvider>
+    </Overridable>
   );
 };
 
