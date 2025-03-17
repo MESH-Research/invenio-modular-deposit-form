@@ -25,7 +25,7 @@ theme = WebpackThemeBundle(
                 # invenio_rdm_records python package into node_modules
                 # for testing purposes. In production, the js assets are
                 # installed by the InvenioRDM build process.
-                "@js/invenio_rdm_records": "../node_modules/invenio_rdm_records",
+                # "@js/invenio_rdm_records": "../node_modules/invenio_rdm_records",
             },
         ),
     },

@@ -190,7 +190,7 @@ const fieldComponents = {
   // SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
 };
 
-const extras = require(`@js/invenio_modular_deposit_form_extras/componentsMap.js`);
+import extras from "@js/invenio_modular_deposit_form_extras/componentsMap.js";
 if (extras) {
   Object.assign(fieldComponents, extras.componentsMap);
 }

@@ -33,7 +33,7 @@ const findFieldProps = (fieldPath, currentFieldMods, icon, label, description, p
     extraRequiredFields && extraRequiredFields.hasOwnProperty(fieldPath)
       ? extraRequiredFields[fieldPath]
       : required;
-  const defaultFieldValue =
+  const moddedDefaultFieldValue =
     defaultFieldValues && defaultFieldValues.hasOwnProperty[fieldPath]
       ? defaultFieldValues[fieldPath]
       : null;
@@ -42,7 +42,7 @@ const findFieldProps = (fieldPath, currentFieldMods, icon, label, description, p
       ? priorityFieldValues[fieldPath]
       : null;
   return {
-    defaultFieldValue,
+    moddedDefaultFieldValue,
     moddedDescription,
     moddedHelpText,
     moddedIcon,

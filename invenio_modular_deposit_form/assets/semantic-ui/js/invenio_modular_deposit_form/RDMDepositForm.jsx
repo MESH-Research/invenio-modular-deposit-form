@@ -20,7 +20,7 @@ import PropTypes from "prop-types";
 import { fieldComponents } from "./componentsMap";
 import { InnerDepositForm } from "./InnerDepositForm";
 
-const validator = require(`@js/invenio_modular_deposit_form_extras/validator.js`);
+import validator from "@js/invenio_modular_deposit_form_extras/validator.js";
 const validationSchema = validator?.validationSchema
   ? validator?.validationSchema
   : null;

@@ -210,7 +210,6 @@ const InnerDepositForm = ({
   placeholderModifications = undefined,
   priorityFieldValues = undefined,
   previewableExtensions = [], // Add this new prop with a default value
-  record,
   vocabularies,
 }) => {
   const {

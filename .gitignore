@@ -18,6 +18,8 @@ __pycache__/
 
 .env
 node_modules/
+testing_modules/
+testing_translations/
 
 # Distribution / packaging
 .Python
