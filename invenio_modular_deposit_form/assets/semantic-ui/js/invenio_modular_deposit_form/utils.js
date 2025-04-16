@@ -83,6 +83,21 @@ function getTouchedParent(touched, fieldPath) {
   return touchedAncestor;
 }
 
+function getErrorParent(errors, fieldPath) {
+  const fieldParts = fieldPath.split(".");
+  let errorAncestor = false;
+
+  for (let i = fieldParts.length; i > 1; i--) {
+    let currentPath = fieldParts.slice(0, i).join(".");
+    if (getIn(errors, currentPath) !== undefined) {
+      errorAncestor = true;
+      break;
+    }
+  }
+  return errorAncestor;
+}
+
+
 // Compares two objects deeply, ignoring the keys passed in the ignoreKeys array
 // Returns true if the objects are deeply equal, false otherwise
 // If ignoreKeys is not passed, it compares the objects deeply without ignoring any keys
@@ -140,6 +155,7 @@ function isNearViewportBottom(el, offset = 0) {
 
 export {
   areDeeplyEqual,
+  getErrorParent,
   getTouchedParent,
   isNearViewportBottom,
   scrollTop,

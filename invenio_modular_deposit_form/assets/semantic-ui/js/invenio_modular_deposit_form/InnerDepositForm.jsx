@@ -17,15 +17,45 @@ import PropTypes from "prop-types";
 import { FormPage } from "./framing_components/FormPage";
 import {
   areDeeplyEqual,
-  flattenWrappers,
   isNearViewportBottom,
 } from "./utils";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
-import { useIsInViewport } from "./hooks/useIsInViewport";
+import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFields";
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
+import { useIsInViewport } from "./hooks/useIsInViewport";
 import { FormErrorManager } from "./helpers/FormErrorManager";
 
 const FormUIStateContext = createContext();
+
+/**
+ * Make sure first page element is focused when navigating
+ *
+ * Passed down to FormPage but also called by confirm modal
+ *
+ * Timeout allows time for the page to render before focusing the first element.
+ *
+ * @param {string} currentFormPage - The current form page
+ * @param {boolean} recoveryAskedFlag - Whether the recovery modal is open
+ */
+const focusFirstElement = (currentFormPage, recoveryAskedFlag = false, recoveryAsked = true) => {
+  // FIXME: timing issue
+  setTimeout(() => {
+    // NOTE: recoveryAsked is true by default if no recovery data present
+    if (recoveryAsked || recoveryAskedFlag) {
+      // FIXME: workaround since file uploader has inaccessible first input
+      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
+      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
+      const newInputs = document.querySelectorAll(
+        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
+      );
+      const newFirstInput = newInputs[targetIndex];
+      if (newFirstInput !== undefined) {
+        newFirstInput?.focus();
+        window.scrollTo(0, 0);
+      }
+    }
+  }, 100);
+};
 
 
 /*
@@ -175,38 +205,17 @@ const InnerDepositForm = ({
       values
     ).updateFormErrorState(
       setFieldError,
+      setFieldTouched,
       setPagesWithErrors,
       setPagesWithFlaggedErrors
     );
-  }, [errors, touched, initialErrors]);
-
-  // make sure first page element is focused when navigating
-  // passed down to FormPage but also called by confirm modal
-  const focusFirstElement = (currentFormPage, recoveryAskedFlag = false) => {
-    // FIXME: timing issue
-    setTimeout(() => {
-      // NOTE: recoveryAsked is true by default if no recovery data present
-      if (recoveryAsked || recoveryAskedFlag) {
-        // FIXME: workaround since file uploader has inaccessible first input
-        const targetIndex = currentFormPage === "page-6" ? 1 : 0;
-        const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
-        const newInputs = document.querySelectorAll(
-          `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
-        );
-        const newFirstInput = newInputs[targetIndex];
-        if (newFirstInput !== undefined) {
-          newFirstInput?.focus();
-          window.scrollTo(0, 0);
-        }
-      }
-    }, 100);
-  };
+  }, [errors, touched, initialErrors, initialValues, values]);
 
   // handlers for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
   const handleRecoveryAsked = () => {
     setRecoveryAsked(true);
-    focusFirstElement(currentFormPage, true);
+    focusFirstElement(currentFormPage, true, recoveryAsked);
   };
 
   const {
@@ -228,34 +237,15 @@ const InnerDepositForm = ({
     formPageFields
   );
 
-  // update formPageFields when currentResourceType changes
-  useEffect(() => {
-    let newTypeFields = {};
-    for (const p of formPages) {
-      // collect form widget slugs
-      let adjustedTypeFields = currentTypeFields;
-      if (
-        adjustedTypeFields &&
-        adjustedTypeFields[p.section] &&
-        adjustedTypeFields[p.section][0].same_as
-      ) {
-        const newType = currentTypeFields[p.section][0].same_as;
-        adjustedTypeFields = fieldsByType[newType];
-        setCurrentTypeFields(adjustedTypeFields);
-      }
-      const pageFields =
-        !!adjustedTypeFields && !!adjustedTypeFields[p.section]
-          ? flattenWrappers({ subsections: adjustedTypeFields[p.section] })
-          : flattenWrappers(p);
-      // get form field label for each slug
-      const pageMetaFields = pageFields.reduce((accum, { component }) => {
-        accum = accum.concat(fieldComponents[component][1]);
-        return accum;
-      }, []);
-      newTypeFields[p.section] = pageMetaFields;
-    }
-    setFormPageFields(newTypeFields);
-  }, [currentResourceType]);
+  useCurrentResourceTypeFields(
+    currentResourceType,
+    currentTypeFields,
+    setCurrentTypeFields,
+    setFormPageFields,
+    formPages,
+    fieldsByType,
+    fieldComponents
+  );
 
   // update currentResourceType and currentTypeFields when values change
   useEffect(() => {

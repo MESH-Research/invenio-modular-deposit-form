@@ -109,9 +109,9 @@ const formPages = [
 ];
 
 const formPageFields = {
-  "page-1": ["metadata.title", "metadata.description"],
-  "page-2": ["metadata.resource_type", "metadata.publisher"],
-  "page-3": ["metadata.creators"],
+  "page-1": ["metadata.resource_type", "pids.doi", "metadata.title", "metadata.publication_date", "metadata.dates", "metadata.description"],
+  "page-2": ["custom_fields.journal:journal.title", "custom_fields.journal:journal.volume", "custom_fields.journal:journal.issue", "custom_fields.journal:journal.pages", "custom_fields.journal:journal.issn", "metadata.publisher", "custom_fields.imprint:imprint.place", "metadata.languages", "metadata.identifiers"],
+  "page-3": ["metadata.creators", "custom_fields.kcr:ai_usage"],
 };
 
 const errors = {
@@ -128,6 +128,8 @@ const touched = {
     title: true,
     dates: true,
     description: true,
+    publisher: true,
+    languages: true,
   },
   pids: {
     doi: true,
@@ -140,6 +142,12 @@ const initialErrors = {
   metadata: {
     title: "A title is required",
     creators: "At least one creator must be listed",
+    publisher: "A publisher is required",
+  },
+  custom_fields: {
+    "kcr:ai_usage": {
+      ai_used: "AI use must be boolean",
+    },
   },
 };
 
@@ -157,7 +165,7 @@ const initialValues = {
     description:
       "This series is designed to help folks at all stages of career",
     publication_date: "2025-01-09",
-    publisher: "Knowledge Commons",
+    publisher: "",
     resource_type: "textDocument-other",
     title: "",
     additional_titles: [],
@@ -193,7 +201,7 @@ const initialValues = {
   },
   custom_fields: {
     "kcr:ai_usage": {
-      ai_used: false,
+      ai_used: "no",
     },
   },
 };
@@ -232,6 +240,9 @@ const values = {
       },
     ],
   },
+  custom_fields: {
+    ...initialValues.custom_fields,
+  },
 };
 
 const startingState = {
@@ -245,6 +256,7 @@ const startingState = {
 };
 
 const mockSetFieldError = jest.fn();
+const mockSetFieldTouched = jest.fn();
 const mockSetPagesWithErrors = jest.fn();
 const mockSetPagesWithFlaggedErrors = jest.fn();
 
@@ -263,15 +275,34 @@ describe("FormErrorManager", () => {
     const formErrorManager = new FormErrorManager(...Object.values(startingState));
     formErrorManager.updateFormErrorState(
       mockSetFieldError,
+      mockSetFieldTouched,
       mockSetPagesWithErrors,
       mockSetPagesWithFlaggedErrors
     );
+    expect(mockSetFieldError).toHaveBeenCalledTimes(2);
     expect(mockSetFieldError).toHaveBeenCalledWith(
-      "metadata.title",
-      "A title is required"
+      "custom_fields.kcr:ai_usage.ai_used",
+      "AI use must be boolean"
     );
-    expect(mockSetPagesWithErrors).toHaveBeenCalledWith(["page-1"]);
-    expect(mockSetPagesWithFlaggedErrors).toHaveBeenCalledWith(["page-1"]);
+    expect(mockSetFieldError).toHaveBeenCalledWith(
+      "metadata.publisher",
+      "A publisher is required"
+    );
+    expect(mockSetFieldTouched).toHaveBeenCalledTimes(1);
+    expect(mockSetFieldTouched).toHaveBeenCalledWith(
+      "custom_fields.kcr:ai_usage.ai_used",
+      true
+    );
+    expect(mockSetPagesWithErrors).toHaveBeenCalledWith({
+      "page-1": ["metadata.resource_type", "metadata.title"],
+      "page-2": ["metadata.publisher"],
+      "page-3": ["custom_fields.kcr:ai_usage"],
+    });
+    expect(mockSetPagesWithFlaggedErrors).toHaveBeenCalledWith({
+      "page-1": ["metadata.resource_type", "metadata.title"],
+      "page-2": ["metadata.publisher"],
+      "page-3": ["custom_fields.kcr:ai_usage"],
+    });
   });
 
   describe("constructor", () => {
@@ -281,6 +312,12 @@ describe("FormErrorManager", () => {
     });
   });
 
+  // covers cases where
+  // error is only in form errors and touched (flagged already: resource_type)
+  // error is in both form errors and initial errors and touched (flagged already: title)
+  // error is only in initial errors and touched and unchanged (flag: publisher)
+  // error is only in initial errors and untouched but changed (don't flag: creators)
+  // error is only in initial errors and untouched and unchanged (flag: ai_usage)
   describe("errorsToFieldSets", () => {
     it("should return the correct error pages", () => {
       const formErrorManager = new FormErrorManager(...Object.values(startingState));
@@ -288,20 +325,30 @@ describe("FormErrorManager", () => {
       expect(fieldSets).toEqual({
         errorFields: ["metadata.title", "metadata.resource_type"],
         touchedErrorFields: ["metadata.title", "metadata.resource_type"],
-        initialErrorFields: ["metadata.title", "metadata.creators"],
-        initialErrorFieldsUntouched: ["metadata.creators"],
-        initialErrorFieldsUnchanged: ["metadata.title"],
-        initialErrorFieldsUnflagged: [],
+        initialErrorFields: ["metadata.title", "metadata.creators", "metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"],
+        initialErrorFieldsUntouched: ["metadata.creators", "custom_fields.kcr:ai_usage.ai_used"],
+        initialErrorFieldsUnchanged: ["metadata.title", "metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"],
+        initialErrorFieldsUnflagged: ["metadata.creators"],
+        initialErrorFieldsToFlag: ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"],
       });
     });
   });
 
   describe("addBackendErrors", () => {
-    it("should add backend errors to the form error state", () => {
+    it("should add unchanged backend errors to the form error state and update touched state if backend error field is unchanged and untouched", () => {
       const formErrorManager = new FormErrorManager(...Object.values(startingState));
-      formErrorManager.addBackendErrors(mockSetFieldError);
+      formErrorManager.addBackendErrors(
+        mockSetFieldError,
+        mockSetFieldTouched,
+        ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"]
+      );
+
       expect(mockSetFieldError).toHaveBeenCalledTimes(2);
-      expect(mockSetFieldError).toHaveBeenCalledWith("metadata.resource_type", "A resource type is required");
+      expect(mockSetFieldError).toHaveBeenCalledWith("metadata.publisher", "A publisher is required");
+      expect(mockSetFieldError).toHaveBeenCalledWith("custom_fields.kcr:ai_usage.ai_used", "AI use must be boolean");
+
+      expect(mockSetFieldTouched).toHaveBeenCalledTimes(1);
+      expect(mockSetFieldTouched).toHaveBeenCalledWith("custom_fields.kcr:ai_usage.ai_used", true);
     });
   });
 
@@ -309,9 +356,25 @@ describe("FormErrorManager", () => {
     it("should return the correct error pages", () => {
       const formErrorManager = new FormErrorManager(...Object.values(startingState));
       const fieldState = formErrorManager.errorsToFieldSets();
-      const [errorPages, flaggedErrorPages] = formErrorManager.getErrorPages(formErrorManager.formPages, formErrorManager.formPageFields, ...Object.values(fieldState));
-      expect(errorPages).toEqual(["page-1"]);
-      expect(flaggedErrorPages).toEqual(["page-1"]);
+      const [errorPages, flaggedErrorPages] = formErrorManager.getErrorPages(
+        formErrorManager.formPages,
+        formErrorManager.formPageFields,
+        fieldState.errorFields,
+        fieldState.touchedErrorFields,
+        fieldState.initialErrorFields,
+        fieldState.initialErrorFieldsUnchanged,
+        fieldState.initialErrorFieldsToFlag,
+      );
+      expect(errorPages).toEqual({
+        "page-1": ["metadata.resource_type", "metadata.title"],
+        "page-2": ["metadata.publisher"],
+        "page-3": ["custom_fields.kcr:ai_usage"],
+      });
+      expect(flaggedErrorPages).toEqual({
+        "page-1": ["metadata.resource_type", "metadata.title"],
+        "page-2": ["metadata.publisher"],
+        "page-3": ["custom_fields.kcr:ai_usage"],
+      });
     });
   });
 });

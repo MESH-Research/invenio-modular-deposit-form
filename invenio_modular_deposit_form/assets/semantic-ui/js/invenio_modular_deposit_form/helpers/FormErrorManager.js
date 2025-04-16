@@ -1,5 +1,5 @@
 import { get, isEqual } from "lodash";
-import { flattenKeysDotJoined, getTouchedParent } from "../utils";
+import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils";
 
 /**
  * Helper to harmonize server-side, client-side validation, and form page error states
@@ -48,17 +48,31 @@ class FormErrorManager {
     this.initialValues = initialValues;
     this.values = values;
 
-    console.log("constructor: this.formPages", this.formPages);
-    console.log("constructor: this.formPageFields", this.formPageFields);
-    console.log("constructor: this.errors", this.errors);
-    console.log("constructor: this.touched", this.touched);
-    console.log("constructor: this.initialErrors", this.initialErrors);
-    console.log("constructor: this.initialValues", this.initialValues);
-    console.log("constructor: this.values", this.values);
+    // console.log("constructor: this.formPages", this.formPages);
+    // console.log("constructor: this.formPageFields", this.formPageFields);
+    // console.log("constructor: this.errors", this.errors);
+    // console.log("constructor: this.touched", this.touched);
+    // console.log("constructor: this.initialErrors", this.initialErrors);
+    // console.log("constructor: this.initialValues", this.initialValues);
+    // console.log("constructor: this.values", this.values);
   }
 
   /**
    * Convert error state object to lists of fields in various states
+   *
+   * Note: Backend error fields that are not changed should be flagged
+   * whether or not they are touched. Frontend error fields are all
+   * already touched.
+   *
+   * The returned object has the following properties:
+   * - errorFields: all fields that have errors
+   * - touchedErrorFields: all fields that have errors and are touched
+   * - initialErrorFields: all fields that have initial errors
+   * - initialErrorFieldsUntouched: all fields that have initial errors and are not touched
+   * - initialErrorFieldsUnchanged: all fields that have initial errors and are unchanged
+   * - initialErrorFieldsUnflagged: all fields that have initial errors and are not unchanged
+   * - initialErrorFieldsToFlag: all fields that have initial errors and are not unchanged or already in client-side error state
+   *
    * @returns {Object} - the field state object
    */
   errorsToFieldSets = () => {
@@ -74,10 +88,17 @@ class FormErrorManager {
     const initialErrorFieldsUnchanged = initialErrorFields?.filter((item) =>
       isEqual(get(this.values, item), get(this.initialValues, item))
     );
+    // const untouchedSet = new Set(initialErrorFieldsUntouched);
+    const unchangedSet = new Set(initialErrorFieldsUnchanged);
     const initialErrorFieldsUnflagged = initialErrorFields?.filter(
-      (item) =>
-        ![...initialErrorFieldsUntouched, ...initialErrorFieldsUnchanged].includes(item)
+      (item) => !unchangedSet.has(item)
     );
+
+    // have to account for possibility that frontend and backend error paths
+    // are at different levels of specificity
+    const initialErrorFieldsToFlag = [
+      ...new Set(initialErrorFields.filter(field => !initialErrorFieldsUnflagged.includes(field) && !(errorFields.includes(field) || getErrorParent(this.errors, field)))),
+    ];
     return {
       errorFields,
       touchedErrorFields,
@@ -85,14 +106,16 @@ class FormErrorManager {
       initialErrorFieldsUntouched,
       initialErrorFieldsUnchanged,
       initialErrorFieldsUnflagged,
+      initialErrorFieldsToFlag,
     };
   };
 
   /**
    * update form error state with backend errors
    *
-   * Initial error fields that are untouched or their values are unchanged
-   * should be set as errors in the form state.
+   * Initial error fields whose values are unchanged
+   * should be set as errors in the form state. If they are
+   * not touched, they should be set as touched.
    *
    * Initial error fields that *have* since been touched or their values changed
    * should NOT be removed from the form error state. The error state may have
@@ -100,28 +123,25 @@ class FormErrorManager {
    * errors are always freshly calculated before this method is called.)
    *
    * @param {Function} setFieldError - the setFieldError function
+   * @param {Function} setFieldTouched - the setFieldTouched function
+   * @param {Array} errorFields - the error fields
+   * @param {Array} initialErrorFields - the initial error fields
+   * @param {Array} initialErrorFieldsUnflagged - the initial error fields that are
+   * not flagged as unchanged
    */
   addBackendErrors = (
     setFieldError,
-    initialErrorFieldsUntouched,
-    initialErrorFieldsUnchanged,
-    initialErrorFieldsUnflagged
+    setFieldTouched,
+    initialErrorFieldsToFlag
   ) => {
-    if (
-      initialErrorFieldsUntouched?.length > 0 ||
-      initialErrorFieldsUnchanged?.length > 0 ||
-      initialErrorFieldsUnflagged?.length > 0
-    ) {
-      const backendErrorFields = [
-        ...new Set([...initialErrorFieldsUntouched, ...initialErrorFieldsUnchanged]),
-      ];
-      backendErrorFields.forEach((field) => {
+    if (initialErrorFieldsToFlag?.length > 0) {
+      initialErrorFieldsToFlag.forEach((field) => {
         const fieldError = get(this.initialErrors, field);
         setFieldError(field, fieldError);
+        if (!get(this.touched, field) || !getTouchedParent(this.touched, field)) {
+          setFieldTouched(field, true);
+        }
       });
-    //   initialErrorFieldsUnflagged.forEach((field) => {
-    //     setFieldError(field, undefined);
-    //   });
     }
   };
 
@@ -134,61 +154,48 @@ class FormErrorManager {
     formPages,
     formPageFields,
     errorFields,
-    touchedFields,
+    touchedErrorFields,
     initialErrorFields,
-    initialUntouchedFields,
-    initialUnchangedFields
+    initialErrorFieldsUnchanged,
+    initialErrorFieldsToFlag,
   ) => {
     let errorPages = {};
     let flaggedErrorPages = {};
 
-    console.log("formPages", formPages);
-    console.log("formPageFields", formPageFields);
-    console.log("errorFields", errorFields);
-    console.log("touchedFields", touchedFields);
-    console.log("initialErrorFields", initialErrorFields);
-    console.log("initialUntouchedFields", initialUntouchedFields);
-    console.log("initialUnchangedFields", initialUnchangedFields);
-
     for (const p of formPages) {
       const pageErrorFields = formPageFields[p.section]?.filter((item) =>
-        errorFields.includes(item)
+        errorFields?.some(e => item.startsWith(e) || e.startsWith(item))
       );
       const pageTouchedErrorFields = pageErrorFields?.filter(
-        (item) => touchedFields.includes(item) || getTouchedParent(this.touched, item)
+        (item) => touchedErrorFields?.some(e => item.startsWith(e) || e.startsWith(item))
       );
       const pageInitialErrorFields = formPageFields[p.section]?.filter((item) =>
-        initialErrorFields.includes(item)
-      );
-      const pageInitialUntouchedFields = pageInitialErrorFields?.filter((item) =>
-        initialUntouchedFields.includes(item)
+        initialErrorFields?.some(i => item.startsWith(i) || i.startsWith(item))
       );
       const pageInitialUnchangedFields = pageInitialErrorFields?.filter((item) =>
-        initialUnchangedFields.includes(item)
+        initialErrorFieldsUnchanged?.some(i => item.startsWith(i) || i.startsWith(item))
       );
+      const hasInitialUnchangedFields = pageInitialUnchangedFields?.length > 0;
+      const pageInitialErrorFieldsToFlag = pageInitialErrorFields?.filter((item) =>
+        initialErrorFieldsToFlag?.some(i => item.startsWith(i) || i.startsWith(item))
+      );
+      const hasInitialErrorFieldsToFlag = pageInitialErrorFieldsToFlag?.length > 0;
       if (
         pageErrorFields?.length > 0 ||
-        pageInitialUntouchedFields?.length > 0 ||
-        pageInitialUnchangedFields?.length > 0
+        hasInitialUnchangedFields
       ) {
         errorPages[p.section] = [
           ...new Set([
             ...pageErrorFields,
             ...pageInitialUnchangedFields,
-            ...pageInitialUntouchedFields,
           ]),
         ];
       }
-      if (
-        pageTouchedErrorFields?.length > 0 ||
-        pageInitialUntouchedFields?.length > 0 ||
-        pageInitialUnchangedFields?.length > 0
-      ) {
+      if (pageTouchedErrorFields?.length > 0 || hasInitialErrorFieldsToFlag) {
         flaggedErrorPages[p.section] = [
           ...new Set([
             ...pageTouchedErrorFields,
-            ...pageInitialUntouchedFields,
-            ...pageInitialUnchangedFields,
+            ...pageInitialErrorFieldsToFlag,
           ]),
         ];
       }
@@ -219,6 +226,7 @@ class FormErrorManager {
    */
   updateFormErrorState = (
     setFieldError,
+    setFieldTouched,
     setPagesWithErrors,
     setPagesWithFlaggedErrors
   ) => {
@@ -226,15 +234,18 @@ class FormErrorManager {
 
     this.addBackendErrors(
       setFieldError,
-      errorFieldSets.initialErrorFieldsUntouched,
-      errorFieldSets.initialErrorFieldsUnchanged,
-      errorFieldSets.initialErrorFieldsUnflagged
+      setFieldTouched,
+      errorFieldSets.initialErrorFieldsToFlag
     );
 
     const [errorPages, flaggedErrorPages] = this.getErrorPages(
       this.formPages,
       this.formPageFields,
-      ...Object.values(errorFieldSets)
+      errorFieldSets.errorFields,
+      errorFieldSets.touchedErrorFields,
+      errorFieldSets.initialErrorFields,
+      errorFieldSets.initialErrorFieldsUnchanged,
+      errorFieldSets.initialErrorFieldsToFlag
     );
 
     setPagesWithErrors(errorPages);
