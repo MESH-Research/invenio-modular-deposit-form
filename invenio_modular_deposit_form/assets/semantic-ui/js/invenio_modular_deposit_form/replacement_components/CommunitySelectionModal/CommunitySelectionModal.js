@@ -98,7 +98,7 @@ export class CommunitySelectionModalComponent extends Component {
           onOpen={this.handleModalOpen}
           trigger={this.modalTrigger()}
         >
-          <Modal.Header>
+          <Modal.Header className="pb-15 pt-25">
             <Header as="h2" id="community-modal-header">
               {modalHeader}
             </Header>

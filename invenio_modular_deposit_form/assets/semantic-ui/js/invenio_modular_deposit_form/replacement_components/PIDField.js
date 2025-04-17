@@ -138,7 +138,7 @@ class ManagedUnmanagedSwitch extends Component {
 
     return (
       <Form.Group inline>
-        <Form.Field>
+        <Form.Field className="pt-5 mr-15">
           <FieldLabel
             htmlFor={fieldPath}
             icon={""}
