@@ -195,6 +195,7 @@ const InnerDepositForm = ({
   // but then untouched after submission
 
   useEffect(() => {
+    console.log("InnerDepositForm: Updating form error state with backend errors and flagged pages with errors");
     new FormErrorManager(
       formPages,
       formPageFields,

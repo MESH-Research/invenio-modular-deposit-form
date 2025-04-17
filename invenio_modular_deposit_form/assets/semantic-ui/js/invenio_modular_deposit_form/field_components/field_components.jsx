@@ -907,14 +907,23 @@ const SubjectsComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * SubmissionComponent is the component that displays the submission buttons
+ * and the form feedback.
+ *
+ * Note: the `clientErrors` variable is an alias for the Formik client-side
+ * error state. The `errors` variable comes from the Redux store and represents
+ * the error state after the last form submission OR on first render.
+ *
+ */
 const SubmissionComponent = () => {
-  const { errors, values, setFieldValue } = useFormikContext();
+  const { errors: clientErrors, values, setFieldValue } = useFormikContext();
   const { currentUserprofile, handleFormPageChange } =
     useContext(FormUIStateContext);
-  const [confirmedNoFiles, setConfirmedNoFiles] = useState(undefined);
+  const [_, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 
-  const { actionState, actionStateExtra, config, record, permissions } = store.getState().deposit;
+  const { actionState, actionStateExtra, config, errors, record, permissions } = store.getState().deposit;
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
   const missingFiles = filesEnabled && !hasFiles;
@@ -963,42 +972,39 @@ const SubmissionComponent = () => {
     }
   };
 
+  // errors not related to validation, following a different format {status:.., message:..}
+  let nonValidationErrors;
+  if (!_isEmpty(errors)) {
+    nonValidationErrors = Object.fromEntries(
+      Object.entries(errors).filter(
+        ([key]) =>
+          !["metadata", "access", "pids", "custom_fields"].includes(key)
+      )
+    );
+  }
+  console.log("SubmissionComponent nonValidationErrors:", nonValidationErrors);
+
   const getAlertClass = () => {
     let alertClass = "";
-    if (actionState && actionState.includes("SUCCEEDED")) {
+    if (actionState?.includes("SUCCEEDED")) {
       alertClass = "positive";
-    } else if (actionState && actionState.includes("FAILED") ) {
+    } else if (actionState?.includes("FAILED") || !_isEmpty(nonValidationErrors)) {
       alertClass = "negative";
-    } else if (actionState && actionState.includes("ERROR")) {
+    } else if (actionState?.includes("ERROR") && !_isEmpty(clientErrors)) {
       alertClass = "warning";
-    } else if (errors && !_isEmpty(errors)) {
+    } else if (!_isEmpty(clientErrors)) {
       alertClass = "negative";
     }
     return alertClass;
   };
 
-  // console.log("SubmissionComponent actionState", actionState);
-  // console.log("SubmissionComponent errors", errors);
-
   return (
     <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
       <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
-          <Grid.Row>
-            <Grid.Column computer="8" tablet="6">
-        {/* { && (
-          // For client-side error handling
-              <Message
-                visible
-                negative
-                icon="warning sign"
-                header={i18next.t(
-                  "There are problems with your submission. Please fix the highlighted sections."
-                )}
-              />
-        )} */}
+        <Grid.Row>
+          <Grid.Column computer="8" tablet="6">
 
-        {/* Server side messages */}
-        {(actionState || errors && !_isEmpty(errors)) && (
+            {(actionState || !_isEmpty(clientErrors) || !_isEmpty(nonValidationErrors)) && (
               <Overridable
                 id="InvenioAppRdm.Deposit.FormFeedback.container"
                 labels={config.custom_fields.error_labels}
@@ -1007,12 +1013,12 @@ const SubmissionComponent = () => {
                 <FormFeedback
                   fieldPath="message"
                   labels={config.custom_fields.error_labels}
-                  clientErrors={errors}
-                  clientInitialErrors={errors}
-                  clientInitialValues={values}
+                  clientErrors={clientErrors}
+                  nonValidationErrors={nonValidationErrors}
                 />
               </Overridable>
-        )}
+            )}
+
             <SubmitButtonModal
               fluid
               actionName="saveDraft"
@@ -1022,7 +1028,7 @@ const SubmissionComponent = () => {
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
-              disabled={errors && !_isEmpty(errors)}
+              // disabled={errors && !_isEmpty(errors)}
             />
 
             <SubmitButtonModal
@@ -1034,7 +1040,7 @@ const SubmissionComponent = () => {
               handleConfirmNoFiles={handleConfirmNoFiles}
               sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
-              disabled={errors && !_isEmpty(errors)}
+              // disabled={errors && !_isEmpty(errors)}
             />
             <SubmitButtonModal
               fluid
@@ -1047,7 +1053,7 @@ const SubmissionComponent = () => {
               aria-describedby="publish-button-description"
               id="deposit-form-publish-button"
               positive
-              disabled={errors && !_isEmpty(errors)}
+              // disabled={errors && !_isEmpty(errors)}
             />
             <DeleteComponent
               permissions={permissions}

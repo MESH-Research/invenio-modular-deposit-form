@@ -4,12 +4,21 @@ import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils
 /**
  * Helper to harmonize server-side, client-side validation, and form page error states
  *
- * NOTE: fields marked if error + touched or if initial error + untouched
- *       or initial error + touched + value unchanged
+ * NOTE: fields marked if error + touched or if initial error + value unchanged
  *       (initial errors should become errors when touched and not fixed)
  *
- * all fields must be set touched to trigger validation before submit
- * but then untouched after submission
+ * Fields must be touched . This
+ * class will set the touched state appropriately for backend errors that aren't
+ * in the current formik context `errors` object. But on form submission all
+ * fields are automatically untouched again, and all backend errors enter the
+ * formik error state. As a result, error flagging on the form (which is based on
+ * the touched state) would be briefly lost after submission, and then regained
+ * when the client-side validation runs again for the first time after submission.
+ * To avoid this, we need to set all errors in the formik error state to `touched`
+ * after the form is submitted. This is handled by the `<FormFeedback>` component.
+ *
+ * All fields must also be set to touched to trigger client-side validation
+ * before submission. This is handled by the ??? component.
  *
  * @class FormErrorManager -
  * @param {Object} formPages - the form pages
@@ -22,7 +31,7 @@ import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils
  */
 class FormErrorManager {
   /**
-   * Constructor for FormErrorManager
+   * FormErrorManager constructor
    * @param {Object} formPages - the form pages
    * @param {Object} formPageFields - the form page fields
    * @param {Object} errors - the errors
@@ -47,14 +56,6 @@ class FormErrorManager {
     this.initialErrors = initialErrors;
     this.initialValues = initialValues;
     this.values = values;
-
-    // console.log("constructor: this.formPages", this.formPages);
-    // console.log("constructor: this.formPageFields", this.formPageFields);
-    // console.log("constructor: this.errors", this.errors);
-    // console.log("constructor: this.touched", this.touched);
-    // console.log("constructor: this.initialErrors", this.initialErrors);
-    // console.log("constructor: this.initialValues", this.initialValues);
-    // console.log("constructor: this.values", this.values);
   }
 
   /**
@@ -88,6 +89,7 @@ class FormErrorManager {
     const initialErrorFieldsUnchanged = initialErrorFields?.filter((item) =>
       isEqual(get(this.values, item), get(this.initialValues, item))
     );
+    console.log("initialErrorFieldsUnchanged:", initialErrorFieldsUnchanged);
     // const untouchedSet = new Set(initialErrorFieldsUntouched);
     const unchangedSet = new Set(initialErrorFieldsUnchanged);
     const initialErrorFieldsUnflagged = initialErrorFields?.filter(
@@ -138,7 +140,9 @@ class FormErrorManager {
       initialErrorFieldsToFlag.forEach((field) => {
         const fieldError = get(this.initialErrors, field);
         setFieldError(field, fieldError);
+        console.log("Setting backend error:", field);
         if (!get(this.touched, field) || !getTouchedParent(this.touched, field)) {
+          console.log("Setting field to touched:", field);
           setFieldTouched(field, true);
         }
       });
@@ -231,6 +235,9 @@ class FormErrorManager {
     setPagesWithFlaggedErrors
   ) => {
     const errorFieldSets = this.errorsToFieldSets();
+    console.log("Updating form error state with backend errors and flagged pages with errors");
+
+    console.log("errorFieldSets:", errorFieldSets);
 
     this.addBackendErrors(
       setFieldError,
