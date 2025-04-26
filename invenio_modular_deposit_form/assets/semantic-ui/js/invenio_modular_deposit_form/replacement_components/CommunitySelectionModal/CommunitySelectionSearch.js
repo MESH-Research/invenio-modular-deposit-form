@@ -9,7 +9,7 @@
 // you can redistribute and/or modify them under the terms of the MIT License;
 // see LICENSE file for more details.
 
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import React, { Component, useState, useEffect, useRef } from "react";
 import { OverridableContext, parametrize } from "react-overridable";
 import {

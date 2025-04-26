@@ -17,7 +17,7 @@ import _filter from "lodash/filter";
 import _isEqual from "lodash/isEqual";
 import _has from "lodash/has";
 // import { emptyDate } from "./initialValues";
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { sortOptions } from "@js/invenio_rdm_records";
 import { FieldArray, useFormikContext } from "formik";
 

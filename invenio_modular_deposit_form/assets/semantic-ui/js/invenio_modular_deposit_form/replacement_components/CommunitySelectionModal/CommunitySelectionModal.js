@@ -8,7 +8,7 @@
 // you can redistribute and/or modify them under the terms of the MIT License;
 // see LICENSE file for more details.
 
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { connect } from "react-redux";

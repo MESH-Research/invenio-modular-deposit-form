@@ -14,7 +14,7 @@
 import React, { Fragment, useContext, useState } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
-import { i18next } from "@translations/invenio_app_rdm/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { ReactReduxContext, useStore } from "react-redux";
 import { AccordionField } from "react-invenio-forms";
@@ -370,7 +370,7 @@ const DeleteComponent = ({ ...extraProps }) => {
           fieldPath={""}
           {...extraProps}
         >
-          <DeleteButton fluid />
+          <DeleteButton fluid size="large" className="centered warning" />
         </FieldComponentWrapper>
       ) : null}
     </>
@@ -982,7 +982,6 @@ const SubmissionComponent = () => {
       )
     );
   }
-  console.log("SubmissionComponent nonValidationErrors:", nonValidationErrors);
 
   const getAlertClass = () => {
     let alertClass = "";

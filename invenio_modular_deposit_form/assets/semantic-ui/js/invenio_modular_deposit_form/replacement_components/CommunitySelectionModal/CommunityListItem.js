@@ -4,7 +4,7 @@
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import _capitalize from "lodash/capitalize";
 import PropTypes from "prop-types";
 import React, { useContext } from "react";

@@ -1,0 +1,426 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"mime-version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"POT-Creation-Date: 2025-04-25T20:20:43.310Z\n"
+"PO-Revision-Date: 2025-04-25T20:20:43.311Z\n"
+"Language: en\n"
+
+msgid "opens in new tab"
+msgstr "opens in new tab"
+
+msgid "Submission information"
+msgstr "Submission information"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Select a collection"
+msgstr "Select a collection"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Creators"
+msgstr "Creators"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "DOI"
+msgstr "DOI"
+
+msgid "Preview"
+msgstr "Preview"
+
+msgid "Additional titles"
+msgstr "Additional titles"
+
+msgid "Alternate identifiers"
+msgstr "Alternate identifiers"
+
+msgid "Contributors"
+msgstr "Contributors"
+
+msgid "Funding"
+msgstr "Funding"
+
+msgid "Languages"
+msgstr "Languages"
+
+msgid "Publication date"
+msgstr "Publication date"
+
+msgid "Publisher"
+msgstr "Publisher"
+
+msgid "References"
+msgstr "References"
+
+msgid "Resource type"
+msgstr "Resource type"
+
+msgid "Sizes"
+msgstr "Sizes"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Public access"
+msgstr "Public access"
+
+msgid "URLs and Other Identifiers"
+msgstr "URLs and Other Identifiers"
+
+msgid "Add contributor"
+msgstr "Add contributor"
+
+msgid "Add creator"
+msgstr "Add creator"
+
+msgid "Edit creator"
+msgstr "Edit creator"
+
+msgid "Volume"
+msgstr "Volume"
+
+msgid "Issue"
+msgstr "Issue"
+
+msgid "Type to search for a language (press \"enter\" to select)"
+msgstr "Type to search for a language (press \"enter\" to select)"
+
+msgid "Dimensions"
+msgstr "Dimensions"
+
+msgid "Search for a subject by name (press 'enter' to select)"
+msgstr "Search for a subject by name (press 'enter' to select)"
+
+msgid "These standardized subject headings help people to find your materials!"
+msgstr "These standardized subject headings help people to find your materials!"
+
+msgid "Total book pages"
+msgstr "Total book pages"
+
+msgid "Recover unsaved information?"
+msgstr "Recover unsaved information?"
+
+msgid ""
+"This form was closed with unsaved information. Do you want to recover it "
+"and continue with the same work?"
+msgstr ""
+"This form was closed with unsaved information. Do you want to recover it "
+"and continue with the same work?"
+
+msgid "No, start a new work"
+msgstr "No, start a new work"
+
+msgid "No, start from the saved version"
+msgstr "No, start from the saved version"
+
+msgid "Yes, recover the unsaved draft"
+msgstr "Yes, recover the unsaved draft"
+
+msgid "Yes, recover the unsaved changes"
+msgstr "Yes, recover the unsaved changes"
+
+msgid "Hmmm..."
+msgstr "Hmmm..."
+
+msgid ""
+"There are problems with the information you've entered. Do you want to fix "
+"them before moving on?"
+msgstr ""
+"There are problems with the information you've entered. Do you want to fix "
+"them before moving on?"
+
+msgid "Continue anyway"
+msgstr "Continue anyway"
+
+msgid "Fix the problems"
+msgstr "Fix the problems"
+
+msgid "Files"
+msgstr "Files"
+
+msgid "AI used"
+msgstr "AI used"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "Creators/Contributors"
+msgstr "Creators/Contributors"
+
+msgid "Abstract/Description"
+msgstr "Abstract/Description"
+
+msgid "Additional descriptions"
+msgstr "Additional descriptions"
+
+msgid "Licenses"
+msgstr "Licenses"
+
+msgid "Dates"
+msgstr "Dates"
+
+msgid "Related works"
+msgstr "Related works"
+
+msgid "Keywords and subjects"
+msgstr "Keywords and subjects"
+
+msgid "Embargo until"
+msgstr "Embargo until"
+
+msgid "Change"
+msgstr "Change"
+
+msgid "Remove item"
+msgstr "Remove item"
+
+msgid ""
+"${\n"
+"      isPublished ? \"This work's primary \" : \"The selected \"\n"
+"    }collection restricts editing of some information"
+msgstr ""
+"${\n"
+"      isPublished ? \"This work's primary \" : \"The selected \"\n"
+"    }collection restricts editing of some information"
+
+msgid "After publishing your work to the "
+msgstr "After publishing your work to the "
+
+msgid ""
+" collection you will not be able to change these metadata fields without "
+"the approval and assistance of the collection administrators:"
+msgstr ""
+" collection you will not be able to change these metadata fields without "
+"the approval and assistance of the collection administrators:"
+
+msgid "Since this work was published to the "
+msgstr "Since this work was published to the "
+
+msgid ""
+" collection, you cannot to change these metadata fields without the "
+"approval and assistance of the collection administrators:"
+msgstr ""
+" collection, you cannot to change these metadata fields without the "
+"approval and assistance of the collection administrators:"
+
+msgid ""
+"This work is currently in review by the {{communityTitle}} collection "
+"curators."
+msgstr ""
+"This work is currently in review by the {{communityTitle}} collection "
+"curators."
+
+msgid "my requests"
+msgstr "my requests"
+
+msgid "curation policy"
+msgstr "curation policy"
+
+msgid "Select a collection where you want this deposit to be published."
+msgstr "Select a collection where you want this deposit to be published."
+
+msgid ""
+"You cannot change the collection for this work until the review is complete "
+"or you cancel the review request from your <0>requests inbox</0>"
+msgstr ""
+"You cannot change the collection for this work until the review is complete "
+"or you cancel the review request from your <0>requests inbox</0>"
+
+msgid "See the collection's <0>curation policy</0> page for more information."
+msgstr "See the collection's <0>curation policy</0> page for more information."
+
+msgid ""
+"Add or change collections for a published work from the work's <0>detail "
+"page</0>"
+msgstr ""
+"Add or change collections for a published work from the work's <0>detail "
+"page</0>"
+
+msgid "Branding"
+msgstr "Branding"
+
+msgid ""
+"Submission to this community does not require review, and will be published "
+"immediately."
+msgstr ""
+"Submission to this community does not require review, and will be published "
+"immediately."
+
+msgid "Selected"
+msgstr "Selected"
+
+msgid "Select"
+msgstr "Select"
+
+msgid "Select {{title}}"
+msgstr "Select {{title}}"
+
+msgid ""
+"Did not find a community that fits you? Upload without a community or "
+"<2>create your own.</2>"
+msgstr ""
+"Did not find a community that fits you? Upload without a community or "
+"<2>create your own.</2>"
+
+msgid "All"
+msgstr "All"
+
+msgid "My collections"
+msgstr "My collections"
+
+msgid "Add another date"
+msgstr "Add another date"
+
+msgid "YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"
+msgstr "YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Search for a language by name (e.g \"eng\", \"fra\" or \"Polish\")"
+msgstr "Search for a language by name (e.g \"eng\", \"fra\" or \"Polish\")"
+
+msgid "Type the full name of a language to search..."
+msgstr "Type the full name of a language to search..."
+
+msgid "Search for a language by name (e.g \"eng\", \"fr\" or \"Polish\")"
+msgstr "Search for a language by name (e.g \"eng\", \"fr\" or \"Polish\")"
+
+msgid "Do you have a {{pidLabel}} for this work?"
+msgstr "Do you have a {{pidLabel}} for this work?"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
+
+msgid "preview this work"
+msgstr "preview this work"
+
+msgid "Save draft"
+msgstr "Save draft"
+
+msgid "save this draft"
+msgstr "save this draft"
+
+msgid "Publish"
+msgstr "Publish"
+
+msgid "publish this work"
+msgstr "publish this work"
+
+msgid "Submitted for review"
+msgstr "Submitted for review"
+
+msgid "Submit for review"
+msgstr "Submit for review"
+
+msgid "submit this deposit for collection review"
+msgstr "submit this deposit for collection review"
+
+msgid "Publish to collection"
+msgstr "Publish to collection"
+
+msgid "Are you sure you want to {{actionText}} without any uploaded files?"
+msgstr "Are you sure you want to {{actionText}} without any uploaded files?"
+
+msgid "Are you sure you want to {{actionText}}?"
+msgstr "Are you sure you want to {{actionText}}?"
+
+msgid ""
+"Once the deposit is published you cannot change or add attached files! (You "
+"can still update the published record's other information.)"
+msgstr ""
+"Once the deposit is published you cannot change or add attached files! (You "
+"can still update the published record's other information.)"
+
+msgid "You must accept this."
+msgstr "You must accept this."
+
+msgid "Publish to community"
+msgstr "Publish to community"
+
+msgid "Before publishing to the community, please read and check the following:"
+msgstr "Before publishing to the community, please read and check the following:"
+
+msgid ""
+"Your upload will be <bold>immediately published</bold> in "
+"'{{communityTitle}}'. You will no longer be able to change the files in the "
+"upload! However, you will still be able to update the record's metadata "
+"later."
+msgstr ""
+"Your upload will be <bold>immediately published</bold> in "
+"'{{communityTitle}}'. You will no longer be able to change the files in the "
+"upload! However, you will still be able to update the record's metadata "
+"later."
+
+msgid "Publish record to community"
+msgstr "Publish record to community"
+
+msgid "Before requesting review, please read and check the following:"
+msgstr "Before requesting review, please read and check the following:"
+
+msgid ""
+"If your upload is accepted by the community curators, it will be "
+"<bold>immediately published</bold>. Before that, you will still be able to "
+"modify metadata and files of this upload."
+msgstr ""
+"If your upload is accepted by the community curators, it will be "
+"<bold>immediately published</bold>. Before that, you will still be able to "
+"modify metadata and files of this upload."
+
+msgid "Submit record for review"
+msgstr "Submit record for review"
+
+msgid "Message to curators (optional)"
+msgstr "Message to curators (optional)"
+
+msgid "Please provide the size of the resource."
+msgstr "Please provide the size of the resource."
+
+msgid "e.g., 32 x 24 cm or 1.5 GB (press 'enter' to add)"
+msgstr "e.g., 32 x 24 cm or 1.5 GB (press 'enter' to add)"
+
+msgctxt ""
+"review\"].includes(record.status)\n"
+"                ? \"Draft \"\n"
+"                : \"Published \"\n"
+"            }Work"
+msgid ""
+"${\n"
+"                  record.id !== null\n"
+"                    ? isNewVersionDraft\n"
+"                      ? \"New Version of \"\n"
+"                      : \"Updating \"\n"
+"                    : \"New \"\n"
+"                }\n"
+"            ${\n"
+"              [\"draft\", \"draft_with"
+msgstr ""
+"${\n"
+"                  record.id !== null\n"
+"                    ? isNewVersionDraft\n"
+"                      ? \"New Version of \"\n"
+"                      : \"Updating \"\n"
+"                    : \"New \"\n"
+"                }\n"
+"            ${\n"
+"              [\"draft\", \"draft_with_review\"].includes(record.status)\n"
+"                ? \"Draft \"\n"
+"                : \"Published \"\n"
+"            }Work"

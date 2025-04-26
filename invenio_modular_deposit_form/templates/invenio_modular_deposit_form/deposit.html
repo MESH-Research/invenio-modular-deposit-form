@@ -61,6 +61,7 @@
     data-extra-required-fields='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", {}) | tojson }}'
     data-default-resource-type='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", {}) | tojson }}'
     data-pids-config-overrides='{{ config.get("INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", {}) | tojson }}'
+    data-permissions-per-field='{{ config.get("RDM_RECORDS_PERMISSIONS_PER_FIELD", {}) | tojson }}'
   ></div>
 {%- endblock page_body %}
 

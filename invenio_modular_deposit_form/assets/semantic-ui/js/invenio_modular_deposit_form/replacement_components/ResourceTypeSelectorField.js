@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import _get from "lodash/get";
 import { Form } from "semantic-ui-react";
 import { FieldLabel, SelectField } from "react-invenio-forms";
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Field, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
 import { set } from "lodash";

@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
 import { useStore } from "react-redux";
 import { useFormikContext } from "formik";
-import { i18next } from "@translations/invenio_app_rdm/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
   Button,
   Confirm,
@@ -14,49 +14,19 @@ import {
   Transition,
 } from "semantic-ui-react";
 import PropTypes from "prop-types";
+
 import { FormPage } from "./framing_components/FormPage";
-import {
-  areDeeplyEqual,
-  isNearViewportBottom,
-} from "./utils";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
+
+import { focusFirstElement } from "./utils";
+import { FormErrorManager } from "./helpers/FormErrorManager";
 import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFields";
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
+import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";
 import { useIsInViewport } from "./hooks/useIsInViewport";
-import { FormErrorManager } from "./helpers/FormErrorManager";
+import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 
 const FormUIStateContext = createContext();
-
-/**
- * Make sure first page element is focused when navigating
- *
- * Passed down to FormPage but also called by confirm modal
- *
- * Timeout allows time for the page to render before focusing the first element.
- *
- * @param {string} currentFormPage - The current form page
- * @param {boolean} recoveryAskedFlag - Whether the recovery modal is open
- */
-const focusFirstElement = (currentFormPage, recoveryAskedFlag = false, recoveryAsked = true) => {
-  // FIXME: timing issue
-  setTimeout(() => {
-    // NOTE: recoveryAsked is true by default if no recovery data present
-    if (recoveryAsked || recoveryAskedFlag) {
-      // FIXME: workaround since file uploader has inaccessible first input
-      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
-      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
-      const newInputs = document.querySelectorAll(
-        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
-      );
-      const newFirstInput = newInputs[targetIndex];
-      if (newFirstInput !== undefined) {
-        newFirstInput?.focus();
-        window.scrollTo(0, 0);
-      }
-    }
-  }, 100);
-};
-
 
 /*
 This component provides the frame for deposit form page navigation and error handling. State for form values and errors are handled by Formik and accessed from the Formik context. This component manages form *ui* state.
@@ -77,6 +47,7 @@ const InnerDepositForm = ({
   iconModifications = undefined,
   labelModifications = undefined,
   permissions = null,
+  permissionsPerField = undefined,
   placeholderModifications = undefined,
   preselectedCommunity = undefined,
   priorityFieldValues = undefined,
@@ -104,7 +75,7 @@ const InnerDepositForm = ({
   } = useFormikContext();
 
   const store = useStore();
-  const config = store.getState().deposit.config;
+  // const config = store.getState().deposit.config;
   const selectedCommunity = store.getState().deposit.editorState.selectedCommunity;
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
   if (
@@ -113,9 +84,6 @@ const InnerDepositForm = ({
   ) {
     selectedCommunityLabel = `the "${selectedCommunityLabel}" collection`;
   }
-
-  // state for handling form data local storage
-  const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
 
   // check if files are actually present
   let noFiles = false;
@@ -149,53 +117,19 @@ const InnerDepositForm = ({
   const [formPageFields, setFormPageFields] = useState({});
   const isNewVersionDraft = record.status === "new_version_draft" ? true : false;
 
-  // state for recovering unsaved form values
-  const [recoveryAsked, setRecoveryAsked] = useState(false);
-  const [storageDataPresent, setStorageDataPresent] = useState(false);
-  const confirmModalRef = useRef();
-
   // enable scrolling to sticky footer when navigating by keyboard
   const pageTargetRef = useRef(null);
   const pageTargetInViewport = useIsInViewport(pageTargetRef);
-
   // fix sticky footer overlapping content when navigating by keyboard
   // combined with css scroll-margin-bottom
-  useEffect(() => {
-    function handleFocus(event) {
-      if (isNearViewportBottom(event.target, 100)) {
-        event.target.scrollIntoView({ block: "center", behavior: "smooth" });
-      }
-    }
-
-    const inputs = document.querySelectorAll(
-      "#rdm-deposit-form input, #rdm-deposit-form button:not(.back-button):not(.continue-button), #rdm-deposit-form select"
-    );
-    inputs.forEach((input) => {
-      input.addEventListener("focus", handleFocus);
-    });
-    const textareas = document.querySelectorAll("#rdm-deposit-form textarea");
-    textareas.forEach((textarea) => {
-      textarea.addEventListener("focus", handleFocus);
-    });
-    return () => {
-      inputs.forEach((input) => {
-        input.removeEventListener("focus", handleFocus);
-      });
-      textareas.forEach((textarea) => {
-        textarea.removeEventListener("focus", handleFocus);
-      });
-    };
-  }, [currentFormPage]);
+  useStickyFooterOverlapFix(currentFormPage);
 
   // handle form page error state for client-side validation
-  // NOTE: fields marked if error + touched or if initial error + untouched
-  //       or initial error + touched + value unchanged
-  //       (initial errors should become errors when touched and not fixed)
+  // NOTE: fields marked if error + touched or if initial error + value unchanged
+  //       (initial errors should become errors when not fixed)
   // all fields must be set touched to trigger validation before submit
-  // but then untouched after submission
-
+  // and then error fields set to touched again after submission
   useEffect(() => {
-    console.log("InnerDepositForm: Updating form error state with backend errors and flagged pages with errors");
     new FormErrorManager(
       formPages,
       formPageFields,
@@ -211,13 +145,6 @@ const InnerDepositForm = ({
       setPagesWithFlaggedErrors
     );
   }, [errors, touched, initialErrors, initialValues, values]);
-
-  // handlers for recoveryAsked
-  // focus first element when modal is closed to allow keyboard navigation
-  const handleRecoveryAsked = () => {
-    setRecoveryAsked(true);
-    focusFirstElement(currentFormPage, true, recoveryAsked);
-  };
 
   const {
     confirmingPageChange,
@@ -254,52 +181,13 @@ const InnerDepositForm = ({
     setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
   }, [values.metadata.resource_type]);
 
-  //keep changed form values in local storage
-  useEffect(() => {
-    if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
-      window.localStorage.setItem(
-        `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`,
-        JSON.stringify(values)
-      );
-    }
-  }, [values]);
-
-  // on first load, check if there is data in local storage
-  useEffect(() => {
-    const user = currentUserprofile.id;
-    const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
-    const storageValues = window.localStorage.getItem(storageValuesKey);
-    const storageValuesObj = JSON.parse(storageValues);
-    if (
-      !recoveryAsked &&
-      !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, values, [
-        "ui",
-        "metadata.resource_type",
-        "metadata.publication_date",
-        "pids.doi",
-      ])
-    ) {
-      setRecoveredStorageValues(storageValuesObj);
-      setStorageDataPresent(true);
-    } else {
-      setRecoveryAsked(true);
-    }
-  }, []);
-
-  const handleStorageData = (recover) => {
-    if (recover) {
-      async function setinitialvalues() {
-        await setValues(recoveredStorageValues, false);
-        await setInitialValues(recoveredStorageValues, false);
-      }
-      setinitialvalues();
-      setRecoveredStorageValues(null);
-    }
-    window.localStorage.removeItem(
-      `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`
-    );
-  };
+  const {
+    handleStorageData,
+    storageDataPresent,
+    recoveryAsked,
+    confirmModalRef,
+    handleRecoveryAsked,
+  } = useLocalStorageRecovery(currentUserprofile);
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
@@ -323,6 +211,7 @@ const InnerDepositForm = ({
           noFiles: noFiles,
           vocabularies: vocabularies,
           previewableExtensions: previewableExtensions,
+          permissionsPerField: permissionsPerField,
         }}
       >
         <Grid>

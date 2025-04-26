@@ -6,18 +6,21 @@
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useStore } from "react-redux";
+import { Trans } from "react-i18next";
 import { Image } from "react-invenio-forms";
 import { connect } from "react-redux";
 import Overridable from "react-overridable";
-import { Button, Icon, Form, Grid, Header } from "semantic-ui-react";
-// import { changeSelectedCommunity } from "../../state/actions";
-// import { CommunitySelectionModal } from "@js/invenio_rdm_records";
-import { CommunitySelectionModal } from "./CommunitySelectionModal/CommunitySelectionModal";
+import { Button, Icon, Form, Grid, Header, Message } from "semantic-ui-react";
 import GeoPattern from "geopattern";
+
+import { FormUIStateContext } from "@js/invenio_modular_deposit_form/InnerDepositForm";
+
+import { CommunitySelectionModal } from "./CommunitySelectionModal/CommunitySelectionModal";
+import { getReadableFields } from "../utils";
 
 export const changeSelectedCommunity = (community) => {
   return async (dispatch) => {
@@ -31,27 +34,339 @@ export const changeSelectedCommunity = (community) => {
   };
 };
 
+const CommunityListItem = ({ community }) => {
+  const pattern = community?.slug
+    ? GeoPattern.generate(community.slug)
+    : GeoPattern.generate("default");
+
+  return (
+    <>
+      <Grid.Column width={2}>
+        <Image
+          size="tiny"
+          className="community-header-logo"
+          src={community.links?.logo || pattern.toDataUri()}
+          fallbackSrc={pattern.toDataUri()}
+        />
+      </Grid.Column>
+      <Grid.Column width={14}>
+        <Header size="small">{community.metadata.title}</Header>
+      </Grid.Column>
+    </>
+  );
+};
+
+CommunityListItem.propTypes = {
+  community: PropTypes.object.isRequired,
+};
+
+const AddEditCommunityButton = ({
+  community,
+  changeSelectedCommunity,
+  focusAddButtonHandler,
+  setModalOpen,
+  modalOpen,
+  selectionButtonDisabled,
+}) => {
+  return (
+    <CommunitySelectionModal
+      modalHeader={i18next.t("Select a collection")}
+      onCommunityChange={(community) => {
+        changeSelectedCommunity(community);
+        focusAddButtonHandler();
+        setModalOpen(false);
+      }}
+      onModalChange={(value) => {
+        value === false && focusAddButtonHandler();
+        setModalOpen(value);
+      }}
+      modalOpen={modalOpen}
+      chosenCommunity={community}
+      displaySelected
+      trigger={
+        <Overridable id="InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container">
+          <Button
+            className="community-field-button add-button"
+            disabled={selectionButtonDisabled}
+            onClick={() => setModalOpen(true)}
+            name="setting"
+            // icon
+            id="community-selector"
+            type="button"
+            floated={!community ? "left" : ""}
+          >
+            {community ? i18next.t("Change") : i18next.t("Select a collection")}
+          </Button>
+        </Overridable>
+      }
+      focusAddButtonHandler={focusAddButtonHandler}
+    />
+  );
+};
+
+AddEditCommunityButton.propTypes = {
+  community: PropTypes.object.isRequired,
+  changeSelectedCommunity: PropTypes.func.isRequired,
+  focusAddButtonHandler: PropTypes.func.isRequired,
+  setModalOpen: PropTypes.func.isRequired,
+  modalOpen: PropTypes.bool.isRequired,
+  selectionButtonDisabled: PropTypes.bool.isRequired,
+};
+
+const RemoveCommunityButton = ({
+  community,
+  changeSelectedCommunity,
+  selectionButtonDisabled,
+}) => {
+  return (
+    <Overridable
+      id="InvenioRdmRecords.CommunityHeader.RemoveCommunityButton.Container"
+      community={community}
+    >
+      <Button
+        aria-label={i18next.t("Remove item")}
+        className="close-btn mt-0"
+        icon
+        onClick={() => changeSelectedCommunity(null)}
+        disabled={selectionButtonDisabled}
+      >
+        <Icon name="close" />
+      </Button>
+    </Overridable>
+  );
+};
+
+RemoveCommunityButton.propTypes = {
+  community: PropTypes.object.isRequired,
+  changeSelectedCommunity: PropTypes.func.isRequired,
+  selectionButtonDisabled: PropTypes.bool.isRequired,
+};
+
+/**
+ * A custom hook that checks if the community has per-field permissions and returns the removal restricted status, restriction header, restriction message, removal restriction header, and removal restriction message.
+ *
+ * @param {*} community
+ * @param {*} permissionsPerField
+ * @param {*} isPublished
+ * @param {*} isNewVersion
+ * @returns
+ */
+const usePerFieldPermissions = (
+  community,
+  permissionsPerField,
+  isPublished,
+  isNewVersion
+) => {
+  const removalRestricted = false;
+  const currentCommunityPermissions = permissionsPerField?.[community?.slug]?.policy;
+  let AffectedFields = [];
+  if (currentCommunityPermissions) {
+    AffectedFields = Array.isArray(currentCommunityPermissions)
+      ? currentCommunityPermissions
+      : Object.keys(currentCommunityPermissions);
+    if ("parent.communities.default" in AffectedFields) {
+      removalRestricted = true;
+      AffectedFields = AffectedFields.filter(
+        (field) => field !== "parent.communities.default"
+      );
+    }
+    const [readableFields, readableFieldsWithArrays] =
+      getReadableFields(AffectedFields);
+    AffectedFields = [...readableFields, ...readableFieldsWithArrays];
+  }
+
+  const restrictionHeader = i18next.t(
+    `${
+      isPublished ? "This work's primary " : "The selected "
+    }collection restricts editing of some information`
+  );
+  const restrictionMessage = !isPublished ? (
+    <p>
+      {i18next.t("After publishing your work to the ")}{" "}
+      <i>{community?.metadata?.title}</i>{" "}
+      {i18next.t(
+        " collection you will not be able to change these metadata fields without the approval and assistance of the collection administrators:"
+      )}
+    </p>
+  ) : (
+    <p>
+      {i18next.t("Since this work was published to the ")}{" "}
+      <i>{community?.metadata?.title}</i>{" "}
+      {i18next.t(
+        " collection, you cannot to change these metadata fields without the approval and assistance of the collection administrators:"
+      )}
+    </p>
+  );
+
+  const removalRestrictionHeader = i18next.t(
+    "The " +
+      community?.metadata?.title +
+      " collection does not allow removing works from the collection once they are published."
+  );
+  const removalRestrictionMessage = i18next.t(
+    "This work is restricted from being removed from the " +
+      community?.metadata?.title +
+      " collection"
+  );
+
+  return {
+    removalRestricted,
+    restrictionHeader,
+    restrictionMessage,
+    removalRestrictionHeader,
+    removalRestrictionMessage,
+    AffectedFields,
+  };
+};
+
+const InReviewMessage = ({ communityTitle }) => {
+  return (
+    <Message info icon>
+      <Icon name="info circle" />
+      <Message.Content>
+        <Message.Header>
+          {i18next.t(
+            "This work is currently in review by the {{communityTitle}} collection curators.",
+            { communityTitle: communityTitle }
+          )}
+        </Message.Header>
+        <Trans
+          defaults="You cannot change the collection for this work until the review is complete or you cancel the review request from your <0>requests inbox</0>"
+          components={[
+            <a
+              href="/me/requests"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={i18next.t("my requests")}
+            />,
+          ]}
+        />
+      </Message.Content>
+    </Message>
+  );
+};
+
+InReviewMessage.propTypes = {
+  communityTitle: PropTypes.string.isRequired,
+};
+
+const RemovalRestrictedMessage = ({
+  removalRestrictionHeader,
+  removalRestrictionMessage,
+}) => {
+  return (
+    <Message info icon>
+      <Icon name="info circle" />
+      <Message.Content>
+        <Message.Header>{removalRestrictionHeader}</Message.Header>
+        {removalRestrictionMessage}
+      </Message.Content>
+    </Message>
+  );
+};
+
+RemovalRestrictedMessage.propTypes = {
+  removalRestrictionHeader: PropTypes.string.isRequired,
+  removalRestrictionMessage: PropTypes.string.isRequired,
+};
+
+const RestrictedFieldsMessage = ({
+  restrictionHeader,
+  restrictionMessage,
+  RestrictedFields,
+  community,
+}) => {
+  return (
+    <Message info icon>
+      <Icon name="info circle" />
+      <Message.Content>
+        <Message.Header>{restrictionHeader}</Message.Header>
+        {restrictionMessage}
+        <ul>
+          {RestrictedFields.map((field) => (
+            <li key={field}>{field}</li>
+          ))}
+        </ul>
+        <p>
+          <Trans
+            defaults="See the collection's <0>curation policy</0> page for more information."
+            components={[
+              <a
+                href={`/collections/${community?.slug}/curation-policy`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={i18next.t("curation policy")}
+              />,
+            ]}
+          />
+        </p>
+      </Message.Content>
+    </Message>
+  );
+};
+
+RestrictedFieldsMessage.propTypes = {
+  restrictionHeader: PropTypes.string.isRequired,
+  restrictionMessage: PropTypes.string.isRequired,
+  RestrictedFields: PropTypes.array.isRequired,
+};
+
 const CommunityFieldComponent = ({
   community = undefined,
   changeSelectedCommunity,
   imagePlaceholderLink,
   showCommunitySelectionButton,
   disableCommunitySelectionButton,
-  label="Community submission",
+  label = "Community submission",
 }) => {
   const [modalOpen, setModalOpen] = useState();
   const store = useStore();
+  console.log(store.getState());
+  console.log(community);
   const isPublished = store.getState().deposit.record?.is_published;
+  const isInReview = store.getState().deposit.record?.status === "in_review";
   const isNewVersion = store.getState().deposit.record?.status === "new_version_draft";
-  const recordLink = store.getState().deposit.record?.links?.self_html;
+  const recordLink = store.getState().deposit.record?.links?.record_html;
   const communities = store.getState().deposit.record?.parent?.communities?.entries;
-  const otherCommunities = community && communities ? communities.filter((c) => c.id !== community.id) : [];
+  const { permissionsPerField } = useContext(FormUIStateContext);
+  const otherCommunities =
+    community && communities ? communities.filter((c) => c.id !== community.id) : [];
 
   const focusAddButtonHandler = () => {
     document.querySelectorAll(`.community-field-button`)[0].focus();
   };
 
-  const pattern = community?.slug ? GeoPattern.generate(community.slug) : GeoPattern.generate("default");
+  const selectionButtonDisabled =
+    disableCommunitySelectionButton ||
+    !showCommunitySelectionButton ||
+    isInReview ||
+    isNewVersion ||
+    isPublished;
+  const selectionButtonShown =
+    showCommunitySelectionButton && !isPublished && !isNewVersion;
+
+  const {
+    removalRestricted,
+    restrictionHeader,
+    restrictionMessage,
+    removalRestrictionHeader,
+    removalRestrictionMessage,
+    AffectedFields: RestrictedFields,
+  } = usePerFieldPermissions(community, permissionsPerField, isPublished, isNewVersion);
+
+  const changeOnDetailPageMessage = (
+    <Trans
+      defaults="Add or change collections for a published work from the work's <0>detail page</0>"
+      components={[
+        <a
+          href={`${recordLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="detail page"
+        />,
+      ]}
+    />
+  );
 
   return (
     <>
@@ -68,120 +383,72 @@ const CommunityFieldComponent = ({
         {community && (
           <Form.Field width={12}>
             <Grid fluid className="mt-0 mb-0">
-              <Grid.Column width={3}>
-                <Image
-                  size="tiny"
-                  className="community-header-logo"
-                  src={community.links?.logo || pattern.toDataUri()}
-                  fallbackSrc={pattern.toDataUri()}
-                />
-              </Grid.Column>
-              <Grid.Column width={13}>
-                <Header size="small">{community.metadata.title}</Header>
-              </Grid.Column>
+              <CommunityListItem community={community} />
               {otherCommunities.map((c) => (
-                <>
-                  <Grid.Column width={3}>
-                    <Image
-                    size="tiny"
-                    className="community-header-logo"
-                    src={c.links?.logo || GeoPattern.generate(c.slug).toDataUri()}
-                    fallbackSrc={GeoPattern.generate(c.slug).toDataUri()}
-                  />
-                  </Grid.Column>
-                  <Grid.Column width={13}>
-                    <Header size="small">{c.metadata.title}</Header>
-                  </Grid.Column>
-                </>
+                <CommunityListItem key={c.id} community={c} />
               ))}
             </Grid>
           </Form.Field>
         )}
         <Form.Field width={community ? 4 : 6} className="right-btn-column">
-          {community && (isPublished || isNewVersion) ? (
-            <p>
-              {i18next.t("Add or change collections for a published work from the work's ")}
-              <a href={recordLink} target="_blank" rel="noopener noreferrer">
-                {i18next.t("detail page")}
-              </a>
-            </p>
+          {community && !selectionButtonShown ? (
+            <p>{changeOnDetailPageMessage}</p>
           ) : (
             <>
-            <CommunitySelectionModal
-              modalHeader={i18next.t("Select a collection")}
-              onCommunityChange={(community) => {
-                changeSelectedCommunity(community);
-                focusAddButtonHandler();
-                setModalOpen(false);
-              }}
-              onModalChange={(value) => {
-                value === false && focusAddButtonHandler();
-                setModalOpen(value);
-              }}
-              modalOpen={modalOpen}
-              chosenCommunity={community}
-              displaySelected
-              trigger={
-                <Overridable id="InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container">
-                  <Button
-                    className="community-field-button add-button"
-                    disabled={disableCommunitySelectionButton || !showCommunitySelectionButton}
-                    onClick={() => setModalOpen(true)}
-                    name="setting"
-                    // icon
-                    id="community-selector"
-                    type="button"
-                    floated={!community ? "left" : ""}
-                  >
-                    {community
-                      ? i18next.t("Change")
-                      : i18next.t("Select a collection")}
-                  </Button>
-                </Overridable>
-              }
-              focusAddButtonHandler={focusAddButtonHandler}
-            />
-            {community && (
-              <Overridable
-                id="InvenioRdmRecords.CommunityHeader.RemoveCommunityButton.Container"
+              <AddEditCommunityButton
                 community={community}
-              >
-                <Button
-                  aria-label={i18next.t("Remove item")}
-                  className="close-btn"
-                  icon
-                  onClick={() => changeSelectedCommunity(null)}
-                  disabled={!showCommunitySelectionButton || disableCommunitySelectionButton}
-                >
-                  <Icon name="close" />
-                </Button>
-              </Overridable>
-            )}
+                changeSelectedCommunity={changeSelectedCommunity}
+                focusAddButtonHandler={focusAddButtonHandler}
+                setModalOpen={setModalOpen}
+                modalOpen={modalOpen}
+                selectionButtonDisabled={selectionButtonDisabled}
+              />
+              {community && (
+                <RemoveCommunityButton
+                  community={community}
+                  changeSelectedCommunity={changeSelectedCommunity}
+                  selectionButtonDisabled={selectionButtonDisabled}
+                />
+              )}
             </>
           )}
         </Form.Field>
         {!community && (
           <Form.Field width={11} className="communities-helptext-wrapper">
             <label htmlFor="community-selector" className="helptext">
-              {showCommunitySelectionButton ? (
-                i18next.t(
-                  "Select a collection where you want this deposit to be published."
-                )
-              ) : (
-                i18next.t(
-                  "Add or change collections for a published work from the work's detail page."
-                )
-              )}
+              {selectionButtonShown
+                ? i18next.t(
+                    "Select a collection where you want this deposit to be published."
+                  )
+                : changeOnDetailPageMessage}
             </label>
           </Form.Field>
         )}
       </Form.Group>
+
+      {isInReview && <InReviewMessage communityTitle={community?.metadata?.title} />}
+
+      {removalRestricted && (
+        <RemovalRestrictedMessage
+          removalRestrictionHeader={removalRestrictionHeader}
+          removalRestrictionMessage={removalRestrictionMessage}
+        />
+      )}
+
+      {RestrictedFields?.length > 0 && (
+        <RestrictedFieldsMessage
+          restrictionHeader={restrictionHeader}
+          restrictionMessage={restrictionMessage}
+          RestrictedFields={RestrictedFields}
+          community={community}
+        />
+      )}
     </>
   );
 };
 
 CommunityFieldComponent.propTypes = {
-  imagePlaceholderLink: PropTypes.string.isRequired,
+  imagePlaceholderLink: PropTypes.string,
   community: PropTypes.object,
   disableCommunitySelectionButton: PropTypes.bool.isRequired,
   showCommunitySelectionButton: PropTypes.bool.isRequired,
@@ -199,8 +466,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  changeSelectedCommunity: (community) =>
-    dispatch(changeSelectedCommunity(community)),
+  changeSelectedCommunity: (community) => dispatch(changeSelectedCommunity(community)),
 });
 
 export const CommunityField = connect(

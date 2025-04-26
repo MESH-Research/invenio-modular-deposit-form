@@ -10,7 +10,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FieldLabel } from "react-invenio-forms";
 import { RemoteSelectField } from "./RemoteSelectField";
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 export class LanguagesField extends Component {
   render() {

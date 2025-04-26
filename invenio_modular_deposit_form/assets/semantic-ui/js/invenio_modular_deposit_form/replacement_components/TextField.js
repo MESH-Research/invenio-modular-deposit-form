@@ -2,7 +2,7 @@ import React from "react";
 import { FastField, Field } from "formik";
 import { Form } from "semantic-ui-react";
 import { FieldLabel } from "react-invenio-forms";
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { getTouchedParent } from "../utils";
 
 const TextField = ({
@@ -23,10 +23,12 @@ const TextField = ({
   ...extraProps
 }) => {
   const FormikField = optimized ? FastField : Field;
-  // FIXME: Implement the extraRequiredFields and defaultFieldValues props
+  // FIXME: Implement the extraRequiredFields, priorityFieldValues and defaultFieldValues props
   const {
     customFieldsUI,
     defaultFieldValue,
+    priorityFieldValues,
+    extraRequiredFields,
     ...uiProps
   } = extraProps;
   return (
@@ -48,7 +50,7 @@ const TextField = ({
             required={!!required}
             error={showError}
             className={`invenio-text-input-field ${classnames ? classnames : ""} ${label?.length<1 ? "no-label" : ""}`}
-            fluid={fluid}
+            fluid={fluid.toString()}
             width={width}
           >
             {showLabel && (

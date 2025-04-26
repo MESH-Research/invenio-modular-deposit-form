@@ -4,7 +4,7 @@
 // Invenio App RDM is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import { i18next } from "@translations/invenio_app_rdm/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { CommunityTypeLabel } from "@js/invenio_communities/community/labels";
 import { RestrictedLabel } from "@js/invenio_communities/community/labels";
 import _truncate from "lodash/truncate";

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useFormikContext, getIn } from "formik";
-import { i18next } from "@translations/invenio_app_rdm/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 import { FieldLabel } from "react-invenio-forms";
 import { SelectField } from "./SelectField";

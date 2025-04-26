@@ -1,5 +1,6 @@
 import { func } from "prop-types";
 import { getIn } from "formik";
+import { readableFieldLabels } from "./readableFieldLabels";
 
 /**
  * Scroll page to top
@@ -153,9 +154,71 @@ function isNearViewportBottom(el, offset = 0) {
   );
 };
 
+/**
+ * Make sure first page element is focused when navigating
+ *
+ * Passed down to FormPage but also called by confirm modal
+ *
+ * Timeout allows time for the page to render before focusing the first element.
+ *
+ * @param {string} currentFormPage - The current form page
+ * @param {boolean} recoveryAskedFlag - Whether the recovery modal is open
+ */
+const focusFirstElement = (currentFormPage, recoveryAskedFlag = false, recoveryAsked = true) => {
+  // FIXME: timing issue
+  setTimeout(() => {
+    // NOTE: recoveryAsked is true by default if no recovery data present
+    if (recoveryAsked || recoveryAskedFlag) {
+      // FIXME: workaround since file uploader has inaccessible first input
+      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
+      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
+      const newInputs = document.querySelectorAll(
+        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
+      );
+      const newFirstInput = newInputs[targetIndex];
+      if (newFirstInput !== undefined) {
+        newFirstInput?.focus();
+        window.scrollTo(0, 0);
+      }
+    }
+  }, 100);
+};
+
+/**
+ * Return readable field labels for a list of fields
+ *
+ * Separates fields into two lists:
+ * - One list contains readable field labels for fields without square brackets
+ * - The other list contains readable field labels for fields with square brackets,
+ *   including just the part of the field path before the square brackets
+ *
+ * @param {Array} fields - List of fields (dot-separated key paths)
+ * @returns {Array} List of two arrays
+ */
+function getReadableFields(fields) {
+  // Separate fields with array indices into a separate list
+  const fieldsWithArrays = fields.filter(field => field.includes('['));
+  const fieldsWithoutArrays = fields.filter(field => !field.includes('['));
+
+  const fieldsWithArraysStripped = fieldsWithArrays.map(field => field.substring(0, field.indexOf('['))
+  );
+
+  console.log("fieldsWithoutArrays", fieldsWithoutArrays);
+  console.log("fieldsWithArraysStripped", fieldsWithArraysStripped);
+  let readableFields = fieldsWithoutArrays.map(field => readableFieldLabels[field] || field);
+  let readableFieldsWithArrays = fieldsWithArraysStripped.map(field => readableFieldLabels[field] || field);
+  console.log("readableFieldLabels", readableFieldLabels);
+  console.log("readableFields", readableFields);
+  console.log("readableFieldsWithArrays", readableFieldsWithArrays);
+
+  return [readableFields, readableFieldsWithArrays];
+}
+
 export {
   areDeeplyEqual,
+  focusFirstElement,
   getErrorParent,
+  getReadableFields,
   getTouchedParent,
   isNearViewportBottom,
   scrollTop,

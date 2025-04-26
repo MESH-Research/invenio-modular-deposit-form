@@ -4,7 +4,7 @@ import _isEmpty from "lodash/isEmpty";
 
 import { Dropdown, Form } from "semantic-ui-react";
 import { FieldLabel } from "react-invenio-forms";
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 const SelectField = ({
   classnames = undefined,
@@ -61,6 +61,8 @@ const SelectField = ({
     defaultFieldValue,
     initialOptions,
     labelIcon,  // core Invenio prop name that we've renamed to icon
+    priorityFieldValues,
+    extraRequiredFields,
     ...uiProps
   } = otherProps;
 

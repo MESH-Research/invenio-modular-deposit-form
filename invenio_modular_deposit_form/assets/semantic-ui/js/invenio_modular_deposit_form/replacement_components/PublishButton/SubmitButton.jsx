@@ -1,4 +1,4 @@
-import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import React, { useState, useContext, useEffect } from "react";
 // import { Trans } from "react-i18next";
 import { connect } from "react-redux";
@@ -71,7 +71,7 @@ const SubmitButtonComponent = ({
   isRecordSubmittedForReview,
   ...ui
 }) => {
-  const { currentUserprofile } = useContext(FormUIStateContext);
+  const { currentUserprofile, perFieldPermissions } = useContext(FormUIStateContext);
   const { values, errors, handleSubmit, initialValues, isSubmitting } =
     useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
@@ -230,6 +230,7 @@ const SubmitButtonComponent = ({
     <>
       <Button
         name={name}
+        className="centered"
         disabled={
           isSubmitting ||
           (actionName === "publish" && disableSubmitForReviewButton)
@@ -327,7 +328,6 @@ const SubmitButtonComponent = ({
       {/* modal to confirm submitting to community */}
       {showSubmitForReviewButton && (
         <SubmitReviewModal
-          config={config}
           isConfirmModalOpen={publishConfirmOpen && showSubmitForReviewButton}
           initialReviewComment={actionStateExtra.reviewComment}
           onSubmit={handleSaveOrSubmit}
@@ -335,6 +335,7 @@ const SubmitButtonComponent = ({
           onClose={handlePublishConfirmCancel}
           publishModalExtraContent={publishModalExtraContent}
           directPublish={showDirectPublishButton}
+          permissionsPerField={perFieldPermissions}
         />
       )}
     </>

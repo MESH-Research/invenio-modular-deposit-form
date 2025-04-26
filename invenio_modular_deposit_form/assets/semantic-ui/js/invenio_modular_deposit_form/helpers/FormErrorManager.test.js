@@ -1,4 +1,5 @@
 import { FormErrorManager } from "./FormErrorManager";
+import { mockFormikContext } from '@custom-test-utils/formik_test_utils';
 
 const formPages = [
   {
@@ -255,8 +256,6 @@ const startingState = {
   values: { ...values },
 };
 
-const mockSetFieldError = jest.fn();
-const mockSetFieldTouched = jest.fn();
 const mockSetPagesWithErrors = jest.fn();
 const mockSetPagesWithFlaggedErrors = jest.fn();
 
@@ -274,22 +273,22 @@ describe("FormErrorManager", () => {
   it("should update the form error state with backend errors and flagged pages with errors", () => {
     const formErrorManager = new FormErrorManager(...Object.values(startingState));
     formErrorManager.updateFormErrorState(
-      mockSetFieldError,
-      mockSetFieldTouched,
+      mockFormikContext.setFieldError,
+      mockFormikContext.setFieldTouched,
       mockSetPagesWithErrors,
       mockSetPagesWithFlaggedErrors
     );
-    expect(mockSetFieldError).toHaveBeenCalledTimes(2);
-    expect(mockSetFieldError).toHaveBeenCalledWith(
+    expect(mockFormikContext.setFieldError).toHaveBeenCalledTimes(2);
+    expect(mockFormikContext.setFieldError).toHaveBeenCalledWith(
       "custom_fields.kcr:ai_usage.ai_used",
       "AI use must be boolean"
     );
-    expect(mockSetFieldError).toHaveBeenCalledWith(
+    expect(mockFormikContext.setFieldError).toHaveBeenCalledWith(
       "metadata.publisher",
       "A publisher is required"
     );
-    expect(mockSetFieldTouched).toHaveBeenCalledTimes(1);
-    expect(mockSetFieldTouched).toHaveBeenCalledWith(
+    expect(mockFormikContext.setFieldTouched).toHaveBeenCalledTimes(1);
+    expect(mockFormikContext.setFieldTouched).toHaveBeenCalledWith(
       "custom_fields.kcr:ai_usage.ai_used",
       true
     );
@@ -338,17 +337,17 @@ describe("FormErrorManager", () => {
     it("should add unchanged backend errors to the form error state and update touched state if backend error field is unchanged and untouched", () => {
       const formErrorManager = new FormErrorManager(...Object.values(startingState));
       formErrorManager.addBackendErrors(
-        mockSetFieldError,
-        mockSetFieldTouched,
+        mockFormikContext.setFieldError,
+        mockFormikContext.setFieldTouched,
         ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"]
       );
 
-      expect(mockSetFieldError).toHaveBeenCalledTimes(2);
-      expect(mockSetFieldError).toHaveBeenCalledWith("metadata.publisher", "A publisher is required");
-      expect(mockSetFieldError).toHaveBeenCalledWith("custom_fields.kcr:ai_usage.ai_used", "AI use must be boolean");
+      expect(mockFormikContext.setFieldError).toHaveBeenCalledTimes(2);
+      expect(mockFormikContext.setFieldError).toHaveBeenCalledWith("metadata.publisher", "A publisher is required");
+      expect(mockFormikContext.setFieldError).toHaveBeenCalledWith("custom_fields.kcr:ai_usage.ai_used", "AI use must be boolean");
 
-      expect(mockSetFieldTouched).toHaveBeenCalledTimes(1);
-      expect(mockSetFieldTouched).toHaveBeenCalledWith("custom_fields.kcr:ai_usage.ai_used", true);
+      expect(mockFormikContext.setFieldTouched).toHaveBeenCalledTimes(1);
+      expect(mockFormikContext.setFieldTouched).toHaveBeenCalledWith("custom_fields.kcr:ai_usage.ai_used", true);
     });
   });
 
