@@ -13,7 +13,8 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Header, Modal, Button } from "semantic-ui-react";
-import { CommunityContext } from "./CommunityContext";
+// import { CommunityContext } from "./CommunityContext";
+import { CommunityContext } from "@js/invenio_rdm_records/src/deposit/components/CommunitySelectionModal/CommunityContext";
 import { CommunitySelectionSearch } from "./CommunitySelectionSearch";
 import _isEmpty from "lodash/isEmpty";
 
@@ -24,7 +25,7 @@ export class CommunitySelectionModalComponent extends Component {
       chosenCommunity,
       userCommunitiesMemberships,
       displaySelected,
-      focusAddButtonHandler
+      focusAddButtonHandler,
     } = props;
 
     this.state = {
@@ -80,6 +81,7 @@ export class CommunitySelectionModalComponent extends Component {
       handleClose,
       record,
       isInitialSubmission,
+      permissionsPerField,
     } = this.props;
 
     return (
@@ -108,6 +110,7 @@ export class CommunitySelectionModalComponent extends Component {
             apiConfigs={apiConfigs}
             record={record}
             isInitialSubmission={isInitialSubmission}
+            permissionsPerField={permissionsPerField}
           />
           {extraContentComponents && (
             <Modal.Content>{extraContentComponents}</Modal.Content>

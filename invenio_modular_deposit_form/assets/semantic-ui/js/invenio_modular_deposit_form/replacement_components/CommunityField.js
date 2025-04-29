@@ -67,9 +67,11 @@ const AddEditCommunityButton = ({
   setModalOpen,
   modalOpen,
   selectionButtonDisabled,
+  permissionsPerField,
 }) => {
   return (
     <CommunitySelectionModal
+      permissionsPerField={permissionsPerField}
       modalHeader={i18next.t("Select a collection")}
       onCommunityChange={(community) => {
         changeSelectedCommunity(community);
@@ -157,17 +159,19 @@ const usePerFieldPermissions = (
   isPublished,
   isNewVersion
 ) => {
-  const removalRestricted = false;
+  let removalRestricted = false;
   const currentCommunityPermissions = permissionsPerField?.[community?.slug]?.policy;
+  console.log(currentCommunityPermissions);
   let AffectedFields = [];
   if (currentCommunityPermissions) {
     AffectedFields = Array.isArray(currentCommunityPermissions)
       ? currentCommunityPermissions
       : Object.keys(currentCommunityPermissions);
-    if ("parent.communities.default" in AffectedFields) {
+    console.log(AffectedFields);
+    if (AffectedFields.some((field) => field.startsWith("parent.communities.default"))) {
       removalRestricted = true;
       AffectedFields = AffectedFields.filter(
-        (field) => field !== "parent.communities.default"
+        (field) => !field.startsWith("parent.communities.default")
       );
     }
     const [readableFields, readableFieldsWithArrays] =
@@ -273,7 +277,7 @@ RemovalRestrictedMessage.propTypes = {
 const RestrictedFieldsMessage = ({
   restrictionHeader,
   restrictionMessage,
-  RestrictedFields,
+  restrictedFields,
   community,
 }) => {
   return (
@@ -283,7 +287,7 @@ const RestrictedFieldsMessage = ({
         <Message.Header>{restrictionHeader}</Message.Header>
         {restrictionMessage}
         <ul>
-          {RestrictedFields.map((field) => (
+          {restrictedFields.map((field) => (
             <li key={field}>{field}</li>
           ))}
         </ul>
@@ -308,7 +312,7 @@ const RestrictedFieldsMessage = ({
 RestrictedFieldsMessage.propTypes = {
   restrictionHeader: PropTypes.string.isRequired,
   restrictionMessage: PropTypes.string.isRequired,
-  RestrictedFields: PropTypes.array.isRequired,
+  restrictedFields: PropTypes.array.isRequired,
 };
 
 const CommunityFieldComponent = ({
@@ -351,8 +355,12 @@ const CommunityFieldComponent = ({
     restrictionMessage,
     removalRestrictionHeader,
     removalRestrictionMessage,
-    AffectedFields: RestrictedFields,
+    AffectedFields: restrictedFields,
   } = usePerFieldPermissions(community, permissionsPerField, isPublished, isNewVersion);
+  console.log(community?.metadata?.title);
+  console.log(removalRestricted);
+  console.log(restrictedFields);
+  console.log(restrictionMessage);
 
   const changeOnDetailPageMessage = (
     <Trans
@@ -402,6 +410,7 @@ const CommunityFieldComponent = ({
                 setModalOpen={setModalOpen}
                 modalOpen={modalOpen}
                 selectionButtonDisabled={selectionButtonDisabled}
+                permissionsPerField={permissionsPerField}
               />
               {community && (
                 <RemoveCommunityButton
@@ -435,11 +444,11 @@ const CommunityFieldComponent = ({
         />
       )}
 
-      {RestrictedFields?.length > 0 && (
+      {restrictedFields?.length > 0 && (
         <RestrictedFieldsMessage
           restrictionHeader={restrictionHeader}
           restrictionMessage={restrictionMessage}
-          RestrictedFields={RestrictedFields}
+          restrictedFields={restrictedFields}
           community={community}
         />
       )}

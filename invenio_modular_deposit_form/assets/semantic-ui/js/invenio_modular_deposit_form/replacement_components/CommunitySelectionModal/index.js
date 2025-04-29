@@ -9,4 +9,5 @@ export {
   CommunitySelectionModalComponent,
 } from "./CommunitySelectionModal";
 
-export { CommunityContext } from "./CommunityContext";
+// We're not importing this from the RDM-Records package to reduce duplication
+// export { CommunityContext } from "./CommunityContext";

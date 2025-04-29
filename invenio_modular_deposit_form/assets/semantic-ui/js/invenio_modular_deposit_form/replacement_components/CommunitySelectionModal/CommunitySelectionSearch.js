@@ -149,12 +149,14 @@ export class CommunitySelectionSearch extends Component {
       apiConfigs: { allCommunities, myCommunities },
       record,
       isInitialSubmission,
+      permissionsPerField,
     } = this.props;
     const searchApi = new InvenioSearchApi(selectedsearchApi);
     const overriddenComponents = {
       [`${selectedAppId}.ResultsList.item`]: parametrize(CommunityListItem, {
         record: record,
         isInitialSubmission: isInitialSubmission,
+        permissionsPerField: permissionsPerField,
       }),
     };
     return (

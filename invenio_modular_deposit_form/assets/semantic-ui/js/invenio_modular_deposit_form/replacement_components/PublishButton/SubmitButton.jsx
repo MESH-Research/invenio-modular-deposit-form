@@ -71,7 +71,7 @@ const SubmitButtonComponent = ({
   isRecordSubmittedForReview,
   ...ui
 }) => {
-  const { currentUserprofile, perFieldPermissions } = useContext(FormUIStateContext);
+  const { currentUserprofile, permissionsPerField } = useContext(FormUIStateContext);
   const { handleSubmit, initialValues, isSubmitting } = useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
   const [noFilesOpen, setNoFilesOpen] = useState(false);
@@ -337,7 +337,7 @@ const SubmitButtonComponent = ({
           onClose={handlePublishConfirmCancel}
           publishModalExtraContent={publishModalExtraContent}
           directPublish={showDirectPublishButton}
-          permissionsPerField={perFieldPermissions}
+          permissionsPerField={permissionsPerField}
         />
       )}
     </>

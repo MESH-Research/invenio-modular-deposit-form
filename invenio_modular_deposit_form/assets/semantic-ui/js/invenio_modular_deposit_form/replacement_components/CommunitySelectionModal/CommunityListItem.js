@@ -9,10 +9,10 @@ import _capitalize from "lodash/capitalize";
 import PropTypes from "prop-types";
 import React, { useContext } from "react";
 import { Button, Icon, Label } from "semantic-ui-react";
-import { CommunityCompactItem } from "./CommunityCompactItem";
-import { CommunityContext } from "./CommunityContext";
+import { CommunityCompactItem } from "@js/kcworks/collections/community/communitiesItems/CommunityCompactItem";
+import { CommunityContext } from "@js/invenio_rdm_records/src/deposit/components/CommunitySelectionModal/CommunityContext";
 
-export const CommunityListItem = ({ result }) => {
+const CommunityListItem = ({ result, permissionsPerField }) => {
   const {
     setLocalCommunity,
     getChosenCommunity,
@@ -49,6 +49,7 @@ export const CommunityListItem = ({ result }) => {
       actions={actions}
       extraLabels={extraLabels}
       showPermissionLabel
+      permissionsPerField={permissionsPerField}
     />
   );
 };
@@ -56,3 +57,5 @@ export const CommunityListItem = ({ result }) => {
 CommunityListItem.propTypes = {
   result: PropTypes.object.isRequired,
 };
+
+export { CommunityListItem };
