@@ -14,6 +14,7 @@ import PropTypes from "prop-types";
 import { SubmitReviewModal } from "./SubmitReviewModal";
 import { first } from "lodash";
 import { FormUIStateContext } from "../../InnerDepositForm";
+import { useFormSubmissionTransformer } from "../../helpers/FormSubmissionTransformer";
 
 const DRAFT_PREVIEW_STARTED = "DRAFT_PREVIEW_STARTED";
 const DRAFT_SAVE_STARTED = "DRAFT_SAVE_STARTED";
@@ -60,7 +61,6 @@ const SubmitButtonComponent = ({
   publishModalExtraContent = undefined,
   handleConfirmNoFiles,
   handleConfirmNeedsFiles,
-  sanitizeDataForSaving,
   missingFiles,
   community = undefined,
   changeSelectedCommunityFn,
@@ -72,12 +72,15 @@ const SubmitButtonComponent = ({
   ...ui
 }) => {
   const { currentUserprofile, perFieldPermissions } = useContext(FormUIStateContext);
-  const { values, errors, handleSubmit, initialValues, isSubmitting } =
-    useFormikContext();
+  const { handleSubmit, initialValues, isSubmitting } = useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
   const [noFilesOpen, setNoFilesOpen] = useState(false);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const uiProps = _omit(ui, ["dispatch"]);
+
+  // Custom hook to transform the data before it is sent to the server.
+  // Works directly with the formik context
+  useFormSubmissionTransformer();
 
   const firstButtonRefNoFiles = React.useRef(null);
   const firstButtonRefPublish = React.useRef(null);
@@ -188,8 +191,7 @@ const SubmitButtonComponent = ({
     actions[currentActionName];
 
   const handleSaveOrSubmit = (event) => {
-    sanitizeDataForSaving()
-      .then(handleConfirmNoFiles())
+      handleConfirmNoFiles()
       .then(() => {
         const storageValuesKey = `rdmDepositFormValues.${currentUserprofile.id}.${initialValues?.id}`;
         window.localStorage.removeItem(storageValuesKey);
@@ -345,15 +347,21 @@ const SubmitButtonComponent = ({
 SubmitButtonComponent.propTypes = {
   actionState: PropTypes.string,
   actionStateExtra: PropTypes.object,
-  publishWithoutCommunity: PropTypes.bool,
-  numberOfFiles: PropTypes.number.isRequired,
-  publishModalExtraContent: PropTypes.string,
   changeSelectedCommunityFn: PropTypes.func.isRequired,
+  community: PropTypes.object,
+  config: PropTypes.object.isRequired,
+  disableSubmitForReviewButton: PropTypes.bool,
+  handleConfirmNoFiles: PropTypes.func.isRequired,
+  handleConfirmNeedsFiles: PropTypes.func.isRequired,
+  isRecordSubmittedForReview: PropTypes.bool.isRequired,
+  missingFiles: PropTypes.bool.isRequired,
+  numberOfFiles: PropTypes.number,
+  publishModalExtraContent: PropTypes.string,
+  publishWithoutCommunity: PropTypes.bool,
+  record: PropTypes.object.isRequired,
   showChangeCommunityButton: PropTypes.bool.isRequired,
   showDirectPublishButton: PropTypes.bool.isRequired,
   showSubmitForReviewButton: PropTypes.bool.isRequired,
-  disableSubmitForReviewButton: PropTypes.bool,
-  isRecordSubmittedForReview: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = (state) => ({

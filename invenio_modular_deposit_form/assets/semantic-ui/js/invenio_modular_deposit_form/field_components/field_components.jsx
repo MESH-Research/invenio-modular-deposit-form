@@ -56,6 +56,7 @@ import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { FormUIStateContext } from "../InnerDepositForm";
+import { FormSubmissionTransformer } from "../helpers/FormSubmissionTransformer";
 
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
@@ -913,12 +914,14 @@ const SubjectsComponent = ({ ...extraProps }) => {
  *
  * Note: the `clientErrors` variable is an alias for the Formik client-side
  * error state. The `errors` variable comes from the Redux store and represents
- * the error state after the last form submission OR on first render.
+ * the error state after the last form submission OR on first page render.
+ *
+ * The state for confirming whether there should be files or not is stored here.
  *
  */
 const SubmissionComponent = () => {
   const { errors: clientErrors, values, setFieldValue } = useFormikContext();
-  const { currentUserprofile, handleFormPageChange } =
+  const { handleFormPageChange } =
     useContext(FormUIStateContext);
   const [_, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
@@ -927,27 +930,6 @@ const SubmissionComponent = () => {
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
   const missingFiles = filesEnabled && !hasFiles;
-
-  const filterEmptyIdentifiers = async () => {
-    if (values.metadata.identifiers.length) {
-      let filteredIdentifiers = values.metadata.identifiers.reduce(
-        (newList, item) => {
-          if (item.identifier !== "" && item.scheme !== "") newList.push(item);
-          return newList;
-        },
-        []
-      );
-      setFieldValue("metadata.identifiers", filteredIdentifiers);
-    }
-    return values.metadata.identifiers;
-  };
-
-  const fixEmptyPublisher = async () => {
-    if (values.metadata.publisher === "" || !values.metadata.publisher) {
-      setFieldValue("metadata.publisher", "Knowledge Commons");
-    }
-    return values.metadata.publisher;
-  };
 
   const handleConfirmNoFiles = async () => {
     if (!hasFiles) {
@@ -958,18 +940,8 @@ const SubmissionComponent = () => {
 
   const handleConfirmNeedsFiles = () => {
     setConfirmedNoFiles(false);
-    // FIXME:
+    // FIXME: don't hardcode the page
     handleFormPageChange(null, { value: "page-5" });
-  };
-
-  const sanitizeDataForSaving = async () => {
-    // FIXME: This is a cludge to fix invalid data before saving
-    // where we don't want to force users to fix it
-    await filterEmptyIdentifiers();
-    await fixEmptyPublisher();
-    if (hasFiles && !filesEnabled) {
-      await setFieldValue("files.enabled", true);
-    }
   };
 
   // errors not related to validation, following a different format {status:.., message:..}
@@ -1022,10 +994,8 @@ const SubmissionComponent = () => {
               fluid
               actionName="saveDraft"
               aria-describedby="save-button-description"
-              currentUserprofile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
-              sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
               // disabled={errors && !_isEmpty(errors)}
             />
@@ -1034,20 +1004,16 @@ const SubmissionComponent = () => {
               fluid
               actionName="preview"
               aria-describedby="preview-button-description"
-              currentUserprofile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
-              sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
               // disabled={errors && !_isEmpty(errors)}
             />
             <SubmitButtonModal
               fluid
               actionName="publish"
-              currentUserprofile={currentUserprofile}
               handleConfirmNeedsFiles={handleConfirmNeedsFiles}
               handleConfirmNoFiles={handleConfirmNoFiles}
-              sanitizeDataForSaving={sanitizeDataForSaving}
               missingFiles={missingFiles}
               aria-describedby="publish-button-description"
               id="deposit-form-publish-button"
