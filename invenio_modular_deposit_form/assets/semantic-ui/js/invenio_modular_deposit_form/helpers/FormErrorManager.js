@@ -238,6 +238,11 @@ class FormErrorManager {
     console.log("Updating form error state with backend errors and flagged pages with errors");
 
     console.log("errorFieldSets:", errorFieldSets);
+    console.log("this.initialErrors:", this.initialErrors);
+    console.log("this.errors:", this.errors);
+    console.log("this.touched:", this.touched);
+    console.log("this.initialValues:", this.initialValues);
+    console.log("this.values:", this.values);
 
     this.addBackendErrors(
       setFieldError,

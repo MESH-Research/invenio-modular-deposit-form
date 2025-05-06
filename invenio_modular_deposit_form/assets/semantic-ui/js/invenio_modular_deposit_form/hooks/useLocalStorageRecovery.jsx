@@ -39,6 +39,9 @@ function useLocalStorageRecovery(currentUserprofile) {
     const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
     const storageValues = window.localStorage.getItem(storageValuesKey);
     const storageValuesObj = JSON.parse(storageValues);
+    console.log("Checking if storageValuesObj is equal to values");
+    console.log("storageValuesObj:", storageValuesObj);
+    console.log("values:", values);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
@@ -49,15 +52,18 @@ function useLocalStorageRecovery(currentUserprofile) {
         "pids.doi",
       ])
     ) {
+      console.log("setting recoveredStorageValues");
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
     } else {
+      console.log("setting recoveryAsked to true");
       setRecoveryAsked(true);
     }
   }, []);
 
   const handleStorageData = (recover) => {
     if (recover) {
+      console.log("recovering storage data");
       async function setinitialvalues() {
         await setValues(recoveredStorageValues, false);
         await setInitialValues(recoveredStorageValues, false);
