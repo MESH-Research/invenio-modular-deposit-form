@@ -161,13 +161,11 @@ const usePerFieldPermissions = (
 ) => {
   let removalRestricted = false;
   const currentCommunityPermissions = permissionsPerField?.[community?.slug]?.policy;
-  console.log(currentCommunityPermissions);
   let AffectedFields = [];
   if (currentCommunityPermissions) {
     AffectedFields = Array.isArray(currentCommunityPermissions)
       ? currentCommunityPermissions
       : Object.keys(currentCommunityPermissions);
-    console.log(AffectedFields);
     if (AffectedFields.some((field) => field.startsWith("parent.communities.default"))) {
       removalRestricted = true;
       AffectedFields = AffectedFields.filter(
@@ -325,8 +323,6 @@ const CommunityFieldComponent = ({
 }) => {
   const [modalOpen, setModalOpen] = useState();
   const store = useStore();
-  console.log(store.getState());
-  console.log(community);
   const isPublished = store.getState().deposit.record?.is_published;
   const isInReview = store.getState().deposit.record?.status === "in_review";
   const isNewVersion = store.getState().deposit.record?.status === "new_version_draft";
@@ -357,10 +353,6 @@ const CommunityFieldComponent = ({
     removalRestrictionMessage,
     AffectedFields: restrictedFields,
   } = usePerFieldPermissions(community, permissionsPerField, isPublished, isNewVersion);
-  console.log(community?.metadata?.title);
-  console.log(removalRestricted);
-  console.log(restrictedFields);
-  console.log(restrictionMessage);
 
   const changeOnDetailPageMessage = (
     <Trans
