@@ -1,5 +1,6 @@
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
+import { useEffect, useCallback } from "react";
 
 /**
  * A custom hook that transforms submitted form data before it is sent to the server.
@@ -15,13 +16,13 @@ import { useStore } from "react-redux";
  * @param {boolean} hasFiles - Whether the form has files.
  * @param {boolean} filesEnabled - Whether files are enabled in the form.
  */
-const useFormSubmissionTransformer = async () => {
+const useFormSubmissionTransformer = () => {
   const { values, setFieldValue } = useFormikContext();
   const store = useStore();
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
 
-  const filterEmptyIdentifiers = async () => {
+  const filterEmptyIdentifiers = useCallback(async () => {
     if (values.metadata.identifiers?.length) {
       let filteredIdentifiers = values.metadata.identifiers.reduce(
         (newList, item) => {
@@ -30,42 +31,52 @@ const useFormSubmissionTransformer = async () => {
         },
         []
       );
-      setFieldValue("metadata.identifiers", filteredIdentifiers);
+      if (JSON.stringify(filteredIdentifiers) !== JSON.stringify(values.metadata.identifiers)) {
+        await setFieldValue("metadata.identifiers", filteredIdentifiers);
+      }
     }
-    return values.metadata.identifiers;
-  };
+  }, [values.metadata.identifiers, setFieldValue]);
 
-  const fixEmptyPublisher = async () => {
+  const fixEmptyPublisher = useCallback(async () => {
     if (values.metadata.publisher === "" || !values.metadata.publisher) {
-      setFieldValue("metadata.publisher", "Knowledge Commons");
+      await setFieldValue("metadata.publisher", "Knowledge Commons");
     }
-    return values.metadata.publisher;
-  };
+  }, [values.metadata.publisher, setFieldValue]);
 
-  const fixOrcidUrl = async () => {
-    const orcid = values.metadata.identifiers.filter(
+  const fixOrcidUrl = useCallback(async () => {
+    const orcid = values.metadata.identifiers?.filter(
       (identifier) => identifier.scheme === "orcid"
     )[0];
     if (orcid && orcid.identifier.startsWith("https://orcid.org/")) {
-      setFieldValue("metadata.identifiers", [
+      const newIdentifiers = [
         ...values.metadata.identifiers.filter(
           (identifier) => identifier.scheme !== "orcid"
         ),
         { ...orcid, identifier: orcid.identifier.replace("https://orcid.org/", "") },
-      ]);
+      ];
+      if (JSON.stringify(newIdentifiers) !== JSON.stringify(values.metadata.identifiers)) {
+        await setFieldValue("metadata.identifiers", newIdentifiers);
+      }
     }
-  };
+  }, [values.metadata.identifiers, setFieldValue]);
 
-  const enableFiles = async () => {
+  const enableFiles = useCallback(async () => {
     if (hasFiles && !filesEnabled) {
       await setFieldValue("files.enabled", true);
     }
-  };
+  }, [hasFiles, filesEnabled, setFieldValue]);
 
-  await filterEmptyIdentifiers();
-  await fixEmptyPublisher();
-  await enableFiles();
-  await fixOrcidUrl();
+  useEffect(() => {
+    const runTransformations = async () => {
+      // Run all transformations in sequence
+      await filterEmptyIdentifiers();
+      await fixOrcidUrl();
+      await fixEmptyPublisher();
+      await enableFiles();
+    };
+
+    runTransformations();
+  }, [filterEmptyIdentifiers, fixOrcidUrl, fixEmptyPublisher, enableFiles]);
 };
 
 export { useFormSubmissionTransformer };

@@ -89,7 +89,6 @@ class FormErrorManager {
     const initialErrorFieldsUnchanged = initialErrorFields?.filter((item) =>
       isEqual(get(this.values, item), get(this.initialValues, item))
     );
-    console.log("initialErrorFieldsUnchanged:", initialErrorFieldsUnchanged);
     // const untouchedSet = new Set(initialErrorFieldsUntouched);
     const unchangedSet = new Set(initialErrorFieldsUnchanged);
     const initialErrorFieldsUnflagged = initialErrorFields?.filter(
@@ -140,9 +139,7 @@ class FormErrorManager {
       initialErrorFieldsToFlag.forEach((field) => {
         const fieldError = get(this.initialErrors, field);
         setFieldError(field, fieldError);
-        console.log("Setting backend error:", field);
         if (!get(this.touched, field) || !getTouchedParent(this.touched, field)) {
-          console.log("Setting field to touched:", field);
           setFieldTouched(field, true);
         }
       });
@@ -235,14 +232,6 @@ class FormErrorManager {
     setPagesWithFlaggedErrors
   ) => {
     const errorFieldSets = this.errorsToFieldSets();
-    console.log("Updating form error state with backend errors and flagged pages with errors");
-
-    console.log("errorFieldSets:", errorFieldSets);
-    console.log("this.initialErrors:", this.initialErrors);
-    console.log("this.errors:", this.errors);
-    console.log("this.touched:", this.touched);
-    console.log("this.initialValues:", this.initialValues);
-    console.log("this.values:", this.values);
 
     this.addBackendErrors(
       setFieldError,

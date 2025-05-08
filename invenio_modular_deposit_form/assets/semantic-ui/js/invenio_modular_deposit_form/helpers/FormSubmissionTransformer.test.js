@@ -1,8 +1,11 @@
 import { useFormSubmissionTransformer } from './FormSubmissionTransformer';
 import { setupStore } from '@custom-test-utils/redux_store';
 import { setupFormMocks } from '@custom-test-utils/formik_test_utils';
+import { act } from 'react-dom/test-utils';
+import { render } from '@testing-library/react';
+import React from 'react';
 
-// Mock the hooks
+// Mock the formik and redux hooks
 jest.mock('formik', () => ({
   useFormikContext: jest.fn(),
 }));
@@ -31,15 +34,17 @@ describe('useFormSubmissionTransformer', () => {
       },
     });
 
-    // Setup mock formik context with default values
-    const { values, setFieldValue } = setupFormMocks();
-    require('formik').useFormikContext.mockReturnValue({
-      values,
-      setFieldValue,
-    });
-
     require('react-redux').useStore.mockReturnValue(mockStore);
   });
+
+  const TestComponent = () => {
+    useFormSubmissionTransformer();
+    return null;
+  };
+
+  const renderHook = () => {
+    render(<TestComponent />);
+  };
 
   it('should filter empty identifiers', async () => {
     // Setup test data
@@ -59,7 +64,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    act(() => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).toHaveBeenCalledWith(
@@ -75,6 +82,9 @@ describe('useFormSubmissionTransformer', () => {
         publisher: '',
         identifiers: [],
       },
+      files: {
+        enabled: false,
+      },
     });
 
     require('formik').useFormikContext.mockReturnValue({
@@ -83,7 +93,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    await act(async () => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).toHaveBeenCalledWith(
@@ -107,7 +119,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    act(() => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).not.toHaveBeenCalledWith(
@@ -125,6 +139,9 @@ describe('useFormSubmissionTransformer', () => {
           { identifier: '123', scheme: 'doi' },
         ],
       },
+      files: {
+        enabled: false,
+      },
     });
 
     require('formik').useFormikContext.mockReturnValue({
@@ -133,7 +150,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    await act(async () => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).toHaveBeenCalledWith(
@@ -148,6 +167,10 @@ describe('useFormSubmissionTransformer', () => {
   it('should enable files when files exist but are not enabled', async () => {
     // Setup test data
     const { values, setFieldValue } = setupFormMocks({
+      metadata: {
+        publisher: 'Test Publisher',
+        identifiers: [],
+      },
       files: {
         enabled: false,
       },
@@ -159,7 +182,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    await act(async () => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).toHaveBeenCalledWith(
@@ -182,7 +207,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    act(() => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).not.toHaveBeenCalledWith(
@@ -213,7 +240,9 @@ describe('useFormSubmissionTransformer', () => {
     });
 
     // Call the hook
-    await useFormSubmissionTransformer();
+    act(() => {
+      renderHook();
+    });
 
     // Verify results
     expect(setFieldValue).not.toHaveBeenCalledWith(
