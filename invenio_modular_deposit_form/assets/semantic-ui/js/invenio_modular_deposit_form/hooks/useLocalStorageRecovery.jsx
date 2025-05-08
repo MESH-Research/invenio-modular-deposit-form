@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { useFormikContext } from "formik";
 
-import { areDeeplyEqual } from "../utils";
+import { areDeeplyEqual, focusFirstElement } from "../utils";
 
 /** Custom hook for recovering form values from local storage
  *
  * @param {Object} currentUserprofile
  * @returns {Object} recoveryAsked, confirmModalRef, recoveredStorageValues, storageDataPresent
  */
-function useLocalStorageRecovery(currentUserprofile) {
+function useLocalStorageRecovery(currentUserprofile ) {
 
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const confirmModalRef = useRef();

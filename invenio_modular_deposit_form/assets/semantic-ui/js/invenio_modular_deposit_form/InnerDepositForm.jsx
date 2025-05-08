@@ -98,6 +98,7 @@ const InnerDepositForm = ({
   // state for form page error handling
   const [pagesWithErrors, setPagesWithErrors] = useState({});
   const [pagesWithFlaggedErrors, setPagesWithFlaggedErrors] = useState({});
+  const [updatingErrorState, setUpdatingErrorState] = useState(false);
 
   // state for adapting fields to resource type
   const [currentResourceType, setCurrentResourceType] = useState(defaultResourceType);
@@ -130,20 +131,25 @@ const InnerDepositForm = ({
   // all fields must be set touched to trigger validation before submit
   // and then error fields set to touched again after submission
   useEffect(() => {
-    new FormErrorManager(
-      formPages,
-      formPageFields,
-      initialErrors,
-      errors,
-      touched,
-      initialValues,
-      values
-    ).updateFormErrorState(
-      setFieldError,
-      setFieldTouched,
-      setPagesWithErrors,
-      setPagesWithFlaggedErrors
-    );
+    if (!updatingErrorState) {
+      // prevent infinite loop since updateFormErrorState changes errors and touched
+      setUpdatingErrorState(true);
+      new FormErrorManager(
+        formPages,
+        formPageFields,
+        initialErrors,
+        errors,
+        touched,
+        initialValues,
+        values
+      ).updateFormErrorState(
+        setFieldError,
+        setFieldTouched,
+        setPagesWithErrors,
+        setPagesWithFlaggedErrors
+      );
+      setUpdatingErrorState(false);
+    }
   }, [errors, touched, initialErrors, initialValues, values]);
 
   const {

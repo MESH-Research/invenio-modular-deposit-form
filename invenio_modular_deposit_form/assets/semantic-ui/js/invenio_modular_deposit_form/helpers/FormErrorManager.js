@@ -231,13 +231,18 @@ class FormErrorManager {
     setPagesWithErrors,
     setPagesWithFlaggedErrors
   ) => {
+    console.log("Updating form error state");
     const errorFieldSets = this.errorsToFieldSets();
+    console.log("errorFieldSets:", errorFieldSets);
 
     this.addBackendErrors(
       setFieldError,
       setFieldTouched,
       errorFieldSets.initialErrorFieldsToFlag
     );
+    console.log("added backend errors");
+    console.log("errors:", this.errors);
+    console.log("touched:", this.touched);
 
     const [errorPages, flaggedErrorPages] = this.getErrorPages(
       this.formPages,
@@ -248,9 +253,14 @@ class FormErrorManager {
       errorFieldSets.initialErrorFieldsUnchanged,
       errorFieldSets.initialErrorFieldsToFlag
     );
+    console.log("got error pages");
+    console.log("errorPages:", errorPages);
+    console.log("flaggedErrorPages:", flaggedErrorPages);
 
     setPagesWithErrors(errorPages);
+    console.log("set error pages");
     setPagesWithFlaggedErrors(flaggedErrorPages);
+    console.log("set flagged error pages");
   };
 }
 
