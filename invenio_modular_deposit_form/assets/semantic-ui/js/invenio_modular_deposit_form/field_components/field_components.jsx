@@ -16,7 +16,7 @@ import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
-import { ReactReduxContext, useStore } from "react-redux";
+import { useStore } from "react-redux";
 import { AccordionField } from "react-invenio-forms";
 import {
   AccessRightField,
@@ -56,7 +56,6 @@ import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { FormUIStateContext } from "../InnerDepositForm";
-import { FormSubmissionTransformer } from "../helpers/FormSubmissionTransformer";
 
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
@@ -504,10 +503,7 @@ const FundingComponent = ({ ...extraProps }) => {
 
           if (funding.funder) {
             const funderName =
-              funding.funder?.name ??
-              funding.funder?.title ??
-              funding.funder?.id ??
-              "";
+              funding.funder?.name ?? funding.funder?.title ?? funding.funder?.id ?? "";
             awardOrFunder = "funder";
             headerContent = funderName;
             descriptionContent = "";
@@ -599,10 +595,24 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 };
 
 const LanguagesComponent = ({ ...extraProps }) => {
-  const record = useStore().getState().deposit.record;
-  const initialOptions = _get(record, "ui.languages", []).filter(
-    (lang) => lang !== null
-  ); // needed because dumped empty record from backend gives [null]
+  const recordOptions = useStore().getState().deposit.record?.ui?.languages || [];
+  const formOptions =
+    useFormikContext().values?.metadata?.languages.filter((lang) => lang !== null) ||
+    [];
+  // filter needed because dumped empty record from backend gives [null]
+
+  // FIXME: Initial value passed to form field from the record is a simple array of ids,
+  // but we need the form field to receive the objects, not just the ids
+  // so that the values in the form state have the readable labels. So on first render,
+  // we need to use the record options if they match the form options.
+  let initialOptions;
+  if (typeof formOptions?.[0] === "string" &&
+      formOptions.length === recordOptions.length &&
+      formOptions.every((formValue, index) => formValue === recordOptions[index]?.id)) {
+    initialOptions = recordOptions;
+  } else {
+    initialOptions = formOptions;
+  }
 
   return (
     <FieldComponentWrapper
@@ -891,9 +901,7 @@ const SubjectsComponent = ({ ...extraProps }) => {
     <FieldComponentWrapper
       componentName="SubjectsField"
       fieldPath="metadata.subjects"
-      placeholder={i18next.t(
-        "Search for a subject by name (press 'enter' to select)"
-      )}
+      placeholder={i18next.t("Search for a subject by name (press 'enter' to select)")}
       label="Subjects"
       description={i18next.t(
         "These standardized subject headings help people to find your materials!"
@@ -921,12 +929,12 @@ const SubjectsComponent = ({ ...extraProps }) => {
  */
 const SubmissionComponent = () => {
   const { errors: clientErrors, values, setFieldValue } = useFormikContext();
-  const { handleFormPageChange } =
-    useContext(FormUIStateContext);
+  const { handleFormPageChange } = useContext(FormUIStateContext);
   const [_, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 
-  const { actionState, actionStateExtra, config, errors, record, permissions } = store.getState().deposit;
+  const { actionState, actionStateExtra, config, errors, record, permissions } =
+    store.getState().deposit;
   const hasFiles = Object.keys(store.getState().files.entries).length > 0;
   const filesEnabled = !!values.files.enabled;
   const missingFiles = filesEnabled && !hasFiles;
@@ -949,8 +957,7 @@ const SubmissionComponent = () => {
   if (!_isEmpty(errors)) {
     nonValidationErrors = Object.fromEntries(
       Object.entries(errors).filter(
-        ([key]) =>
-          !["metadata", "access", "pids", "custom_fields"].includes(key)
+        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
       )
     );
   }
@@ -974,8 +981,9 @@ const SubmissionComponent = () => {
       <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
         <Grid.Row>
           <Grid.Column computer="8" tablet="6">
-
-            {(actionState || !_isEmpty(clientErrors) || !_isEmpty(nonValidationErrors)) && (
+            {(actionState ||
+              !_isEmpty(clientErrors) ||
+              !_isEmpty(nonValidationErrors)) && (
               <Overridable
                 id="InvenioAppRdm.Deposit.FormFeedback.container"
                 labels={config.custom_fields.error_labels}
@@ -1035,20 +1043,19 @@ const SubmissionComponent = () => {
           >
             <p>
               <b>Draft deposits</b> can be edited
-              {permissions?.can_delete_draft && ", deleted,"} and the files can
-              be added or changed.
+              {permissions?.can_delete_draft && ", deleted,"} and the files can be added
+              or changed.
             </p>
             <p>
-              <b>Published deposits</b> can still be edited, but you will no
-              longer be able to{" "}
-              {permissions?.can_delete_draft && "delete the deposit or "}change
-              the attached files. To add or change files for a published deposit
-              you must create a new version of the record.
+              <b>Published deposits</b> can still be edited, but you will no longer be
+              able to {permissions?.can_delete_draft && "delete the deposit or "}change
+              the attached files. To add or change files for a published deposit you
+              must create a new version of the record.
             </p>
             <p>
-              Deposits can only be <b>deleted while they are drafts</b>. Once
-              you publish your deposit, you can only restrict access and/or
-              create a new version.
+              Deposits can only be <b>deleted while they are drafts</b>. Once you
+              publish your deposit, you can only restrict access and/or create a new
+              version.
             </p>
           </Grid.Column>
         </Grid.Row>

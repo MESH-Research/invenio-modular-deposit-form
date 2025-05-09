@@ -1,16 +1,20 @@
-// This file is part of React-Invenio-Deposit
+// This file is part of Invenio-Modular-Deposit-Form
+// Copyright (C) 2024-2025 Mesh Research
+//
+// It is adapted from a file in React-Invenio-Deposit
 // Copyright (C) 2020 CERN.
 // Copyright (C) 2020-2021 Northwestern University.
 //
-// React-Invenio-Deposit is free software; you can redistribute it and/or modify it
-// under the terms of the MIT License; see LICENSE file for more details.
+// Invenio-Modular-Deposit-Form and React-Invenio-Deposit are free software;
+// you can redistribute them and/or modify them under the terms of the MIT License;
+// see the LICENSE file for more details.
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
 import _uniqBy from "lodash/uniqBy";
 import PropTypes from "prop-types";
 import queryString from "query-string";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Message } from "semantic-ui-react";
 import { SelectField } from "./SelectField";
 
@@ -204,7 +208,6 @@ const RemoteSelectField = ({
         });
       }}
       loading={isFetching}
-
       description={uiProps.description}
       clearable={clearable}
       helpText={uiProps.helpText}
