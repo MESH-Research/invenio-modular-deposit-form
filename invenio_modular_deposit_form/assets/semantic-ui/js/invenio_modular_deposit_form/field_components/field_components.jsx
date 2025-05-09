@@ -595,9 +595,9 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 };
 
 const LanguagesComponent = ({ ...extraProps }) => {
-  const recordOptions = useStore().getState().deposit.record?.ui?.languages || [];
+  const recordOptions = useStore().getState().deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
   const formOptions =
-    useFormikContext().values?.metadata?.languages.filter((lang) => lang !== null) ||
+    useFormikContext().values?.metadata?.languages?.filter((lang) => lang !== null) ||
     [];
   // filter needed because dumped empty record from backend gives [null]
 
