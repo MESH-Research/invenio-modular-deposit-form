@@ -8,13 +8,13 @@ import { areDeeplyEqual, focusFirstElement } from "../utils";
  * @param {Object} currentUserprofile
  * @returns {Object} recoveryAsked, confirmModalRef, recoveredStorageValues, storageDataPresent
  */
-function useLocalStorageRecovery(currentUserprofile ) {
+function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
 
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const confirmModalRef = useRef();
   const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
   const [storageDataPresent, setStorageDataPresent] = useState(false);
-  const { values, initialValues, setValues, setInitialValues } = useFormikContext();
+  const { values, initialValues, setValues, setInitialValues, resetForm } = useFormikContext();
 
   // handler for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
@@ -64,11 +64,10 @@ function useLocalStorageRecovery(currentUserprofile ) {
   const handleStorageData = (recover) => {
     if (recover) {
       console.log("recovering storage data");
-      async function setinitialvalues() {
-        await setValues(recoveredStorageValues, false);
-        await setInitialValues(recoveredStorageValues, false);
+      async function doSetInitialValues() {
+        resetForm({ values: recoveredStorageValues });
       }
-      setinitialvalues();
+      doSetInitialValues();
       setRecoveredStorageValues(null);
     }
     window.localStorage.removeItem(

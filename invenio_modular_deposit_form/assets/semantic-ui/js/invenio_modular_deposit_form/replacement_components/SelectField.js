@@ -29,7 +29,7 @@ const SelectField = ({
   ...otherProps
 }) => {
   const FormikField = optimized ? FastField : Field;
-  const { setFieldValue } = useFormikContext();
+  const { values } = useFormikContext();
 
   const displayError = (meta) => {
     let error = meta.error;
@@ -68,6 +68,9 @@ const SelectField = ({
 
   // TODO: implement extraRequiredFields, priorityFieldValues and defaultFieldValue
 
+  console.log("options in SelectField", options);
+  console.log("fieldPath in SelectField", fieldPath);
+  console.log("values in SelectField", values);
    return (
     <FormikField name={fieldPath} fieldPath={fieldPath} as="select" {...uiProps}>
       {({
@@ -75,6 +78,7 @@ const SelectField = ({
         form: { touched, errors, handleBlur, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
+        console.log("field.value in SelectField", field.value);
 
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };

@@ -98,7 +98,7 @@ const InnerDepositForm = ({
   // state for form page error handling
   const [pagesWithErrors, setPagesWithErrors] = useState({});
   const [pagesWithFlaggedErrors, setPagesWithFlaggedErrors] = useState({});
-  const [updatingErrorState, setUpdatingErrorState] = useState(false);
+  const isUpdatingRef = useRef(false);
 
   // state for adapting fields to resource type
   const [currentResourceType, setCurrentResourceType] = useState(defaultResourceType);
@@ -131,9 +131,8 @@ const InnerDepositForm = ({
   // all fields must be set touched to trigger validation before submit
   // and then error fields set to touched again after submission
   useEffect(() => {
-    if (!updatingErrorState) {
-      // prevent infinite loop since updateFormErrorState changes errors and touched
-      setUpdatingErrorState(true);
+    if (!isUpdatingRef.current) {
+      isUpdatingRef.current = true;
       new FormErrorManager(
         formPages,
         formPageFields,
@@ -148,9 +147,14 @@ const InnerDepositForm = ({
         setPagesWithErrors,
         setPagesWithFlaggedErrors
       );
-      setUpdatingErrorState(false);
+      // Use setTimeout to push the flag update to the next tick of the event loop
+      // to ensure it runs after the other state updates in this hook (which
+      // are batched)
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 0);
     }
-  }, [errors, touched, initialErrors, initialValues, values]);
+  }, [errors, touched, initialErrors, initialValues, values, formPageFields]);
 
   const {
     confirmingPageChange,
@@ -193,7 +197,7 @@ const InnerDepositForm = ({
     recoveryAsked,
     confirmModalRef,
     handleRecoveryAsked,
-  } = useLocalStorageRecovery(currentUserprofile);
+  } = useLocalStorageRecovery(currentUserprofile, currentFormPage);
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
@@ -210,6 +214,7 @@ const InnerDepositForm = ({
       <FormUIStateContext.Provider
         value={{
           handleFormPageChange: handleFormPageChange,
+          currentFormPage: currentFormPage,
           currentUserprofile: currentUserprofile,
           currentFieldMods: currentFieldMods,
           currentResourceType: currentResourceType,

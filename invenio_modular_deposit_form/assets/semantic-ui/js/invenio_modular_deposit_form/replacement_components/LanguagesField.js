@@ -12,6 +12,7 @@ import PropTypes from "prop-types";
 import { FieldLabel } from "react-invenio-forms";
 import { RemoteSelectField } from "./RemoteSelectField";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
+import { useStore } from "react-redux";
 
 export const LanguagesField = ({
   classnames = undefined,
@@ -24,22 +25,15 @@ export const LanguagesField = ({
   clearable,
   initialOptions,
   serializeSuggestions: serializeSuggestionsFunc,
+  onValueChange,
   ...uiProps
 }) => {
-  const {setFieldValue} = useFormikContext();
   const serializeSuggestions = serializeSuggestionsFunc || null;
 
-  // Override the onValueChange to set the field value to the selected suggestions
-  // So that the values in the Formik state are the objects, not just the ids
-  // This is necessary because otherwise we can't restore the readable labels when
-  // rendering the form from client-side state
-  const onValueChange = ({event, data, formikProps}, selectedSuggestions) => {
-    const fieldValues = selectedSuggestions.map((item) => ({
-      title_l10n: item.text,
-      id: item.value,
-    }))
-    setFieldValue(fieldPath, fieldValues);
-  }
+  console.log("initialOptions in LanguagesField", initialOptions);
+  console.log("fieldPath in LanguagesField", fieldPath);
+  const store = useStore();
+  console.log("store in LanguagesField", store.getState());
 
   return (
     <RemoteSelectField
@@ -49,7 +43,7 @@ export const LanguagesField = ({
       suggestionAPIHeaders={{
         Accept: "application/vnd.inveniordm.v1+json",
       }}
-      onValueChange={onValueChange}
+      {...(onValueChange && { onValueChange })}
       placeholder={placeholder}
       required={required}
       clearable={clearable}

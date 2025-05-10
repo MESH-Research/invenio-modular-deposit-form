@@ -53,15 +53,24 @@ const RemoteSelectField = ({
   const _initialSuggestions = initialSuggestions
       ? serializeSuggestionsFunc(initialSuggestions)
       : [];
+  console.log("initialSuggestions in RemoteSelectField", initialSuggestions);
+  console.log("serialized initialSuggestions in RemoteSelectField", _initialSuggestions);
   const [isFetching, setIsFetching] = useState(false);
   const [suggestions, setSuggestions] = useState(_initialSuggestions);
+  console.log("suggestions in RemoteSelectField", suggestions);
   const [selectedSuggestions, setSelectedSuggestions] = useState(_initialSuggestions);
   const [error, setError] = useState(false);
   const [searchQuery, setSearchQuery] = useState(null);
   const [open, setOpen] = useState(false);
+  console.log("selectedSuggestions in RemoteSelectField", selectedSuggestions);
+
+  useEffect(() => {
+    console.log("suggestions changed:", suggestions);
+  }, [suggestions]);
 
   const onSelectValue = (event, { options, value }, callbackFunc) => {
-    const newSelectedSuggestions = options.filter((item) => value.includes(item.value));
+    console.log("onSelectValue in RemoteSelectField", options, value);
+    const newSelectedSuggestions = typeof value === "string" ? options.filter((item) => value.includes(item.value)) : [value];
     setSelectedSuggestions(newSelectedSuggestions);
     setSearchQuery(null);
     setError(false);
@@ -70,6 +79,7 @@ const RemoteSelectField = ({
   };
 
   const handleAddition = (e, { value }, callbackFunc) => {
+    console.log("handleAddition in RemoteSelectField");
     const selectedSuggestion = serializeAddedValue
       ? serializeAddedValue(value)
       : { text: value, value, key: value, name: value };
@@ -82,6 +92,7 @@ const RemoteSelectField = ({
   };
 
   const onSearchChange = _debounce(async (e, { searchQuery }) => {
+    console.log("onSearchChange in RemoteSelectField");
     const query = preSearchChange(searchQuery);
     setIsFetching(true);
     setSearchQuery(query);
@@ -141,6 +152,7 @@ const RemoteSelectField = ({
   };
 
   const onBlur = () => {
+    console.log("onBlur in RemoteSelectField");
     const prevSuggestions = selectedSuggestions;
     setOpen(false);
     setError(false);
@@ -216,7 +228,7 @@ const RemoteSelectField = ({
       noQueryMessage={noQueryMessage}
       placeholder={uiProps.placeholder}
       required={uiProps.required}
-      value={selectedSuggestions.map((item) => item.value)}
+      value={!!multiple ? selectedSuggestions.map((item) => item.value) : selectedSuggestions[0]?.value}
     />
   );
 }

@@ -595,9 +595,10 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 };
 
 const LanguagesComponent = ({ ...extraProps }) => {
+  const { setFieldValue, values } = useFormikContext();
   const recordOptions = useStore().getState().deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
   const formOptions =
-    useFormikContext().values?.metadata?.languages?.filter((lang) => lang !== null) ||
+    values?.metadata?.languages?.filter((lang) => lang !== null) ||
     [];
   // filter needed because dumped empty record from backend gives [null]
 
@@ -612,6 +613,18 @@ const LanguagesComponent = ({ ...extraProps }) => {
     initialOptions = recordOptions;
   } else {
     initialOptions = formOptions;
+  }
+
+  // Override the onValueChange to set the field value to the selected suggestions
+  // So that the values in the Formik state are the objects, not just the ids
+  // This is necessary because otherwise we can't restore the readable labels when
+  // rendering the form from client-side state
+  const onValueChange = ({event, data, formikProps}, selectedSuggestions) => {
+    const fieldValues = selectedSuggestions.map((item) => ({
+      title_l10n: item.text,
+      id: item.value,
+    }))
+    setFieldValue("metadata.languages", fieldValues);
   }
 
   return (
@@ -634,9 +647,10 @@ const LanguagesComponent = ({ ...extraProps }) => {
             key: item.id,
           }))
         }
-        noQueryMessage={" "}
+        noQueryMessage={i18next.t("No languages found")}
         aria-describedby="metadata.languages.helptext"
         multiple={true}
+        onValueChange={onValueChange}
       />
     </FieldComponentWrapper>
   );
