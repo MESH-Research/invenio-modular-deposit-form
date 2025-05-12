@@ -11,7 +11,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useContext, useState } from "react";
+import React, { Fragment, useContext, useState, useEffect } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -614,6 +614,19 @@ const LanguagesComponent = ({ ...extraProps }) => {
   } else {
     initialOptions = formOptions;
   }
+
+  // Convert the initial form value to an array of objects with id and title_l10n
+  // if it's just an array of strings. Necessary because client-side updating from
+  // form state needs the readable labels.
+  useEffect(() => {
+    if (initialOptions?.length > 0 && (
+        typeof formOptions.some((formOption) => typeof formOption === 'string') ||
+        !formOptions ||
+        formOptions.some((formOption, index) => formOption.id !== initialOptions[index]?.id || formOption.title_l10n !== initialOptions[index]?.title_l10n)
+    )) {
+      setFieldValue("metadata.languages", initialOptions);
+    }
+  }, []);
 
   // Override the onValueChange to set the field value to the selected suggestions
   // So that the values in the Formik state are the objects, not just the ids

@@ -51,35 +51,34 @@ const RemoteSelectField = ({
 }) => {
   const serializeSuggestionsFunc = serializeSuggestions || serializeSuggestionsDefault;
   const _initialSuggestions = initialSuggestions
-      ? serializeSuggestionsFunc(initialSuggestions)
-      : [];
-  console.log("initialSuggestions in RemoteSelectField", initialSuggestions);
-  console.log("serialized initialSuggestions in RemoteSelectField", _initialSuggestions);
+    ? serializeSuggestionsFunc(initialSuggestions)
+    : [];
   const [isFetching, setIsFetching] = useState(false);
   const [suggestions, setSuggestions] = useState(_initialSuggestions);
-  console.log("suggestions in RemoteSelectField", suggestions);
   const [selectedSuggestions, setSelectedSuggestions] = useState(_initialSuggestions);
   const [error, setError] = useState(false);
   const [searchQuery, setSearchQuery] = useState(null);
   const [open, setOpen] = useState(false);
-  console.log("selectedSuggestions in RemoteSelectField", selectedSuggestions);
-
-  useEffect(() => {
-    console.log("suggestions changed:", suggestions);
-  }, [suggestions]);
 
   const onSelectValue = (event, { options, value }, callbackFunc) => {
-    console.log("onSelectValue in RemoteSelectField", options, value);
-    const newSelectedSuggestions = typeof value === "string" ? options.filter((item) => value.includes(item.value)) : [value];
+    // Handle multiple and single selection differently
+    // Handle either string values or object values for single selection
+    let newSelectedSuggestions;
+    if (!!multiple) {
+      newSelectedSuggestions = options.filter((item) => value.includes(item.value));
+    } else {
+      newSelectedSuggestions = typeof value === "string"
+        ? options.filter((item) => value === item.value)
+        : [value];
+    }
     setSelectedSuggestions(newSelectedSuggestions);
     setSearchQuery(null);
     setError(false);
     setOpen(!!multiple);
-    callbackFunc(newSelectedSuggestions);  // TODO: check if this fires too soon
+    callbackFunc(newSelectedSuggestions); // TODO: check if this fires too soon
   };
 
   const handleAddition = (e, { value }, callbackFunc) => {
-    console.log("handleAddition in RemoteSelectField");
     const selectedSuggestion = serializeAddedValue
       ? serializeAddedValue(value)
       : { text: value, value, key: value, name: value };
@@ -88,11 +87,10 @@ const RemoteSelectField = ({
     const prevSuggestions = suggestions;
     setSelectedSuggestions(newSelectedSuggestions);
     setSuggestions(_uniqBy([...prevSuggestions, ...newSelectedSuggestions], "value"));
-    callbackFunc(newSelectedSuggestions)  // TODO: check if this fires too soon
+    callbackFunc(newSelectedSuggestions); // TODO: check if this fires too soon
   };
 
   const onSearchChange = _debounce(async (e, { searchQuery }) => {
-    console.log("onSearchChange in RemoteSelectField");
     const query = preSearchChange(searchQuery);
     setIsFetching(true);
     setSearchQuery(query);
@@ -152,7 +150,6 @@ const RemoteSelectField = ({
   };
 
   const onBlur = () => {
-    console.log("onBlur in RemoteSelectField");
     const prevSuggestions = selectedSuggestions;
     setOpen(false);
     setError(false);
@@ -188,7 +185,11 @@ const RemoteSelectField = ({
       {...uiProps}
       // additionLabel
       allowAdditions={error ? false : uiProps.allowAdditions}
-      classnames={classnames ? "invenio-remote-select-field" + classnames : "invenio-remote-select-field"}
+      classnames={
+        classnames
+          ? "invenio-remote-select-field" + classnames
+          : "invenio-remote-select-field"
+      }
       fieldPath={fieldPath}
       options={suggestions}
       noResultsMessage={getNoResultsMessage()}
@@ -213,7 +214,7 @@ const RemoteSelectField = ({
       onChange={({ event, data, formikProps }) => {
         onSelectValue(event, data, (selectedSuggestions) => {
           if (onValueChange) {
-            onValueChange({event, data, formikProps}, selectedSuggestions);
+            onValueChange({ event, data, formikProps }, selectedSuggestions);
           } else {
             formikProps.form.setFieldValue(fieldPath, data.value);
           }
@@ -228,10 +229,14 @@ const RemoteSelectField = ({
       noQueryMessage={noQueryMessage}
       placeholder={uiProps.placeholder}
       required={uiProps.required}
-      value={!!multiple ? selectedSuggestions.map((item) => item.value) : selectedSuggestions[0]?.value}
+      value={
+        !!multiple
+          ? selectedSuggestions.map((item) => item.value)
+          : selectedSuggestions[0]?.value
+      }
     />
   );
-}
+};
 
 RemoteSelectField.propTypes = {
   classnames: PropTypes.string,
