@@ -1,7 +1,7 @@
 import React from "react";
 import { FastField, Field } from "formik";
 import { Form } from "semantic-ui-react";
-import { FieldLabel } from "react-invenio-forms";
+import { FieldLabel } from "./FieldLabel";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { getTouchedParent } from "../utils";
 
@@ -54,7 +54,7 @@ const TextField = ({
             width={width}
           >
             {showLabel && (
-              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
+              <FieldLabel id={`${fieldPath}.label`} htmlFor={fieldPath} icon={icon} label={label} />
             )}
             {description && description !== " " && (
               <div className="helptext label" id={`${fieldPath}.helptext`}>
@@ -68,6 +68,7 @@ const TextField = ({
               icon={undefined}
               id={fieldPath}
               name={fieldPath}
+              aria-labelledby={`${fieldPath}.label`}
               aria-describedby={`${fieldPath}.helptext`}
               {...field}
               {...(onBlur && {

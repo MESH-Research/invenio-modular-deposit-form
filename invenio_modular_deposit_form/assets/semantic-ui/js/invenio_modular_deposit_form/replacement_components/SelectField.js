@@ -3,7 +3,7 @@ import { FastField, Field, getIn, useFormikContext } from "formik";
 import _isEmpty from "lodash/isEmpty";
 
 import { Dropdown, Form } from "semantic-ui-react";
-import { FieldLabel } from "react-invenio-forms";
+import { FieldLabel } from "./FieldLabel";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 const SelectField = ({
@@ -29,7 +29,6 @@ const SelectField = ({
   ...otherProps
 }) => {
   const FormikField = optimized ? FastField : Field;
-  const { values } = useFormikContext();
 
   const displayError = (meta) => {
     let error = meta.error;
@@ -67,10 +66,6 @@ const SelectField = ({
   } = otherProps;
 
   // TODO: implement extraRequiredFields, priorityFieldValues and defaultFieldValue
-
-  console.log("options in SelectField", options);
-  console.log("fieldPath in SelectField", fieldPath);
-  console.log("values in SelectField", values);
    return (
     <FormikField name={fieldPath} fieldPath={fieldPath} as="select" {...uiProps}>
       {({
@@ -78,8 +73,6 @@ const SelectField = ({
         form: { touched, errors, handleBlur, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
         meta,
       }) => {
-        console.log("field.value in SelectField", field.value);
-
         const _defaultValue = defaultValue || (multiple ? [] : "");
         const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
         const showError = (!!meta.error && !!meta.touched ||
@@ -96,7 +89,7 @@ const SelectField = ({
             className={`invenio-select-field ${classnames ? classnames : ""}`}
           >
             {showLabel && (
-            <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
+            <FieldLabel id={`${fieldPath}.label`} htmlFor={fieldPath} icon={icon} label={label} />
             )}
             {description && description !== " " && (
               <div className="helptext label top" id={`${fieldPath}.helptext`}>
@@ -108,6 +101,7 @@ const SelectField = ({
               {...((!!description || !!helpText) && {
                 "aria-describedby": `${fieldPath}.helptext`
               })}
+              aria-labelledby={`${fieldPath}.label`}
               fluid
               className={`invenio-select-field ${classnames ? classnames : ""}`}
               selection

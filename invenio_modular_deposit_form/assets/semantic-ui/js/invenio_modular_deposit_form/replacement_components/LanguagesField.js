@@ -1,4 +1,10 @@
-// This file is part of Invenio-RDM-Records
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2025, MESH Research
+//
+// invenio-modular-deposit-form is free software; you can redistribute and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+//
+// Based on a file from Invenio-RDM-Records
 // Copyright (C) 2020-2023 CERN.
 // Copyright (C) 2020-2022 Northwestern University.
 // Copyright (C) 2021 Graz University of Technology.
@@ -12,7 +18,6 @@ import PropTypes from "prop-types";
 import { FieldLabel } from "react-invenio-forms";
 import { RemoteSelectField } from "./RemoteSelectField";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { useStore } from "react-redux";
 
 export const LanguagesField = ({
   classnames = undefined,
@@ -30,11 +35,6 @@ export const LanguagesField = ({
 }) => {
   const serializeSuggestions = serializeSuggestionsFunc || null;
 
-  console.log("initialOptions in LanguagesField", initialOptions);
-  console.log("fieldPath in LanguagesField", fieldPath);
-  const store = useStore();
-  console.log("store in LanguagesField", store.getState());
-
   return (
     <RemoteSelectField
       classnames={classnames}
@@ -50,7 +50,7 @@ export const LanguagesField = ({
       multiple={multiple}
       upward={false}
       initialSuggestions={initialOptions}
-      label={<FieldLabel htmlFor={fieldPath} icon={icon} label={label} />}
+      label={label}
       noQueryMessage={i18next.t("Type the full name of a language to search...")}
       noResultsMessage={i18next.t("Type the full name of a language to search...")}
       {...(serializeSuggestions && { serializeSuggestions })}
