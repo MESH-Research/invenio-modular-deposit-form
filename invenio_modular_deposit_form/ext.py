@@ -16,7 +16,6 @@ from . import config
 
 def create_blueprint(app):
     """Blueprint for the routes and resources provided by Invenio-App-RDM."""
-    # routes = app.config.get("APP_RDM_ROUTES")
 
     blueprint = Blueprint(
         "invenio_modular_deposit_form",
