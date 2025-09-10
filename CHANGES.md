@@ -7,6 +7,10 @@ more details. -->
 Changes
 =======
 
+## Version 0.3.4-dev0 (2025-09-10)
+
+- Added new message to upload form for collection publication review
+
 ## Version 0.3.3-dev1 (2025-01-09)
 
 -  Fixed bug in search results sort order in community selection modal for upload form (original fix only worked in detail page)

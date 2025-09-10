@@ -166,7 +166,9 @@ const usePerFieldPermissions = (
     AffectedFields = Array.isArray(currentCommunityPermissions)
       ? currentCommunityPermissions
       : Object.keys(currentCommunityPermissions);
-    if (AffectedFields.some((field) => field.startsWith("parent.communities.default"))) {
+    if (
+      AffectedFields.some((field) => field.startsWith("parent.communities.default"))
+    ) {
       removalRestricted = true;
       AffectedFields = AffectedFields.filter(
         (field) => !field.startsWith("parent.communities.default")
@@ -228,7 +230,7 @@ const InReviewMessage = ({ communityTitle }) => {
       <Message.Content>
         <Message.Header>
           {i18next.t(
-            "This work is currently in review by the {{communityTitle}} collection curators.",
+            "This work is currently in publication review by the {{communityTitle}} collection curators.",
             { communityTitle: communityTitle }
           )}
         </Message.Header>
@@ -270,6 +272,40 @@ const RemovalRestrictedMessage = ({
 RemovalRestrictedMessage.propTypes = {
   removalRestrictionHeader: PropTypes.string.isRequired,
   removalRestrictionMessage: PropTypes.string.isRequired,
+};
+
+const PublicationReviewWarning = () => {
+  return (
+    <Message warning icon className="deposit-publication-review-warning">
+      <Icon name="warning sign" />
+      <Message.Content>
+        <Message.Header>
+          <Trans
+            defaults="You may want to submit to collections <0>after</0> your work is published"
+            components={[<i />]}
+          />
+        </Message.Header>
+        <p>
+          <Trans
+            defaults="Submitting to a collection is optional. If you submit your work for publication by a collection now, your upload <0>will not be publicly visible</0> until it has been approved by that collection's curators."
+            components={[<b />]}
+          />
+        </p>
+        <p>
+          <Trans
+            defaults="Most collections are <0>not curated by the KCWorks team</0> , and collection curators may take a significant amount of time to review your work."
+            components={[<b />]}
+          />
+        </p>
+        <p>
+          <Trans
+            defaults="You can submit your work to a collection <0>after publication</0> from the sidebar of your published record's detail page"
+            components={[<b />]}
+          />
+        </p>
+      </Message.Content>
+    </Message>
+  );
 };
 
 const RestrictedFieldsMessage = ({
@@ -419,15 +455,22 @@ const CommunityFieldComponent = ({
             <label htmlFor="community-selector" className="helptext">
               {selectionButtonShown
                 ? i18next.t(
-                    "Select a collection where you want this deposit to be published."
+                    "Do you want to submit this deposit for publication by a collection?"
                   )
                 : changeOnDetailPageMessage}
             </label>
           </Form.Field>
         )}
+
       </Form.Group>
 
-      {isInReview && <InReviewMessage communityTitle={community?.metadata?.title} />}
+      {!isInReview && (
+        <PublicationReviewWarning />
+      )}
+
+      {isInReview && (
+        <InReviewMessage communityTitle={community?.metadata?.title} />
+      )}
 
       {removalRestricted && (
         <RemovalRestrictedMessage
