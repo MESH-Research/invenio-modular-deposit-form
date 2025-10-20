@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2023 Mesh Research.
 #
@@ -16,7 +15,6 @@ from . import config
 
 def create_blueprint(app):
     """Blueprint for the routes and resources provided by Invenio-App-RDM."""
-
     blueprint = Blueprint(
         "invenio_modular_deposit_form",
         __name__,
@@ -27,7 +25,7 @@ def create_blueprint(app):
     return blueprint
 
 
-class InvenioModularDepositForm(object):
+class InvenioModularDepositForm:
     """Invenio Modular Deposit Form extension."""
 
     def __init__(self, app=None):
