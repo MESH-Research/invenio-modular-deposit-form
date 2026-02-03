@@ -23,11 +23,12 @@
 {%- endif %}
 {%- extends config.BASE_TEMPLATE %}
 
-  {% set cu = current_userprofile %}
-  {% set profile_fields = config.get("ACCOUNTS_USER_PROFILE_SCHEMA").fields.keys() %}
-  {% set cu_dict = {'id': cu.id if cu.id else ""} %}
+  {% set cu_dict = current_userprofile | user_profile_dict %}
+  {% set profile_schema = config.get("ACCOUNTS_USER_PROFILE_SCHEMA") or {} %}
+  {% set profile_fields = (profile_schema.fields or {}).keys() %}
+  {% set _dummy = cu_dict.update({"id": cu_dict.get("id") or ""}) %}
   {% for f in profile_fields %}
-    {% set _ = cu_dict.update({f: (cu.get("user_profile", {})).get(f) or ""}) %}
+    {% set _dummy = cu_dict.update({f: cu_dict.get(f) or ""}) %}
   {% endfor %}
 
 {%- block page_body %}
