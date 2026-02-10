@@ -1,81 +1,39 @@
 [build-system]
-requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
-include = ["invenio_modular_deposit_form*"]
-exclude = ["tests*", "docs*"]
+requires = ["setuptools>=61"]
 
 [project]
 name = "invenio-modular-deposit-form"
 version = "0.3.4-dev0"
 description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
 readme = "README.md"
-license = {file = "LICENSE"}
-authors = [
-    {name = "Mesh Research", email = "scottia4@msu.edu"},
-]
+keywords = ["deposit-form", "extensions", "invenio", "invenio-rdm", "ui"]
+license = { file = "LICENSE" }
+authors = [{ name = "Mesh Research", email = "scottia4@msu.edu" }]
+requires-python = ">=3.12"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
-keywords = ["invenio", "invenio-rdm", "deposit-form", "ui", "extensions"]
-requires-python = ">=3.9"
-dependencies = [
-    "invenio-app-rdm>=12.0.0,<13.0.0",
-]
+dependencies = ["invenio-app-rdm"]
 
-[project.optional-dependencies]
-dev = [
-    "sphinx>=4.5.0",
-]
-tests = [
-    "pytest-invenio>=2.1.0,<3.0.0",
-    "pytest-black>=0.3.0",
-]
+optional-dependencies.dev = ["sphinx>=4.5"]
+optional-dependencies.tests = ["pytest-black>=0.3", "pytest-invenio>=2.1,<3"]
+urls.Homepage = "https://github.com/MESH-Research/invenio-modular-deposit-form"
+entry-points."invenio_assets.webpack".invenio_modular_deposit_form_theme = "invenio_modular_deposit_form.webpack:theme"
+entry-points."invenio_base.apps".invenio_modular_deposit_form = "invenio_modular_deposit_form:InvenioModularDepositForm"
+entry-points."invenio_base.blueprints".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:create_blueprint"
+entry-points."invenio_i18n.translations".messages = "invenio_modular_deposit_form"
 
-[project.urls]
-Homepage = "https://github.com/MESH-Research/invenio-modular-deposit-form"
-
-[project.entry-points."invenio_base.apps"]
-invenio_modular_deposit_form = "invenio_modular_deposit_form:InvenioModularDepositForm"
-
-[project.entry-points."invenio_base.blueprints"]
-invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:create_blueprint"
-
-[project.entry-points."invenio_i18n.translations"]
-messages = "invenio_modular_deposit_form"
-
-[project.entry-points."invenio_assets.webpack"]
-invenio_modular_deposit_form_theme = "invenio_modular_deposit_form.webpack:theme"
-
-[tool.pytest.ini_options]
-addopts = "--black --isort --pydocstyle --doctest-glob=\"*.rst\" --doctest-modules --cov=invenio_modular_deposit_form --cov-report=term-missing"
-testpaths = ["docs", "tests", "invenio_modular_deposit_form"]
-
-[tool.pydocstyle]
-add-ignore = ["D401"]
+[tool.setuptools.packages.find]
+include = ["invenio_modular_deposit_form*"]
+exclude = ["tests*", "docs*"]
 
 [tool.isort]
 profile = "black"
-
-[tool.babel.compile_catalog]
-directory = "invenio_modular_deposit_form/translations/"
-use-fuzzy = true
-
-[tool.babel.extract_messages]
-copyright_holder = "Mesh Research"
-msgid_bugs_address = "scottia4@msu.edu"
-mapping-file = "babel.ini"
-output-file = "invenio_modular_deposit_form/translations/messages.pot"
-add-comments = "NOTE"
-
-[tool.babel.init_catalog]
-# input-file = "invenio_modular_deposit_form/translations/messages.pot"
-output-dir = "invenio_modular_deposit_form/translations/"
-
-[tool.babel.update_catalog]
-input-file = "invenio_modular_deposit_form/translations/messages.pot"
-output-dir = "invenio_modular_deposit_form/translations/"
 
 [tool.check-manifest]
 ignore = [
@@ -102,6 +60,32 @@ ignore = [
   ".vscode/*",
 ]
 
+[tool.pytest.ini_options]
+addopts = "--black --isort --pydocstyle --doctest-glob=\"*.rst\" --doctest-modules --cov=invenio_modular_deposit_form --cov-report=term-missing"
+testpaths = ["docs", "tests", "invenio_modular_deposit_form"]
+
+[tool.pydocstyle]
+add-ignore = ["D401"]
+
+[tool.babel.compile_catalog]
+directory = "invenio_modular_deposit_form/translations/"
+use-fuzzy = true
+
+[tool.babel.extract_messages]
+copyright_holder = "Mesh Research"
+msgid_bugs_address = "scottia4@msu.edu"
+mapping-file = "babel.ini"
+output-file = "invenio_modular_deposit_form/translations/messages.pot"
+add-comments = "NOTE"
+
+[tool.babel.init_catalog]
+# input-file = "invenio_modular_deposit_form/translations/messages.pot"
+output-dir = "invenio_modular_deposit_form/translations/"
+
+[tool.babel.update_catalog]
+input-file = "invenio_modular_deposit_form/translations/messages.pot"
+output-dir = "invenio_modular_deposit_form/translations/"
+
 [tool.bumpver]
 current_version = "0.3.4-dev0"
 version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
@@ -115,16 +99,7 @@ tag = false
 push = false
 
 [tool.bumpver.file_patterns]
-"pyproject.toml" = [
-    '^version = "{version}"',
-    '^current_version = "{version}"',
-]
-"README.md" = [
-    '^Version {version}',
-]
-VERSION = [
-    '^"{version}"',
-]
-"invenio_modular_deposit_form/__init__.py" = [
-    '^__version__ = "{version}"',
-]
+"pyproject.toml" = ['^version = "{version}"', '^current_version = "{version}"']
+"README.md" = ['^Version {version}']
+VERSION = ['^"{version}"']
+"invenio_modular_deposit_form/__init__.py" = ['^__version__ = "{version}"']
