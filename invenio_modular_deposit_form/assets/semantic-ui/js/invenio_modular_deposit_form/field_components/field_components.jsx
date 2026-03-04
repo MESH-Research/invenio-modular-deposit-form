@@ -1156,7 +1156,7 @@ const UniversityComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
       sectionName="KCR Book information"
-      fieldName="thesis:university"
+      fieldName="thesis:thesis"
       idString="ThesisUniversity"
       {...extraProps}
     />
