@@ -1,6 +1,6 @@
-import React, { createContext, useEffect, useRef, useState } from "react";
-import { useStore } from "react-redux";
+import React, { createContext, useEffect, useReducer, useRef, useState } from "react";
 import { useFormikContext } from "formik";
+import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
   Button,
@@ -13,13 +13,16 @@ import {
   Step,
   Transition,
 } from "semantic-ui-react";
-import PropTypes from "prop-types";
 
 import { FormPage } from "./framing_components/FormPage";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
-
 import { focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
+import {
+  formUIStateReducer,
+  getInitialFormUIState,
+  FORM_UI_ACTION,
+} from "./helpers/formUIStateReducer";
 import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFields";
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
 import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";
@@ -29,54 +32,21 @@ import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 const FormUIStateContext = createContext();
 
 /*
-This component provides the frame for deposit form page navigation and error handling. State for form values and errors are handled by Formik and accessed from the Formik context. This component manages form *ui* state.
-
-Visually, this component renders the form page navigation stepper and the form pages themselves. It also provides the confirmation modals for navigating between form pages with errors and for recovering autosaved form values.
+Form UI state is a single reducer state object. It is provided on context as formUIState
+so any consumer can read it from context. Config, record, etc. from Redux.
 */
-const InnerDepositForm = ({
-  commonFields,
-  currentUserprofile,
-  defaultFieldValues,
-  defaultResourceType,
-  descriptionModifications = undefined,
-  extraRequiredFields = undefined,
-  fieldsByType,
-  fieldComponents,
-  files = null,
-  helpTextModifications = undefined,
-  iconModifications = undefined,
-  labelModifications = undefined,
-  permissions = null,
-  permissionsPerField = undefined,
-  placeholderModifications = undefined,
-  preselectedCommunity = undefined,
-  priorityFieldValues = undefined,
-  previewableExtensions = [], // Add this new prop with a default value
-  record,
-  vocabularies,
-}) => {
-  const {
-    errors,
-    initialErrors,
-    initialTouched,
-    initialValues,
-    isValid,
-    setFieldError,
-    setFieldValue,
-    setFieldTouched,
-    setInitialValues,
-    setTouched,
-    setValues,
-    touched,
-    validateField,
-    validateForm,
-    values,
-    ...otherProps
-  } = useFormikContext();
-
+const FormLayoutContainer = () => {
   const store = useStore();
-  // const config = store.getState().deposit.config;
-  const selectedCommunity = store.getState().deposit.editorState.selectedCommunity;
+  const { config, record, editorState } = store.getState().deposit ?? {};
+
+  const componentsRegistry = config?.componentsRegistry ?? {};
+  const commonFields = config?.common_fields ?? [];
+  const currentUserprofile = config?.current_user_profile ?? {};
+  const defaultResourceType = config?.default_resource_type;
+  const fieldsByType = config?.fields_by_type ?? {};
+  const selectedCommunity = editorState?.selectedCommunity;
+  const formik = useFormikContext();
+
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
   if (
     !!selectedCommunityLabel &&
@@ -85,111 +55,27 @@ const InnerDepositForm = ({
     selectedCommunityLabel = `the "${selectedCommunityLabel}" collection`;
   }
 
-  // check if files are actually present
-  let noFiles = false;
-  if (!Array.isArray(files.entries) || (!files.entries.length && record.is_published)) {
-    noFiles = true;
-  }
-
-  // state for form page navigation
-  const formPages = commonFields[0].subsections;
-  const [currentFormPage, setCurrentFormPage] = useState(formPages[0].section);
-
-  // state for form page error handling
-  const [pagesWithErrors, setPagesWithErrors] = useState({});
-  const [pagesWithFlaggedErrors, setPagesWithFlaggedErrors] = useState({});
-  const isUpdatingRef = useRef(false);
-
-  // state for adapting fields to resource type
-  const [currentResourceType, setCurrentResourceType] = useState(defaultResourceType);
-  const [currentTypeFields, setCurrentTypeFields] = useState(
-    fieldsByType[defaultResourceType]
+  const isNewVersionDraft = record?.status === "new_version_draft";
+  const formPages = commonFields[0]?.subsections ?? [];
+  const [state, dispatch] = useReducer(
+    formUIStateReducer,
+    getInitialFormUIState(formPages, defaultResourceType, fieldsByType)
   );
-  const currentFieldMods = {
-    labelMods: labelModifications[currentResourceType],
-    iconMods: iconModifications[currentResourceType],
-    helpTextMods: helpTextModifications[currentResourceType],
-    placeholderMods: placeholderModifications[currentResourceType],
-    descriptionMods: descriptionModifications[currentResourceType],
-    defaultFieldValues: defaultFieldValues[currentResourceType],
-    priorityFieldValues: priorityFieldValues[currentResourceType],
-    extraRequiredFields: extraRequiredFields[currentResourceType],
-  };
-  const [formPageFields, setFormPageFields] = useState({});
-  const isNewVersionDraft = record.status === "new_version_draft" ? true : false;
-
-  // enable scrolling to sticky footer when navigating by keyboard
+  const isUpdatingRef = useRef(false);
   const pageTargetRef = useRef(null);
-  const pageTargetInViewport = useIsInViewport(pageTargetRef);
-  // fix sticky footer overlapping content when navigating by keyboard
-  // combined with css scroll-margin-bottom
-  useStickyFooterOverlapFix(currentFormPage);
 
-  // handle form page error state for client-side validation
-  // NOTE: fields marked if error + touched or if initial error + value unchanged
-  //       (initial errors should become errors when not fixed)
-  // all fields must be set touched to trigger validation before submit
-  // and then error fields set to touched again after submission
+  useStickyFooterOverlapFix(state.currentFormPage);
+  const pageTargetInViewport = useIsInViewport(pageTargetRef);
+
   useEffect(() => {
     if (!isUpdatingRef.current) {
       isUpdatingRef.current = true;
-      new FormErrorManager(
-        formPages,
-        formPageFields,
-        initialErrors,
-        errors,
-        touched,
-        initialValues,
-        values
-      ).updateFormErrorState(
-        setFieldError,
-        setFieldTouched,
-        setPagesWithErrors,
-        setPagesWithFlaggedErrors
-      );
-      // Use setTimeout to push the flag update to the next tick of the event loop
-      // to ensure it runs after the other state updates in this hook (which
-      // are batched)
+      new FormErrorManager(formPages, state.formPageFields, formik).updateFormErrorState(dispatch);
       setTimeout(() => {
         isUpdatingRef.current = false;
       }, 0);
     }
-  }, [errors, touched, initialErrors, initialValues, values, formPageFields]);
-
-  const {
-    confirmingPageChange,
-    nextFormPage,
-    previousFormPage,
-    handleFormPageChange,
-    handlePageChangeCancel,
-    handlePageChangeConfirm,
-  } = useFormPageNavigation(
-    formPages,
-    currentFormPage,
-    setCurrentFormPage,
-    pagesWithErrors,
-    confirmModalRef,
-    focusFirstElement,
-    recoveryAsked,
-    setFieldTouched,
-    formPageFields
-  );
-
-  useCurrentResourceTypeFields(
-    currentResourceType,
-    currentTypeFields,
-    setCurrentTypeFields,
-    setFormPageFields,
-    formPages,
-    fieldsByType,
-    fieldComponents
-  );
-
-  // update currentResourceType and currentTypeFields when values change
-  useEffect(() => {
-    setCurrentResourceType(values.metadata.resource_type);
-    setCurrentTypeFields(fieldsByType[values.metadata.resource_type]);
-  }, [values.metadata.resource_type]);
+  }, [formik.errors, formik.touched, formik.initialErrors, formik.initialValues, formik.values, state.formPageFields]);
 
   const {
     handleStorageData,
@@ -197,7 +83,43 @@ const InnerDepositForm = ({
     recoveryAsked,
     confirmModalRef,
     handleRecoveryAsked,
-  } = useLocalStorageRecovery(currentUserprofile, currentFormPage);
+  } = useLocalStorageRecovery(currentUserprofile, state.currentFormPage);
+
+  const navigation = useFormPageNavigation(
+    formPages,
+    state,
+    dispatch,
+    confirmModalRef,
+    focusFirstElement,
+    recoveryAsked,
+    formik
+  );
+
+  useCurrentResourceTypeFields(
+    state,
+    dispatch,
+    formPages,
+    fieldsByType,
+    componentsRegistry
+  );
+
+  useEffect(() => {
+    dispatch({
+      type: FORM_UI_ACTION.SET_CURRENT_RESOURCE_TYPE,
+      payload: formik.values.metadata.resource_type,
+    });
+    dispatch({
+      type: FORM_UI_ACTION.SET_CURRENT_TYPE_FIELDS,
+      payload: fieldsByType[formik.values.metadata.resource_type] ?? {},
+    });
+  }, [formik.values.metadata.resource_type, fieldsByType]);
+
+  const contextValue = {
+    formUIState: state,
+    currentFormPage: state.currentFormPage,
+    currentResourceType: state.currentResourceType,
+    handleFormPageChange: navigation.handleFormPageChange,
+  };
 
   return (
     <Container text id="rdm-deposit-form" className="rel-mt-1">
@@ -211,33 +133,20 @@ const InnerDepositForm = ({
           meantime, please use a device with a larger screen to deposit your work.
         </p>
       </Message>
-      <FormUIStateContext.Provider
-        value={{
-          handleFormPageChange: handleFormPageChange,
-          currentFormPage: currentFormPage,
-          currentUserprofile: currentUserprofile,
-          currentFieldMods: currentFieldMods,
-          currentResourceType: currentResourceType,
-          fieldComponents: fieldComponents,
-          noFiles: noFiles,
-          vocabularies: vocabularies,
-          previewableExtensions: previewableExtensions,
-          permissionsPerField: permissionsPerField,
-        }}
-      >
+      <FormUIStateContext.Provider value={contextValue}>
         <Grid>
           <Grid.Column mobile={16} tablet={16} computer={16}>
             <Grid.Row className="deposit-form-header">
               <h1 className="ui header">
                 {i18next.t(`${
-                  record.id !== null
+                  record?.id != null
                     ? isNewVersionDraft
                       ? "New Version of "
                       : "Updating "
                     : "New "
                 }
             ${
-              ["draft", "draft_with_review"].includes(record.status)
+              ["draft", "draft_with_review"].includes(record?.status)
                 ? "Draft "
                 : "Published "
             }Work`)}
@@ -258,13 +167,13 @@ const InnerDepositForm = ({
                 <Step
                   key={index}
                   as={Button}
-                  active={currentFormPage === section}
+                  active={state.currentFormPage === section}
                   link
-                  onClick={handleFormPageChange}
+                  onClick={navigation.handleFormPageChange}
                   value={section}
                   formNoValidate
                   className={`ui button upload-form-stepper-step ${section}
-                    ${!!pagesWithFlaggedErrors[section] ? "has-error" : ""}`}
+                    ${!!state.pagesWithFlaggedErrors[section] ? "has-error" : ""}`}
                   type="button"
                 >
                   <Step.Content>
@@ -277,18 +186,17 @@ const InnerDepositForm = ({
             <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
               {formPages.map(({ section, subsections }, index) => {
                 let actualSubsections = subsections;
-                if (!!currentTypeFields && !!currentTypeFields[section]) {
-                  actualSubsections = currentTypeFields[section];
+                if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
+                  actualSubsections = state.currentTypeFields[section];
                   if (!!actualSubsections[0].same_as) {
                     actualSubsections =
                       fieldsByType[actualSubsections[0].same_as][section];
                   }
                 }
                 return (
-                  currentFormPage === section && (
+                  state.currentFormPage === section && (
                     <div key={index}>
                       <FormPage
-                        currentFormPage={currentFormPage}
                         focusFirstElement={focusFirstElement}
                         id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                         recoveryAsked={recoveryAsked}
@@ -308,11 +216,11 @@ const InnerDepositForm = ({
             >
               <Grid className="deposit-form-footer">
                 <Grid.Column width={3}>
-                  {!!previousFormPage && (
+                  {!!navigation.previousFormPage && (
                     <Button
                       type="button"
-                      onClick={handleFormPageChange}
-                      value={previousFormPage}
+                      onClick={navigation.handleFormPageChange}
+                      value={navigation.previousFormPage}
                       icon
                       labelPosition="left"
                       className="back-button"
@@ -322,19 +230,17 @@ const InnerDepositForm = ({
                     </Button>
                   )}
                 </Grid.Column>
-
                 <Grid.Column className="footer-message" width={10}>
                   Your current form values are backed up automatically{" "}
                   <i>in this browser</i>.<br />
                   Save a persistent draft to the cloud on the "Save & Publish" tab.
                 </Grid.Column>
-
                 <Grid.Column width={3}>
-                  {!!nextFormPage && (
+                  {!!navigation.nextFormPage && (
                     <Button
                       type="button"
-                      onClick={handleFormPageChange}
-                      value={nextFormPage}
+                      onClick={navigation.handleFormPageChange}
+                      value={navigation.nextFormPage}
                       icon
                       labelPosition="right"
                       className="continue-button primary"
@@ -351,7 +257,7 @@ const InnerDepositForm = ({
               icon="question circle outline"
               id="confirm-page-change"
               className="confirm-page-change"
-              open={confirmingPageChange}
+              open={navigation.confirmingPageChange}
               header={i18next.t("Hmmm...")}
               content={
                 <Modal.Content image>
@@ -371,14 +277,14 @@ const InnerDepositForm = ({
                   {i18next.t("Fix the problems")}
                 </button>
               }
-              onCancel={handlePageChangeCancel}
-              onConfirm={handlePageChangeConfirm}
+              onCancel={navigation.handlePageChangeCancel}
+              onConfirm={navigation.handlePageChangeConfirm}
             />
 
             {!recoveryAsked && storageDataPresent && (
               <RecoveryModal
-                isDraft={values.status === "draft"}
-                isVersionDraft={values.status === "new_version_draft"}
+                isDraft={formik.values.status === "draft"}
+                isVersionDraft={formik.values.status === "new_version_draft"}
                 confirmModalRef={confirmModalRef}
                 handleStorageData={handleStorageData}
                 setRecoveryAsked={handleRecoveryAsked}
@@ -391,26 +297,4 @@ const InnerDepositForm = ({
   );
 };
 
-InnerDepositForm.propTypes = {
-  commonFields: PropTypes.array.isRequired,
-  currentUserprofile: PropTypes.object.isRequired,
-  defaultFieldValues: PropTypes.object.isRequired,
-  defaultResourceType: PropTypes.string.isRequired,
-  descriptionModifications: PropTypes.object,
-  extraRequiredFields: PropTypes.object,
-  fieldsByType: PropTypes.object.isRequired,
-  fieldComponents: PropTypes.object.isRequired,
-  files: PropTypes.object.isRequired,
-  helpTextModifications: PropTypes.object,
-  iconModifications: PropTypes.object,
-  labelModifications: PropTypes.object,
-  permissions: PropTypes.object.isRequired,
-  placeholderModifications: PropTypes.object,
-  preselectedCommunity: PropTypes.object,
-  priorityFieldValues: PropTypes.object,
-  previewableExtensions: PropTypes.array, // Add this new prop type
-  record: PropTypes.object.isRequired,
-  vocabularies: PropTypes.object.isRequired,
-};
-
-export { InnerDepositForm, FormUIStateContext };
+export { FormLayoutContainer, FormUIStateContext };
