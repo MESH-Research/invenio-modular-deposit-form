@@ -42,6 +42,23 @@ describe('LanguagesComponent', () => {
   const renderComponent = (recordOptions = [], formOptions = []) => {
     const preloadedState = {
       deposit: {
+        config: {
+          label_modifications: {},
+          icon_modifications: {},
+          help_text_modifications: {},
+          placeholder_modifications: {},
+          description_modifications: {},
+          default_field_values: {},
+          priority_field_values: {},
+          extra_required_fields: {},
+          vocabularies: {
+            metadata: {
+              languages: {
+                limit_to: [],
+              },
+            },
+          },
+        },
         record: {
           ui: {
             languages: recordOptions,
@@ -62,23 +79,10 @@ describe('LanguagesComponent', () => {
       <Provider store={store}>
         <FormUIStateContext.Provider
           value={{
-            vocabularies: {
-              metadata: {
-                languages: {
-                  limit_to: [],
-                },
-              },
-            },
-            currentFieldMods: {
-              defaultFieldValues: {},
-              descriptionMods: {},
-              helpTextMods: {},
-              iconMods: {},
-              labelMods: {},
-              placeholderMods: {},
-              priorityFieldValues: {},
-              extraRequiredFields: {},
-            },
+            formUIState: {},
+            currentFormPage: "",
+            currentResourceType: "",
+            handleFormPageChange: () => {},
           }}
         >
           <LanguagesComponent />

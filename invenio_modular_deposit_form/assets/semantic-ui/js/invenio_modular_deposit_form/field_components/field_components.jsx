@@ -59,7 +59,7 @@ import { FormUIStateContext } from "../InnerDepositForm";
 
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     // <Overridable
@@ -119,7 +119,7 @@ const AccessRightsComponent = ({ ...extraProps }) => {
 };
 
 const AdditionalDatesComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
@@ -138,7 +138,7 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
 
 const AdditionalDescriptionComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
@@ -173,7 +173,7 @@ const AdditionalTitlesComponent = () => {
 };
 
 const AlternateIdentifiersComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
@@ -293,7 +293,7 @@ const CommunitiesComponent = ({ ...extraProps }) => {
 
 const ContributorsComponent = ({ ...extraProps }) => {
   const config = useStore().getState().deposit.config;
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
@@ -320,7 +320,7 @@ const ContributorsComponent = ({ ...extraProps }) => {
 
 const CreatorsComponent = ({ ...extraProps }) => {
   const config = useStore().getState().deposit.config;
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
@@ -414,8 +414,10 @@ const DoiComponent = ({ ...extraProps }) => {
 };
 
 const FilesUploadComponent = ({ ...extraProps }) => {
-  const { config, record } = useStore().getState().deposit;
-  const { noFiles } = useContext(FormUIStateContext);
+  const store = useStore();
+  const { config, record } = store.getState().deposit;
+  const files = store.getState().files;
+  const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
 
   return (
     <>
@@ -836,13 +838,10 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
 };
 
 const ReferencesComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
-
   return (
     <FieldComponentWrapper
       componentName="ReferencesField"
       fieldPath={"metadata.references"}
-      vocabularies={vocabularies}
       {...extraProps}
     >
       <ReferencesField showEmptyValue />
@@ -851,7 +850,7 @@ const ReferencesComponent = ({ ...extraProps }) => {
 };
 
 const RelatedWorksComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
@@ -869,20 +868,6 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
 };
 
 const ResourceTypeComponent = ({ ...extraProps }) => {
-  {
-    /* <Overridable
-        id="InvenioAppRdm.Deposit.ResourceTypeField.container"
-        vocabularies={vocabularies}
-        fieldPath="metadata.resource_type"
-      >
-        <ResourceTypeField
-          options={vocabularies.metadata.resource_type}
-          fieldPath="metadata.resource_type"
-          required
-        />
-      </Overridable> */
-  }
-  const { vocabularies } = useContext(FormUIStateContext);
   const fieldPath = "metadata.resource_type";
   return (
     <FieldComponentWrapper
@@ -892,7 +877,6 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
     >
       <ResourceTypeSelectorField
         fieldPath={fieldPath}
-        options={vocabularies.metadata.resource_type}
         required={true}
       />
     </FieldComponentWrapper>
@@ -914,7 +898,7 @@ const SizesComponent = ({ ...extraProps }) => {
 };
 
 const SubjectsComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
   const record = useStore().getState().deposit.record;
 
   let myLimitToOptions = [...vocabularies.metadata.subjects.limit_to];
@@ -1119,7 +1103,7 @@ const SubtitleComponent = () => {
 };
 
 const TitleComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
   const record = useStore().getState().deposit.record;
   return (
     <FieldComponentWrapper

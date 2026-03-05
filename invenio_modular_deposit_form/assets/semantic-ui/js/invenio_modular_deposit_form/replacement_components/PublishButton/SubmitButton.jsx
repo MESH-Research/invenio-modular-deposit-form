@@ -13,7 +13,6 @@ import _omit from "lodash/omit";
 import PropTypes from "prop-types";
 import { SubmitReviewModal } from "./SubmitReviewModal";
 import { first } from "lodash";
-import { FormUIStateContext } from "../../InnerDepositForm";
 import { useFormSubmissionTransformer } from "../../helpers/FormSubmissionTransformer";
 
 const DRAFT_PREVIEW_STARTED = "DRAFT_PREVIEW_STARTED";
@@ -69,9 +68,10 @@ const SubmitButtonComponent = ({
   showSubmitForReviewButton,
   disableSubmitForReviewButton = undefined,
   isRecordSubmittedForReview,
+  permissionsPerField = {},
   ...ui
 }) => {
-  const { currentUserprofile, permissionsPerField } = useContext(FormUIStateContext);
+  const currentUserprofile = config?.current_user_profile ?? {};
   const { handleSubmit, initialValues, isSubmitting } = useFormikContext();
   const { setSubmitContext } = useContext(DepositFormSubmitContext);
   const [noFilesOpen, setNoFilesOpen] = useState(false);
@@ -372,6 +372,7 @@ const mapStateToProps = (state) => ({
   numberOfFiles: Object.values(state.files.entries).length,
   publishModalExtraContent: state.deposit.config.publish_modal_extra,
   community: state.deposit.editorState.selectedCommunity,
+  permissionsPerField: state.deposit.config?.permissions_per_field ?? {},
   showDirectPublishButton: state.deposit.editorState.ui.showDirectPublishButton,
   showChangeCommunityButton:
     state.deposit.editorState.ui.showChangeCommunityButton,

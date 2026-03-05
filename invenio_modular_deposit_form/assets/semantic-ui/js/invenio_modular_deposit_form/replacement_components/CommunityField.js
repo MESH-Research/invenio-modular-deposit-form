@@ -8,7 +8,7 @@
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useStore } from "react-redux";
 import { Trans } from "react-i18next";
 import { Image } from "react-invenio-forms";
@@ -16,8 +16,6 @@ import { connect } from "react-redux";
 import Overridable from "react-overridable";
 import { Button, Icon, Form, Grid, Header, Message } from "semantic-ui-react";
 import GeoPattern from "geopattern";
-
-import { FormUIStateContext } from "@js/invenio_modular_deposit_form/InnerDepositForm";
 
 import { CommunitySelectionModal } from "./CommunitySelectionModal/CommunitySelectionModal";
 import { getReadableFields } from "../utils";
@@ -356,6 +354,7 @@ const CommunityFieldComponent = ({
   showCommunitySelectionButton,
   disableCommunitySelectionButton,
   label = "Community submission",
+  permissionsPerField = {},
 }) => {
   const [modalOpen, setModalOpen] = useState();
   const store = useStore();
@@ -364,7 +363,6 @@ const CommunityFieldComponent = ({
   const isNewVersion = store.getState().deposit.record?.status === "new_version_draft";
   const recordLink = store.getState().deposit.record?.links?.record_html;
   const communities = store.getState().deposit.record?.parent?.communities?.entries;
-  const { permissionsPerField } = useContext(FormUIStateContext);
   const otherCommunities =
     community && communities ? communities.filter((c) => c.id !== community.id) : [];
 
@@ -494,10 +492,11 @@ const CommunityFieldComponent = ({
 CommunityFieldComponent.propTypes = {
   imagePlaceholderLink: PropTypes.string,
   community: PropTypes.object,
+  changeSelectedCommunity: PropTypes.func.isRequired,
   disableCommunitySelectionButton: PropTypes.bool.isRequired,
+  permissionsPerField: PropTypes.object,
   showCommunitySelectionButton: PropTypes.bool.isRequired,
   showCommunityHeader: PropTypes.bool.isRequired,
-  changeSelectedCommunity: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -507,6 +506,7 @@ const mapStateToProps = (state) => ({
   showCommunitySelectionButton:
     state.deposit.editorState.ui.showCommunitySelectionButton,
   showCommunityHeader: state.deposit.editorState.ui.showCommunityHeader,
+  permissionsPerField: state.deposit.config?.permissions_per_field ?? {},
 });
 
 const mapDispatchToProps = (dispatch) => ({

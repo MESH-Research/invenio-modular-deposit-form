@@ -1,11 +1,15 @@
-// This file is part of InvenioRDM
+// This file is part of Invenio Modular Deposit Form
+// Copyright (C) 2023-2026 MESH Research
+//
+// Based on Invenio App RDM
 // Copyright (C) 2020-2022 CERN.
 // Copyright (C) 2020-2022 Northwestern University.
 //
-// Invenio App RDM is free software; you can redistribute it and/or modify it
-// under the terms of the MIT License; see LICENSE file for more details.
+// Invenio Modular Deposit Form and Invenio App RDM are free software;
+// you can redistribute and/or modify them under the terms of the MIT
+// License; see LICENSE file for more details.
 
-import React, { useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import { getInputFromDOM } from "@js/invenio_rdm_records/";
 import { RDMDepositForm } from "./RDMDepositForm";
@@ -13,32 +17,17 @@ import { OverridableContext, overrideStore } from "react-overridable";
 
 const overriddenComponents = overrideStore.getAll();
 const formDiv = document.getElementById("deposit-form");
-const dataSet = formDiv.dataset;
 
-// FIXME: previewableExtensions depends on the custom jinja filter
-// defined in invenio_modular_detail_page/filters/previewable_extensions.py
+// Single config payload (stock forms_config + extension keys from merge_deposit_config)
+const config = getInputFromDOM("deposits-config") || {};
+
 ReactDOM.render(
   <OverridableContext.Provider value={overriddenComponents}>
     <RDMDepositForm
-      commonFields={JSON.parse(dataSet.commonFields)}
-      config={getInputFromDOM("deposits-config")}
-      currentUserprofile={JSON.parse(dataSet.currentUserprofile)}
-      defaultFieldValues={JSON.parse(dataSet.defaultFieldValues)}
-      defaultResourceType={JSON.parse(dataSet.defaultResourceType)}
-      descriptionModifications={JSON.parse(dataSet.descriptionModifications)}
-      extraRequiredFields={JSON.parse(dataSet.extraRequiredFields)}
-      fieldsByType={JSON.parse(dataSet.fieldsByType)}
+      config={config}
       files={getInputFromDOM("deposits-record-files")}
-      helpTextModifications={JSON.parse(dataSet.helpTextModifications)}
-      iconModifications={JSON.parse(dataSet.iconModifications)}
-      labelModifications={JSON.parse(dataSet.labelModifications)}
       permissions={getInputFromDOM("deposits-record-permissions")}
-      permissionsPerField={JSON.parse(dataSet.permissionsPerField)}
-      pidsConfigOverrides={JSON.parse(dataSet.pidsConfigOverrides)}
-      placeholderModifications={JSON.parse(dataSet.placeholderModifications)}
       preselectedCommunity={getInputFromDOM("deposits-draft-community")}
-      previewableExtensions={JSON.parse(dataSet.previewableExtensions)}
-      priorityFieldValues={JSON.parse(dataSet.priorityFieldValues)}
       record={getInputFromDOM("deposits-record")}
     />
   </OverridableContext.Provider>,
