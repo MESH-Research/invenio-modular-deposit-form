@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 include = ["invenio_modular_deposit_form*"]
 exclude = ["tests*", "docs*"]
 
+[tool.setuptools.package-data]
+invenio_modular_deposit_form = ["patches/**", "scripts/**"]
+
 [project]
 name = "invenio-modular-deposit-form"
 version = "0.3.4-dev0"
@@ -100,6 +103,7 @@ ignore = [
   "*.lock",
   "Pipfile",
   ".vscode/*",
+  "invenio_modular_deposit_form/patches/*",
 ]
 
 [tool.bumpver]

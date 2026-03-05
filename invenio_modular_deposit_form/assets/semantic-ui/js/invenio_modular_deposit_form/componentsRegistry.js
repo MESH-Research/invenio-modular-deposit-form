@@ -37,7 +37,7 @@ import {
   MetadataOnlyComponent,
   PublisherComponent,
   PublicationLocationComponent,
-  ReferencesComponent,
+  // ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
   SizesComponent,
@@ -54,7 +54,7 @@ import {
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
 
-const fieldComponents = {
+const componentsRegistry = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
@@ -181,17 +181,13 @@ const fieldComponents = {
   DeleteComponent: [DeleteComponent, []],
   FormRow: [FormRow, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
-  SectionPagesComponent: [
-    SectionPagesComponent,
-    ["custom_fields.journal:journal.pages"],
-  ],
   SubmissionComponent: [SubmissionComponent, []],
   // SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
 };
 
-const extras = require(`@js/invenio_modular_deposit_form_extras/componentsMap.js`);
-if (extras) {
-  Object.assign(fieldComponents, extras.componentsMap);
+const extras = require(`@js/invenio_modular_deposit_form_components/componentsRegistry.js`);
+if (extras && extras.componentsRegistry) {
+  Object.assign(componentsRegistry, extras.componentsRegistry);
 }
 
-export { fieldComponents };
+export { componentsRegistry };
