@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023 Mesh Research.
+# Copyright (C) 2023-2026 Mesh Research.
 #
 # Invenio Modular Deposit Form is free software; you can redistribute it
 # and/or modify it under the terms of the MIT License; see LICENSE file for
@@ -11,6 +11,11 @@ from flask import Blueprint
 from invenio_i18n import gettext as _
 
 from . import config
+from .filters import (
+    current_user_profile_dict,
+    merge_deposit_config,
+    previewable_extensions,
+)
 
 
 def create_blueprint(app):
@@ -40,16 +45,14 @@ class InvenioModularDepositForm:
     def init_app(self, app):
         """Flask application initialization."""
         self.init_config(app)
+        app.add_template_filter(previewable_extensions)
+        app.add_template_filter(current_user_profile_dict)
+        app.add_template_filter(merge_deposit_config)
         app.extensions["invenio-modular-deposit-form"] = self
 
     def init_config(self, app):
         """Initialize configuration."""
-        # Use theme's base template if theme is installed
-        if "BASE_TEMPLATE" in app.config:
-            app.config.setdefault(
-                "INVENIO_MODULAR_DEPOSIT_FORM_BASE_TEMPLATE",
-                app.config["BASE_TEMPLATE"],
-            )
+        app.config["APP_RDM_DEPOSIT_FORM_TEMPLATE"] = "invenio_modular_deposit_form/deposit.html"
         for k in dir(config):
             if k.startswith("INVENIO_MODULAR_DEPOSIT_FORM_"):
                 app.config.setdefault(k, getattr(config, k))
