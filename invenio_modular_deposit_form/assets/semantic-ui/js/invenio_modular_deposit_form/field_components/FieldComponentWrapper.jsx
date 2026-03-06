@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import Overridable from "react-overridable";
 import { pickBy } from "lodash";
-import { FormUIStateContext } from "../InnerDepositForm";
+import { useCurrentFieldMods } from "../hooks/useCurrentFieldMods";
 
 const FieldComponentWrapper = ({
   children,
@@ -15,7 +15,6 @@ const FieldComponentWrapper = ({
   required,
   ...extraProps
 }) => {
-  const { currentFieldMods } = useContext(FormUIStateContext);
   const {
     defaultFieldValues,
     descriptionMods,
@@ -25,7 +24,7 @@ const FieldComponentWrapper = ({
     placeholderMods,
     priorityFieldValues,
     extraRequiredFields,
-  } = currentFieldMods;
+  } = useCurrentFieldMods();
   const moddedIcon =
     iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
   const moddedLabel =
@@ -63,30 +62,28 @@ const FieldComponentWrapper = ({
   // } = cleanedExtraProps
 
   return (
-    <>
-      <Overridable
-        id={`InvenioAppRdm.Deposit.${componentName}.container`}
-        fieldPath={fieldPath}
-      >
-        {children &&
-          React.cloneElement(
-            children,
-            {
-              defaultFieldValue: defaultFieldValue,
-              description: moddedDescription,
-              fieldPath: fieldPath,
-              helpText: moddedHelpText,
-              label: moddedLabel,
-              icon: moddedIcon,
-              placeholder: moddedPlaceholder,
-              priorityFieldValues: priorityFieldValueSet,
-              required: moddedRequired,
-              ...cleanedExtraProps,
-            },
-            null
-          )}
-      </Overridable>
-    </>
+    <Overridable
+      id={`InvenioAppRdm.Deposit.${componentName}.container`}
+      fieldPath={fieldPath}
+    >
+      {children &&
+        React.cloneElement(
+          children,
+          {
+            defaultFieldValue: defaultFieldValue,
+            description: moddedDescription,
+            fieldPath: fieldPath,
+            helpText: moddedHelpText,
+            label: moddedLabel,
+            icon: moddedIcon,
+            placeholder: moddedPlaceholder,
+            priorityFieldValues: priorityFieldValueSet,
+            required: moddedRequired,
+            ...cleanedExtraProps,
+          },
+          null
+        )}
+    </Overridable>
   );
 };
 

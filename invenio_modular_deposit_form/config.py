@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023 Mesh Research.
+# Copyright (C) 2023-2026 Mesh Research.
 #
 # Invenio Modular Deposit Form is free software; you can redistribute it
 # and/or modify it under the terms of the MIT License; see LICENSE file for
@@ -128,7 +128,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                         "section": "admin_metadata",
                         "title": "Administrative Metadata",
                         "component": "AdminMetadataComponent",
-                        "props": {"restrict_to": ["administrator"]},
+                        "props": {"restrict_to": ["administration"]},
                     },
                 ],
             },

@@ -11,21 +11,19 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { useContext } from "react";
+import React from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import {
   AdditionalDatesComponent,
   DateComponent,
 } from "./field_components";
-import { FormUIStateContext } from "../InnerDepositForm";
 
 const CombinedDatesComponent = ({ ...extraProps }) => {
-  const { vocabularies } = useContext(FormUIStateContext);
   return (
     <>
       <DateComponent {...extraProps } />
-      <AdditionalDatesComponent vocabularies={vocabularies} />
+      <AdditionalDatesComponent />
     </>
   );
 };

@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useStore } from "react-redux";
 import { Form } from "semantic-ui-react";
-import { SectionWrapper } from "../field_components/SectionWrapper";
-import { FormUIStateContext } from "../InnerDepositForm";
+import { SectionWrapper } from "./SectionWrapper";
 
 const FormRow = ({ subsections, classnames, ...props }) => {
+  const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
   return (
     <Form.Group className={classnames ? classnames : null}>
       {subsections.map(({ section, component, ...innerProps }, index) => {
-        const { fieldComponents } = useContext(FormUIStateContext);
-        const MyField = fieldComponents[component][0];
+        const MyField = componentsRegistry[component][0];
         return (
           <MyField
             key={index}
@@ -33,9 +33,8 @@ const FieldsContent = ({
   index,
   ...props
 }) => {
-
-  const { fieldComponents } = useContext(FormUIStateContext);
-  const MyField = fieldComponents[component][0];
+  const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
+  const MyField = componentsRegistry[component][0];
 
   return !!wrapped ? (
     <SectionWrapper

@@ -2,6 +2,9 @@
 build-backend = "setuptools.build_meta"
 requires = ["babel>2.8", "setuptools>=61", "wheel"]
 
+[tool.setuptools.package-data]
+invenio_modular_deposit_form = ["patches/**", "scripts/**"]
+
 [project]
 name = "invenio-modular-deposit-form"
 version = "0.3.4-dev0"

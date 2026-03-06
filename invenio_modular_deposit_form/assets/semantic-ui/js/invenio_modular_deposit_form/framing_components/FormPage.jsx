@@ -1,25 +1,24 @@
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useContext } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { SectionWrapper } from "../field_components/SectionWrapper";
+import { SectionWrapper } from "./SectionWrapper";
 import { FieldsContent } from "./FieldsContent";
+import { FormUIStateContext } from "../FormLayoutContainer";
 import PropTypes from "prop-types";
 
-
-
 const FormPage = ({
-  currentFormPage,
   focusFirstElement,
   id,
   recoveryAsked,
   subsections,
 }) => {
+  const { currentFormPage } = useContext(FormUIStateContext);
 
   useLayoutEffect(() => {
     window.setTimeout(() => {
       focusFirstElement(currentFormPage, recoveryAsked);
     }, 200);
-  }, [recoveryAsked]);
+  }, [currentFormPage, recoveryAsked]);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -69,10 +68,11 @@ const FormPage = ({
   );
 };
 
-PropTypes.FormPage = {
+FormPage.propTypes = {
   focusFirstElement: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
+  recoveryAsked: PropTypes.bool,
   subsections: PropTypes.array.isRequired,
-}
+};
 
 export { FieldsContent, FormPage };

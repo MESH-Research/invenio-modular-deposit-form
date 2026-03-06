@@ -16,6 +16,7 @@ import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Field, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
 import { set } from "lodash";
+import { useStore } from "react-redux";
 
 const ResourceTypeSelectorField = ({
   classnames = undefined,
@@ -24,11 +25,14 @@ const ResourceTypeSelectorField = ({
   helpText = undefined,
   label = i18next.t("Resource type"),
   icon = "tag",
-  options,
+  options: optionsProp,
   labelclassname = "field-label-class",
   required,
   ...uiProps
 }) => {
+  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? {};
+  const options =
+    optionsProp ?? vocabularies?.metadata?.resource_type ?? [];
   const { values, errors, setFieldValue, initialValues } = useFormikContext();
   const [otherToggleActive, setOtherToggleActive] = useState(false);
 
@@ -203,7 +207,7 @@ ResourceTypeSelectorField.propTypes = {
       subtype_name: PropTypes.string,
       id: PropTypes.string,
     })
-  ).isRequired,
+  ),
   required: PropTypes.bool,
 };
 

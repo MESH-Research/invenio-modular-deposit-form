@@ -6,12 +6,6 @@ import {
   AdditionalDescriptionComponent,
   AdditionalTitlesComponent,
   AlternateIdentifiersComponent,
-  BookTitleComponent,
-  CodeRepositoryComponent,
-  CodeDevelopmentStatusComponent,
-  CodeOperatingSystemComponent,
-  CodeProgrammingLanguageComponent,
-  CodeRuntimePlatformComponent,
   CommunitiesComponent,
   ContributorsComponent,
   CreatorsComponent,
@@ -20,13 +14,31 @@ import {
   DoiComponent,
   FilesUploadComponent,
   FundingComponent,
-  ISBNComponent,
-  JournalVolumeComponent,
-  JournalIssueComponent,
-  JournalISSNComponent,
-  JournalTitleComponent,
   LanguagesComponent,
   LicensesComponent,
+  MetadataOnlyComponent,
+  PublisherComponent,
+  RelatedWorksComponent,
+  ResourceTypeComponent,
+  SizesComponent,
+  SubjectsComponent,
+  SubmissionComponent,
+  SubtitleComponent,
+  TitleComponent,
+  VersionComponent,
+} from "./field_components/field_components";
+import {
+  BookTitleComponent,
+  CodeDevelopmentStatusComponent,
+  CodeOperatingSystemComponent,
+  CodeProgrammingLanguageComponent,
+  CodeRepositoryComponent,
+  CodeRuntimePlatformComponent,
+  ISBNComponent,
+  JournalISSNComponent,
+  JournalIssueComponent,
+  JournalTitleComponent,
+  JournalVolumeComponent,
   MeetingAcronymComponent,
   MeetingDatesComponent,
   MeetingPlaceComponent,
@@ -34,27 +46,16 @@ import {
   MeetingSessionPartComponent,
   MeetingTitleComponent,
   MeetingURLComponent,
-  MetadataOnlyComponent,
-  PublisherComponent,
   PublicationLocationComponent,
-  ReferencesComponent,
-  RelatedWorksComponent,
-  ResourceTypeComponent,
-  SizesComponent,
   SectionPagesComponent,
-  SubjectsComponent,
-  SubmissionComponent,
-  SubtitleComponent,
-  TitleComponent,
   TotalPagesComponent,
-  VersionComponent,
-} from "./field_components/field_components";
+} from "./field_components/custom_field_components";
 import {
   CombinedDatesComponent,
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
 
-const fieldComponents = {
+const componentsRegistry = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
@@ -181,17 +182,13 @@ const fieldComponents = {
   DeleteComponent: [DeleteComponent, []],
   FormRow: [FormRow, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
-  SectionPagesComponent: [
-    SectionPagesComponent,
-    ["custom_fields.journal:journal.pages"],
-  ],
   SubmissionComponent: [SubmissionComponent, []],
   // SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
 };
 
-const extras = require(`@js/invenio_modular_deposit_form_extras/componentsMap.js`);
-if (extras) {
-  Object.assign(fieldComponents, extras.componentsMap);
+const extras = require(`@js/invenio_modular_deposit_form_components/componentsRegistry.js`);
+if (extras && extras.componentsRegistry) {
+  Object.assign(componentsRegistry, extras.componentsRegistry);
 }
 
-export { fieldComponents };
+export { componentsRegistry };

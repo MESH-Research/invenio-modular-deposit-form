@@ -1,5 +1,6 @@
 import { get, isEqual } from "lodash";
 import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils";
+import { FORM_UI_ACTION } from "./formUIStateReducer";
 
 /**
  * Helper to harmonize server-side, client-side validation, and form page error states
@@ -19,43 +20,18 @@ import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils
  *
  * All fields must also be set to touched to trigger client-side validation
  * before submission. This is handled by the ??? component.
- *
- * @class FormErrorManager -
- * @param {Object} formPages - the form pages
- * @param {Object} formPageFields - the form page fields
- * @param {Object} errors - the errors
- * @param {Object} touched - the touched fields
- * @param {Object} initialErrors - the initial errors
- * @param {Object} initialValues - the initial values
- * @param {Object} values - the values
  */
 class FormErrorManager {
   /**
    * FormErrorManager constructor
    * @param {Object} formPages - the form pages
    * @param {Object} formPageFields - the form page fields
-   * @param {Object} errors - the errors
-   * @param {Object} touched - the touched fields
-   * @param {Object} initialErrors - the initial errors
-   * @param {Object} initialValues - the initial values
-   * @param {Object} values - the values
+   * @param {Object} formik - Formik context (errors, touched, initialErrors, initialValues, values, setFieldError, setFieldTouched)
    */
-  constructor(
-    formPages,
-    formPageFields,
-    initialErrors,
-    errors,
-    touched,
-    initialValues,
-    values
-  ) {
+  constructor(formPages, formPageFields, formik) {
     this.formPages = formPages;
     this.formPageFields = formPageFields;
-    this.errors = errors;
-    this.touched = touched;
-    this.initialErrors = initialErrors;
-    this.initialValues = initialValues;
-    this.values = values;
+    this.formik = formik;
   }
 
   /**
@@ -77,17 +53,18 @@ class FormErrorManager {
    * @returns {Object} - the field state object
    */
   errorsToFieldSets = () => {
-    const errorFields = flattenKeysDotJoined(this.errors);
-    const touchedFields = flattenKeysDotJoined(this.touched);
+    const { errors, touched, initialErrors, initialValues, values } = this.formik;
+    const errorFields = flattenKeysDotJoined(errors);
+    const touchedFields = flattenKeysDotJoined(touched);
     const touchedErrorFields = errorFields?.filter(
-      (item) => touchedFields.includes(item) || getTouchedParent(this.touched, item)
+      (item) => touchedFields.includes(item) || getTouchedParent(touched, item)
     );
-    const initialErrorFields = flattenKeysDotJoined(this.initialErrors);
+    const initialErrorFields = flattenKeysDotJoined(initialErrors);
     const initialErrorFieldsUntouched = initialErrorFields?.filter(
       (item) => !touchedFields.includes(item)
     );
     const initialErrorFieldsUnchanged = initialErrorFields?.filter((item) =>
-      isEqual(get(this.values, item), get(this.initialValues, item))
+      isEqual(get(values, item), get(initialValues, item))
     );
     // const untouchedSet = new Set(initialErrorFieldsUntouched);
     const unchangedSet = new Set(initialErrorFieldsUnchanged);
@@ -98,7 +75,7 @@ class FormErrorManager {
     // have to account for possibility that frontend and backend error paths
     // are at different levels of specificity
     const initialErrorFieldsToFlag = [
-      ...new Set(initialErrorFields.filter(field => !initialErrorFieldsUnflagged.includes(field) && !(errorFields.includes(field) || getErrorParent(this.errors, field)))),
+      ...new Set(initialErrorFields.filter(field => !initialErrorFieldsUnflagged.includes(field) && !(errorFields.includes(field) || getErrorParent(errors, field)))),
     ];
     return {
       errorFields,
@@ -123,23 +100,17 @@ class FormErrorManager {
    * newer validation errors that should take precedence. (Client-side validation
    * errors are always freshly calculated before this method is called.)
    *
-   * @param {Function} setFieldError - the setFieldError function
-   * @param {Function} setFieldTouched - the setFieldTouched function
-   * @param {Array} errorFields - the error fields
-   * @param {Array} initialErrorFields - the initial error fields
-   * @param {Array} initialErrorFieldsUnflagged - the initial error fields that are
-   * not flagged as unchanged
+   * Uses this.formik for setFieldError, setFieldTouched, initialErrors, and touched.
+   *
+   * @param {Array} initialErrorFieldsToFlag - the initial error fields to flag (set in formik)
    */
-  addBackendErrors = (
-    setFieldError,
-    setFieldTouched,
-    initialErrorFieldsToFlag
-  ) => {
+  addBackendErrors = (initialErrorFieldsToFlag) => {
+    const { setFieldError, setFieldTouched, initialErrors, touched } = this.formik;
     if (initialErrorFieldsToFlag?.length > 0) {
       initialErrorFieldsToFlag.forEach((field) => {
-        const fieldError = get(this.initialErrors, field);
+        const fieldError = get(initialErrors, field);
         setFieldError(field, fieldError);
-        if (!get(this.touched, field) || !getTouchedParent(this.touched, field)) {
+        if (!get(touched, field) || !getTouchedParent(touched, field)) {
           setFieldTouched(field, true);
         }
       });
@@ -215,34 +186,19 @@ class FormErrorManager {
    * before this method is called. So if a field has a client-side validation error,
    * it will take precedence over the state of any backend errors.
    *
-   * @param {Function} setFieldError - the setFieldError function, which sets the form
-   *                                  field error state for one field.
-   * @param {Function} setPagesWithErrors - the setPagesWithErrors function, which
-   *                                        updates the higher-level state tracking
-   *                                        which form pages have errors.
-   * @param {Function} setPagesWithFlaggedErrors - the setPagesWithFlaggedErrors
-   *                                              function, which updates the
-   *                                              higher-level state tracking
-   *                                              which form pages have *                                              errors that should be flagged.
+   * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_PAGES_WITH_ERRORS, SET_PAGES_WITH_FLAGGED_ERRORS)
    */
-  updateFormErrorState = (
-    setFieldError,
-    setFieldTouched,
-    setPagesWithErrors,
-    setPagesWithFlaggedErrors
-  ) => {
+  updateFormErrorState = (dispatch) => {
     console.log("Updating form error state");
     const errorFieldSets = this.errorsToFieldSets();
     console.log("errorFieldSets:", errorFieldSets);
 
     this.addBackendErrors(
-      setFieldError,
-      setFieldTouched,
       errorFieldSets.initialErrorFieldsToFlag
     );
     console.log("added backend errors");
-    console.log("errors:", this.errors);
-    console.log("touched:", this.touched);
+    console.log("errors:", this.formik.errors);
+    console.log("touched:", this.formik.touched);
 
     const [errorPages, flaggedErrorPages] = this.getErrorPages(
       this.formPages,
@@ -257,9 +213,9 @@ class FormErrorManager {
     console.log("errorPages:", errorPages);
     console.log("flaggedErrorPages:", flaggedErrorPages);
 
-    setPagesWithErrors(errorPages);
+    dispatch({ type: FORM_UI_ACTION.SET_PAGES_WITH_ERRORS, payload: errorPages });
     console.log("set error pages");
-    setPagesWithFlaggedErrors(flaggedErrorPages);
+    dispatch({ type: FORM_UI_ACTION.SET_PAGES_WITH_FLAGGED_ERRORS, payload: flaggedErrorPages });
     console.log("set flagged error pages");
   };
 }
