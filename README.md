@@ -4,14 +4,16 @@
 
 An InvenioRDM extension that adds modular, configurable layout and client-side validation to the record deposit form.
 
-> [!WARNING] **Beta** — Usage and configuration may change.
+> [!WARNING] **Beta**
+> Usage and configuration may change.
 
 Version 0.3.4
 
 Copyright (C) 2023-2026 Mesh Research.
 Licensed under the MIT License. See `LICENSE` file for details.
 
-> [!NOTE] This package is currently under heavy development to improve its portability, as well as to support InvenioRDM versions 13 and 14. As of 2026-03-06 the package is temporarily broken, but this will be resolved shortly. Check back soon for updates!
+> [!NOTE] **Construction zone**
+> This package is currently under heavy development to improve its portability, as well as to support InvenioRDM versions 13 and 14. As of 2026-03-06 the package is temporarily broken, but this will be resolved shortly. Check back soon for updates!
 
 ## Features
 
@@ -136,7 +138,8 @@ Run the patch script again **after any reinstall or upgrade of invenio-rdm-recor
 
 ## Architecture
 
-> [!WARNING] The documentation from this point on is in rough draft form and is currently being edited. Check back shortly for updates.
+> [!WARNING]
+> The documentation from this point on is in rough draft form and is currently being edited. Check back shortly for updates.
 
 ### How the package delivers the features
 
