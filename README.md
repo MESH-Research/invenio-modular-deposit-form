@@ -1,40 +1,104 @@
+![Python](https://img.shields.io/badge/python-3.9+-276F86?style=flat-square&logo=python&logoColor=white) ![License](https://img.shields.io/badge/license-MIT-D9B01C?style=flat-square&logo=opensourceinitiative&logoColor=white) ![Status](https://img.shields.io/badge/status-beta-orange?style=flat-square)
+
 # Invenio Modular Deposit Form
 
 An InvenioRDM extension that adds modular, configurable layout and client-side validation to the record deposit form.
 
-![Python](https://img.shields.io/badge/python-3.9+-276F86?style=flat-square&logo=python&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-D9B01C?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Status](https://img.shields.io/badge/status-alpha-orange?style=flat-square)
-
-**Beta** — API and configuration may change.
+> [!WARNING] **Beta** — Usage and configuration may change.
 
 Version 0.3.4
 
-Source: [GitHub](https://github.com/MESH-Research/invenio-modular-deposit-form)
-
-Copyright (C) 2023-2026 Mesh Research.
-
+Copyright (C) 2023-2026 Mesh Research. 
 Licensed under the MIT License. See `LICENSE` file for details.
+
+> [!NOTE] This package is currently under heavy development to improve its portability, as well as to support InvenioRDM versions 13 and 14. Check back soon for updates!
 
 ## Features
 
-This extension provides a layout and validation layer for the InvenioRDM deposit form that allows:
+This extension provides a flexible, extensible layout and validation layer for the InvenioRDM deposit form that allows:
 
-- customization of the form layout via config variables
-- a stepped multi-page form flow (optional)
-- field visibility and layout changes based on resource type
-- field widget property customizations based on resource type, including:
-  - labels
-  - placeholders
-  - icons
-  - help text
-  - default values
-  - select value order
-  - required fields
-- integration of custom fields into the main form layout
-- autosave of unsubmitted form values to browser storage
-- client-side error handling harmonized with InvenioRDM's server-side handling
-- custom preprocessing of form data before submission
+- customization of the form **layout via config variables**
+  - uses the semantic-ui grid layout system
+  - allows for a stepped **multi-page** form flow
+  - construction of form layouts using a simple dictionary configuration
+- form UI changes **based on resource type**
+  - field visibility 
+  - alternate layouts
+  - widget properties like labels, icons, placeholders, etc.
+- integration of **custom fields** freely into the main form layout
+- **autosave** of unsubmitted form values to browser storage
+- **client-side error handling** harmonized with InvenioRDM's server-side handling
+- custom **preprocessing** of form data before submission
+
+The goal of this package has been to augment and expand on the existing InvenioRDM deposit form, not to completely replace it. Wherever possible, we rely on the stock components and logic provided by invenio-rdm-records. There's no point in reinventing the wheel! 
+
+The goal is simply to provide additional flexibility and functionality that might otherwise require instance owners to do extensive bespoke development.
+
+## Overview
+
+#### Custom template and wrapper component
+
+The package provides a custom Jinja template that renders a custom version of the top-level `RDMDepositForm` component. This is a thin wrapper that renders the stock `DepositFormApp` as its one child. The modular form layout and configuration are merged into the stock deposit form's config data by the template (using a custom filter) and passed into the stock form's Redux store.
+
+![Custom template and wrapper component](./docs/Modular%20Deposit%20Form%201.jpg)
+
+The stock invenio-rdm-records component retains responsibility for
+- Creation and management of **Formik form state** (monitoring input values and "touched" states)
+- Communication between the form and the **backend API**
+- Creation and management of the **Redux store** that handles static data and configuration
+
+#### Inserting the layout layer
+
+The second role of the custom `RDMDepositForm` is to insert a new custom layout layer in between the `DepositFormApp` and its children, the individual form field components. The wrapper component renders `DepositFormApp` with one child, a new `FormLayoutContainer` component.
+
+![Inserting layout container layer](./docs/Modular%20Deposit%20Form%202.jpg)
+
+This layout layer (along with its children) has access to the Redux store and Formik state, but it does not manage them. 
+
+The `FormLayoutContainer` *is* responsible for
+- Creation and management of any dynamic form UI state (via a dedicated Reducer)
+  - including the selected resource_type, for selective per-type field display 
+- Handling client-side autosave of form data
+- Managing page navigation through the form (for multi-page layouts)
+- Monitoring form error states and displaying them on the page (when necessary)
+  - including merging server-side errors with client side validation errors
+
+The registry of available form field components, as well as their visual arrangement 
+(including pagination) is provided via the Redux store. But it is the `FormLayoutContainer` that actually renders the top-level `FormPage` elements. If the
+configured layout includes multiple pages, this layout layer will also render a
+stepper component above the form page and a footer with forward and back buttons.
+
+#### Rendering form fields in the layout
+
+Following the configured layout, the `FormPage` elements then render the individual form field components. These can be the stock field components supplied by invenio-rdm-records, or they can be new custom components. Both can be included in
+the layout configuration.
+
+![Rendering form fields in the layout](./docs/Modular%20Deposit%20Form%203.jpg)
+
+#### Combining a variety of field component sources
+
+This package maintains a file-based registry of components that are available for use in the configured layout. That registry can also be expanded via an additional registry in your local InvenioRDM instance folder, supplied to invenio-modular-deposit-form through a python entry point.
+
+All of the stock field components are present in the combined registry by default. The stock components can also be overridden via the usual `ReactOverridable` method from your local instance directory. You can use your local instance component registry to add completely new custom form field components. This allows for, e.g., creating compound components that combine multiple form fields in a single widget, or creating multiple components linked to the same underlying metadata field.
+
+It is also possible to include any custom fields in any location in your layout. This package provides individual components for all of the built-in custom fields that invenio-rdm-records provides for journals, theses, etc. If you create your own custom fields, using the standard custom_fields approach, you can also include field components for those custom fields through your instance's component registry.
+
+![Combining a variety of field component sources](./docs/Modular%20Deposit%20Form%20(Fields).jpg)
+
+#### How form fields are inserted
+
+The stock InvenioRDM deposit form uses a static layout in which required props and configuration are passed directly from the `DepositFormApp` into each field component. 
+To insert these field components into a flexible layout layer, we use an outer wrapper component for each field. This retrieves and fetches the props that the field would normally receive from its parent--the record, list options, rich text editor settings, etc. 
+
+In addition, the field component is wrapped in an inner `FieldComponentWrapper` higher-order component. This retrieves any configured properties for the form field UI (label, icon, placeholder, etc.), modified as necessary for the currently selected resource_type. This is what allows field widgets to adapt to the resource_type on the fly without page reloads.
+
+![How form fields are inserted](./docs/Modular%20Deposit%20Form%20Widgets.jpg)
+
+In the case of custom fields (built-in or user-created) the field's React component requires props prepared by a dedicated field template. Custom fields also have their UI configuration embedded in form UI sections, displayed in the stock form as tabs at the bottom of the form.
+
+To free up custom field widgets for more flexible placement, we employ a `CustomFieldInjector` component that renders the individual field widget using its template and the default settings from its UI section configuration. The injector component also wraps this rendered field widget in a `FieldComponentWrapper`. This allows the field's UI properties to be modified from the invenio-modular-deposit-form's layout config dictionary, and lets the widget adapt to the selected resource_type.
+
+![How custom fields are inserted](./docs/Modular%20Deposit%20Form%20Custom%20Field.jpg)
 
 ## Installation
 
@@ -69,6 +133,8 @@ Run the patch script again **after any reinstall or upgrade of invenio-rdm-recor
 ```
 
 ## Architecture
+
+> [!WARNING] The documentation from this point on is in rough draft form and is currently being edited. Check back shortly for updates.
 
 ### How the package delivers the features
 
@@ -199,20 +265,6 @@ At present only "doi" is supported. The default values for this configuration ar
 The function does not allow customization of these values. This extension will read
 a variable with the name INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES and, if it has a key "doi",
 use any values provided there to override the default value with the same key.
-
-## Rationale
-
-The aim of this extension is to further improve InvenioRDM's deposit form's usability and customizability.
-Users are more likely to fill a form out completely if that form is easy to understand and navigate. This means
-we will generally get more and better metadata accompanying record deposits if the deposit form is highly
-usable. Generally, forms are more usable if there are a limited number of fields visible at once. One way of achieving this is to break a long and complex form into multiple stages. Another way of minimizing field clutter
-is to display only the fields that are actually necessary. This extension attempts to do both things by
-implementing a multi-step form and by hiding form fields that are not relevant to the resource type the user
-has selected.
-
-- making it immediately clear how far through the form submission process a user has come
-- providing immediate field validation and feedback to eliminate backtracking
-- making labels, help text, etc. clearer and more effective by allowing them to be customized by resource type
 
 ## Configuration
 
