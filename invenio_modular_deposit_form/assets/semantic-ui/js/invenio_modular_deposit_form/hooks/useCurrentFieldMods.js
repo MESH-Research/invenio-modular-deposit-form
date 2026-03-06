@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { useStore } from "react-redux";
-import { FormUIStateContext } from "../InnerDepositForm";
+import { FormUIStateContext } from "../FormLayoutContainer";
 
 /**
  * Returns field mods for the current resource type from Redux config.

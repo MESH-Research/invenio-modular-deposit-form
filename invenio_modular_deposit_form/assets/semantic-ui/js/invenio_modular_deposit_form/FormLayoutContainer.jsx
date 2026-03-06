@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useReducer, useRef, useState } from "react";
+import React, { createContext, useEffect, useReducer, useRef } from "react";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -32,8 +32,17 @@ import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 const FormUIStateContext = createContext();
 
 /*
-Form UI state is a single reducer state object. It is provided on context as formUIState
-so any consumer can read it from context. Config, record, etc. from Redux.
+FormLayoutContainer class to provide layout and UI state management.
+
+UI state that may be updated is managed by a single reducer state object,
+made available on the formUIState property of the FormUIStateContext.
+
+Static values that aren't updated between page loads (static config,
+record, permissions, language, etc.) live in the Redux store.
+
+(The separation of concerns isn't quite so neat since state related to
+API operations--files, selected community--are also managed by Redux
+and may be updated.)
 */
 const FormLayoutContainer = () => {
   const store = useStore();
@@ -57,6 +66,7 @@ const FormLayoutContainer = () => {
 
   const isNewVersionDraft = record?.status === "new_version_draft";
   const formPages = commonFields[0]?.subsections ?? [];
+  const hasMultiplePages = formPages.length > 1;
   const [state, dispatch] = useReducer(
     formUIStateReducer,
     getInitialFormUIState(formPages, defaultResourceType, fieldsByType)
@@ -136,6 +146,7 @@ const FormLayoutContainer = () => {
       <FormUIStateContext.Provider value={contextValue}>
         <Grid>
           <Grid.Column mobile={16} tablet={16} computer={16}>
+            {/* TODO: add an optional site for the community field to be placed */}
             <Grid.Row className="deposit-form-header">
               <h1 className="ui header">
                 {i18next.t(`${
@@ -157,6 +168,7 @@ const FormLayoutContainer = () => {
                 </h2>
               )}
             </Grid.Row>
+            {hasMultiplePages && (
             <Step.Group
               widths={formPages.length}
               className="upload-form-pager"
@@ -182,6 +194,7 @@ const FormLayoutContainer = () => {
                 </Step>
               ))}
             </Step.Group>
+            )}
 
             <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
               {formPages.map(({ section, subsections }, index) => {
@@ -208,6 +221,8 @@ const FormLayoutContainer = () => {
               })}
             </Transition.Group>
 
+            {hasMultiplePages && (
+            <>
             <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
             <div
               className={`ui container ${
@@ -252,6 +267,8 @@ const FormLayoutContainer = () => {
                 </Grid.Column>
               </Grid>
             </div>
+            </>
+            )}
 
             <Confirm
               icon="question circle outline"

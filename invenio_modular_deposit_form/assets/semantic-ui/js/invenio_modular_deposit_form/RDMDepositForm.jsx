@@ -16,7 +16,7 @@ import { DepositFormApp } from "@js/invenio_rdm_records";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { componentsRegistry } from "./componentsRegistry";
-import { FormLayoutContainer } from "./InnerDepositForm";
+import { FormLayoutContainer } from "./FormLayoutContainer";
 
 const validator = require(`@js/invenio_modular_deposit_form_validator/validator.js`);
 const validationSchema = validator?.validationSchema
