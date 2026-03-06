@@ -128,7 +128,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                         "section": "admin_metadata",
                         "title": "Administrative Metadata",
                         "component": "AdminMetadataComponent",
-                        "props": {"restrict_to": ["administrator"]},
+                        "props": {"restrict_to": ["administration"]},
                     },
                 ],
             },
