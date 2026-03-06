@@ -67,34 +67,6 @@ const CustomFieldInjector = ({
   );
 };
 
-// const CustomFieldSectionInjector = ({
-//   sectionName,
-//   idString,
-//   customFieldsUI,
-// }) => {
-//   const chosenSetConfig = new Array(
-//     customFieldsUI.find((item) => item.section === sectionName)
-//   );
-//   const templateLoaders = [
-//     (widget) => import(`@templates/custom_fields/${widget}.js`),
-//     (widget) => import(`@js/invenio_rdm_records/src/deposit/customFields`),
-//     (widget) => import(`react-invenio-forms`),
-//   ];
-
-//   return (
-//     <Overridable
-//       id={`InvenioAppRdm.Deposit.${idString}.container`}
-//       customFieldsUI={chosenSetConfig}
-//     >
-//       <CustomFields
-//         config={chosenSetConfig}
-//         templateLoaders={templateLoaders}
-//         fieldPathPrefix="custom_fields"
-//       />
-//     </Overridable>
-//   );
-// };
-
 CustomFieldInjector.propTypes = {
   sectionName: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,

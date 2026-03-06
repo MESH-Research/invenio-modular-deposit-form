@@ -1,9 +1,9 @@
 import React, { useLayoutEffect, useContext } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { SectionWrapper } from "../field_components/SectionWrapper";
+import { SectionWrapper } from "./SectionWrapper";
 import { FieldsContent } from "./FieldsContent";
-import { FormUIStateContext } from "../InnerDepositForm";
+import { FormUIStateContext } from "../FormLayoutContainer";
 import PropTypes from "prop-types";
 
 const FormPage = ({

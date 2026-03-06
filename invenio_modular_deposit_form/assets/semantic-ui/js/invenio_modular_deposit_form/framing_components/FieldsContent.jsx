@@ -1,7 +1,7 @@
 import React from "react";
 import { useStore } from "react-redux";
 import { Form } from "semantic-ui-react";
-import { SectionWrapper } from "../field_components/SectionWrapper";
+import { SectionWrapper } from "./SectionWrapper";
 
 const FormRow = ({ subsections, classnames, ...props }) => {
   const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};

@@ -62,30 +62,28 @@ const FieldComponentWrapper = ({
   // } = cleanedExtraProps
 
   return (
-    <>
-      <Overridable
-        id={`InvenioAppRdm.Deposit.${componentName}.container`}
-        fieldPath={fieldPath}
-      >
-        {children &&
-          React.cloneElement(
-            children,
-            {
-              defaultFieldValue: defaultFieldValue,
-              description: moddedDescription,
-              fieldPath: fieldPath,
-              helpText: moddedHelpText,
-              label: moddedLabel,
-              icon: moddedIcon,
-              placeholder: moddedPlaceholder,
-              priorityFieldValues: priorityFieldValueSet,
-              required: moddedRequired,
-              ...cleanedExtraProps,
-            },
-            null
-          )}
-      </Overridable>
-    </>
+    <Overridable
+      id={`InvenioAppRdm.Deposit.${componentName}.container`}
+      fieldPath={fieldPath}
+    >
+      {children &&
+        React.cloneElement(
+          children,
+          {
+            defaultFieldValue: defaultFieldValue,
+            description: moddedDescription,
+            fieldPath: fieldPath,
+            helpText: moddedHelpText,
+            label: moddedLabel,
+            icon: moddedIcon,
+            placeholder: moddedPlaceholder,
+            priorityFieldValues: priorityFieldValueSet,
+            required: moddedRequired,
+            ...cleanedExtraProps,
+          },
+          null
+        )}
+    </Overridable>
   );
 };
 

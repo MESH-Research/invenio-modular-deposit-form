@@ -11,51 +11,44 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useContext, useState, useEffect } from "react";
+import React, { Fragment } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
-import { AccordionField } from "react-invenio-forms";
 import {
   AccessRightField,
-  DescriptionsField,
   CommunityHeader,
   CreatibutorsField,
+  DatesField,
   DeleteButton,
-  DepositFormApp,
-  DepositStatusBox,
+  DescriptionsField,
   FileUploader,
   FormFeedback,
   IdentifiersField,
-  PreviewButton,
+  LanguagesField,
   LicenseField,
+  PIDField,
+  PreviewButton,
   PublicationDateField,
-  PublishButton,
   PublisherField,
+  PublishButton,
   ReferencesField,
   RelatedWorksField,
+  ResourceTypeField,
+  SaveButton,
   SubjectsField,
   TitlesField,
   VersionField,
-  SaveButton,
 } from "@js/invenio_rdm_records";
 import { FundingField } from "@js/invenio_vocabularies";
-import { Grid, Message } from "semantic-ui-react";
-// import PropTypes from "prop-types";
+import { Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { DatesField } from "../replacement_components/DatesField";
-import { CommunityField } from "../replacement_components/CommunityField";
-import { LanguagesField } from "../replacement_components/LanguagesField";
-import { PIDField } from "../replacement_components/PIDField";
-import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSelectorField";
 import { SizesField } from "../replacement_components/SizesField";
-import { SubmitButtonModal } from "../replacement_components/PublishButton/SubmitButton";
 import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
-import { FormUIStateContext } from "../InnerDepositForm";
 
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
@@ -118,6 +111,14 @@ const AccessRightsComponent = ({ ...extraProps }) => {
   );
 };
 
+// OVERRIDDEN
+// ReactOverridable id: InvenioAppRdm.Deposit.DateField.container (via FieldComponentWrapper).
+// Stock: InvenioRdmRecords.DatesField.AddDateArrayField.Container.
+// Wraps stock DatesField from @js/invenio_rdm_records. Stock props: fieldPath, options (shape.type),
+// label, labelIcon, placeholderDate, required, requiredOptions, showEmptyValue.
+// Override version (override_components.jsx) uses our DatesField replacement; same props passed
+// (fieldPath, options=vocabularies.metadata.dates, showEmptyValue=false). Stock uses labelIcon;
+// our replacement used icon—equivalent.
 const AdditionalDatesComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
@@ -191,101 +192,23 @@ const AlternateIdentifiersComponent = ({ ...extraProps }) => {
   );
 };
 
-const BookTitleComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
-      fieldName="imprint:imprint.title"
-      idString="ImprintTitleField"
-      description={""}
-      label={"Book title"}
-      icon={"book"}
-      {...extraProps}
-    />
-  );
-};
-
-const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:developmentStatus"
-      idString="CodeDevelopmentStatusField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CodeOperatingSystemComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:operatingSystem"
-      idString="CodeOperatingSystemField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:programmingLanguage"
-      idString="CodeProgrammingLanguageField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CodeRepositoryComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:codeRepository"
-      idString="CodeRepositoryField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CodeRuntimePlatformComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:runtimePlatform"
-      idString="CodeRuntimePlatformField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CommonsDomainComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
-      fieldName="kcr:commons_domain"
-      idString="CommonsDomainField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
+// OVERRIDDEN
+// ReactOverridable id: InvenioAppRdm.Deposit.CommunityHeader.container.
+// Stock: CommunityHeader from @js/invenio_rdm_records (Redux-connected). Inner Overridable ids:
+//   InvenioRdmRecords.CommunityHeader.CommunityHeaderElement.Container,
+//   InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container,
+//   InvenioRdmRecords.CommunityHeader.RemoveCommunityButton.Container.
+// Stock props (required): imagePlaceholderLink, record. Other props from Redux (community,
+//   showCommunityHeader, showCommunitySelectionButton, disableCommunitySelectionButton,
+//   changeSelectedCommunity). Override version (override_components.jsx) uses our CommunityField
+//   replacement which accepts imagePlaceholderLink and ...extraProps (no explicit record—likely
+//   reads from store internally). Stock does not use FieldComponentWrapper.
 const CommunitiesComponent = ({ ...extraProps }) => {
-  {
-    /* <Overridable id="InvenioAppRdm.Deposit.CommunityHeader.container">
-    <CommunityHeader imagePlaceholderLink="/static/images/square-placeholder.png" />
-  </Overridable> */
-  }
+  const record = useStore().getState().deposit?.record;
   return (
-    <CommunityField
+    <CommunityHeader
       imagePlaceholderLink="/static/images/square-placeholder.png"
+      record={record ?? {}}
       {...extraProps}
     />
   );
@@ -377,14 +300,19 @@ const DeleteComponent = ({ ...extraProps }) => {
   );
 };
 
+// OVERRIDDEN
+// ReactOverridable id: InvenioAppRdm.Deposit.PIDField.container (stock has no wrapper; not using FieldComponentWrapper—FIXME in original).
+// Stock: PIDField from @js/invenio_rdm_records. No Overridable ids inside; uses FastField + CustomPIDField.
+// Stock props: fieldPath, fieldLabel, isEditingPublishedRecord, record (required), pidType; optional btnLabelDiscardPID,
+//   btnLabelGetPID, canBeManaged, canBeUnmanaged, managedHelpText, pidIcon, pidLabel, pidPlaceholder, required, unmanagedHelpText.
+// Override version (override_components.jsx) uses our PIDField replacement; same props from config.pids + record.
+// Difference: stock requires record explicitly; our replacement may read it from context. Stock has pidIcon default "barcode".
 const DoiComponent = ({ ...extraProps }) => {
   const store = useStore();
   const pids = store.getState().deposit.config.pids;
   const record = store.getState().deposit.record;
 
   return (
-    // FIXME: PIDField doesn't play nicely with FieldComponentWrapper
-    // <FieldComponentWrapper componentName="PIDField" {...extraProps}>
     <Fragment>
       {pids.map((pid) => (
         <Fragment key={pid.scheme}>
@@ -396,20 +324,20 @@ const DoiComponent = ({ ...extraProps }) => {
             fieldPath={`pids.${pid.scheme}`}
             fieldLabel={pid.field_label}
             isEditingPublishedRecord={
-              record.is_published === true // is_published is `null` at first upload
+              record?.is_published === true
             }
             managedHelpText={pid.managed_help_text}
             pidLabel={pid.pid_label}
             pidPlaceholder={pid.pid_placeholder}
             pidType={pid.scheme}
-            unmanagedHelpText={pid.unmanaged_help_text}
+            record={record ?? {}}
             required
+            unmanagedHelpText={pid.unmanaged_help_text}
             {...extraProps}
           />
         </Fragment>
       ))}
     </Fragment>
-    // </FieldComponentWrapper>
   );
 };
 
@@ -525,89 +453,20 @@ const FundingComponent = ({ ...extraProps }) => {
   );
 };
 
-const ISBNComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
-      fieldName="imprint:imprint.isbn"
-      idString="ImprintISBNField"
-      icon="barcode"
-      placeholder="e.g. 0-06-251587-X"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const JournalTitleComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Journal"
-      fieldName="journal:journal.title"
-      idString="JournalTitleField"
-      label="Journal title"
-      icon=""
-      description=""
-      {...extraProps}
-    />
-  );
-};
-
-const JournalISSNComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Journal"
-      fieldName="journal:journal.issn"
-      idString="JournalISSNField"
-      label="ISSN"
-      icon="barcode"
-      description=""
-      placeholder="e.g. 1234-5678"
-      {...extraProps}
-    />
-  );
-};
-
-const JournalVolumeComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Journal"
-      fieldName="journal:journal.volume"
-      idString="JournalVolumeField"
-      label={i18next.t("Volume")}
-      description=""
-      icon="zip"
-      {...extraProps}
-    />
-  );
-};
-
-const JournalIssueComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Journal"
-      fieldName="journal:journal.issue"
-      idString="JournalIssueField"
-      label={i18next.t("Issue")}
-      description=""
-      icon="book"
-      {...extraProps}
-    />
-  );
-};
-
+// OVERRIDDEN
+// ReactOverridable id: InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper).
+// Stock: LanguagesField from @js/invenio_rdm_records. No Overridable inside; wraps RemoteSelectField.
+// Stock props: fieldPath, label, labelIcon, required, multiple, clearable, placeholder, initialOptions
+//   (array of { key, value, text }), serializeSuggestions; default noQueryMessage "Search for languages...".
+// Override version (override_components.jsx) adds useEffect + onValueChange to keep form state as objects
+//   (id, title_l10n) for readable labels; stock may store only ids. Stock uses suggestionAPIUrl
+//   /api/vocabularies/languages. Map initialOptions to { key, value, text } for stock.
 const LanguagesComponent = ({ ...extraProps }) => {
-  const { setFieldValue, values } = useFormikContext();
+  const { values } = useFormikContext();
   const recordOptions = useStore().getState().deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
   const formOptions =
-    values?.metadata?.languages?.filter((lang) => lang !== null) ||
-    [];
-  // filter needed because dumped empty record from backend gives [null]
+    values?.metadata?.languages?.filter((lang) => lang !== null) || [];
 
-  // FIXME: Initial value passed to form field from the record is a simple array of ids,
-  // but we need the form field to receive the objects, not just the ids
-  // so that the values in the form state have the readable labels. So on first render,
-  // we need to use the record options if they match the form options.
   let initialOptions;
   if (typeof formOptions?.[0] === "string" &&
       formOptions.length === recordOptions.length &&
@@ -616,31 +475,11 @@ const LanguagesComponent = ({ ...extraProps }) => {
   } else {
     initialOptions = formOptions;
   }
-
-  // Convert the initial form value to an array of objects with id and title_l10n
-  // if it's just an array of strings. Necessary because client-side updating from
-  // form state needs the readable labels.
-  useEffect(() => {
-    if (initialOptions?.length > 0 && (
-        typeof formOptions.some((formOption) => typeof formOption === 'string') ||
-        !formOptions ||
-        formOptions.some((formOption, index) => formOption.id !== initialOptions[index]?.id || formOption.title_l10n !== initialOptions[index]?.title_l10n)
-    )) {
-      setFieldValue("metadata.languages", initialOptions);
-    }
-  }, []);
-
-  // Override the onValueChange to set the field value to the selected suggestions
-  // So that the values in the Formik state are the objects, not just the ids
-  // This is necessary because otherwise we can't restore the readable labels when
-  // rendering the form from client-side state
-  const onValueChange = ({event, data, formikProps}, selectedSuggestions) => {
-    const fieldValues = selectedSuggestions.map((item) => ({
-      title_l10n: item.text,
-      id: item.value,
-    }))
-    setFieldValue("metadata.languages", fieldValues);
-  }
+  const stockInitialOptions = initialOptions?.map((opt) =>
+    typeof opt === "object" && opt !== null && "id" in opt
+      ? { key: opt.id, value: opt.id, text: opt.title_l10n ?? opt.id }
+      : { key: opt, value: opt, text: opt }
+  );
 
   return (
     <FieldComponentWrapper
@@ -650,11 +489,10 @@ const LanguagesComponent = ({ ...extraProps }) => {
     >
       <LanguagesField
         fieldPath="metadata.languages"
-        initialOptions={initialOptions}
+        initialOptions={stockInitialOptions}
         placeholder={i18next.t(
           'Type to search for a language (press "enter" to select)'
         )}
-        description={i18next.t(extraProps.description)}
         serializeSuggestions={(suggestions) =>
           suggestions.map((item) => ({
             text: item.title_l10n,
@@ -665,7 +503,6 @@ const LanguagesComponent = ({ ...extraProps }) => {
         noQueryMessage={i18next.t("No languages found")}
         aria-describedby="metadata.languages.helptext"
         multiple={true}
-        onValueChange={onValueChange}
       />
     </FieldComponentWrapper>
   );
@@ -708,105 +545,6 @@ const MetadataOnlyComponent = () => {
   return <></>;
 };
 
-const MeetingAcronymComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.acronym"
-      idString="MeetingAcronymField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingDatesComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.dates"
-      idString="MeetingDatesField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingPlaceComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.place"
-      idString="MeetingPlaceField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingSessionComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.session"
-      idString="MeetingSessionField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingSessionPartComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.session_part"
-      idString="MeetingSessionPartField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingTitleComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.title"
-      idString="MeetingTitleField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const MeetingURLComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Conference"
-      fieldName="meeting:meeting.url"
-      idString="MeetingURLField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const SectionPagesComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Journal"
-      fieldName="journal:journal.pages"
-      idString="JournalPagesField"
-      description={""}
-      label="Section pages"
-      icon="file outline"
-      placeholder="e.g. 123-145"
-      {...extraProps}
-    />
-  );
-};
-
 const PublisherComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -819,21 +557,6 @@ const PublisherComponent = ({ ...extraProps }) => {
     >
       <PublisherField fieldPath="metadata.publisher" required />
     </FieldComponentWrapper>
-  );
-};
-
-const PublicationLocationComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
-      fieldName="imprint:imprint.place"
-      idString="ImprintPlaceField"
-      label={"Place of Publication"}
-      icon={"map marker alternate"}
-      description={""}
-      placeholder={"e.g. Lagos, Nigeria"}
-      {...extraProps}
-    />
   );
 };
 
@@ -867,22 +590,34 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
   );
 };
 
+// OVERRIDDEN
+// ReactOverridable id: InvenioAppRdm.Deposit.ResourceTypeSelectorField.container (via FieldComponentWrapper).
+// Stock: ResourceTypeField from @js/invenio_rdm_records. No Overridable inside; wraps SelectField.
+// Stock props: fieldPath, options (array of { icon, type_name, subtype_name, id }), label, labelIcon, required.
+// Override version (override_components.jsx) uses our ResourceTypeSelectorField (button-style UI). Stock uses
+// dropdown SelectField with createOptions mapping options to { value, icon, text }. Pass vocabularies.metadata.resource_type as options.
 const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
+  const options = useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
   return (
     <FieldComponentWrapper
       componentName="ResourceTypeSelectorField"
       fieldPath={fieldPath}
       {...extraProps}
     >
-      <ResourceTypeSelectorField
+      <ResourceTypeField
         fieldPath={fieldPath}
+        options={options}
         required={true}
       />
     </FieldComponentWrapper>
   );
 };
 
+// OVERRIDDEN
+// ReactOverridable id: InvenioAppRdm.Deposit.SizeField.container (via FieldComponentWrapper).
+// No stock SizesField in @js/invenio_rdm_records deposit fields; metadata.sizes is not a dedicated
+// field component in stock RDM. This version continues to use our SizesField replacement.
 const SizesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -927,6 +662,7 @@ const SubjectsComponent = ({ ...extraProps }) => {
   );
 };
 
+// OVERRIDDEN
 /**
  * SubmissionComponent is the component that displays the submission buttons
  * and the form feedback.
@@ -935,33 +671,18 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * error state. The `errors` variable comes from the Redux store and represents
  * the error state after the last form submission OR on first page render.
  *
- * The state for confirming whether there should be files or not is stored here.
- *
+ * Uses stock SaveButton, PreviewButton, PublishButton, FormFeedback, DeleteButton
+ * from @js/invenio_rdm_records. Override id: InvenioAppRdm.Deposit.CardDepositStatusBox.container.
+ * Override (override_components.jsx) uses SubmitButtonModal (save/preview/publish) with
+ * missing-files confirmation and "no files" flow; stock uses separate buttons and
+ * PublishButton disables when files enabled but none uploaded (no confirm modal for that).
  */
 const SubmissionComponent = () => {
-  const { errors: clientErrors, values, setFieldValue } = useFormikContext();
-  const { handleFormPageChange } = useContext(FormUIStateContext);
-  const [_, setConfirmedNoFiles] = useState(undefined);
+  const { errors: clientErrors } = useFormikContext();
   const store = useStore();
 
-  const { actionState, actionStateExtra, config, errors, record, permissions } =
+  const { actionState, config, errors, record, permissions } =
     store.getState().deposit;
-  const hasFiles = Object.keys(store.getState().files.entries).length > 0;
-  const filesEnabled = !!values.files.enabled;
-  const missingFiles = filesEnabled && !hasFiles;
-
-  const handleConfirmNoFiles = async () => {
-    if (!hasFiles) {
-      setConfirmedNoFiles(true);
-      await setFieldValue("files.enabled", false);
-    }
-  };
-
-  const handleConfirmNeedsFiles = () => {
-    setConfirmedNoFiles(false);
-    // FIXME: don't hardcode the page
-    handleFormPageChange(null, { value: "page-5" });
-  };
 
   // errors not related to validation, following a different format {status:.., message:..}
   let nonValidationErrors;
@@ -1009,35 +730,12 @@ const SubmissionComponent = () => {
               </Overridable>
             )}
 
-            <SubmitButtonModal
+            <SaveButton fluid aria-describedby="save-button-description" />
+            <PreviewButton fluid aria-describedby="preview-button-description" />
+            <PublishButton
               fluid
-              actionName="saveDraft"
-              aria-describedby="save-button-description"
-              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
-              handleConfirmNoFiles={handleConfirmNoFiles}
-              missingFiles={missingFiles}
-              // disabled={errors && !_isEmpty(errors)}
-            />
-
-            <SubmitButtonModal
-              fluid
-              actionName="preview"
-              aria-describedby="preview-button-description"
-              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
-              handleConfirmNoFiles={handleConfirmNoFiles}
-              missingFiles={missingFiles}
-              // disabled={errors && !_isEmpty(errors)}
-            />
-            <SubmitButtonModal
-              fluid
-              actionName="publish"
-              handleConfirmNeedsFiles={handleConfirmNeedsFiles}
-              handleConfirmNoFiles={handleConfirmNoFiles}
-              missingFiles={missingFiles}
               aria-describedby="publish-button-description"
               id="deposit-form-publish-button"
-              positive
-              // disabled={errors && !_isEmpty(errors)}
             />
             <DeleteComponent
               permissions={permissions}
@@ -1075,29 +773,6 @@ const SubmissionComponent = () => {
   );
 };
 
-const SubmitterEmailComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
-      fieldName="kcr:submitter_email"
-      idString="SubmitterEmailField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const SubmitterUsernameComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
-      fieldName="kcr:submitter_username"
-      idString="SubmitterUsernameField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
 const SubtitleComponent = () => {
   return <></>;
 };
@@ -1122,31 +797,6 @@ const TitleComponent = ({ ...extraProps }) => {
   );
 };
 
-const TotalPagesComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
-      fieldName="imprint:imprint.pages"
-      idString="ImprintPagesField"
-      description={""}
-      label={i18next.t("Total book pages")}
-      icon="file outline"
-      {...extraProps}
-    />
-  );
-};
-
-const UniversityComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="KCR Book information"
-      fieldName="thesis:university"
-      idString="ThesisUniversity"
-      {...extraProps}
-    />
-  );
-};
-
 const VersionComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -1167,13 +817,6 @@ export {
   AdditionalDescriptionComponent,
   AdditionalTitlesComponent,
   AlternateIdentifiersComponent,
-  BookTitleComponent,
-  CodeDevelopmentStatusComponent,
-  CodeOperatingSystemComponent,
-  CodeProgrammingLanguageComponent,
-  CodeRepositoryComponent,
-  CodeRuntimePlatformComponent,
-  CommonsDomainComponent,
   CommunitiesComponent,
   ContributorsComponent,
   CreatorsComponent,
@@ -1182,35 +825,17 @@ export {
   DoiComponent,
   FilesUploadComponent,
   FundingComponent,
-  ISBNComponent,
-  JournalISSNComponent,
-  JournalIssueComponent,
-  JournalTitleComponent,
-  JournalVolumeComponent,
   LanguagesComponent,
   LicensesComponent,
   MetadataOnlyComponent,
-  MeetingAcronymComponent,
-  MeetingDatesComponent,
-  MeetingPlaceComponent,
-  MeetingSessionComponent,
-  MeetingSessionPartComponent,
-  MeetingTitleComponent,
-  MeetingURLComponent,
   PublisherComponent,
-  PublicationLocationComponent,
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
-  SectionPagesComponent,
   SizesComponent,
   SubjectsComponent,
   SubmissionComponent,
-  SubmitterEmailComponent,
-  SubmitterUsernameComponent,
   SubtitleComponent,
   TitleComponent,
-  TotalPagesComponent,
-  UniversityComponent,
   VersionComponent,
 };
