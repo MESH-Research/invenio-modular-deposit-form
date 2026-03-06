@@ -8,10 +8,10 @@ An InvenioRDM extension that adds modular, configurable layout and client-side v
 
 Version 0.3.4
 
-Copyright (C) 2023-2026 Mesh Research. 
+Copyright (C) 2023-2026 Mesh Research.
 Licensed under the MIT License. See `LICENSE` file for details.
 
-> [!NOTE] This package is currently under heavy development to improve its portability, as well as to support InvenioRDM versions 13 and 14. Check back soon for updates!
+> [!NOTE] This package is currently under heavy development to improve its portability, as well as to support InvenioRDM versions 13 and 14. As of 2026-03-06 the package is temporarily broken, but this will be resolved shortly. Check back soon for updates!
 
 ## Features
 
@@ -22,7 +22,7 @@ This extension provides a flexible, extensible layout and validation layer for t
   - allows for a stepped **multi-page** form flow
   - construction of form layouts using a simple dictionary configuration
 - form UI changes **based on resource type**
-  - field visibility 
+  - field visibility
   - alternate layouts
   - widget properties like labels, icons, placeholders, etc.
 - integration of **custom fields** freely into the main form layout
@@ -30,7 +30,7 @@ This extension provides a flexible, extensible layout and validation layer for t
 - **client-side error handling** harmonized with InvenioRDM's server-side handling
 - custom **preprocessing** of form data before submission
 
-The goal of this package has been to augment and expand on the existing InvenioRDM deposit form, not to completely replace it. Wherever possible, we rely on the stock components and logic provided by invenio-rdm-records. There's no point in reinventing the wheel! 
+The goal of this package has been to augment and expand on the existing InvenioRDM deposit form, not to completely replace it. Wherever possible, we rely on the stock components and logic provided by invenio-rdm-records. There's no point in reinventing the wheel!
 
 The goal is simply to provide additional flexibility and functionality that might otherwise require instance owners to do extensive bespoke development.
 
@@ -43,6 +43,7 @@ The package provides a custom Jinja template that renders a custom version of th
 ![Custom template and wrapper component](./docs/Modular%20Deposit%20Form%201.jpg)
 
 The stock invenio-rdm-records component retains responsibility for
+
 - Creation and management of **Formik form state** (monitoring input values and "touched" states)
 - Communication between the form and the **backend API**
 - Creation and management of the **Redux store** that handles static data and configuration
@@ -53,17 +54,18 @@ The second role of the custom `RDMDepositForm` is to insert a new custom layout 
 
 ![Inserting layout container layer](./docs/Modular%20Deposit%20Form%202.jpg)
 
-This layout layer (along with its children) has access to the Redux store and Formik state, but it does not manage them. 
+This layout layer (along with its children) has access to the Redux store and Formik state, but it does not manage them.
 
-The `FormLayoutContainer` *is* responsible for
+The `FormLayoutContainer` _is_ responsible for
+
 - Creation and management of any dynamic form UI state (via a dedicated Reducer)
-  - including the selected resource_type, for selective per-type field display 
+  - including the selected resource_type, for selective per-type field display
 - Handling client-side autosave of form data
 - Managing page navigation through the form (for multi-page layouts)
 - Monitoring form error states and displaying them on the page (when necessary)
   - including merging server-side errors with client side validation errors
 
-The registry of available form field components, as well as their visual arrangement 
+The registry of available form field components, as well as their visual arrangement
 (including pagination) is provided via the Redux store. But it is the `FormLayoutContainer` that actually renders the top-level `FormPage` elements. If the
 configured layout includes multiple pages, this layout layer will also render a
 stepper component above the form page and a footer with forward and back buttons.
@@ -83,12 +85,12 @@ All of the stock field components are present in the combined registry by defaul
 
 It is also possible to include any custom fields in any location in your layout. This package provides individual components for all of the built-in custom fields that invenio-rdm-records provides for journals, theses, etc. If you create your own custom fields, using the standard custom_fields approach, you can also include field components for those custom fields through your instance's component registry.
 
-![Combining a variety of field component sources](./docs/Modular%20Deposit%20Form%20(Fields).jpg)
+![Combining a variety of field component sources](<./docs/Modular%20Deposit%20Form%20(Fields).jpg>)
 
 #### How form fields are inserted
 
-The stock InvenioRDM deposit form uses a static layout in which required props and configuration are passed directly from the `DepositFormApp` into each field component. 
-To insert these field components into a flexible layout layer, we use an outer wrapper component for each field. This retrieves and fetches the props that the field would normally receive from its parent--the record, list options, rich text editor settings, etc. 
+The stock InvenioRDM deposit form uses a static layout in which required props and configuration are passed directly from the `DepositFormApp` into each field component.
+To insert these field components into a flexible layout layer, we use an outer wrapper component for each field. This retrieves and fetches the props that the field would normally receive from its parent--the record, list options, rich text editor settings, etc.
 
 In addition, the field component is wrapped in an inner `FieldComponentWrapper` higher-order component. This retrieves any configured properties for the form field UI (label, icon, placeholder, etc.), modified as necessary for the currently selected resource_type. This is what allows field widgets to adapt to the resource_type on the fly without page reloads.
 
