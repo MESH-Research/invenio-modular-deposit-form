@@ -144,12 +144,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                     {
                         "section": "file_upload",
                         "title": "Files Upload",
-                        "component": "FilesUploadComponent",
-                    },
-                    {
-                        "section": "metadata_only",
-                        "title": "Metadata Only",
-                        "component": "MetadataOnlyComponent",
+                        "component": "FileUploadComponent",
                     },
                     {
                         "section": "licenses",

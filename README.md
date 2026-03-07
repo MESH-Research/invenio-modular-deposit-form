@@ -515,104 +515,104 @@ Normally, if you want to override a React component this should be done using th
 
 Custom field values have to be accessed differently from built-in field values. Components that deal with custom fields can use the `CustomFieldInjector` and `CustomFieldSectionInjector` helper components.
 
-## Built-in components
+## Available components
 
-AbstractComponent,
-AccessRightsComponent,
-AdditionalDatesComponent,
-AdditionalDescriptionComponent,
-AdditionalTitlesComponent,
-AlternateIdentifiersComponent,
-BookTitleComponent,
-CommunitiesComponent,
-ContributorsComponent,
-CreatorsComponent,
-DateComponent,
-DeleteComponent,
-DoiComponent,
-FilesUploadComponent,
-FundingComponent,
-ISBNComponent,
-JournalVolumeComponent,
-JournalIssueComponent,
-JournalISSNComponent,
-JournalTitleComponent,
-LanguagesComponent,
-LicensesComponent,
-MeetingDatesComponent,
-MeetingPlaceComponent,
-MeetingTitleComponent,
-MetadataOnlyComponent,
-PublisherComponent,
-PublicationLocationComponent,
-ReferencesComponent,
-RelatedWorksComponent,
-ResourceTypeComponent,
-SectionPagesComponent,
-SubjectsComponent,
-SubmissionComponent,
-SubtitleComponent,
-TitleComponent,
-TotalPagesComponent,
-VersionComponent,
+Components are grouped by source. The default `componentsRegistry` registers most of these; you can add or override entries (e.g. use overridable or app-specific components). Removed components (e.g. SubtitleComponent, MetadataOnlyComponent, AdditionalTitlesComponent) are no longer available.
 
-CombinedDatesComponent,
+### Stock component wrappers
 
-InvenioRDM includes field-level React components that are exposed for import. These cannot be included directly because ???:
+Defined in `field_components/field_components.jsx`. Each wraps a stock Invenio RDM or vocabularies field (e.g. TitlesField, FundingField) with `FieldComponentWrapper` or `Overridable`. These are the default implementations when the component name appears in the form config.
 
-### AccessRightField (in "@js/invenio_rdm_records")
+- AbstractComponent
+- AccessRightsComponent
+- AdditionalDatesComponent
+- AdditionalDescriptionComponent
+- AlternateIdentifiersComponent
+- CommunitiesComponent
+- ContributorsComponent
+- CopyrightsComponent
+- CreatorsComponent
+- DateComponent
+- DeleteComponent
+- DoiComponent
+- FileUploadComponent
+- FundingComponent
+- LanguagesComponent
+- LicensesComponent
+- PublisherComponent
+- ReferencesComponent
+- RelatedWorksComponent
+- ResourceTypeComponent
+- SubjectsComponent
+- SubmissionComponent
+- TitlesComponent
+- VersionComponent
 
-### DescriptionsField (in"@js/invenio_rdm_records")
+### Contrib components
 
-### CreatibutorsField (in"@js/invenio_rdm_records")
+Defined in `field_components/contrib/`. Generic implementations that have no stock RDM equivalent (e.g. no stock SizesField). Import from `field_components/contrib` when needed; the default registry includes SizesComponent.
 
-### DeleteButton (in"@js/invenio_rdm_records")
+- SizesComponent
 
-### DepositFormApp (in"@js/invenio_rdm_records")
+### Overridable components
 
-### DepositStatusBox (in"@js/invenio_rdm_records")
+Defined in `field_components/overridable/`. Drop-in replacements for stock wrappers that use the package’s own field implementations (replacement PIDField, DatesFieldAlternate). Use these when you want that behavior instead of stock by replacing the corresponding entry in the registry (e.g. `DoiComponent` from overridable instead of from field_components).
 
-### FileUploader (in"@js/invenio_rdm_records")
+- AdditionalDatesComponent — uses DatesFieldAlternate
+- DoiComponent — uses replacement PIDField
 
-### FormFeedback (in"@js/invenio_rdm_records")
+### Override components
 
-### IdentifiersField (in"@js/invenio_rdm_records")
+Defined in `field_components/override_components.jsx`. Alternative implementations that replace stock with custom/replacement fields. They are **not** in the default registry; the default registry uses the stock wrappers from `field_components.jsx` for these names. To use them, have your app’s deposit extras (e.g. `@js/invenio_modular_deposit_form_components`) import and register these so they override the default entries.
 
-### PreviewButton (in"@js/invenio_rdm_records")
+- CommunitiesComponent — uses CommunityField (replacement)
+- LanguagesComponent — uses LanguagesField (replacement) with state normalization (id/title_l10n)
+- ResourceTypeComponent — uses ResourceTypeSelectorField (replacement)
+- SubmissionComponent — uses SubmitButtonModal and custom form feedback
 
-### LanguagesField (in"@js/invenio_rdm_records")
+### Custom field components
 
-### LicenseField (in"@js/invenio_rdm_records")
+Defined in `field_components/custom_field_components.jsx`. They use `CustomFieldInjector` for resource-type-specific custom metadata (imprint, journal, meeting, code, etc.) and are registered by default for use in type-specific layouts.
 
-### PublicationDateField (in"@js/invenio_rdm_records")
+- BookTitleComponent
+- CodeDevelopmentStatusComponent
+- CodeOperatingSystemComponent
+- CodeProgrammingLanguageComponent
+- CodeRepositoryComponent
+- CodeRuntimePlatformComponent
+- ISBNComponent
+- JournalISSNComponent
+- JournalIssueComponent
+- JournalTitleComponent
+- JournalVolumeComponent
+- MeetingAcronymComponent
+- MeetingDatesComponent
+- MeetingPlaceComponent
+- MeetingSessionComponent
+- MeetingSessionPartComponent
+- MeetingTitleComponent
+- MeetingURLComponent
+- PublicationLocationComponent
+- SectionPagesComponent
+- TotalPagesComponent
 
-### PublishButton (in"@js/invenio_rdm_records")
+### Compound and framing components
 
-### PublisherField (in"@js/invenio_rdm_records")
+- CombinedDatesComponent — compound (DateComponent + AdditionalDatesComponent)
+- DeleteComponent, FormRow, SubmissionComponent — framing / submission actions
 
-### ReferencesField (in"@js/invenio_rdm_records")
+### Underlying stock fields (for reference)
 
-### RelatedWorksField (in"@js/invenio_rdm_records")
+Invenio RDM and vocabularies expose field-level components that the stock wrappers use. They are not registered directly; the wrappers above are used in the form config.
 
-### SubjectsField (in"@js/invenio_rdm_records")
+- AccessRightField, CommunityHeader, CopyrightsField, CreatibutorsField, DatesField, DeleteButton, DescriptionsField, FileUploader, FormFeedback, IdentifiersField, LicenseField, PIDField, PublicationDateField, PublisherField, PublishButton, PreviewButton, ReferencesField, RelatedWorksField, ResourceTypeField, SaveButton, SubjectsField, TitlesField, VersionField (in `@js/invenio_rdm_records`)
+- FundingField (in `@js/invenio_vocabularies`)
 
-### TitlesField (in"@js/invenio_rdm_records")
+Replacement implementations provided by this package (used by overridable components when swapped in):
 
-### VersionField (in"@js/invenio_rdm_records")
-
-### CommunityHeader (in"@js/invenio_rdm_records")
-
-### SaveButton (in"@js/invenio_rdm_records")
-
-### FundingField (in "@js/invenio_vocabularies")
-
-<!-- FIXME: where do below originally live? -->
-
-### ResourceTypeSelectorField (from "./replacement_components/ResourceTypeSelectorField")
-
-### PIDField (from "./replacement_components/PIDField")
-
-### DatesField ( from "./replacement_components/DatesField" )
+- PIDField (from `./replacement_components/PIDField`)
+- DatesFieldAlternate (from `./replacement_components/DatesFieldAlternate`)
+- ResourceTypeSelectorField (from `./replacement_components/ResourceTypeSelectorField`)
 
 ### Gotchas
 

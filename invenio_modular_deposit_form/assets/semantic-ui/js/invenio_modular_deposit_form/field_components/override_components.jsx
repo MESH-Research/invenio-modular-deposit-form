@@ -4,42 +4,21 @@
 // Copies of deposit form components that override stock Invenio RDM with our own.
 // These mirror the OVERRIDDEN components in field_components.jsx.
 
-import React, { Fragment, useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
-import { DeleteButton, FormFeedback } from "@js/invenio_rdm_records";
+import { FormFeedback } from "@js/invenio_rdm_records";
 import { Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { DatesField } from "../replacement_components/DatesField";
 import { CommunityField } from "../replacement_components/CommunityField";
 import { LanguagesField } from "../replacement_components/LanguagesField";
-import { PIDField } from "../replacement_components/PIDField";
 import ResourceTypeSelectorField from "../replacement_components/ResourceTypeSelectorField";
-import { SizesField } from "../replacement_components/SizesField";
 import { SubmitButtonModal } from "../replacement_components/PublishButton/SubmitButton";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import { DeleteComponent } from "./field_components";
-
-const AdditionalDatesComponent = ({ ...extraProps }) => {
-  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
-
-  return (
-    <FieldComponentWrapper
-      componentName="DateField"
-      fieldPath="metadata.dates"
-      {...extraProps}
-    >
-      <DatesField
-        fieldPath="metadata.dates"
-        options={vocabularies.metadata.dates}
-        showEmptyValue={false}
-      />
-    </FieldComponentWrapper>
-  );
-};
 
 const CommunitiesComponent = ({ ...extraProps }) => {
   return (
@@ -47,39 +26,6 @@ const CommunitiesComponent = ({ ...extraProps }) => {
       imagePlaceholderLink="/static/images/square-placeholder.png"
       {...extraProps}
     />
-  );
-};
-
-const DoiComponent = ({ ...extraProps }) => {
-  const store = useStore();
-  const pids = store.getState().deposit.config.pids;
-  const record = store.getState().deposit.record;
-
-  return (
-    <Fragment>
-      {pids.map((pid) => (
-        <Fragment key={pid.scheme}>
-          <PIDField
-            btnLabelDiscardPID={pid.btn_label_discard_pid}
-            btnLabelGetPID={pid.btn_label_get_pid}
-            canBeManaged={pid.can_be_managed}
-            canBeUnmanaged={pid.can_be_unmanaged}
-            fieldPath={`pids.${pid.scheme}`}
-            fieldLabel={pid.field_label}
-            isEditingPublishedRecord={
-              record.is_published === true
-            }
-            managedHelpText={pid.managed_help_text}
-            pidLabel={pid.pid_label}
-            pidPlaceholder={pid.pid_placeholder}
-            pidType={pid.scheme}
-            unmanagedHelpText={pid.unmanaged_help_text}
-            required
-            {...extraProps}
-          />
-        </Fragment>
-      ))}
-    </Fragment>
   );
 };
 
@@ -150,7 +96,7 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
   return (
     <FieldComponentWrapper
-      componentName="ResourceTypeSelectorField"
+      componentName="ResourceTypeField"
       fieldPath={fieldPath}
       {...extraProps}
     >
@@ -158,20 +104,6 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
         fieldPath={fieldPath}
         required={true}
       />
-    </FieldComponentWrapper>
-  );
-};
-
-const SizesComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="SizeField"
-      fieldPath="metadata.sizes"
-      icon={"crop"}
-      label={i18next.t("Dimensions")}
-      {...extraProps}
-    >
-      <SizesField fieldPath="metadata.sizes" label="Size" />
     </FieldComponentWrapper>
   );
 };
@@ -320,11 +252,8 @@ const SubmissionComponent = () => {
 };
 
 export {
-  AdditionalDatesComponent,
   CommunitiesComponent,
-  DoiComponent,
   LanguagesComponent,
   ResourceTypeComponent,
-  SizesComponent,
   SubmissionComponent,
 };

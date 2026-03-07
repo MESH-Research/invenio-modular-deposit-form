@@ -48,9 +48,7 @@ import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { SizesField } from "../replacement_components/SizesField";
 import { moveToArrayStart } from "../utils";
-import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 
 // v14 (invenio-app-rdm master) components; not present in v13. Safe to import when app
@@ -66,17 +64,15 @@ try {
   FileModificationUntil = fileModMod.FileModificationUntil;
 } catch (_) {}
 
+/**
+ * Main description/abstract field (metadata.description). Uses stock DescriptionsField.
+ * @overridable InvenioAppRdm.Deposit.DescriptionsField.container (via FieldComponentWrapper)
+ */
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
-    // <Overridable
-    //   id="InvenioAppRdm.Deposit.DescriptionsField.container"
-    //   record={record}
-    //   vocabularies={vocabularies}
-    //   fieldPath="metadata.description"
-    // >
     <FieldComponentWrapper
       componentName="DescriptionsField"
       fieldPath="metadata.description"
@@ -106,6 +102,10 @@ const AbstractComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Access rights field (access). Uses stock AccessRightField.
+ * @overridable InvenioAppRdm.Deposit.AccessRightField.container (via FieldComponentWrapper)
+ */
 const AccessRightsComponent = ({ ...extraProps }) => {
   const store = useStore();
   const { config, record, permissions } = store.getState().deposit;
@@ -130,14 +130,10 @@ const AccessRightsComponent = ({ ...extraProps }) => {
   );
 };
 
-// OVERRIDDEN
-// ReactOverridable id: InvenioAppRdm.Deposit.DateField.container (via FieldComponentWrapper).
-// Stock: InvenioRdmRecords.DatesField.AddDateArrayField.Container.
-// Wraps stock DatesField from @js/invenio_rdm_records. Stock props: fieldPath, options (shape.type),
-// label, labelIcon, placeholderDate, required, requiredOptions, showEmptyValue.
-// Override version (override_components.jsx) uses our DatesField replacement; same props passed
-// (fieldPath, options=vocabularies.metadata.dates, showEmptyValue=false). Stock uses labelIcon;
-// our replacement used icon—equivalent.
+/**
+ * Additional dates field (metadata.dates). Uses stock DatesField. Overridable version in overridable/ uses DatesFieldAlternate.
+ * @overridable InvenioAppRdm.Deposit.DateField.container (via FieldComponentWrapper)
+ */
 const AdditionalDatesComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
@@ -156,6 +152,10 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Additional descriptions field (metadata.additional_descriptions). Uses stock DescriptionsField.
+ * @overridable InvenioAppRdm.Deposit.DescriptionsField.container (via FieldComponentWrapper)
+ */
 const AdditionalDescriptionComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
@@ -188,10 +188,10 @@ const AdditionalDescriptionComponent = ({ ...extraProps }) => {
   );
 };
 
-const AdditionalTitlesComponent = () => {
-  return <></>;
-};
-
+/**
+ * Alternate identifiers / URLs (metadata.identifiers). Uses stock IdentifiersField.
+ * @overridable InvenioAppRdm.Deposit.IdentifiersField.container (via FieldComponentWrapper)
+ */
 const AlternateIdentifiersComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
@@ -211,17 +211,10 @@ const AlternateIdentifiersComponent = ({ ...extraProps }) => {
   );
 };
 
-// OVERRIDDEN
-// ReactOverridable id: InvenioAppRdm.Deposit.CommunityHeader.container.
-// Stock: CommunityHeader from @js/invenio_rdm_records (Redux-connected). Inner Overridable ids:
-//   InvenioRdmRecords.CommunityHeader.CommunityHeaderElement.Container,
-//   InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container,
-//   InvenioRdmRecords.CommunityHeader.RemoveCommunityButton.Container.
-// Stock props (required): imagePlaceholderLink, record. Other props from Redux (community,
-//   showCommunityHeader, showCommunitySelectionButton, disableCommunitySelectionButton,
-//   changeSelectedCommunity). Override version (override_components.jsx) uses our CommunityField
-//   replacement which accepts imagePlaceholderLink and ...extraProps (no explicit record—likely
-//   reads from store internally). Stock does not use FieldComponentWrapper.
+/**
+ * Community selection (no fieldPath). Uses stock CommunityHeader. Overridable version uses CommunityField.
+ * @overridable InvenioAppRdm.Deposit.CommunityHeader.container (stock does not use FieldComponentWrapper)
+ */
 const CommunitiesComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit?.record;
   return (
@@ -233,13 +226,17 @@ const CommunitiesComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Contributors (metadata.contributors). Uses stock CreatibutorsField with schema "contributors".
+ * @overridable InvenioAppRdm.Deposit.ContributorsField.container (via FieldComponentWrapper)
+ */
 const ContributorsComponent = ({ ...extraProps }) => {
   const config = useStore().getState().deposit.config;
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
     <FieldComponentWrapper
-      componentName="ContibutorsField"
+      componentName="ContributorsField"
       fieldPath="metadata.contributors"
       label={i18next.t("Contributors")}
       icon="user plus"
@@ -260,6 +257,10 @@ const ContributorsComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Creators (metadata.creators). Uses stock CreatibutorsField with schema "creators".
+ * @overridable InvenioAppRdm.Deposit.CreatorsField.container (via FieldComponentWrapper)
+ */
 const CreatorsComponent = ({ ...extraProps }) => {
   const config = useStore().getState().deposit.config;
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
@@ -289,6 +290,10 @@ const CreatorsComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Publication date (metadata.publication_date). Uses stock PublicationDateField.
+ * @overridable InvenioAppRdm.Deposit.PublicationDateField.container (via FieldComponentWrapper)
+ */
 const DateComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -301,6 +306,10 @@ const DateComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Delete draft button. Uses stock DeleteButton. Renders only when permissions.can_delete_draft.
+ * @overridable InvenioAppRdm.Deposit.CardDeleteButton.container (via FieldComponentWrapper)
+ */
 const DeleteComponent = ({ ...extraProps }) => {
   const permissions = useStore().getState().deposit.permissions;
 
@@ -372,48 +381,49 @@ const ShareDraftButtonComponent = () => {
   );
 };
 
-// OVERRIDDEN
-// ReactOverridable id: InvenioAppRdm.Deposit.PIDField.container (stock has no wrapper; not using FieldComponentWrapper—FIXME in original).
-// Stock: PIDField from @js/invenio_rdm_records. No Overridable ids inside; uses FastField + CustomPIDField.
-// Stock props: fieldPath, fieldLabel, isEditingPublishedRecord, record (required), pidType; optional btnLabelDiscardPID,
-//   btnLabelGetPID, canBeManaged, canBeUnmanaged, managedHelpText, pidIcon, pidLabel, pidPlaceholder, required, unmanagedHelpText.
-// Override version (override_components.jsx) uses our PIDField replacement; same props from config.pids + record.
-// Difference: stock requires record explicitly; our replacement may read it from context. Stock has pidIcon default "barcode".
+/**
+ * DOI/identifier field(s). One stock PIDField per scheme in config.pids. Overridable version in overridable/ uses replacement PIDField.
+ * @overridable InvenioAppRdm.Deposit.PIDField.container (wrapped in Overridable here; not using FieldComponentWrapper)
+ */
 const DoiComponent = ({ ...extraProps }) => {
   const store = useStore();
   const pids = store.getState().deposit.config.pids;
   const record = store.getState().deposit.record;
 
   return (
-    <Fragment>
+    <Overridable id="InvenioAppRdm.Deposit.PIDField.container">
       {pids.map((pid) => (
         <Fragment key={pid.scheme}>
-          <PIDField
-            btnLabelDiscardPID={pid.btn_label_discard_pid}
-            btnLabelGetPID={pid.btn_label_get_pid}
-            canBeManaged={pid.can_be_managed}
-            canBeUnmanaged={pid.can_be_unmanaged}
-            fieldPath={`pids.${pid.scheme}`}
-            fieldLabel={pid.field_label}
-            isEditingPublishedRecord={
-              record?.is_published === true
-            }
-            managedHelpText={pid.managed_help_text}
-            pidLabel={pid.pid_label}
-            pidPlaceholder={pid.pid_placeholder}
-            pidType={pid.scheme}
-            record={record ?? {}}
-            required
-            unmanagedHelpText={pid.unmanaged_help_text}
-            {...extraProps}
-          />
-        </Fragment>
-      ))}
-    </Fragment>
+            <PIDField
+              btnLabelDiscardPID={pid.btn_label_discard_pid}
+              btnLabelGetPID={pid.btn_label_get_pid}
+              canBeManaged={pid.can_be_managed}
+              canBeUnmanaged={pid.can_be_unmanaged}
+              fieldPath={`pids.${pid.scheme}`}
+              fieldLabel={pid.field_label}
+              isEditingPublishedRecord={
+                record?.is_published === true
+              }
+              managedHelpText={pid.managed_help_text}
+              pidLabel={pid.pid_label}
+              pidPlaceholder={pid.pid_placeholder}
+              pidType={pid.scheme}
+              record={record ?? {}}
+              required
+              unmanagedHelpText={pid.unmanaged_help_text}
+              {...extraProps}
+            />
+          </Fragment>
+        ))}
+    </Overridable>
   );
 };
 
-const FilesUploadComponent = ({ ...extraProps }) => {
+/**
+ * File upload section (files). Uses stock FileUploader or UppyUploader. Includes FileModificationUntil when available (v14).
+ * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
+ */
+const FileUploadComponent = ({ ...extraProps }) => {
   const store = useStore();
   const { config, record } = store.getState().deposit;
   const files = store.getState().files;
@@ -458,6 +468,12 @@ const FilesUploadComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Funding (metadata.funding). Uses FundingField from invenio_vocabularies.
+ * Options are not passed in: award/funder choices come from the backend via
+ * searchConfig (e.g. /api/awards for award search, /api/funders in custom award form).
+ * @overridable InvenioAppRdm.Deposit.FundingField.container (via FieldComponentWrapper)
+ */
 const FundingComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -538,14 +554,10 @@ const FundingComponent = ({ ...extraProps }) => {
   );
 };
 
-// OVERRIDDEN
-// ReactOverridable id: InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper).
-// Stock: LanguagesField from @js/invenio_rdm_records. No Overridable inside; wraps RemoteSelectField.
-// Stock props: fieldPath, label, labelIcon, required, multiple, clearable, placeholder, initialOptions
-//   (array of { key, value, text }), serializeSuggestions; default noQueryMessage "Search for languages...".
-// Override version (override_components.jsx) adds useEffect + onValueChange to keep form state as objects
-//   (id, title_l10n) for readable labels; stock may store only ids. Stock uses suggestionAPIUrl
-//   /api/vocabularies/languages. Map initialOptions to { key, value, text } for stock.
+/**
+ * Languages (metadata.languages). Uses stock LanguagesField. Override version adds state normalization (id/title_l10n).
+ * @overridable InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper)
+ */
 const LanguagesComponent = ({ ...extraProps }) => {
   const { values } = useFormikContext();
   const recordOptions = useStore().getState().deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
@@ -593,6 +605,10 @@ const LanguagesComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Licenses (metadata.rights). Uses stock LicenseField.
+ * @overridable InvenioAppRdm.Deposit.LicenseField.container (via FieldComponentWrapper)
+ */
 const LicensesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -626,6 +642,10 @@ const LicensesComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Copyright (metadata.copyright). Uses stock CopyrightsField.
+ * @overridable InvenioAppRdm.Deposit.CopyrightsField.container (via FieldComponentWrapper)
+ */
 const CopyrightsComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -638,10 +658,10 @@ const CopyrightsComponent = ({ ...extraProps }) => {
   );
 };
 
-const MetadataOnlyComponent = () => {
-  return <></>;
-};
-
+/**
+ * Publisher (metadata.publisher). Uses stock PublisherField.
+ * @overridable InvenioAppRdm.Deposit.PublisherField.container (via FieldComponentWrapper)
+ */
 const PublisherComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -657,6 +677,10 @@ const PublisherComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * References (metadata.references). Uses stock ReferencesField.
+ * @overridable InvenioAppRdm.Deposit.ReferencesField.container (via FieldComponentWrapper)
+ */
 const ReferencesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -669,6 +693,10 @@ const ReferencesComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Related works (metadata.related_identifiers). Uses stock RelatedWorksField.
+ * @overridable InvenioAppRdm.Deposit.RelatedWorksField.container (via FieldComponentWrapper)
+ */
 const RelatedWorksComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
@@ -687,18 +715,16 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
   );
 };
 
-// OVERRIDDEN
-// ReactOverridable id: InvenioAppRdm.Deposit.ResourceTypeSelectorField.container (via FieldComponentWrapper).
-// Stock: ResourceTypeField from @js/invenio_rdm_records. No Overridable inside; wraps SelectField.
-// Stock props: fieldPath, options (array of { icon, type_name, subtype_name, id }), label, labelIcon, required.
-// Override version (override_components.jsx) uses our ResourceTypeSelectorField (button-style UI). Stock uses
-// dropdown SelectField with createOptions mapping options to { value, icon, text }. Pass vocabularies.metadata.resource_type as options.
+/**
+ * Resource type (metadata.resource_type). Uses stock ResourceTypeField (dropdown). Override version uses button-style ResourceTypeSelectorField.
+ * @overridable InvenioAppRdm.Deposit.ResourceTypeField.container (via FieldComponentWrapper; matches v14 stock id)
+ */
 const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
   const options = useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
   return (
     <FieldComponentWrapper
-      componentName="ResourceTypeSelectorField"
+      componentName="ResourceTypeField"
       fieldPath={fieldPath}
       {...extraProps}
     >
@@ -711,24 +737,10 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
   );
 };
 
-// OVERRIDDEN
-// ReactOverridable id: InvenioAppRdm.Deposit.SizeField.container (via FieldComponentWrapper).
-// No stock SizesField in @js/invenio_rdm_records deposit fields; metadata.sizes is not a dedicated
-// field component in stock RDM. This version continues to use our SizesField replacement.
-const SizesComponent = ({ ...extraProps }) => {
-  return (
-    <FieldComponentWrapper
-      componentName="SizeField"
-      fieldPath="metadata.sizes"
-      icon={"crop"}
-      label={i18next.t("Dimensions")}
-      {...extraProps}
-    >
-      <SizesField fieldPath="metadata.sizes" label="Size" />
-    </FieldComponentWrapper>
-  );
-};
-
+/**
+ * Subjects (metadata.subjects). Uses stock SubjectsField.
+ * @overridable InvenioAppRdm.Deposit.SubjectsField.container (via FieldComponentWrapper)
+ */
 const SubjectsComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
   const record = useStore().getState().deposit.record;
@@ -769,7 +781,8 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * the error state after the last form submission OR on first page render.
  *
  * Uses stock SaveButton, PreviewButton, PublishButton, FormFeedback, DeleteButton
- * from @js/invenio_rdm_records. Override id: InvenioAppRdm.Deposit.CardDepositStatusBox.container.
+ * from @js/invenio_rdm_records.
+ * @overridable InvenioAppRdm.Deposit.CardDepositStatusBox.container (outer); InvenioAppRdm.Deposit.FormFeedback.container (form feedback block).
  * Override (override_components.jsx) uses SubmitButtonModal (save/preview/publish) with
  * missing-files confirmation and "no files" flow; stock uses separate buttons and
  * PublishButton disables when files enabled but none uploaded (no confirm modal for that).
@@ -874,11 +887,11 @@ const SubmissionComponent = () => {
   );
 };
 
-const SubtitleComponent = () => {
-  return <></>;
-};
-
-const TitleComponent = ({ ...extraProps }) => {
+/**
+ * Title (metadata.title). Uses stock TitlesField.
+ * @overridable InvenioAppRdm.Deposit.TitlesField.container (via FieldComponentWrapper)
+ */
+const TitlesComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
   const record = useStore().getState().deposit.record;
   return (
@@ -898,6 +911,10 @@ const TitleComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Version (metadata.version). Uses stock VersionField.
+ * @overridable InvenioAppRdm.Deposit.VersionField.container (via FieldComponentWrapper)
+ */
 const VersionComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
@@ -916,7 +933,6 @@ export {
   AccessRightsComponent,
   AdditionalDatesComponent,
   AdditionalDescriptionComponent,
-  AdditionalTitlesComponent,
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,
@@ -925,19 +941,16 @@ export {
   DateComponent,
   DeleteComponent,
   DoiComponent,
-  FilesUploadComponent,
+  FileUploadComponent,
   FundingComponent,
   LanguagesComponent,
   LicensesComponent,
-  MetadataOnlyComponent,
   PublisherComponent,
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
-  SizesComponent,
   SubjectsComponent,
   SubmissionComponent,
-  SubtitleComponent,
-  TitleComponent,
+  TitlesComponent,
   VersionComponent,
 };

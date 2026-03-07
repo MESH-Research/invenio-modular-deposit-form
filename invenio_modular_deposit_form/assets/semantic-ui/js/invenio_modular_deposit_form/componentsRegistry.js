@@ -4,7 +4,6 @@ import {
   AccessRightsComponent,
   AdditionalDatesComponent,
   AdditionalDescriptionComponent,
-  AdditionalTitlesComponent,
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,
@@ -13,21 +12,19 @@ import {
   DateComponent,
   DeleteComponent,
   DoiComponent,
-  FilesUploadComponent,
+  FileUploadComponent,
   FundingComponent,
   LanguagesComponent,
   LicensesComponent,
-  MetadataOnlyComponent,
   PublisherComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
-  SizesComponent,
   SubjectsComponent,
   SubmissionComponent,
-  SubtitleComponent,
-  TitleComponent,
+  TitlesComponent,
   VersionComponent,
 } from "./field_components/field_components";
+import { SizesComponent } from "./field_components/contrib";
 import {
   BookTitleComponent,
   CodeDevelopmentStatusComponent,
@@ -64,10 +61,6 @@ const componentsRegistry = {
   AdditionalDescriptionComponent: [
     AdditionalDescriptionComponent,
     ["metadata.additional_descriptions"],
-  ],
-  AdditionalTitlesComponent: [
-    AdditionalTitlesComponent,
-    ["metadata.additional_titles"],
   ],
   AlternateIdentifiersComponent: [
     AlternateIdentifiersComponent,
@@ -121,10 +114,9 @@ const componentsRegistry = {
     JournalVolumeComponent,
     ["custom_fields.journal:journal.volume"],
   ],
-  FilesUploadComponent: [FilesUploadComponent, ["files"]],
+  FileUploadComponent: [FileUploadComponent, ["files"]],
   LanguagesComponent: [LanguagesComponent, ["metadata.languages"]],
   LicensesComponent: [LicensesComponent, ["metadata.rights"]],
-  MetadataOnlyComponent: [MetadataOnlyComponent, ["access.status"]],
   MeetingAcronymComponent: [
     MeetingAcronymComponent,
     ["custom_fields.meeting:meeting.acronym"],
@@ -169,8 +161,7 @@ const componentsRegistry = {
   ],
   SizesComponent: [SizesComponent, ["metadata.sizes"]],
   SubjectsComponent: [SubjectsComponent, ["metadata.subjects"]],
-  SubtitleComponent: [SubtitleComponent, ["metadata.additional_titles"]],
-  TitleComponent: [TitleComponent, ["metadata.title"]],
+  TitlesComponent: [TitlesComponent, ["metadata.title"]],
   TotalPagesComponent: [
     TotalPagesComponent,
     ["custom_fields.imprint:imprint.pages"],

@@ -25,7 +25,7 @@ const formPages = [
           {
               "section": "combined_titles",
               "label": "Title",
-              "component": "TitleComponent",
+              "component": "TitlesComponent",
               "wrapped": true,
               "icon": "book",
           },

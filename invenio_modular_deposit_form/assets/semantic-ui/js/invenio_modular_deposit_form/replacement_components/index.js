@@ -1,5 +1,5 @@
 export * from "./CommunityField";
-export * from "./DatesField";
+export * from "./DatesFieldAlternate";
 export * from "./PIDField";
 export * from "./ResourceTypeSelectorField";
 export * from "./CommunitySelectionModal";

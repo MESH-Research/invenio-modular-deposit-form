@@ -28,14 +28,14 @@ export const emptyDate = {
 };
 
 
-/** Top-level Dates Component */
+/** Alternate Dates field component (replacement for stock DatesField) */
 /**
  * Returns the required option if the current value passed does match it
  * @param  {Object} currentValue The current value
  * @param  {Array} arrayOfValues The array of values for the field
  * @return {Object} The required option if any
  */
-const DatesField = ({
+const DatesFieldAlternate = ({
   addButtonLabel=i18next.t("Add another date"),
   classnames=undefined,
   fieldPath,
@@ -164,7 +164,7 @@ const DatesField = ({
   )
 }
 
-DatesField.propTypes = {
+DatesFieldAlternate.propTypes = {
   classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
@@ -183,4 +183,4 @@ DatesField.propTypes = {
   showEmptyValue: PropTypes.bool,
 };
 
-export { DatesField };
+export { DatesFieldAlternate };
