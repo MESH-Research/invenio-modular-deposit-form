@@ -21,6 +21,15 @@
   {%- set title = _("Edit upload") %}
 {%- endif %}
 {%- extends config.BASE_TEMPLATE %}
+{%- if community and community.theme and community.theme.enabled %}
+{%- block css %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/communities/{{ community.slug }}/community-theme-{{ community.revision_id }}.css">
+{%- if config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED %}
+{{ webpack['uppy-file-uploader.css'] }}
+{%- endif %}
+{%- endblock %}
+{%- endif %}
 {% set cu_dict = "" | current_user_profile_dict %}
 {%- block page_body %}
   {%- if record %}
@@ -28,6 +37,10 @@
            type="hidden"
            name="deposits-record"
            value="{{ record | tojson }}">
+    <input id="deposits-record-locked-files"
+           type="hidden"
+           name="deposits-record-locked-files"
+           value="{{ files_locked | tojson }}">
   {%- endif %}
   {%- if preselectedCommunity %}
     <input id="deposits-draft-community"
@@ -51,6 +64,38 @@
   <input type="hidden"
          name="deposits-config"
          value="{{ (forms_config or {}) | merge_deposit_config(_extra) | tojson }}">
+  <input type="hidden"
+         name="deposits-record-restriction-grace-period"
+         value="{{ config.RDM_RECORDS_RESTRICTION_GRACE_PERIOD.days | tojson }}">
+  <input type="hidden"
+         name="deposits-allow-record-restriction"
+         value="{{ config.RDM_RECORDS_ALLOW_RESTRICTION_AFTER_GRACE_PERIOD | tojson }}">
+  <input type="hidden"
+         name="config-groups-enabled"
+         value="{{ config.USERS_RESOURCES_GROUPS_ENABLED | tojson }}">
+  <input type="hidden"
+         name="records-resources-allow-empty-files"
+         value="{{ config.RECORDS_RESOURCES_ALLOW_EMPTY_FILES | tojson }}">
+  <input type="hidden"
+         name="deposits-use-uppy-ui"
+         value="{{ config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED | tojson }}">
+  {%- if record_deletion is defined and record_deletion is not none %}
+  <input type="hidden"
+         name="deposits-record-deletion"
+         value="{{ record_deletion | tojson }}">
+  {%- endif %}
+  {%- if file_modification is defined and file_modification is not none %}
+  <input type="hidden"
+         name="deposits-file-modification"
+         value="{{ file_modification | tojson }}">
+  {%- endif %}
+  {%- if 'RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION' in config %}
+  <input type="hidden"
+         id="deposits-share-btn-require-link-expiration"
+         name="deposits-share-btn-require-link-expiration"
+         value="{{ config.RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION | tojson }}"
+         data-share-btn-require-link-expiration="{{ config.RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION | tojson }}">
+  {%- endif %}
   <div id="deposit-form"></div>
 {%- endblock page_body %}
 {%- block javascript %}

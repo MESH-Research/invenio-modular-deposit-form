@@ -21,14 +21,31 @@ const formDiv = document.getElementById("deposit-form");
 // Single config payload (stock forms_config + extension keys from merge_deposit_config)
 const config = getInputFromDOM("deposits-config") || {};
 
+const recordRestrictionGracePeriod = getInputFromDOM("deposits-record-restriction-grace-period");
+const allowRecordRestriction = getInputFromDOM("deposits-allow-record-restriction");
+const groupsEnabled = getInputFromDOM("config-groups-enabled");
+const allowEmptyFiles = getInputFromDOM("records-resources-allow-empty-files");
+const recordDeletion = getInputFromDOM("deposits-record-deletion");
+const fileModification = getInputFromDOM("deposits-file-modification");
+const shareBtnRequireLinkExpiration = getInputFromDOM("deposits-share-btn-require-link-expiration");
+
 ReactDOM.render(
   <OverridableContext.Provider value={overriddenComponents}>
     <RDMDepositForm
       config={config}
       files={getInputFromDOM("deposits-record-files")}
+      filesLocked={getInputFromDOM("deposits-record-locked-files")}
       permissions={getInputFromDOM("deposits-record-permissions")}
       preselectedCommunity={getInputFromDOM("deposits-draft-community")}
       record={getInputFromDOM("deposits-record")}
+      useUppy={getInputFromDOM("deposits-use-uppy-ui")}
+      recordRestrictionGracePeriod={recordRestrictionGracePeriod}
+      allowRecordRestriction={allowRecordRestriction}
+      groupsEnabled={groupsEnabled}
+      allowEmptyFiles={allowEmptyFiles}
+      recordDeletion={recordDeletion}
+      fileModification={fileModification}
+      shareBtnRequireLinkExpiration={shareBtnRequireLinkExpiration}
     />
   </OverridableContext.Provider>,
   formDiv

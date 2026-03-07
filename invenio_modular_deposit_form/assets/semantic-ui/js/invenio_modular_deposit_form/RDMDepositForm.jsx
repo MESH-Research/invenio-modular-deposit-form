@@ -31,9 +31,18 @@ RDMDepositForm is the main component that we override to customize the deposit f
 export const RDMDepositForm = ({
   config,
   files,
+  filesLocked,
   permissions,
   preselectedCommunity,
   record,
+  useUppy,
+  recordRestrictionGracePeriod,
+  allowRecordRestriction,
+  groupsEnabled,
+  allowEmptyFiles,
+  recordDeletion,
+  fileModification,
+  shareBtnRequireLinkExpiration,
 }) => {
   // Apply PID config overrides before config is stored (DepositFormApp puts config in Redux)
   const pidsConfigOverrides = config.pids_config_overrides ?? {};
@@ -77,9 +86,27 @@ export const RDMDepositForm = ({
   // Config for Redux store: backend config + enriched vocabularies + components registry
   const configForStore = {
     ...config,
+    files_locked: filesLocked ?? false,
+    use_uppy: useUppy ?? false,
+    record_restriction_grace_period:
+      recordRestrictionGracePeriod != null ? Number(recordRestrictionGracePeriod) : 30,
+    allow_record_restriction: allowRecordRestriction ?? true,
+    groups_enabled: groupsEnabled ?? undefined,
+    allow_empty_files: allowEmptyFiles ?? true,
     vocabularies,
     componentsRegistry,
   };
+
+  // Master-only: add to config only when present (v13 view/config may not provide them)
+  if (recordDeletion != null) {
+    configForStore.record_deletion = recordDeletion;
+  }
+  if (fileModification != null) {
+    configForStore.file_modification = fileModification;
+  }
+  if (shareBtnRequireLinkExpiration != null) {
+    configForStore.require_secret_links_expiration = shareBtnRequireLinkExpiration;
+  }
 
   return (
       <DepositFormApp
@@ -100,12 +127,30 @@ RDMDepositForm.propTypes = {
   config: PropTypes.object.isRequired,
   record: PropTypes.object.isRequired,
   files: PropTypes.object,
+  filesLocked: PropTypes.bool,
   permissions: PropTypes.object,
   preselectedCommunity: PropTypes.object,
+  useUppy: PropTypes.bool,
+  recordRestrictionGracePeriod: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  allowRecordRestriction: PropTypes.bool,
+  groupsEnabled: PropTypes.bool,
+  allowEmptyFiles: PropTypes.bool,
+  recordDeletion: PropTypes.object,
+  fileModification: PropTypes.object,
+  shareBtnRequireLinkExpiration: PropTypes.bool,
 };
 
 RDMDepositForm.defaultProps = {
   files: null,
+  filesLocked: false,
   permissions: null,
   preselectedCommunity: undefined,
+  useUppy: false,
+  recordRestrictionGracePeriod: undefined,
+  allowRecordRestriction: undefined,
+  groupsEnabled: undefined,
+  allowEmptyFiles: undefined,
+  recordDeletion: undefined,
+  fileModification: undefined,
+  shareBtnRequireLinkExpiration: undefined,
 };
