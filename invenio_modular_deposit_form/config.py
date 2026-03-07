@@ -9,6 +9,11 @@
 
 INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "textDocument-journalArticle"
 
+INVENIO_MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP = True
+"""When True, a full-width region above the form title shows the stock community 
+banner (CommunityHeader) when the deposit state would show it (e.g. community 
+selected or selectable)."""
+
 INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     {
         "section": "top",
@@ -150,6 +155,11 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                         "section": "licenses",
                         "title": "Licenses",
                         "component": "LicensesComponent",
+                    },
+                    {
+                        "section": "copyright",
+                        "title": "Copyright",
+                        "component": "CopyrightsComponent",
                     },
                 ],
             },

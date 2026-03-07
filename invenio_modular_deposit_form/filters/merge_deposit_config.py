@@ -34,6 +34,7 @@ _CONFIG_KEYS = [
     ("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", "extra_required_fields"),
     ("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", "default_resource_type"),
     ("INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
+    ("INVENIO_MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP", "show_community_banner_at_top"),
     ("RDM_RECORDS_PERMISSIONS_PER_FIELD", "permissions_per_field"),
 ]
 

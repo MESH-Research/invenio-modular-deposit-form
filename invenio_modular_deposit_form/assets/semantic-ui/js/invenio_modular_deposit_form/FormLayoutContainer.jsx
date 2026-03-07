@@ -14,6 +14,7 @@ import {
   Transition,
 } from "semantic-ui-react";
 
+import { CommunityHeader } from "@js/invenio_rdm_records";
 import { FormPage } from "./framing_components/FormPage";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
 import { focusFirstElement } from "./utils";
@@ -131,7 +132,22 @@ const FormLayoutContainer = () => {
     handleFormPageChange: navigation.handleFormPageChange,
   };
 
+  const showCommunityBannerAtTop = config?.show_community_banner_at_top ?? true;
+
   return (
+    <>
+      {showCommunityBannerAtTop && (
+        <Grid>
+          <Grid.Row>
+            <Grid.Column mobile={16} tablet={16} computer={16}>
+              <CommunityHeader
+                imagePlaceholderLink="/static/images/square-placeholder.png"
+                record={record ?? {}}
+              />
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+      )}
     <Container text id="rdm-deposit-form" className="rel-mt-1">
       <Message warning className="mobile-deposit-warning mobile only">
         <Message.Header>
@@ -311,6 +327,7 @@ const FormLayoutContainer = () => {
         </Grid>
       </FormUIStateContext.Provider>
     </Container>
+    </>
   );
 };
 
