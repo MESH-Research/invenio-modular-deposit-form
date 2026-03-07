@@ -20,6 +20,7 @@ import { useStore } from "react-redux";
 import {
   AccessRightField,
   CommunityHeader,
+  CopyrightsField,
   CreatibutorsField,
   DatesField,
   DeleteButton,
@@ -40,15 +41,30 @@ import {
   SaveButton,
   SubjectsField,
   TitlesField,
+  UppyUploader,
   VersionField,
 } from "@js/invenio_rdm_records";
 import { FundingField } from "@js/invenio_vocabularies";
+import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { SizesField } from "../replacement_components/SizesField";
 import { moveToArrayStart } from "../utils";
 import { CustomFieldInjector } from "./CustomFieldInjector";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
+
+// v14 (invenio-app-rdm master) components; not present in v13. Safe to import when app
+// provides @js/invenio_app_rdm; wrap in try/catch so build/runtime with v13 does not break.
+let RecordDeletion = null;
+let FileModificationUntil = null;
+try {
+  const recordDeletionMod = require("@js/invenio_app_rdm/components/RecordDeletion");
+  RecordDeletion = recordDeletionMod.RecordDeletion;
+} catch (_) {}
+try {
+  const fileModMod = require("@js/invenio_app_rdm/components/FileModificationUntil");
+  FileModificationUntil = fileModMod.FileModificationUntil;
+} catch (_) {}
 
 const AbstractComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
@@ -92,7 +108,7 @@ const AbstractComponent = ({ ...extraProps }) => {
 
 const AccessRightsComponent = ({ ...extraProps }) => {
   const store = useStore();
-  const permissions = store.getState().deposit.permissions;
+  const { config, record, permissions } = store.getState().deposit;
 
   return (
     <FieldComponentWrapper
@@ -105,6 +121,9 @@ const AccessRightsComponent = ({ ...extraProps }) => {
       <AccessRightField
         fieldPath="access"
         showMetadataAccess={permissions?.can_manage_record_access}
+        record={record ?? {}}
+        recordRestrictionGracePeriod={config.record_restriction_grace_period ?? 30}
+        allowRecordRestriction={config.allow_record_restriction ?? true}
         fluid
       />
     </FieldComponentWrapper>
@@ -300,6 +319,59 @@ const DeleteComponent = ({ ...extraProps }) => {
   );
 };
 
+// Wrapper for v14 RecordDeletion (invenio-app-rdm). Renders only when stock component
+// is available and config.record_deletion is present with enabled flag (v13 has neither).
+const RecordDeletionComponent = () => {
+  const store = useStore();
+  const { config, record, permissions } = store.getState().deposit;
+  const recordDeletion = config.record_deletion ?? {};
+  const options = _get(config, "vocabularies.metadata.deletion_request_removal_reasons", []);
+  if (!RecordDeletion || !record?.is_published || !recordDeletion.enabled) {
+    return null;
+  }
+  return (
+    <RecordDeletion
+      record={record ?? {}}
+      permissions={permissions ?? {}}
+      recordDeletion={recordDeletion}
+      options={options}
+    />
+  );
+};
+
+// Wrapper for v14 FileModificationUntil (invenio-app-rdm). Shows "Unlocked, X days to
+// publish changes" in the Files section when file_modification is present. Not part of
+// FileUploader; v13 does not have this component.
+const FileModificationUntilComponent = () => {
+  const store = useStore();
+  const { config, record } = store.getState().deposit;
+  const fileModification = config.file_modification;
+  const filesLocked = config.files_locked ?? false;
+  if (!FileModificationUntil || fileModification == null) return null;
+  return (
+    <FileModificationUntil
+      filesLocked={filesLocked}
+      fileModification={fileModification}
+      record={record ?? {}}
+    />
+  );
+};
+
+const ShareDraftButtonComponent = () => {
+  const store = useStore();
+  const { config, record, permissions } = store.getState().deposit;
+  const groupsEnabled = config.groups_enabled ?? false;
+  const requireSecretLinksExpiration = config.require_secret_links_expiration;
+  return (
+    <ShareDraftButton
+      record={record ?? {}}
+      permissions={permissions ?? {}}
+      groupsEnabled={groupsEnabled}
+      requireSecretLinksExpiration={requireSecretLinksExpiration}
+    />
+  );
+};
+
 // OVERRIDDEN
 // ReactOverridable id: InvenioAppRdm.Deposit.PIDField.container (stock has no wrapper; not using FieldComponentWrapper—FIXME in original).
 // Stock: PIDField from @js/invenio_rdm_records. No Overridable ids inside; uses FastField + CustomPIDField.
@@ -346,6 +418,18 @@ const FilesUploadComponent = ({ ...extraProps }) => {
   const { config, record } = store.getState().deposit;
   const files = store.getState().files;
   const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
+  const useUppy = config.use_uppy ?? false;
+  const commonFileUploaderProps = {
+    noFiles,
+    isDraftRecord: !record.is_published,
+    quota: config.quota,
+    decimalSizeDisplay: config.decimal_size_display,
+    filesLocked: config.files_locked ?? false,
+    allowEmptyFiles: config.allow_empty_files ?? true,
+    showMetadataOnlyToggle: false, // permissions?.can_manage_files
+    // v14 only: pass when present so v13 uploaders (no fileModification prop) are unchanged
+    ...(config.file_modification != null && { fileModification: config.file_modification }),
+  };
 
   return (
     <>
@@ -360,13 +444,14 @@ const FilesUploadComponent = ({ ...extraProps }) => {
         fieldPath="files"
         {...extraProps}
       >
-        <FileUploader
-          noFiles={noFiles}
-          isDraftRecord={!record.is_published}
-          quota={config.quota}
-          decimalSizeDisplay={config.decimal_size_display}
-          showMetadataOnlyToggle={false} //{permissions?.can_manage_files}
-        />
+        <>
+          <FileModificationUntilComponent />
+          {useUppy ? (
+            <UppyUploader {...commonFileUploaderProps} />
+          ) : (
+            <FileUploader {...commonFileUploaderProps} />
+          )}
+        </>
       </FieldComponentWrapper>
       {/*</Overridable> */}
     </>
@@ -537,6 +622,18 @@ const LicensesComponent = ({ ...extraProps }) => {
           link: result.props.url,
         })}
       />
+    </FieldComponentWrapper>
+  );
+};
+
+const CopyrightsComponent = ({ ...extraProps }) => {
+  return (
+    <FieldComponentWrapper
+      componentName="CopyrightsField"
+      fieldPath="metadata.copyright"
+      {...extraProps}
+    >
+      <CopyrightsField fieldPath="metadata.copyright" />
     </FieldComponentWrapper>
   );
 };
@@ -737,12 +834,16 @@ const SubmissionComponent = () => {
               aria-describedby="publish-button-description"
               id="deposit-form-publish-button"
             />
+            {(record?.is_draft === null || permissions?.can_manage) && (
+              <ShareDraftButtonComponent />
+            )}
             <DeleteComponent
               permissions={permissions}
               record={record}
               aria-describedby="delete-button-description"
               icon="trash alternate outline"
             />
+            {record?.is_published && <RecordDeletionComponent />}
           </Grid.Column>
           <Grid.Column
             tablet="10"
@@ -819,6 +920,7 @@ export {
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,
+  CopyrightsComponent,
   CreatorsComponent,
   DateComponent,
   DeleteComponent,
