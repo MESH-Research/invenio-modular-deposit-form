@@ -3,8 +3,7 @@
 //
 // Custom field components that use CustomField (hook-based, no config
 // mutation) for built-in (invenio-rdm-records contrib-style) custom metadata:
-// imprint, journal, meeting, code, thesis. KCWorks kcr:* custom fields live in
-// field_components/kcworks/custom_field_components.jsx.
+// imprint, journal, meeting, code, thesis. 
 
 import React from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";

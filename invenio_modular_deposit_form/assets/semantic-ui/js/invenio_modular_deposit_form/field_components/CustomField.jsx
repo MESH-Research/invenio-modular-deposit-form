@@ -3,7 +3,9 @@
 //
 // Renders a built-in custom field by resolving its widget and props from
 // deposit config via useCustomFieldWidget, then wrapping in FieldComponentWrapper.
-// No config mutation; no CustomFieldInjector.
+// Renders a built-in custom field by resolving its widget and props from
+// deposit config via useCustomFieldWidget, then wrapping in FieldComponentWrapper.
+// No config mutation.
 
 import React from "react";
 import PropTypes from "prop-types";

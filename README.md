@@ -19,17 +19,17 @@ Licensed under the MIT License. See `LICENSE` file for details.
 
 This extension provides a flexible, extensible layout and validation layer for the InvenioRDM deposit form that allows:
 
-- customization of the form **layout via config variables**
-  - uses the semantic-ui grid layout system
+- flexible customization of deposit form **layout via config variables**
   - allows for a stepped **multi-page** form flow
-  - construction of form layouts using a simple dictionary configuration
+  - form customization possible **without touching React**
+  - extensible with custom React components, overrides, custom fields
 - form UI changes **based on resource type**
   - field visibility
   - alternate layouts
   - widget properties like labels, icons, placeholders, etc.
 - integration of **custom fields** freely into the main form layout
 - **autosave** of unsubmitted form values to browser storage
-- **client-side error handling** harmonized with InvenioRDM's server-side handling
+- **client-side form validation** harmonized with InvenioRDM's server-side validation
 - custom **preprocessing** of form data before submission
 
 The goal of this package has been to augment and expand on the existing InvenioRDM deposit form, not to completely replace it. Wherever possible, we rely on the stock components and logic provided by invenio-rdm-records. There's no point in reinventing the wheel!
@@ -100,7 +100,7 @@ In addition, the field component is wrapped in an inner `FieldComponentWrapper` 
 
 In the case of custom fields (built-in or user-created) the field's React component requires props prepared by a dedicated field template. Custom fields also have their UI configuration embedded in form UI sections, displayed in the stock form as tabs at the bottom of the form.
 
-To free up custom field widgets for more flexible placement, we employ a `CustomFieldInjector` component that renders the individual field widget using its template and the default settings from its UI section configuration. The injector component also wraps this rendered field widget in a `FieldComponentWrapper`. This allows the field's UI properties to be modified from the invenio-modular-deposit-form's layout config dictionary, and lets the widget adapt to the selected resource_type.
+To free up custom field widgets for more flexible placement, use the **CustomField** component. It looks up the field’s widget and props from the same custom field UI configuration that is part of the regular InvenioRDM custom fields system (see **Handling custom fields** below), does not mutate that config, and wraps the result in `FieldComponentWrapper`. This allows the field’s UI properties to be modified from the layout config and lets the widget adapt to the selected resource type.
 
 ![How custom fields are inserted](./docs/Modular%20Deposit%20Form%20Custom%20Field.jpg)
 
@@ -345,9 +345,9 @@ For example I can modify the icon for the title field's label by setting this co
 
 ```python
 INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS = {
-    "audiovisual-audioRecording": {"metadata.title": "headphones"},
+    "audio": {"metadata.title": "headphones"},
     "dataset": {"metadata.title": "table"},
-    "image-photograph": {"metadata.title": "camera"},
+    "image-photo": {"metadata.title": "camera"},
     "presentation": {"metadata.title": "microphone"},
 }
 ```
@@ -419,7 +419,7 @@ In your instance's `assets/js/invenio_app_rdm/overridableRegistry/mapping.js` fi
 
 ### Custom field components
 
-Defined in `field_components/custom_field_components.jsx`. They use `CustomFieldInjector` for resource-type-specific custom metadata (imprint, journal, meeting, code, etc.) and are registered by default for use in type-specific layouts.
+Defined in `field_components/custom_field_components.jsx`. They use the **CustomField** component (see **Handling custom fields** below), which reads widget and props from the InvenioRDM custom field UI config (`custom_fields.ui`). These cover resource-type-specific custom metadata (imprint, journal, meeting, code, thesis, etc.) and are registered by default for use in type-specific layouts.
 
 - BookTitleComponent
 - CodeDevelopmentStatusComponent
@@ -661,7 +661,63 @@ overriddenComponents["InvenioAppRdm.Deposit.LanguagesField.container"] =
 
 ### Handling custom fields
 
-Custom field values have to be accessed differently from built-in field values. Components that deal with custom fields can use the `CustomFieldInjector` helper component.
+Custom field values are stored under `custom_fields` in the record and must be accessed via the correct field path (e.g. `custom_fields.kcr:my_field`). To implement your own custom field widgets on the deposit form while reusing the standard InvenioRDM custom field configuration, use the **CustomField** component.
+
+**CustomField** resolves the field’s widget and props from the **custom field UI configuration that is part of the regular InvenioRDM custom fields system**. That configuration is defined in your instance’s `RDM_CUSTOM_FIELDS_UI` (in `invenio.cfg` or your config module). It is serialized into the deposit form’s config as `config.custom_fields.ui`: a list of sections, each with a `section` label and a `fields` array. Each field entry includes `field` (e.g. `thesis:thesis.university` or `kcr:my_field`), `ui_widget` (e.g. `TextField`, `Thesis`), and `props` (label, placeholder, description, etc.). **CustomField does not duplicate this config** — it looks it up from the Redux store’s deposit config and uses it to load the correct widget and merge props.
+
+1. **Define your custom field and its UI in InvenioRDM config**  
+   Register the field in `RDM_CUSTOM_FIELDS` and add a section (or add the field to an existing section) in `RDM_CUSTOM_FIELDS_UI` with `field`, `ui_widget`, and `props` as usual. That single definition drives both the backend schema and the deposit form UI when you use CustomField.
+
+2. **Implement a widget component that uses CustomField**  
+   In your instance’s component registry (or a component you register there), render `CustomField` with:
+   - `uiConfigSectionName` — the exact `section` string from `custom_fields.ui` (e.g. `"Commons admin info"` or `"Thesis"`).
+   - `fieldName` — the `field` value from that UI entry (e.g. `kcr:my_field` or `thesis:thesis.university`).
+   - `idString` — a stable id for the wrapper (e.g. `"MyField"`).
+   - Any extra props you want to override or add (e.g. `description`, `icon`). These are merged over the config props.
+
+3. **Register the component and add it to the layout**  
+   Add your component to your instance’s `componentsRegistry.js` with the field path(s) it handles (e.g. `["custom_fields.kcr:my_field"]`), then reference it in `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` like any other field component.
+
+**Example — single custom field in the instance registry:**
+
+```js
+import { CustomField } from "@js/invenio_modular_deposit_form/field_components/CustomField";
+
+const MyFieldComponent = (props) => (
+  <CustomField
+    uiConfigSectionName="My section"
+    fieldName="kcr:my_field"
+    idString="MyField"
+    {...props}
+  />
+);
+
+// In componentsRegistry.js:
+// MyFieldComponent: [MyFieldComponent, ["custom_fields.kcr:my_field"]]
+```
+
+**Example — section that renders several custom fields:**
+
+```js
+const AdminMetadataComponent = (props) => (
+  <>
+    <CustomField
+      uiConfigSectionName="Commons admin info"
+      fieldName="kcr:commons_domain"
+      idString="CommonsDomainField"
+      {...props}
+    />
+    <CustomField
+      uiConfigSectionName="Commons admin info"
+      fieldName="kcr:submitter_email"
+      idString="SubmitterEmailField"
+      {...props}
+    />
+  </>
+);
+```
+
+**CustomField** uses the **useCustomFieldWidget** hook, which reads `custom_fields.ui` from the deposit config, finds the section and field by name, merges props (without mutating config), and loads the widget via the same template loaders used elsewhere (so `ui_widget` values like `TextField` or `Thesis` resolve to the correct React component). The loaded widget is then wrapped in **FieldComponentWrapper** so it receives resource-type-driven label, icon, and other mods from the layout config.
 
 ## Client-side form validation
 
@@ -740,8 +796,8 @@ The `FormLayoutContainer` component shares the current state with field componen
 6. **Autosave and recovery**  
    Partially filled form values are written to browser local storage (handled in the form flow). **useLocalStorageRecovery** (and the recovery modal) offer the user the choice to restore that data when returning to the form, giving “automatic saving of partially filled form values to browser storage” and a clear recovery path.
 
-7. **Custom fields and extensions**  
-   Custom field slots are integrated by registering components and their field paths in the same **componentsRegistry** and, where needed, using **CustomFieldInjector** / **CustomFieldSectionInjector**. Preprocessing before submission can be implemented in the same Formik/DepositFormApp pipeline or in instance-specific wrappers. Client-side validation is wired by exporting `validate` and/or `validationSchema` from the instance’s `validator.js`, which is passed into DepositFormApp.
+7. **Custom fields and extensions**
+   Custom field slots are integrated by registering components and their field paths in the same **componentsRegistry** and, where needed, using the **CustomField** component (which reads from the InvenioRDM custom field UI config in `config.custom_fields.ui`). Preprocessing before submission can be implemented in the same Formik/DepositFormApp pipeline or in instance-specific wrappers. Client-side validation is wired by exporting `validate` and/or `validationSchema` from the instance’s `validator.js`, which is passed into DepositFormApp.
 
 In short: the **template** switches the deposit page to this extension and injects config and server data; the **React app** reads that config and builds a stepped, resource-type–aware form by resolving `commonFields` and `fieldsByType` and rendering registered components with context-driven field mods, while leaving form state and API communication to InvenioRDM’s DepositFormApp and Formik.
 

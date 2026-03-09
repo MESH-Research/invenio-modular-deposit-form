@@ -38,16 +38,16 @@ const ResourceTypeSelectorField = ({
 
   const buttonTypes = [
     {
-      id: "textDocument-journalArticle",
+      id: "publication-article",
       label: "Journal Article",
       icon: "file text",
     },
-    { id: "textDocument-review", label: "Review", icon: "thumbs up" },
-    { id: "textDocument-book", label: "Book", icon: "book" },
-    { id: "textDocument-bookSection", label: "Book Section", icon: "book" },
+    { id: "publication-peerreview", label: "Review", icon: "thumbs up" },
+    { id: "publication-book", label: "Book", icon: "book" },
+    { id: "publication-section", label: "Book Section", icon: "book" },
     {
-      id: "instructionalResource-syllabus",
-      label: "Syllabus",
+      id: "lesson",
+      label: "Lesson",
       icon: "graduation",
     },
   ];
