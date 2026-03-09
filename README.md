@@ -303,6 +303,74 @@ Within a FormRow, it is necessary to declare how wide each field in the row shou
 
 You may also employ semantic-ui responsive width classes to control how your layout will change at various standard breakpoints.
 
+#### Compound field components
+
+You can provide **compound field components** that render a pre-configured block of multiple field components in a fixed layout. Instead of listing several sections in your layout config, you reference a single component that composes them internally (and optionally wraps them in `SectionWrapper` and `FormRow`). This keeps the layout config short and reuses the same block wherever you need it (e.g. in `FIELDS_BY_TYPE` for one resource type).
+
+##### Built-in example: CombinedDatesComponent
+
+The package’s **CombinedDatesComponent** is a compound component used for the “Dates” section. It renders two field components in sequence: **DateComponent** (publication date) and **AdditionalDatesComponent** (additional dates). In the layout you add one section:
+
+```python
+{
+    "section": "combined_dates",
+    "label": "Dates",
+    "component": "CombinedDatesComponent",
+}
+```
+
+In the component registry it is registered with the union of field paths of its children:
+
+```javascript
+CombinedDatesComponent: [
+  CombinedDatesComponent,
+  ["metadata.publication_date", "metadata.dates"],
+],
+```
+
+##### Implementing your own compound component
+
+1. **Create a React component** that imports and renders the child field components. You can use the package’s layout primitives **SectionWrapper** and **FormRow** (from `framing_components/FieldsContent.jsx` and `framing_components/SectionWrapper.jsx`) to group and arrange the fields inside your component.
+
+2. **Register the component** in your instance’s component registry (or the package’s `componentsRegistry.js`). The value is a tuple `[Component, fieldPaths]` where `fieldPaths` is an array of all metadata field paths that the block touches (one entry per child field component).
+
+3. **Add one section** in `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` that references your component by name. You do not need to list the inner fields in the layout config.
+
+**Example: Thesis block**
+
+A “thesis” compound component can wrap all thesis custom field components in a section with two rows:
+
+- **SectionWrapper** with label “Thesis details”.
+- **FormRow** 1: University, Department, Thesis type.
+- **FormRow** 2: Date submitted, Date defended.
+
+Your component imports `SectionWrapper`, `FormRow`, and the five thesis field components (`UniversityComponent`, `ThesisDepartmentComponent`, `ThesisTypeComponent`, `ThesisDateSubmittedComponent`, `ThesisDateDefendedComponent`), composes them in JSX, and exports a single component (e.g. `ThesisBlockComponent`). In the registry you register it with the thesis custom field paths:
+
+```javascript
+ThesisBlockComponent: [
+  ThesisBlockComponent,
+  [
+    "custom_fields.thesis:thesis.university",
+    "custom_fields.thesis:thesis.department",
+    "custom_fields.thesis:thesis.type",
+    "custom_fields.thesis:thesis.date_submitted",
+    "custom_fields.thesis:thesis.date_defended",
+  ],
+],
+```
+
+In the layout you then add one entry (e.g. on a “Publication & other metadata” page or in `FIELDS_BY_TYPE` for `publication-thesis`):
+
+```python
+{
+    "section": "thesis_details",
+    "label": "Thesis details",
+    "component": "ThesisBlockComponent",
+}
+```
+
+The form will treat the whole block as one section for layout and validation purposes, while all five fields are still included.
+
 ### Changing your layout by resource type
 
 The `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` configuration establishes the basic layout for your form, its page structure, and the layout elements that should be shared regardless of the selected resource type. If you wish for some elements of the layout to change based on the current resource type, these changing elements of the layout may be configured using the `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` config variable.
