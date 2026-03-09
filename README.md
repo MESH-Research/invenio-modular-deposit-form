@@ -423,10 +423,8 @@ Defined in `field_components/custom_field_components.jsx`. They use `CustomField
 
 - BookTitleComponent
 - CodeDevelopmentStatusComponent
-- CodeOperatingSystemComponent
 - CodeProgrammingLanguageComponent
 - CodeRepositoryComponent
-- CodeRuntimePlatformComponent
 - ISBNComponent
 - JournalISSNComponent
 - JournalIssueComponent
@@ -441,7 +439,12 @@ Defined in `field_components/custom_field_components.jsx`. They use `CustomField
 - MeetingURLComponent
 - PublicationLocationComponent
 - SectionPagesComponent
+- ThesisDateDefendedComponent
+- ThesisDateSubmittedComponent
+- ThesisDepartmentComponent
+- ThesisTypeComponent
 - TotalPagesComponent
+- UniversityComponent
 
 ### Gotchas
 

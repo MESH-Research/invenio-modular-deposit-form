@@ -28,10 +28,8 @@ import { SizesComponent } from "./field_components/contrib";
 import {
   BookTitleComponent,
   CodeDevelopmentStatusComponent,
-  CodeOperatingSystemComponent,
   CodeProgrammingLanguageComponent,
   CodeRepositoryComponent,
-  CodeRuntimePlatformComponent,
   ISBNComponent,
   JournalISSNComponent,
   JournalIssueComponent,
@@ -46,7 +44,12 @@ import {
   MeetingURLComponent,
   PublicationLocationComponent,
   SectionPagesComponent,
+  ThesisDateDefendedComponent,
+  ThesisDateSubmittedComponent,
+  ThesisDepartmentComponent,
+  ThesisTypeComponent,
   TotalPagesComponent,
+  UniversityComponent,
 } from "./field_components/custom_field_components";
 import {
   CombinedDatesComponent,
@@ -82,14 +85,6 @@ const componentsRegistry = {
   CodeProgrammingLanguageComponent: [
     CodeProgrammingLanguageComponent,
     ["custom_fields.code:programmingLanguage"],
-  ],
-  CodeOperatingSystemComponent: [
-    CodeOperatingSystemComponent,
-    ["custom_fields.code:operatingSystem"],
-  ],
-  CodeRuntimePlatformComponent: [
-    CodeRuntimePlatformComponent,
-    ["custom_fields.code:runtimePlatform"],
   ],
   ContributorsComponent: [ContributorsComponent, ["metadata.contributors"]],
   CopyrightsComponent: [CopyrightsComponent, ["metadata.copyright"]],
@@ -165,6 +160,26 @@ const componentsRegistry = {
   TotalPagesComponent: [
     TotalPagesComponent,
     ["custom_fields.imprint:imprint.pages"],
+  ],
+  UniversityComponent: [
+    UniversityComponent,
+    ["custom_fields.thesis:thesis.university"],
+  ],
+  ThesisDepartmentComponent: [
+    ThesisDepartmentComponent,
+    ["custom_fields.thesis:thesis.department"],
+  ],
+  ThesisTypeComponent: [
+    ThesisTypeComponent,
+    ["custom_fields.thesis:thesis.type"],
+  ],
+  ThesisDateSubmittedComponent: [
+    ThesisDateSubmittedComponent,
+    ["custom_fields.thesis:thesis.date_submitted"],
+  ],
+  ThesisDateDefendedComponent: [
+    ThesisDateDefendedComponent,
+    ["custom_fields.thesis:thesis.date_defended"],
   ],
   VersionComponent: [VersionComponent, ["metadata.version"]],
   // below are composite field components

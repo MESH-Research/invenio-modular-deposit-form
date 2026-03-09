@@ -1,7 +1,10 @@
 // Part of the Knowledge Commons Repository
 // Copyright (C) 2023 MESH Research
 //
-// Custom field components that use CustomFieldInjector (not wrapping stock Invenio RDM components).
+// Custom field components that use CustomFieldInjector for built-in
+// (invenio-rdm-records contrib-style) custom metadata: imprint, journal,
+// meeting, code, thesis. KCWorks kcr:* custom fields live in
+// field_components/kcworks/custom_field_components.jsx.
 
 import React from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -33,18 +36,6 @@ const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
   );
 };
 
-const CodeOperatingSystemComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:operatingSystem"
-      idString="CodeOperatingSystemField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
 const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
@@ -63,30 +54,6 @@ const CodeRepositoryComponent = ({ ...extraProps }) => {
       sectionName="Software"
       fieldName="code:codeRepository"
       idString="CodeRepositoryField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CodeRuntimePlatformComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Software"
-      fieldName="code:runtimePlatform"
-      idString="CodeRuntimePlatformField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const CommonsDomainComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
-      fieldName="kcr:commons_domain"
-      idString="CommonsDomainField"
       description={""}
       {...extraProps}
     />
@@ -278,30 +245,6 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
   );
 };
 
-const SubmitterEmailComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
-      fieldName="kcr:submitter_email"
-      idString="SubmitterEmailField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
-const SubmitterUsernameComponent = ({ ...extraProps }) => {
-  return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
-      fieldName="kcr:submitter_username"
-      idString="SubmitterUsernameField"
-      description={""}
-      {...extraProps}
-    />
-  );
-};
-
 const TotalPagesComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
@@ -319,9 +262,71 @@ const TotalPagesComponent = ({ ...extraProps }) => {
 const UniversityComponent = ({ ...extraProps }) => {
   return (
     <CustomFieldInjector
-      sectionName="KCR Book information"
-      fieldName="thesis:university"
-      idString="ThesisUniversity"
+      sectionName="Thesis"
+      fieldName="thesis:thesis.university"
+      idString="ThesisUniversityField"
+      label={i18next.t("Awarding university")}
+      icon="university"
+      description=""
+      {...extraProps}
+    />
+  );
+};
+
+const ThesisDepartmentComponent = ({ ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Thesis"
+      fieldName="thesis:thesis.department"
+      idString="ThesisDepartmentField"
+      label={i18next.t("Awarding department")}
+      icon="building"
+      description=""
+      {...extraProps}
+    />
+  );
+};
+
+const ThesisTypeComponent = ({ ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Thesis"
+      fieldName="thesis:thesis.type"
+      idString="ThesisTypeField"
+      label={i18next.t("Thesis type")}
+      icon="graduation cap"
+      placeholder="e.g. PhD"
+      description={i18next.t(
+        "The type of thesis (e.g. Masters, PhD, Engineers, Bachelors)"
+      )}
+      {...extraProps}
+    />
+  );
+};
+
+const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Thesis"
+      fieldName="thesis:thesis.date_submitted"
+      idString="ThesisDateSubmittedField"
+      label={i18next.t("Submission date")}
+      icon="calendar"
+      description={i18next.t("Submission date in YYYY-MM-DD format.")}
+      {...extraProps}
+    />
+  );
+};
+
+const ThesisDateDefendedComponent = ({ ...extraProps }) => {
+  return (
+    <CustomFieldInjector
+      sectionName="Thesis"
+      fieldName="thesis:thesis.date_defended"
+      idString="ThesisDateDefendedField"
+      label={i18next.t("Defense date")}
+      icon="calendar"
+      description={i18next.t("Defense date in YYYY-MM-DD format.")}
       {...extraProps}
     />
   );
@@ -330,11 +335,8 @@ const UniversityComponent = ({ ...extraProps }) => {
 export {
   BookTitleComponent,
   CodeDevelopmentStatusComponent,
-  CodeOperatingSystemComponent,
   CodeProgrammingLanguageComponent,
   CodeRepositoryComponent,
-  CodeRuntimePlatformComponent,
-  CommonsDomainComponent,
   ISBNComponent,
   JournalISSNComponent,
   JournalIssueComponent,
@@ -349,8 +351,10 @@ export {
   MeetingURLComponent,
   PublicationLocationComponent,
   SectionPagesComponent,
-  SubmitterEmailComponent,
-  SubmitterUsernameComponent,
+  ThesisDateDefendedComponent,
+  ThesisDateSubmittedComponent,
+  ThesisDepartmentComponent,
+  ThesisTypeComponent,
   TotalPagesComponent,
   UniversityComponent,
 };
