@@ -247,13 +247,19 @@ Each member of the page's own `subsections` list is a top-level subdivision of t
 
 ##### SectionWrapper
 
-A `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, this will be rendered as the fieldset's `<legend>`. The `SectionWrapper` may be configured with some additional properties:
+By default, a `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is a full-width block and its contents are always visible.
 
-- `icon`: a string corresponding to a FontAwesome icon name available in the semantic-ui icon set,
-- `show_heading`: a boolean flag indicating whether the section's legend should be displayed.
-- `classnames`: allowing arbitrary classes to be added to the fieldset element
+When `collapsible` is `true`, the section is rendered instead as a single accordion pane (not a fieldset): the label becomes a clickable header that expands or collapses the content on click, similar to the main sections of the stock invenio-app-rdm deposit form. Use this to keep long forms manageable by letting users show or hide optional or secondary sections. The initial state is controlled by `startExpanded`.
 
-A `SectionWrapper` is a full-width subdivision of the form, unless this behaviour is modified by additional classes.
+**Properties:**
+
+- `icon`: a string corresponding to a FontAwesome icon name available in the semantic-ui icon set.
+- `show_heading`: a boolean; when `false` (default), the fieldset has no visible legend. When the section is non-collapsible, set to `true` to show the legend. When collapsible, the label is always shown in the accordion title.
+- `collapsible`: when `true` (default `false`), the section is an accordion-style pane: one clickable title and one content area that can be shown or hidden. The container is an accordion element, not a `<fieldset>`.
+- `startExpanded`: when `collapsible` is `true`, set to `true` (default) to show the section open initially, or `false` to show it collapsed.
+- `classnames`: optional CSS classes added to the container (the fieldset when not collapsible, or the accordion wrapper when collapsible).
+
+A `SectionWrapper` is a full-width subdivision of the form unless modified by `classnames`.
 
 ##### FormRow
 
