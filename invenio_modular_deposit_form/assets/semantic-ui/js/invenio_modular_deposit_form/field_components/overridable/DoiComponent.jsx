@@ -8,24 +8,44 @@ import { useStore } from "react-redux";
 import { PIDField } from "../../replacement_components/PIDField";
 
 /**
- * DOI/identifier field(s). Renders one PIDField per scheme in config.pids (e.g. doi).
- * Use this component when you want the replacement PIDField instead of stock.
+ * DOI/identifier field(s). Renders one PIDField per scheme in config.pids (e.g. doi). Uses the
+ * package's replacement PIDField instead of stock.
  *
- * @example Register in components registry
- * import { DoiComponent } from "@js/.../field_components/overridable";
- * componentsRegistry.DoiComponent = [DoiComponent, ["pids.doi"]];
+ * When used as an override (via the Overridable id), this component receives the same props as the
+ * default child. Config (pids, record) is read from the store for the PID list and record state.
  *
- * @example Override via ReactOverridable (parent app)
- * The stock DoiComponent in field_components.jsx does not wrap PID in FieldComponentWrapper,
- * so there is no single Overridable id for the PID block in the default. To override the
- * entire block, replace DoiComponent in the registry with this overridable version or your
- * own. If the stock component is later updated to expose an id (e.g. InvenioAppRdm.Deposit.PIDField.container
- * per scheme or for the block), the parent can override that id instead.
- * Stock: PIDField from @js/invenio_rdm_records. Props: fieldPath, fieldLabel, isEditingPublishedRecord,
- * record, pidType; optional btnLabelDiscardPID, btnLabelGetPID, canBeManaged, canBeUnmanaged,
- * managedHelpText, pidLabel, pidPlaceholder, required, unmanagedHelpText (from config.pids + record).
+ * This package provides the default component for this section. Include the regular component name
+ * from field_components.jsx (DoiComponent) in your configured form layout. To use this overridable
+ * version instead, use either:
+ *
+ * 1. Overridable registry: in your instance's assets/js/invenio_app_rdm/overridableRegistry/mapping.js,
+ * add this component to overriddenComponents for the Overridable id `InvenioAppRdm.Deposit.PIDField.container`.
+ * To pass additional props when using the Overridable registry, use ReactOverridable's parametrize
+ * (e.g. parametrize(OverrideDoiComponent, { ...props })) and register the parametrized component;
+ * see the instance's mapping.js for examples.
+ *
+ * @example Overridable registry (in instance assets/js/invenio_app_rdm/overridableRegistry/mapping.js)
+ * ```js
+ * import { OverrideDoiComponent } from "@js/invenio_modular_deposit_form/field_components/overridable";
+ * overriddenComponents["InvenioAppRdm.Deposit.PIDField.container"] = OverrideDoiComponent;
+ * ```
+ *
+ * 2. Component registry: register this component in the instance's invenio_modular_deposit_form
+ * component registry and include it in the configured form layout by name (OverrideDoiComponent).
+ * To pass additional props when using the component registry, pass them via the layout config
+ * (section props for that component).
+ *
+ * @example Component registry (instance componentsRegistry.js and form layout)
+ * In your instance's componentsRegistry.js (from your entry point or alias), add an entry for this
+ * override. You can use key DoiComponent to replace the default or OverrideDoiComponent as a new
+ * name. In the form layout, set the section's component to that key; section props are passed to the component.
+ *
+ * ```js
+ * import { OverrideDoiComponent } from "@js/invenio_modular_deposit_form/field_components/overridable";
+ * DoiComponent: [OverrideDoiComponent, ["pids.doi"]],
+ * ```
  */
-const DoiComponent = ({ ...extraProps }) => {
+const OverrideDoiComponent = ({ ...extraProps }) => {
   const store = useStore();
   const pids = store.getState().deposit.config.pids;
   const record = store.getState().deposit.record;
@@ -58,4 +78,4 @@ const DoiComponent = ({ ...extraProps }) => {
   );
 };
 
-export { DoiComponent };
+export { OverrideDoiComponent };

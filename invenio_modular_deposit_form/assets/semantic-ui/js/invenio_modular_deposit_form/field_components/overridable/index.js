@@ -6,5 +6,9 @@
 // field_components/overridable when you need these replacement versions.
 // (SizesComponent has no stock component in RDM—it lives in field_components/contrib.)
 
-export { AdditionalDatesComponent } from "./AdditionalDatesComponent";
-export { DoiComponent } from "./DoiComponent";
+export { OverrideAdditionalDatesComponent } from "./AdditionalDatesComponent";
+export { OverrideCommunitiesComponent } from "./CommunitiesComponent";
+export { OverrideDoiComponent } from "./DoiComponent";
+export { OverrideLanguagesComponent } from "./LanguagesComponent";
+export { OverrideResourceTypeComponent } from "./ResourceTypeComponent";
+export { OverrideSubmissionComponent } from "./SubmissionComponent";

@@ -218,11 +218,17 @@ const AlternateIdentifiersComponent = ({ ...extraProps }) => {
 const CommunitiesComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit?.record;
   return (
-    <CommunityHeader
-      imagePlaceholderLink="/static/images/square-placeholder.png"
+    <Overridable
+      id="InvenioAppRdm.Deposit.CommunityHeader.container"
       record={record ?? {}}
       {...extraProps}
-    />
+    >
+      <CommunityHeader
+        imagePlaceholderLink="/static/images/square-placeholder.png"
+        record={record ?? {}}
+        {...extraProps}
+      />
+    </Overridable>
   );
 };
 
@@ -783,7 +789,7 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * Uses stock SaveButton, PreviewButton, PublishButton, FormFeedback, DeleteButton
  * from @js/invenio_rdm_records.
  * @overridable InvenioAppRdm.Deposit.CardDepositStatusBox.container (outer); InvenioAppRdm.Deposit.FormFeedback.container (form feedback block).
- * Override (override_components.jsx) uses SubmitButtonModal (save/preview/publish) with
+ * Override (field_components/overridable/SubmissionComponent.jsx) uses SubmitButtonModal (save/preview/publish) with
  * missing-files confirmation and "no files" flow; stock uses separate buttons and
  * PublishButton disables when files enabled but none uploaded (no confirm modal for that).
  */

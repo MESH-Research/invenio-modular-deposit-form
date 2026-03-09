@@ -6,9 +6,11 @@ import { areDeeplyEqual, focusFirstElement } from "../utils";
 /** Custom hook for recovering form values from local storage
  *
  * @param {Object} currentUserprofile
+ * @param {string} currentFormPage - Current form page id
+ * @param {string|null} fileUploadPageId - Page id containing FileUploadComponent (for focus workaround)
  * @returns {Object} recoveryAsked, confirmModalRef, recoveredStorageValues, storageDataPresent
  */
-function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
+function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUploadPageId) {
 
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const confirmModalRef = useRef();
@@ -20,7 +22,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
   // focus first element when modal is closed to allow keyboard navigation
   const handleRecoveryAsked = () => {
     setRecoveryAsked(true);
-    focusFirstElement(currentFormPage, true, recoveryAsked);
+    focusFirstElement(currentFormPage, true, fileUploadPageId);
   };
 
   //keep changed form values in local storage

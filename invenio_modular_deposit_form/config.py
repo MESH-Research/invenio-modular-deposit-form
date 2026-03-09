@@ -21,117 +21,117 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
         "subsections": [
             {
                 "section": "page-1",
-                "title": "Type & Title",
+                "label": "Type & Title",
                 "component": "FormPage",
                 "subsections": [
                     {
                         "section": "resource_type",
-                        "title": "Resource Type",
+                        "label": "Resource Type",
                         "component": "ResourceTypeComponent",
                     },
                     {
                         "section": "doi",
-                        "title": "Digital Object Identifier",
+                        "label": "Digital Object Identifier",
                         "component": "DoiComponent",
                     },
                     {
                         "section": "combined_titles",
-                        "title": "Title",
+                        "label": "Title",
                         "component": "CombinedTitlesComponent",
                     },
                     {
                         "section": "combined_dates",
-                        "title": "Dates",
+                        "label": "Dates",
                         "component": "CombinedDatesComponent",
                     },
                     {
                         "section": "abstract",
-                        "title": "Description",
+                        "label": "Description",
                         "component": "AbstractComponent",
                     },
                 ],
             },
             {
                 "section": "page-2",
-                "title": "Submission Details",
+                "label": "Submission Details",
                 "subsections": [
                     {
                         "section": "publisher",
-                        "title": "Publisher",
+                        "label": "Publisher",
                         "component": "PublisherComponent",
                     },
                     {
                         "section": "language",
-                        "title": "Language",
+                        "label": "Language",
                         "component": "LanguagesComponent",
                     },
                     {
                         "section": "alternate_identifiers",
-                        "title": "Alternate Identifiers",
+                        "label": "Alternate Identifiers",
                         "component": "AlternateIdentifiersComponent",
                     },
                 ],
             },
             {
                 "section": "page-3",
-                "title": "Contributors & Funding",
+                "label": "Contributors & Funding",
                 "subsections": [
                     {
                         "section": "creators",
-                        "title": "Creators",
+                        "label": "Creators",
                         "component": "CreatorsComponent",
                     },
                     {
                         "section": "contributors",
-                        "title": "Contributors",
+                        "label": "Contributors",
                         "component": "ContributorsComponent",
                     },
-                    {"section": "ai", "title": "AI Use", "component": "AIComponent"},
+                    {"section": "ai", "label": "AI Use", "component": "AIComponent"},
                     {
                         "section": "funding",
-                        "title": "Funding",
+                        "label": "Funding",
                         "component": "FundingComponent",
                     },
                 ],
             },
             {
                 "section": "page-4",
-                "title": "Make It Findable",
+                "label": "Make It Findable",
                 "subsections": [
                     {
                         "section": "subjects_keywords",
-                        "title": "Subjects",
+                        "label": "Subjects",
                         "component": "SubjectsKeywordsComponent",
                     },
                     {
                         "section": "content_warning",
-                        "title": "Content Warning",
+                        "label": "Content Warning",
                         "component": "ContentWarningComponent",
                     },
                     {
                         "section": "related_works",
-                        "title": "Related Works",
+                        "label": "Related Works",
                         "component": "RelatedWorksComponent",
                     },
                 ],
             },
             {
                 "section": "page-5",
-                "title": "Access",
+                "label": "Access",
                 "subsections": [
                     {
                         "section": "communities",
-                        "title": "Communities",
+                        "label": "Communities",
                         "component": "CommunitiesComponent",
                     },
                     {
                         "section": "access",
-                        "title": "Access",
+                        "label": "Access",
                         "component": "AccessComponent",
                     },
                     {
                         "section": "admin_metadata",
-                        "title": "Administrative Metadata",
+                        "label": "Administrative Metadata",
                         "component": "AdminMetadataComponent",
                         "props": {"restrict_to": ["administration"]},
                     },
@@ -139,32 +139,32 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
             },
             {
                 "section": "page-6",
-                "title": "Files",
+                "label": "Files",
                 "subsections": [
                     {
                         "section": "file_upload",
-                        "title": "Files Upload",
+                        "label": "Files Upload",
                         "component": "FileUploadComponent",
                     },
                     {
                         "section": "licenses",
-                        "title": "Licenses",
+                        "label": "Licenses",
                         "component": "LicensesComponent",
                     },
                     {
                         "section": "copyright",
-                        "title": "Copyright",
+                        "label": "Copyright",
                         "component": "CopyrightsComponent",
                     },
                 ],
             },
             {
                 "section": "page-7",
-                "title": "Publish",
+                "label": "Publish",
                 "subsections": [
                     {
                         "section": "submit_actions",
-                        "title": "Publish",
+                        "label": "Publish",
                         "component": "SubmitActionsComponent",
                     },
                 ],
@@ -224,30 +224,30 @@ INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
         "page-2": [
             {
                 "section": "publication_detail",
-                "title": "Publication Details",
+                "label": "Publication Details",
                 "component": "PublicationDetailsComponent",
             },
             {
                 "section": "book_volume_pages",
-                "title": "Volume & Pages",
+                "label": "Volume & Pages",
                 "component": "BookVolumePagesComponent",
             },
-            {"section": "series", "title": "Series", "component": "SeriesComponent"},
+            {"section": "series", "label": "Series", "component": "SeriesComponent"},
         ]
     },
     "textDocument-bookSection": {
         "page-2": [
             {
                 "section": "book_section_detail",
-                "title": "Book Section Details",
+                "label": "Book Section Details",
                 "component": "BookSectionDetailComponent",
             },
             {
                 "section": "book_section_volume_pages",
-                "title": "Volume & Pages",
+                "label": "Volume & Pages",
                 "component": "BookSectionVolumePagesComponent",
             },
-            {"section": "series", "title": "Series", "component": "SeriesComponent"},
+            {"section": "series", "label": "Series", "component": "SeriesComponent"},
         ]
     },
     "textDocument-conferenceProceeding": None,
@@ -259,7 +259,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
         "page-2": [
             {
                 "section": "journal_detail",
-                "title": "Journal Details",
+                "label": "Journal Details",
                 "component": "JournalDetailComponent",
             }
         ]
@@ -276,20 +276,20 @@ INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
         "page-2": [
             {
                 "section": "organization_detail",
-                "title": "Organization Details",
+                "label": "Organization Details",
                 "component": "OrganizationDetailsComponent",
             },
             {
                 "section": "book_volume_pages",
-                "title": "Volume & Pages",
+                "label": "Volume & Pages",
                 "component": "BookVolumePagesComponent",
             },
             {
                 "section": "publisher",
-                "title": "Publisher",
+                "label": "Publisher",
                 "component": "PublisherComponent",
             },
-            {"section": "series", "title": "Series", "component": "SeriesComponent"},
+            {"section": "series", "label": "Series", "component": "SeriesComponent"},
         ]
     },
     "textDocument-review": {"page-2": [{"same_as": "textDocument-journalArticle"}]},

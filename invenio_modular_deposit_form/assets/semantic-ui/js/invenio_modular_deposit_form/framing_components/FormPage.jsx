@@ -12,13 +12,13 @@ const FormPage = ({
   recoveryAsked,
   subsections,
 }) => {
-  const { currentFormPage } = useContext(FormUIStateContext);
+  const { currentFormPage, fileUploadPageId } = useContext(FormUIStateContext);
 
   useLayoutEffect(() => {
     window.setTimeout(() => {
-      focusFirstElement(currentFormPage, recoveryAsked);
+      focusFirstElement(currentFormPage, recoveryAsked, fileUploadPageId);
     }, 200);
-  }, [currentFormPage, recoveryAsked]);
+  }, [currentFormPage, recoveryAsked, fileUploadPageId]);
 
   return (
     <DndProvider backend={HTML5Backend}>

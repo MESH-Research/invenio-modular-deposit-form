@@ -10,6 +10,7 @@ import { FORM_UI_ACTION } from "../helpers/formUIStateReducer";
  * @param {Function} focusFirstElement - Function to focus the first element on a page
  * @param {boolean} recoveryAsked - Whether recovery has been asked
  * @param {Object} formik - Formik context (uses setFieldTouched)
+ * @param {string|null} fileUploadPageId - Page id containing FileUploadComponent (for focus workaround)
  * @returns {Object} Navigation state and handlers
  */
 const useFormPageNavigation = (
@@ -19,7 +20,8 @@ const useFormPageNavigation = (
   confirmModalRef,
   focusFirstElement,
   recoveryAsked,
-  formik
+  formik,
+  fileUploadPageId
 ) => {
   const { currentFormPage, pagesWithErrors, formPageFields } = formUIState;
   const [destFormPage, setDestFormPage] = useState(null);
@@ -76,7 +78,7 @@ const useFormPageNavigation = (
   function handlePageChangeCancel() {
     setConfirmingPageChange(false);
     setDestFormPage(null);
-    focusFirstElement(currentFormPage, recoveryAsked);
+    focusFirstElement(currentFormPage, recoveryAsked, fileUploadPageId);
   }
 
   function handlePageChangeConfirm() {

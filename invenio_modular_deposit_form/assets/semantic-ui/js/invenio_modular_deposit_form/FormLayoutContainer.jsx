@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useReducer, useRef } from "react";
+import React, { createContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -17,7 +17,7 @@ import {
 import { CommunityHeader } from "@js/invenio_rdm_records";
 import { FormPage } from "./framing_components/FormPage";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
-import { focusFirstElement } from "./utils";
+import { findPageIdContainingComponent, focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
 import {
   formUIStateReducer,
@@ -67,6 +67,10 @@ const FormLayoutContainer = () => {
 
   const isNewVersionDraft = record?.status === "new_version_draft";
   const formPages = commonFields[0]?.subsections ?? [];
+  const fileUploadPageId = useMemo(
+    () => findPageIdContainingComponent(formPages, "FileUploadComponent"),
+    [formPages]
+  );
   const hasMultiplePages = formPages.length > 1;
   const [state, dispatch] = useReducer(
     formUIStateReducer,
@@ -94,7 +98,7 @@ const FormLayoutContainer = () => {
     recoveryAsked,
     confirmModalRef,
     handleRecoveryAsked,
-  } = useLocalStorageRecovery(currentUserprofile, state.currentFormPage);
+  } = useLocalStorageRecovery(currentUserprofile, state.currentFormPage, fileUploadPageId);
 
   const navigation = useFormPageNavigation(
     formPages,
@@ -103,7 +107,8 @@ const FormLayoutContainer = () => {
     confirmModalRef,
     focusFirstElement,
     recoveryAsked,
-    formik
+    formik,
+    fileUploadPageId
   );
 
   useCurrentResourceTypeFields(
@@ -129,14 +134,13 @@ const FormLayoutContainer = () => {
     formUIState: state,
     currentFormPage: state.currentFormPage,
     currentResourceType: state.currentResourceType,
+    fileUploadPageId,
     handleFormPageChange: navigation.handleFormPageChange,
   };
 
-  const showCommunityBannerAtTop = config?.show_community_banner_at_top ?? true;
-
   return (
     <>
-      {showCommunityBannerAtTop && (
+      {config?.show_community_banner_at_top && (
         <Grid>
           <Grid.Row>
             <Grid.Column mobile={16} tablet={16} computer={16}>
@@ -205,7 +209,7 @@ const FormLayoutContainer = () => {
                   type="button"
                 >
                   <Step.Content>
-                    <Step.Title>{i18next.t(label)}</Step.Title>
+                    <Step.Title>{i18next.t(label ?? section)}</Step.Title>
                   </Step.Content>
                 </Step>
               ))}

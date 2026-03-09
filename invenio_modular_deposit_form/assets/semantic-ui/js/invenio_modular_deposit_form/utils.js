@@ -70,6 +70,26 @@ function flattenWrappers(page) {
   return flattened;
 }
 
+/**
+ * Find the form page id (the page's `section` value in config) that contains
+ * a section with the given component name. Used to locate the file-upload page
+ * for focus and navigation without hard-coding page ids.
+ *
+ * @param {Array} formPages - Array of page configs (each has section, subsections)
+ * @param {string} componentName - Registry component name (e.g. "FileUploadComponent")
+ * @returns {string|null} Page id (e.g. "page-6"), or null if not found
+ */
+function findPageIdContainingComponent(formPages, componentName) {
+  if (!Array.isArray(formPages) || !componentName) return null;
+  for (const page of formPages) {
+    const flat = flattenWrappers(page);
+    if (flat.some((s) => s.component === componentName)) {
+      return page.section ?? null;
+    }
+  }
+  return null;
+}
+
 function getTouchedParent(touched, fieldPath) {
   const fieldParts = fieldPath.split(".");
   let touchedAncestor = false;
@@ -160,17 +180,20 @@ function isNearViewportBottom(el, offset = 0) {
  * Passed down to FormPage but also called by confirm modal
  *
  * Timeout allows time for the page to render before focusing the first element.
+ * On the page that contains the file upload component, the first focusable element
+ * is skipped (targetIndex 1) as a workaround for the file uploader's inaccessible first input.
  *
- * @param {string} currentFormPage - The current form page
- * @param {boolean} recoveryAskedFlag - Whether the recovery modal is open
+ * @param {string} currentFormPage - The current form page id
+ * @param {boolean} recoveryAsked - Whether recovery has been asked (or modal closed)
+ * @param {string|null} fileUploadPageId - Page id of the page that contains FileUploadComponent (optional)
  */
-const focusFirstElement = (currentFormPage, recoveryAskedFlag = false, recoveryAsked = true) => {
+const focusFirstElement = (currentFormPage, recoveryAsked = true, fileUploadPageId = null) => {
   // FIXME: timing issue
   setTimeout(() => {
-    // NOTE: recoveryAsked is true by default if no recovery data present
-    if (recoveryAsked || recoveryAskedFlag) {
-      // FIXME: workaround since file uploader has inaccessible first input
-      const targetIndex = currentFormPage === "page-6" ? 1 : 0;
+    if (recoveryAsked) {
+      // Workaround: file uploader has an inaccessible first input; focus the second focusable on that page.
+      const targetIndex =
+        fileUploadPageId && currentFormPage === fileUploadPageId ? 1 : 0;
       const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
       const newInputs = document.querySelectorAll(
         `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
@@ -216,6 +239,7 @@ function getReadableFields(fields) {
 
 export {
   areDeeplyEqual,
+  findPageIdContainingComponent,
   focusFirstElement,
   getErrorParent,
   getReadableFields,
