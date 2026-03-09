@@ -1,19 +1,20 @@
 // Part of the Knowledge Commons Repository
 // Copyright (C) 2023 MESH Research
 //
-// KCWorks-specific custom field components (kcr:*). Uses CustomFieldInjector
-// like the built-in custom fields in custom_field_components.jsx.
+// KCWorks-specific custom field components (kcr:*). Uses the same
+// CustomField + useCustomFieldWidget approach as built-in custom fields;
+// config comes from custom_fields.ui (Commons admin info section).
 
 import React from "react";
-import { CustomFieldInjector } from "../CustomFieldInjector";
+import { CustomField } from "../CustomField";
 
 const CommonsDomainComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
+    <CustomField
+      uiConfigSectionName="Commons admin info"
       fieldName="kcr:commons_domain"
       idString="CommonsDomainField"
-      description={""}
+      description=""
       {...extraProps}
     />
   );
@@ -21,11 +22,11 @@ const CommonsDomainComponent = ({ ...extraProps }) => {
 
 const SubmitterEmailComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
+    <CustomField
+      uiConfigSectionName="Commons admin info"
       fieldName="kcr:submitter_email"
       idString="SubmitterEmailField"
-      description={""}
+      description=""
       {...extraProps}
     />
   );
@@ -33,11 +34,11 @@ const SubmitterEmailComponent = ({ ...extraProps }) => {
 
 const SubmitterUsernameComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Commons admin info"
+    <CustomField
+      uiConfigSectionName="Commons admin info"
       fieldName="kcr:submitter_username"
       idString="SubmitterUsernameField"
-      description={""}
+      description=""
       {...extraProps}
     />
   );

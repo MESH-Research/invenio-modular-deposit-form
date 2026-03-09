@@ -8,6 +8,7 @@ const FieldComponentWrapper = ({
   componentName,
   fieldPath,
   icon,
+  labelIcon,
   label,
   description,
   helpText,
@@ -27,6 +28,8 @@ const FieldComponentWrapper = ({
   } = useCurrentFieldMods();
   const moddedIcon =
     iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
+  // Upstream invenio-rdm-records contrib uses labelIcon; custom field widgets expect icon
+  const effectiveIcon = moddedIcon ?? labelIcon;
   const moddedLabel =
     labelMods && labelMods.hasOwnProperty(fieldPath)
       ? labelMods[fieldPath]
@@ -75,7 +78,7 @@ const FieldComponentWrapper = ({
             fieldPath: fieldPath,
             helpText: moddedHelpText,
             label: moddedLabel,
-            icon: moddedIcon,
+            icon: effectiveIcon,
             placeholder: moddedPlaceholder,
             priorityFieldValues: priorityFieldValueSet,
             required: moddedRequired,

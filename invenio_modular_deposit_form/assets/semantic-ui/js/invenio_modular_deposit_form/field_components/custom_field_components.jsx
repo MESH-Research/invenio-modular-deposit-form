@@ -1,19 +1,19 @@
 // Part of the Knowledge Commons Repository
 // Copyright (C) 2023 MESH Research
 //
-// Custom field components that use CustomFieldInjector for built-in
-// (invenio-rdm-records contrib-style) custom metadata: imprint, journal,
-// meeting, code, thesis. KCWorks kcr:* custom fields live in
+// Custom field components that use CustomField (hook-based, no config
+// mutation) for built-in (invenio-rdm-records contrib-style) custom metadata:
+// imprint, journal, meeting, code, thesis. KCWorks kcr:* custom fields live in
 // field_components/kcworks/custom_field_components.jsx.
 
 import React from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { CustomFieldInjector } from "./CustomFieldInjector";
+import { CustomField } from "./CustomField";
 
 const BookTitleComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
+    <CustomField
+      uiConfigSectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.title"
       idString="ImprintTitleField"
       description={""}
@@ -26,8 +26,8 @@ const BookTitleComponent = ({ ...extraProps }) => {
 
 const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Software"
+    <CustomField
+      uiConfigSectionName="Software"
       fieldName="code:developmentStatus"
       idString="CodeDevelopmentStatusField"
       description={""}
@@ -38,8 +38,8 @@ const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
 
 const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Software"
+    <CustomField
+      uiConfigSectionName="Software"
       fieldName="code:programmingLanguage"
       idString="CodeProgrammingLanguageField"
       description={""}
@@ -50,8 +50,8 @@ const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
 
 const CodeRepositoryComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Software"
+    <CustomField
+      uiConfigSectionName="Software"
       fieldName="code:codeRepository"
       idString="CodeRepositoryField"
       description={""}
@@ -62,8 +62,8 @@ const CodeRepositoryComponent = ({ ...extraProps }) => {
 
 const ISBNComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
+    <CustomField
+      uiConfigSectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.isbn"
       idString="ImprintISBNField"
       icon="barcode"
@@ -76,8 +76,8 @@ const ISBNComponent = ({ ...extraProps }) => {
 
 const JournalTitleComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Journal"
+    <CustomField
+      uiConfigSectionName="Journal"
       fieldName="journal:journal.title"
       idString="JournalTitleField"
       label="Journal title"
@@ -90,8 +90,8 @@ const JournalTitleComponent = ({ ...extraProps }) => {
 
 const JournalISSNComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Journal"
+    <CustomField
+      uiConfigSectionName="Journal"
       fieldName="journal:journal.issn"
       idString="JournalISSNField"
       label="ISSN"
@@ -105,8 +105,8 @@ const JournalISSNComponent = ({ ...extraProps }) => {
 
 const JournalVolumeComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Journal"
+    <CustomField
+      uiConfigSectionName="Journal"
       fieldName="journal:journal.volume"
       idString="JournalVolumeField"
       label={i18next.t("Volume")}
@@ -119,8 +119,8 @@ const JournalVolumeComponent = ({ ...extraProps }) => {
 
 const JournalIssueComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Journal"
+    <CustomField
+      uiConfigSectionName="Journal"
       fieldName="journal:journal.issue"
       idString="JournalIssueField"
       label={i18next.t("Issue")}
@@ -133,8 +133,8 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 
 const MeetingAcronymComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.acronym"
       idString="MeetingAcronymField"
       description={""}
@@ -145,8 +145,8 @@ const MeetingAcronymComponent = ({ ...extraProps }) => {
 
 const MeetingDatesComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.dates"
       idString="MeetingDatesField"
       description={""}
@@ -157,8 +157,8 @@ const MeetingDatesComponent = ({ ...extraProps }) => {
 
 const MeetingPlaceComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.place"
       idString="MeetingPlaceField"
       description={""}
@@ -169,8 +169,8 @@ const MeetingPlaceComponent = ({ ...extraProps }) => {
 
 const MeetingSessionComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.session"
       idString="MeetingSessionField"
       description={""}
@@ -181,8 +181,8 @@ const MeetingSessionComponent = ({ ...extraProps }) => {
 
 const MeetingSessionPartComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.session_part"
       idString="MeetingSessionPartField"
       description={""}
@@ -193,8 +193,8 @@ const MeetingSessionPartComponent = ({ ...extraProps }) => {
 
 const MeetingTitleComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.title"
       idString="MeetingTitleField"
       description={""}
@@ -205,8 +205,8 @@ const MeetingTitleComponent = ({ ...extraProps }) => {
 
 const MeetingURLComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Conference"
+    <CustomField
+      uiConfigSectionName="Conference"
       fieldName="meeting:meeting.url"
       idString="MeetingURLField"
       description={""}
@@ -217,8 +217,8 @@ const MeetingURLComponent = ({ ...extraProps }) => {
 
 const SectionPagesComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Journal"
+    <CustomField
+      uiConfigSectionName="Journal"
       fieldName="journal:journal.pages"
       idString="JournalPagesField"
       description={""}
@@ -232,8 +232,8 @@ const SectionPagesComponent = ({ ...extraProps }) => {
 
 const PublicationLocationComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
+    <CustomField
+      uiConfigSectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.place"
       idString="ImprintPlaceField"
       label={"Place of Publication"}
@@ -247,8 +247,8 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
 
 const TotalPagesComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Book / Report / Chapter"
+    <CustomField
+      uiConfigSectionName="Book / Report / Chapter"
       fieldName="imprint:imprint.pages"
       idString="ImprintPagesField"
       description={""}
@@ -261,8 +261,8 @@ const TotalPagesComponent = ({ ...extraProps }) => {
 
 const UniversityComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Thesis"
+    <CustomField
+      uiConfigSectionName="Thesis"
       fieldName="thesis:thesis.university"
       idString="ThesisUniversityField"
       label={i18next.t("Awarding university")}
@@ -275,8 +275,8 @@ const UniversityComponent = ({ ...extraProps }) => {
 
 const ThesisDepartmentComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Thesis"
+    <CustomField
+      uiConfigSectionName="Thesis"
       fieldName="thesis:thesis.department"
       idString="ThesisDepartmentField"
       label={i18next.t("Awarding department")}
@@ -289,8 +289,8 @@ const ThesisDepartmentComponent = ({ ...extraProps }) => {
 
 const ThesisTypeComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Thesis"
+    <CustomField
+      uiConfigSectionName="Thesis"
       fieldName="thesis:thesis.type"
       idString="ThesisTypeField"
       label={i18next.t("Thesis type")}
@@ -306,8 +306,8 @@ const ThesisTypeComponent = ({ ...extraProps }) => {
 
 const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Thesis"
+    <CustomField
+      uiConfigSectionName="Thesis"
       fieldName="thesis:thesis.date_submitted"
       idString="ThesisDateSubmittedField"
       label={i18next.t("Submission date")}
@@ -320,8 +320,8 @@ const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
 
 const ThesisDateDefendedComponent = ({ ...extraProps }) => {
   return (
-    <CustomFieldInjector
-      sectionName="Thesis"
+    <CustomField
+      uiConfigSectionName="Thesis"
       fieldName="thesis:thesis.date_defended"
       idString="ThesisDateDefendedField"
       label={i18next.t("Defense date")}
