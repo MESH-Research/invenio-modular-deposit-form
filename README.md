@@ -190,7 +190,7 @@ You define the deposit form layout by setting `INVENIO_MODULAR_DEPOSIT_FORM_COMM
 # in invenio.cfg or your config module
 INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     {
-        "section": "top",
+        "section": "pages",
         "component": "FormPages",
         "subsections": [
             {
@@ -233,13 +233,51 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
 
 #### Top level form
 
-At its top level the `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` value is a **list** with a single dictionary representing the form as a whole. (In future development, this may allow multiple top-level components of various kinds. For the present, it must have **only one** child object, whose `"component"` value is `"FormPages"`. This top-level object must also include `"subsections"` array.
+The `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` value is a **list** of layout objects. Regions are identified by their `"component"` value; **order in the array does not matter**.
+
+You must include exactly one object with `"component": "FormPages"`; its `"subsections"` array defines the form pages (see below). You may also include optional **layout region** objects to place content in the form header, left sidebar, right sidebar, or form footer. Each of these is a sibling of the `FormPages` object in the top-level list.
+
+**Required**
+
+- **FormPages** — One object with `"component": "FormPages"` and a `"subsections"` array. Defines the main form body (title, stepper, and page content). Optional responsive column keys: `mobile`, `tablet`, `computer`, `largeScreen`, `widescreen` (camelCase; use `largeScreen` for the large-monitor breakpoint, not `largeMonitor`).
+
+**Optional layout regions**
+
+- **FormHeader** — `"component": "FormHeader"`. Rendered above the form (below the community banner if shown), full width. Use for form-level messaging, the page stepper, or actions.
+- **FormLeftSidebar** — `"component": "FormLeftSidebar"`. Rendered in a left column (default 3 grid units on computer, 16 on mobile). Use for the form-pages sidebar menu or other secondary content. Optional responsive column keys: `mobile`, `tablet`, `computer`, `largeScreen`, `widescreen` (camelCase; match Grid.Column props; use `largeScreen` not `largeMonitor`).
+- **FormRightSidebar** — `"component": "FormRightSidebar"`. Same as left sidebar; optional keys `mobile`, `tablet`, `computer`, `largeScreen`, `widescreen`.
+- **FormFooter** — `"component": "FormFooter"`. Rendered below the main form, full width. Use for the back/continue page navigation or other footer content.
+
+**FormPages** accepts the same optional responsive column keys (`mobile`, `tablet`, `computer`, `largeScreen`, `widescreen`) to set the main content column width. If omitted, the main column at each breakpoint is **16 minus the left sidebar width minus the right sidebar width** at that breakpoint (using each sidebar’s config or defaults: computer=3, mobile=16, tablet/largeScreen/widescreen=3). On mobile the main column defaults to 16 when not explicit (stacked layout).
+
+**Page navigation components** (`FormStepper`, `FormPageNavigationFooter`, `FormSidebarPageMenu`) are in the component registry and appear when you include them in the relevant region's `subsections`. Pass **`classnames`** (same as other subsection components) to control visibility or styling. Use the same responsive visibility classes as invenio-theme/invenio-app-rdm: `mobile only`, `tablet only`, `computer only`, `widescreen only`, `large-monitor only` (hyphen), or combinations like `{"component": "FormStepper", "classnames": "mobile tablet only"}` or `"computer widescreen large-monitor only"`. **Column width** config keys use camelCase (`mobile`, `tablet`, `computer`, `largeScreen`, `widescreen`) to match Semantic UI React `Grid.Column` props; do not use `largeMonitor` for widths—use `largeScreen` only.
+
+Each region object has a `"subsections"` array. Subsections use the same structure as page content: each item has `"section"`, `"component"` (a name from the component registry), and optional props. You can use field components, `SectionWrapper`, `FormRow`, or compound components. Example:
+
+```python
+{
+    "section": "form-header",
+    "component": "FormHeader",
+    "subsections": [
+        {
+            "section": "header_message",
+            "label": "Notice",
+            "component": "SomeMessageComponent",
+        },
+    ],
+},
+{
+    "section": "pages",
+    "component": "FormPages",
+    "subsections": [ ...pages... ],
+},
+```
 
 #### Form page(s)
 
-Each item in `subsections` is a **page** of the form with a component value of `"FormPage"`. The form _may_ have just a single page. In this case the form will be visible all at once, like the default InvenioRDM form.
+Each item in `subsections` is a **page** of the form with a component value of `"FormPage"`. The form _may_ have just a single page. In that case the form content is visible all at once, like the default InvenioRDM form.
 
-But if multiple `subsections` members are provided, the form will be rendered with a setepper component at top and a footer with "back" and "next" buttons for navigation through the form pages. The `label` attributes of each page dictionary are used in the stepper component if multiple pages are configured.
+If multiple pages are provided, include the **FormStepper** in the FormHeader region and optionally **FormPageNavigationFooter** in the FormFooter region and **FormSidebarPageMenu** in the FormLeftSidebar region to give users ways to move between pages. The `label` attributes of each page dictionary are used in the stepper and sidebar menu.
 
 #### Page layout components
 

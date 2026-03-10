@@ -79,9 +79,7 @@ describe('LanguagesComponent', () => {
       <Provider store={store}>
         <FormUIStateContext.Provider
           value={{
-            formUIState: {},
-            currentFormPage: "",
-            currentResourceType: "",
+            formUIState: { currentFormPage: "", currentResourceType: "" },
             handleFormPageChange: () => {},
           }}
         >

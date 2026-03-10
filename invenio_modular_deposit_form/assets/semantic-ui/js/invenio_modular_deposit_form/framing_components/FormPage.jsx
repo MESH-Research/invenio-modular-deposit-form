@@ -1,10 +1,10 @@
 import React, { useLayoutEffect, useContext } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { SectionWrapper } from "./SectionWrapper";
-import { FieldsContent } from "./FieldsContent";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import PropTypes from "prop-types";
+import { SubsectionsRenderer } from "./SubsectionsRenderer";
+import { FieldsContent } from "./FieldsContent";
 
 const FormPage = ({
   focusFirstElement,
@@ -12,7 +12,8 @@ const FormPage = ({
   recoveryAsked,
   subsections,
 }) => {
-  const { currentFormPage, fileUploadPageId } = useContext(FormUIStateContext);
+  const { formUIState, fileUploadPageId } = useContext(FormUIStateContext);
+  const currentFormPage = formUIState?.currentFormPage;
 
   useLayoutEffect(() => {
     window.setTimeout(() => {
@@ -22,48 +23,11 @@ const FormPage = ({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="formPageWrapper" id={id}>
-        {subsections.map(
-          (
-            {
-              section,
-              component,
-              wrapped,
-              subsections: innerSections,
-              ...props
-            },
-            index
-          ) => {
-            return component === "SectionWrapper" ? (
-              <SectionWrapper sectionName={section} key={section} {...props}>
-                {innerSections.map(({ component, ...innerProps }, index) => (
-                  <FieldsContent
-                    key={index}
-                    {...{
-                      section,
-                      component,
-                      wrapped,
-                      index,
-                      ...innerProps,
-                    }}
-                  />
-                ))}
-              </SectionWrapper>
-            ) : (
-              <FieldsContent
-                key={index}
-                {...{
-                  section,
-                  component,
-                  wrapped,
-                  index,
-                  ...props,
-                }}
-              />
-            );
-          }
-        )}
-      </div>
+      <SubsectionsRenderer
+        className="formPageWrapper"
+        id={id}
+        subsections={subsections}
+      />
     </DndProvider>
   );
 };

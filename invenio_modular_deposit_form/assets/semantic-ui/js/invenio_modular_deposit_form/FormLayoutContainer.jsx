@@ -3,19 +3,21 @@ import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
-  Button,
   Confirm,
   Container,
   Icon,
   Grid,
   Message,
   Modal,
-  Step,
   Transition,
 } from "semantic-ui-react";
 
 import { CommunityHeader } from "@js/invenio_rdm_records";
 import { FormPage } from "./framing_components/FormPage";
+import { FormFooterRegion } from "./framing_components/FormFooterRegion";
+import { FormHeaderRegion } from "./framing_components/FormHeaderRegion";
+import { FormLeftSidebar } from "./framing_components/FormLeftSidebar";
+import { FormRightSidebar } from "./framing_components/FormRightSidebar";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
 import { findPageIdContainingComponent, focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
@@ -57,6 +59,14 @@ const FormLayoutContainer = () => {
   const selectedCommunity = editorState?.selectedCommunity;
   const formik = useFormikContext();
 
+  const formHeaderConfig = commonFields.find((item) => item.component === "FormHeader");
+  const formLeftSidebarConfig = commonFields.find((item) => item.component === "FormLeftSidebar");
+  const formRightSidebarConfig = commonFields.find((item) => item.component === "FormRightSidebar");
+  const formFooterConfig = commonFields.find((item) => item.component === "FormFooter");
+
+  // Main form pages (stepper content) come from the FormPages region
+  const formPagesConfig = commonFields.find((item) => item.component === "FormPages");
+
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
   if (
     !!selectedCommunityLabel &&
@@ -66,12 +76,62 @@ const FormLayoutContainer = () => {
   }
 
   const isNewVersionDraft = record?.status === "new_version_draft";
-  const formPages = commonFields[0]?.subsections ?? [];
+  const formPages = formPagesConfig?.subsections ?? [];
   const fileUploadPageId = useMemo(
     () => findPageIdContainingComponent(formPages, "FileUploadComponent"),
     [formPages]
   );
-  const hasMultiplePages = formPages.length > 1;
+  const leftSidebarVisible =
+    (formLeftSidebarConfig?.subsections?.length ?? 0) > 0;
+  const rightSidebarVisible =
+    (formRightSidebarConfig?.subsections?.length ?? 0) > 0;
+
+  // Default column widths for sidebars when not specified (match FormLeftSidebar/FormRightSidebar)
+  const SIDEBAR_DEFAULTS = {
+    mobile: 16,
+    tablet: 3,
+    computer: 3,
+    largeScreen: 3,
+    widescreen: 3,
+  };
+  const mainColumnWidths = useMemo(() => {
+    const left = (key) =>
+      leftSidebarVisible
+        ? (formLeftSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS[key])
+        : 0;
+    const right = (key) =>
+      rightSidebarVisible
+        ? (formRightSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS[key])
+        : 0;
+    return {
+      mobile:
+        formPagesConfig?.mobile ??
+        16,
+      tablet:
+        formPagesConfig?.tablet ??
+        Math.max(1, 16 - left("tablet") - right("tablet")),
+      computer:
+        formPagesConfig?.computer ??
+        Math.max(1, 16 - left("computer") - right("computer")),
+      largeScreen:
+        formPagesConfig?.largeScreen ??
+        Math.max(1, 16 - left("largeScreen") - right("largeScreen")),
+      widescreen:
+        formPagesConfig?.widescreen ??
+        Math.max(1, 16 - left("widescreen") - right("widescreen")),
+    };
+  }, [
+    leftSidebarVisible,
+    rightSidebarVisible,
+    formLeftSidebarConfig,
+    formRightSidebarConfig,
+    formPagesConfig?.mobile,
+    formPagesConfig?.tablet,
+    formPagesConfig?.computer,
+    formPagesConfig?.largeScreen,
+    formPagesConfig?.widescreen,
+  ]);
+
   const [state, dispatch] = useReducer(
     formUIStateReducer,
     getInitialFormUIState(formPages, defaultResourceType, fieldsByType)
@@ -132,10 +192,12 @@ const FormLayoutContainer = () => {
 
   const contextValue = {
     formUIState: state,
-    currentFormPage: state.currentFormPage,
-    currentResourceType: state.currentResourceType,
     fileUploadPageId,
     handleFormPageChange: navigation.handleFormPageChange,
+    formPages,
+    previousFormPage: navigation.previousFormPage,
+    nextFormPage: navigation.nextFormPage,
+    pageTargetInViewport,
   };
 
   return (
@@ -165,9 +227,8 @@ const FormLayoutContainer = () => {
       </Message>
       <FormUIStateContext.Provider value={contextValue}>
         <Grid>
-          <Grid.Column mobile={16} tablet={16} computer={16}>
-            {/* TODO: add an optional site for the community field to be placed */}
-            <Grid.Row className="deposit-form-header">
+          <Grid.Row className="deposit-form-title">
+            <Grid.Column width={16}>
               <h1 className="ui header">
                 {i18next.t(`${
                   record?.id != null
@@ -187,148 +248,108 @@ const FormLayoutContainer = () => {
                   for {selectedCommunityLabel}
                 </h2>
               )}
-            </Grid.Row>
-            {hasMultiplePages && (
-            <Step.Group
-              widths={formPages.length}
-              className="upload-form-pager"
-              fluid={true}
-              size={"small"}
-            >
-              {formPages.map(({ section, label }, index) => (
-                <Step
-                  key={index}
-                  as={Button}
-                  active={state.currentFormPage === section}
-                  link
-                  onClick={navigation.handleFormPageChange}
-                  value={section}
-                  formNoValidate
-                  className={`ui button upload-form-stepper-step ${section}
-                    ${!!state.pagesWithFlaggedErrors[section] ? "has-error" : ""}`}
-                  type="button"
-                >
-                  <Step.Content>
-                    <Step.Title>{i18next.t(label ?? section)}</Step.Title>
-                  </Step.Content>
-                </Step>
-              ))}
-            </Step.Group>
-            )}
+            </Grid.Column>
+          </Grid.Row>
 
-            <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
-              {formPages.map(({ section, subsections }, index) => {
-                let actualSubsections = subsections;
-                if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
-                  actualSubsections = state.currentTypeFields[section];
-                  if (!!actualSubsections[0].same_as) {
-                    actualSubsections =
-                      fieldsByType[actualSubsections[0].same_as][section];
-                  }
-                }
-                return (
-                  state.currentFormPage === section && (
-                    <div key={index}>
-                      <FormPage
-                        focusFirstElement={focusFirstElement}
-                        id={`InvenioAppRdm.Deposit.FormPage.${section}`}
-                        recoveryAsked={recoveryAsked}
-                        subsections={actualSubsections}
-                      />
-                    </div>
-                  )
-                );
-              })}
-            </Transition.Group>
+          <FormHeaderRegion
+            subsections={formHeaderConfig?.subsections ?? []}
+          />
 
-            {hasMultiplePages && (
-            <>
-            <div id="sticky-footer-observation-target" ref={pageTargetRef}></div>
-            <div
-              className={`ui container ${
-                pageTargetInViewport ? "sticky-footer-static" : "sticky-footer-fixed"
-              }`}
-            >
-              <Grid className="deposit-form-footer">
-                <Grid.Column width={3}>
-                  {!!navigation.previousFormPage && (
-                    <Button
-                      type="button"
-                      onClick={navigation.handleFormPageChange}
-                      value={navigation.previousFormPage}
-                      icon
-                      labelPosition="left"
-                      className="back-button"
-                    >
-                      <Icon name="left arrow" />
-                      Back
-                    </Button>
-                  )}
-                </Grid.Column>
-                <Grid.Column className="footer-message" width={10}>
-                  Your current form values are backed up automatically{" "}
-                  <i>in this browser</i>.<br />
-                  Save a persistent draft to the cloud on the "Save & Publish" tab.
-                </Grid.Column>
-                <Grid.Column width={3}>
-                  {!!navigation.nextFormPage && (
-                    <Button
-                      type="button"
-                      onClick={navigation.handleFormPageChange}
-                      value={navigation.nextFormPage}
-                      icon
-                      labelPosition="right"
-                      className="continue-button primary"
-                    >
-                      <Icon name="right arrow" />
-                      Continue
-                    </Button>
-                  )}
-                </Grid.Column>
-              </Grid>
-            </div>
-            </>
-            )}
-
-            <Confirm
-              icon="question circle outline"
-              id="confirm-page-change"
-              className="confirm-page-change"
-              open={navigation.confirmingPageChange}
-              header={i18next.t("Hmmm...")}
-              content={
-                <Modal.Content image>
-                  <Icon name="question circle outline" size="huge" />
-                  <Modal.Description>
-                    {i18next.t(
-                      "There are problems with the information you've entered. Do you want to fix them before moving on?"
-                    )}
-                  </Modal.Description>
-                </Modal.Content>
-              }
-              confirmButton={
-                <button className="ui button">{i18next.t("Continue anyway")}</button>
-              }
-              cancelButton={
-                <button className="ui button positive" ref={confirmModalRef}>
-                  {i18next.t("Fix the problems")}
-                </button>
-              }
-              onCancel={navigation.handlePageChangeCancel}
-              onConfirm={navigation.handlePageChangeConfirm}
+          <Grid.Row>
+            <FormLeftSidebar
+              subsections={formLeftSidebarConfig?.subsections ?? []}
+              mobile={formLeftSidebarConfig?.mobile}
+              tablet={formLeftSidebarConfig?.tablet}
+              computer={formLeftSidebarConfig?.computer}
+              largeScreen={formLeftSidebarConfig?.largeScreen}
+              widescreen={formLeftSidebarConfig?.widescreen}
             />
+            <Grid.Column
+              computer={mainColumnWidths.computer}
+              mobile={mainColumnWidths.mobile}
+              tablet={mainColumnWidths.tablet}
+              largeScreen={mainColumnWidths.largeScreen}
+              widescreen={mainColumnWidths.widescreen}
+            >
+              <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
+                {formPages.map(({ section, subsections }, index) => {
+                  let actualSubsections = subsections;
+                  if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
+                    actualSubsections = state.currentTypeFields[section];
+                    if (!!actualSubsections[0].same_as) {
+                      actualSubsections =
+                        fieldsByType[actualSubsections[0].same_as][section];
+                    }
+                  }
+                  return (
+                    state.currentFormPage === section && (
+                      <div key={index}>
+                        <FormPage
+                          focusFirstElement={focusFirstElement}
+                          id={`InvenioAppRdm.Deposit.FormPage.${section}`}
+                          recoveryAsked={recoveryAsked}
+                          subsections={actualSubsections}
+                        />
+                      </div>
+                    )
+                  );
+                })}
+              </Transition.Group>
+            </Grid.Column>
+            <FormRightSidebar
+              subsections={formRightSidebarConfig?.subsections ?? []}
+              mobile={formRightSidebarConfig?.mobile}
+              tablet={formRightSidebarConfig?.tablet}
+              computer={formRightSidebarConfig?.computer}
+              largeScreen={formRightSidebarConfig?.largeScreen}
+              widescreen={formRightSidebarConfig?.widescreen}
+            />
+          </Grid.Row>
 
-            {!recoveryAsked && storageDataPresent && (
-              <RecoveryModal
-                isDraft={formik.values.status === "draft"}
-                isVersionDraft={formik.values.status === "new_version_draft"}
-                confirmModalRef={confirmModalRef}
-                handleStorageData={handleStorageData}
-                setRecoveryAsked={handleRecoveryAsked}
-              />
-            )}
-          </Grid.Column>
+          <FormFooterRegion
+            subsections={formFooterConfig?.subsections ?? []}
+          >
+            <div id="sticky-footer-observation-target" ref={pageTargetRef} />
+          </FormFooterRegion>
         </Grid>
+
+        <Confirm
+          icon="question circle outline"
+          id="confirm-page-change"
+          className="confirm-page-change"
+          open={navigation.confirmingPageChange}
+          header={i18next.t("Hmmm...")}
+          content={
+            <Modal.Content image>
+              <Icon name="question circle outline" size="huge" />
+              <Modal.Description>
+                {i18next.t(
+                  "There are problems with the information you've entered. Do you want to fix them before moving on?"
+                )}
+              </Modal.Description>
+            </Modal.Content>
+          }
+          confirmButton={
+            <button className="ui button">{i18next.t("Continue anyway")}</button>
+          }
+          cancelButton={
+            <button className="ui button positive" ref={confirmModalRef}>
+              {i18next.t("Fix the problems")}
+            </button>
+          }
+          onCancel={navigation.handlePageChangeCancel}
+          onConfirm={navigation.handlePageChangeConfirm}
+        />
+
+        {!recoveryAsked && storageDataPresent && (
+          <RecoveryModal
+            isDraft={formik.values.status === "draft"}
+            isVersionDraft={formik.values.status === "new_version_draft"}
+            confirmModalRef={confirmModalRef}
+            handleStorageData={handleStorageData}
+            setRecoveryAsked={handleRecoveryAsked}
+          />
+        )}
       </FormUIStateContext.Provider>
     </Container>
     </>

@@ -55,6 +55,9 @@ import {
   CombinedDatesComponent,
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
+import { FormStepper } from "./nav_components/FormStepper";
+import { FormPageNavigationFooter } from "./nav_components/FormPageNavigationFooter";
+import { FormSidebarPageMenu } from "./nav_components/FormSidebarPageMenu";
 
 const componentsRegistry = {
   AbstractComponent: [AbstractComponent, ["metadata.description"]],
@@ -191,7 +194,10 @@ const componentsRegistry = {
   FormRow: [FormRow, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
   SubmissionComponent: [SubmissionComponent, []],
-  // SubmitActionsComponent: [SubmitActionsComponent, ["access"]],
+  // Layout / page navigation (no field paths; registered for config-driven regions)
+  FormStepper: [FormStepper, []],
+  FormPageNavigationFooter: [FormPageNavigationFooter, []],
+  FormSidebarPageMenu: [FormSidebarPageMenu, []],
 };
 
 const extras = require(`@js/invenio_modular_deposit_form_components/componentsRegistry.js`);

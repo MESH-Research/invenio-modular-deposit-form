@@ -15,8 +15,9 @@ function useIsInViewport(ref) {
   );
 
   useEffect(() => {
-    observer.observe(ref.current);
-
+    const el = ref?.current;
+    if (!el) return;
+    observer.observe(el);
     return () => {
       observer.disconnect();
     };

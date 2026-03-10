@@ -8,7 +8,8 @@ import { FormUIStateContext } from "../FormLayoutContainer";
  */
 export function useCurrentFieldMods() {
   const config = useStore().getState().deposit?.config;
-  const { currentResourceType } = useContext(FormUIStateContext);
+  const { formUIState } = useContext(FormUIStateContext);
+  const currentResourceType = formUIState?.currentResourceType;
 
   const labelModifications = config?.label_modifications ?? {};
   const iconModifications = config?.icon_modifications ?? {};

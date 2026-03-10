@@ -16,7 +16,26 @@ selected or selectable)."""
 
 INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     {
-        "section": "top",
+        "component": "FormHeader",
+        "subsections": [
+            {"component": "FormStepper", "classnames": "mobile tablet only"},
+        ],
+    },
+    {
+        "component": "FormLeftSidebar",
+        "subsections": [
+            # Visibility class: use "large-monitor" (hyphen) for invenio-theme; width props use largeScreen (camelCase)
+            {"component": "FormSidebarPageMenu", "classnames": "computer widescreen large-monitor only"},
+        ],
+    },
+    {
+        "component": "FormFooter",
+        "subsections": [
+            {"component": "FormPageNavigationFooter"},
+        ],
+    },
+    {
+        "section": "pages",
         "component": "FormPages",
         "subsections": [
             {
