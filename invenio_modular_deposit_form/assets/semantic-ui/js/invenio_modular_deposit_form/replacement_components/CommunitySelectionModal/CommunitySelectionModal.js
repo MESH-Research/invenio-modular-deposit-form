@@ -16,6 +16,7 @@ import { Header, Modal, Button } from "semantic-ui-react";
 // import { CommunityContext } from "./CommunityContext";
 import { CommunityContext } from "@js/invenio_rdm_records/src/deposit/components/CommunitySelectionModal/CommunityContext";
 import { CommunitySelectionSearch } from "./CommunitySelectionSearch";
+import Overridable from "react-overridable";
 import _isEmpty from "lodash/isEmpty";
 
 export class CommunitySelectionModalComponent extends Component {
@@ -106,12 +107,20 @@ export class CommunitySelectionModalComponent extends Component {
             </Header>
           </Modal.Header>
 
-          <CommunitySelectionSearch
+          <Overridable
+            id="InvenioRdmRecords.CommunityHeader.CommunitySelectionSearch"
             apiConfigs={apiConfigs}
             record={record}
             isInitialSubmission={isInitialSubmission}
             permissionsPerField={permissionsPerField}
-          />
+          >
+            <CommunitySelectionSearch
+              apiConfigs={apiConfigs}
+              record={record}
+              isInitialSubmission={isInitialSubmission}
+              permissionsPerField={permissionsPerField}
+            />
+          </Overridable>
           {extraContentComponents && (
             <Modal.Content>{extraContentComponents}</Modal.Content>
           )}

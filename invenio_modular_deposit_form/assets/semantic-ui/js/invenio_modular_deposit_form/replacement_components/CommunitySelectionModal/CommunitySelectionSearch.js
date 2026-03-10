@@ -11,7 +11,6 @@
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import React, { Component, useState, useEffect, useRef } from "react";
-import { OverridableContext, parametrize } from "react-overridable";
 import {
   EmptyResults,
   Error,
@@ -24,7 +23,6 @@ import {
   withState,
 } from "react-searchkit";
 import { Grid, Input, Menu, Modal } from "semantic-ui-react";
-import { CommunityListItem } from "./CommunityListItem";
 import PropTypes from "prop-types";
 
 const Element = ({
@@ -152,99 +150,90 @@ export class CommunitySelectionSearch extends Component {
       permissionsPerField,
     } = this.props;
     const searchApi = new InvenioSearchApi(selectedsearchApi);
-    const overriddenComponents = {
-      [`${selectedAppId}.ResultsList.item`]: parametrize(CommunityListItem, {
-        record: record,
-        isInitialSubmission: isInitialSubmission,
-        permissionsPerField: permissionsPerField,
-      }),
-    };
     return (
-      <OverridableContext.Provider value={overriddenComponents}>
-        <ReactSearchKit
-          appName={selectedAppId}
-          urlHandlerApi={{ enabled: false }}
-          searchApi={searchApi}
-          key={selectedAppId}
-          initialQueryState={selectedInitialQueryState}
-          defaultSortingOnEmptyQueryString={this.state.selectedConfig.defaultSortingOnEmptyQueryString}
-        >
-          <>
-            <Modal.Content as={Grid} verticalAlign="middle" className="m-0 pb-0">
-              <Grid.Column
-                tablet={8}
-                computer={8}
-                mobile={16}
-                textAlign="left"
-                floated="left"
-                className="pt-0 pl-0"
-              >
-                <Menu role="tablist" compact>
-                  <Menu.Item
-                    as="button"
-                    role="tab"
-                    id="all-communities-tab"
-                    aria-selected={selectedAppId === allCommunities.appId}
-                    aria-controls={allCommunities.appId}
-                    name="All"
-                    active={selectedAppId === allCommunities.appId}
-                    onClick={() =>
-                      this.setState({
-                        selectedConfig: allCommunities,
-                      })
-                    }
-                  >
-                    {i18next.t("All")}
-                  </Menu.Item>
-                  <Menu.Item
-                    as="button"
-                    role="tab"
-                    id="my-communities-tab"
-                    aria-selected={selectedAppId === myCommunities.appId}
-                    aria-controls={myCommunities.appId}
-                    name="My collections"
-                    active={selectedAppId === myCommunities.appId}
-                    onClick={() =>
-                      this.setState({
-                        selectedConfig: myCommunities,
-                      })
-                    }
-                  >
-                    {i18next.t("My collections")}
-                  </Menu.Item>
-                </Menu>
-              </Grid.Column>
-              <Grid.Column
-                tablet={8}
-                computer={8}
-                mobile={16}
-                floated="right"
-                verticalAlign="middle"
-                className="pt-0 pr-0 pl-0"
-              >
-                <CommunitySearchBar toggleText={toggleText} />
-              </Grid.Column>
-            </Modal.Content>
-
-            <Modal.Content
-              role="tabpanel"
-              id={selectedAppId}
-              scrolling
-              className="community-list-results"
+      <ReactSearchKit
+        appName={selectedAppId}
+        urlHandlerApi={{ enabled: false }}
+        searchApi={searchApi}
+        key={selectedAppId}
+        initialQueryState={selectedInitialQueryState}
+        defaultSortingOnEmptyQueryString={this.state.selectedConfig.defaultSortingOnEmptyQueryString}
+      >
+        <>
+          <Modal.Content as={Grid} verticalAlign="middle" className="m-0 pb-0">
+            <Grid.Column
+              tablet={8}
+              computer={8}
+              mobile={16}
+              textAlign="left"
+              floated="left"
+              className="pt-0 pl-0"
             >
-              <ResultsLoader>
-                <EmptyResults />
-                <Error />
-                <ResultsList />
-              </ResultsLoader>
-            </Modal.Content>
+              <Menu role="tablist" compact>
+                <Menu.Item
+                  as="button"
+                  role="tab"
+                  id="all-communities-tab"
+                  aria-selected={selectedAppId === allCommunities.appId}
+                  aria-controls={allCommunities.appId}
+                  name="All"
+                  active={selectedAppId === allCommunities.appId}
+                  onClick={() =>
+                    this.setState({
+                      selectedConfig: allCommunities,
+                    })
+                  }
+                >
+                  {i18next.t("All")}
+                </Menu.Item>
+                <Menu.Item
+                  as="button"
+                  role="tab"
+                  id="my-communities-tab"
+                  aria-selected={selectedAppId === myCommunities.appId}
+                  aria-controls={myCommunities.appId}
+                  name="My collections"
+                  active={selectedAppId === myCommunities.appId}
+                  onClick={() =>
+                    this.setState({
+                      selectedConfig: myCommunities,
+                    })
+                  }
+                >
+                  {i18next.t("My collections")}
+                </Menu.Item>
+              </Menu>
+            </Grid.Column>
+            <Grid.Column
+              tablet={8}
+              computer={8}
+              mobile={16}
+              floated="right"
+              verticalAlign="middle"
+              className="pt-0 pr-0 pl-0"
+            >
+              <CommunitySearchBar toggleText={toggleText} />
+            </Grid.Column>
+          </Modal.Content>
 
-            <Modal.Content className="text-align-center">
-              <Pagination />
-            </Modal.Content>
-          </>
-        </ReactSearchKit>
-      </OverridableContext.Provider>
+          <Modal.Content
+            role="tabpanel"
+            id={selectedAppId}
+            scrolling
+            className="community-list-results"
+          >
+            <ResultsLoader>
+              <EmptyResults />
+              <Error />
+              <ResultsList />
+            </ResultsLoader>
+          </Modal.Content>
+
+          <Modal.Content className="text-align-center">
+            <Pagination />
+          </Modal.Content>
+        </>
+      </ReactSearchKit>
     );
   }
 }
