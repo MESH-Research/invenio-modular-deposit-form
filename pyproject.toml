@@ -22,7 +22,15 @@ classifiers = [
 ]
 dependencies = ["invenio-app-rdm<14"]
 
-optional-dependencies.docs = ["sphinx>=4.5"]
+optional-dependencies.docs = [
+  "furo>=2023",
+  "linkify-it-py>=0.2",
+  "myst-parser>=2",
+  "sphinx>=7",
+  "sphinx-copybutton>=0.5",
+  "sphinx-design>=0.3",
+  "uc-micro-py>=1",
+]
 
 optional-dependencies.tests = [
   "mypy>=1.8",
@@ -45,7 +53,15 @@ entry-points."invenio_base.blueprints".invenio_modular_deposit_form = "invenio_m
 entry-points."invenio_i18n.translations".messages = "invenio_modular_deposit_form"
 
 [dependency-groups]
-docs = ["sphinx>=4.5"]
+docs = [
+  "furo>=2023",
+  "linkify-it-py>=0.2",
+  "myst-parser>=2",
+  "sphinx>=7",
+  "sphinx-copybutton>=0.5",
+  "sphinx-design>=0.3",
+  "uc-micro-py>=1",
+]
 tests = [
   "mypy>=1.8",
   "pytest>=7.3.2",
@@ -61,7 +77,7 @@ tests = [
 ]
 
 [tool.setuptools.package-data]
-invenio_modular_deposit_form = ["patches/**", "scripts/**"]
+invenio_modular_deposit_form = ["assets/**", "patches/**", "scripts/**"]
 "*" = ["*.po", "*.pot", "*.mo"]
 
 [tool.setuptools.packages.find]
