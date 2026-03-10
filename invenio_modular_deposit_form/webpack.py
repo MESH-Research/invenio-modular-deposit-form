@@ -22,7 +22,7 @@ theme = WebpackThemeBundle(
             entry={
                 "invenio-modular-deposit-form": "./js/invenio_modular_deposit_form/index.js",
             },
-            dependencies: {
+            dependencies={
                 "geopattern": "^1.2.3",
                 "orcid-utils": "^1.2.2",
             },
