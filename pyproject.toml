@@ -77,7 +77,13 @@ tests = [
 ]
 
 [tool.setuptools.package-data]
-invenio_modular_deposit_form = ["assets/**", "patches/**", "scripts/**"]
+invenio_modular_deposit_form = [
+  "assets/**",
+  "patches/**",
+  "scripts/**",
+  "templates/**",
+  "translations/**",
+]
 "*" = ["*.po", "*.pot", "*.mo"]
 
 [tool.setuptools.packages.find]
