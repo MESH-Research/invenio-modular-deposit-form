@@ -19,3 +19,7 @@ Installation, configuration, extending the form, and full documentation are publ
 **https://mesh-research.github.io/invenio-modular-deposit-form/**
 
 A good place to start is the [Introduction](https://mesh-research.github.io/invenio-modular-deposit-form/introduction.html).
+
+## Contributing
+
+Feature suggestions and pull requests are welcome. Please open an issue or pull request on the [GitHub repository](https://github.com/MESH-Research/invenio-modular-deposit-form).
