@@ -43,7 +43,7 @@ import {
   UppyUploader,
   VersionField,
 } from "@js/invenio_rdm_records";
-import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField"};
+import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Grid } from "semantic-ui-react";
