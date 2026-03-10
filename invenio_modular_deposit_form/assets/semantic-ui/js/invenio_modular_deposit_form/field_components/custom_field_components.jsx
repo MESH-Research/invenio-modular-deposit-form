@@ -13,7 +13,7 @@ import { useCustomFieldSectionName } from "../hooks/useCustomFieldSectionName";
 const BookTitleComponent = ({ ...extraProps }) => {
   const uiConfigSectionName = useCustomFieldSectionName(
     "imprint",
-    "Book / Report / Chapter"
+    "Publishing information"
   );
   return (
     <CustomField
@@ -70,7 +70,7 @@ const CodeRepositoryComponent = ({ ...extraProps }) => {
 const ISBNComponent = ({ ...extraProps }) => {
   const uiConfigSectionName = useCustomFieldSectionName(
     "imprint",
-    "Book / Report / Chapter"
+    "Publishing information"
   );
   return (
     <CustomField
@@ -86,7 +86,7 @@ const ISBNComponent = ({ ...extraProps }) => {
 };
 
 const JournalTitleComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -101,7 +101,7 @@ const JournalTitleComponent = ({ ...extraProps }) => {
 };
 
 const JournalISSNComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -117,7 +117,7 @@ const JournalISSNComponent = ({ ...extraProps }) => {
 };
 
 const JournalVolumeComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -132,7 +132,7 @@ const JournalVolumeComponent = ({ ...extraProps }) => {
 };
 
 const JournalIssueComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -238,7 +238,7 @@ const MeetingURLComponent = ({ ...extraProps }) => {
 };
 
 const SectionPagesComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -256,7 +256,7 @@ const SectionPagesComponent = ({ ...extraProps }) => {
 const PublicationLocationComponent = ({ ...extraProps }) => {
   const uiConfigSectionName = useCustomFieldSectionName(
     "imprint",
-    "Book / Report / Chapter"
+    "Publishing information"
   );
   return (
     <CustomField
@@ -275,7 +275,7 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
 const TotalPagesComponent = ({ ...extraProps }) => {
   const uiConfigSectionName = useCustomFieldSectionName(
     "imprint",
-    "Book / Report / Chapter"
+    "Publishing information"
   );
   return (
     <CustomField
@@ -291,7 +291,7 @@ const TotalPagesComponent = ({ ...extraProps }) => {
 };
 
 const UniversityComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -306,7 +306,7 @@ const UniversityComponent = ({ ...extraProps }) => {
 };
 
 const ThesisDepartmentComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -321,7 +321,7 @@ const ThesisDepartmentComponent = ({ ...extraProps }) => {
 };
 
 const ThesisTypeComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -339,7 +339,7 @@ const ThesisTypeComponent = ({ ...extraProps }) => {
 };
 
 const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}
@@ -354,7 +354,7 @@ const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
 };
 
 const ThesisDateDefendedComponent = ({ ...extraProps }) => {
-  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Publishing information");
   return (
     <CustomField
       uiConfigSectionName={uiConfigSectionName}

@@ -361,14 +361,14 @@ INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {
 
 INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}
 
-# Default RDM_CUSTOM_FIELDS_UI section names for built-in contrib custom fields
-# (journal, meeting, imprint, thesis, codemeta). Instances can override or add
-# via INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES; the merge
-# in merge_deposit_config overlays instance config on this default.
+# Default RDM_CUSTOM_FIELDS_UI section names for built-in contrib custom fields.
+# Matches the example in https://inveniordm.docs.cern.ch/operate/customize/metadata/optional_fields/
+# which combines journal, imprint, thesis into one section "Publishing information";
+# meeting uses "Conference"; codemeta uses "Software".
 INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES = {
-    "journal": "Journal",
+    "journal": "Publishing information",
     "meeting": "Conference",
-    "imprint": "Book / Report / Chapter",
-    "thesis": "Thesis",
+    "imprint": "Publishing information",
+    "thesis": "Publishing information",
     "codemeta": "Software",
 }
