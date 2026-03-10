@@ -141,17 +141,27 @@ Register your component in the instance's overridable registry (`assets/js/inven
 
 Custom field values are stored under `custom_fields` in the record and must be accessed via the correct field path (e.g. `custom_fields.kcr:my_field`). To implement your own custom field widgets while reusing the standard InvenioRDM custom field configuration, use the **CustomField** component.
 
+### Prerequisites
+
+**Enable custom fields for every component you use.** The form looks up each custom field's widget and props from `RDM_CUSTOM_FIELDS_UI`. You must define the field in `RDM_CUSTOM_FIELDS` and add a section (or add the field to an existing section) in `RDM_CUSTOM_FIELDS_UI` for **every** custom field component in your layout—including the **built-in** ones (journal, imprint, meeting, thesis, codemeta/software). If you use `JournalTitleComponent`, `BookTitleComponent`, `MeetingTitleComponent`, etc., the corresponding sections and fields must be present in your instance's `RDM_CUSTOM_FIELDS_UI`; otherwise the components cannot resolve their widgets.
+
+**Section names must match, or you must override the mapping.** The form resolves which `RDM_CUSTOM_FIELDS_UI` section a component uses via the config variable `INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES`. The package default (in `config.py`) maps the built-in contrib field groups to the section labels `"Journal"`, `"Conference"`, `"Book / Report / Chapter"`, `"Thesis"`, and `"Software"`. Either use those same section labels in your `RDM_CUSTOM_FIELDS_UI`, or set `INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES` in your instance to override the section name for any key (built-in or your own).
+
+### Using CustomField
+
 **CustomField** resolves the field's widget and props from the **custom field UI configuration** that is part of the regular InvenioRDM custom fields system. That configuration is defined in your instance's `RDM_CUSTOM_FIELDS_UI` (in `invenio.cfg` or your config module). It is serialized into the deposit form's config as `config.custom_fields.ui`: a list of sections, each with a `section` label and a `fields` array. Each field entry includes `field` (e.g. `thesis:thesis.university`), `ui_widget`, and `props`. **CustomField does not duplicate this config** — it looks it up from the Redux store's deposit config and uses it to load the correct widget and merge props.
 
 1. **Define your custom field and its UI in InvenioRDM config** — Register the field in `RDM_CUSTOM_FIELDS` and add a section (or add the field to an existing section) in `RDM_CUSTOM_FIELDS_UI` with `field`, `ui_widget`, and `props` as usual.
 
 2. **Implement a widget component that uses CustomField** — Render `CustomField` with:
-   - `uiConfigSectionName` — the exact `section` string from `custom_fields.ui`
+   - `uiConfigSectionName` — the exact `section` string from `custom_fields.ui` (or the label you map in `INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES` for that component key)
    - `fieldName` — the `field` value from that UI entry (e.g. `kcr:my_field` or `thesis:thesis.university`)
    - `idString` — a stable id for the wrapper (e.g. `"MyField"`)
    - Any extra props you want to override or add. These are merged over the config props.
 
 3. **Register the component and add it to the layout** — Add your component to your instance's `componentsRegistry.js` with the field path(s) it handles, then reference it in `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` like any other field component.
+
+4. **Update the section name mapping** — Set `INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES` in your instance so it includes **all** custom field section names in use: both the **built-in** keys (`journal`, `meeting`, `imprint`, `thesis`, `codemeta`) and any keys for your own components (e.g. `KeywordsComponent`, `SeriesComponent`). When you set this variable you provide the full mapping; the form uses it to look up the correct `RDM_CUSTOM_FIELDS_UI` section for each component. See [Configuration](configuration.md) for the variable name and an example.
 
 **Example — single custom field in the instance registry:**
 
@@ -170,5 +180,7 @@ const MyFieldComponent = (props) => (
 // In componentsRegistry.js:
 // MyFieldComponent: [MyFieldComponent, ["custom_fields.kcr:my_field"]]
 ```
+
+Your instance must define the field and its UI in `RDM_CUSTOM_FIELDS` and `RDM_CUSTOM_FIELDS_UI` as usual, and include your component's section name in `INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES` (along with all built-in keys if you use built-in custom field components).
 
 **CustomField** uses the **useCustomFieldWidget** hook, which reads `custom_fields.ui` from the deposit config, finds the section and field by name, merges props (without mutating config), and loads the widget via the same template loaders used elsewhere. The loaded widget is then wrapped in **FieldComponentWrapper** so it receives resource-type-driven label, icon, and other mods from the layout config.
