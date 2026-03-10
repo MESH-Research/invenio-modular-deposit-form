@@ -1,6 +1,6 @@
 # Overview
 
-## Custom template and wrapper component
+## Wrapping the InvenioRDM deposit form
 
 The package provides a custom Jinja template that renders a custom version of the top-level `RDMDepositForm` component. This is a thin wrapper that renders the stock `DepositFormApp` as its one child. The modular form layout and configuration are merged into the stock deposit form's config data by the template (using a custom filter) and passed into the stock form's Redux store.
 

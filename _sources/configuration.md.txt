@@ -1,27 +1,5 @@
 # Configuration
 
-To use this deposit form, the extension sets `APP_RDM_DEPOSIT_FORM_TEMPLATE` to this package's template by default. Override it in your instance's `invenio.cfg` if you need the default RDM form:
-
-```python
-# Optional: only if you want to revert to the default RDM deposit form
-# APP_RDM_DEPOSIT_FORM_TEMPLATE = "invenio_app_rdm/deposit.html"
-```
-
-Layout and configuration of the form are available via config variables:
-
-- **INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS** — Declares the basic form layout that will be the default for all resource types, including the stepped multi-stage structure if one is used.
-- **INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE** — Declares the additional fields to be placed in the form (and on each form step) based on the currently selected resource type.
-- **INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES**
-- **INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES**
-- **INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS**
-
-These config variables are injected into the main form component via data attributes.
-
 ## Creating a custom form layout
 
 You define the deposit form layout by setting `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` in your instance's `invenio.cfg`. The default configuration in this package's `config.py` provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:

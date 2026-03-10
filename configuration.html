@@ -250,25 +250,6 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h1>
-<p>To use this deposit form, the extension sets <code class="docutils literal notranslate"><span class="pre">APP_RDM_DEPOSIT_FORM_TEMPLATE</span></code> to this package’s template by default. Override it in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> if you need the default RDM form:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optional: only if you want to revert to the default RDM deposit form</span>
-<span class="c1"># APP_RDM_DEPOSIT_FORM_TEMPLATE = &quot;invenio_app_rdm/deposit.html&quot;</span>
-</pre></div>
-</div>
-<p>Layout and configuration of the form are available via config variables:</p>
-<ul class="simple">
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</strong> — Declares the basic form layout that will be the default for all resource types, including the stepped multi-stage structure if one is used.</p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</strong> — Declares the additional fields to be placed in the form (and on each form step) based on the currently selected resource type.</p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</strong></p></li>
-</ul>
-<p>These config variables are injected into the main form component via data attributes.</p>
 <section id="creating-a-custom-form-layout">
 <h2>Creating a custom form layout<a class="headerlink" href="#creating-a-custom-form-layout" title="Link to this heading">¶</a></h2>
 <p>You define the deposit form layout by setting <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. The default configuration in this package’s <code class="docutils literal notranslate"><span class="pre">config.py</span></code> provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:</p>
