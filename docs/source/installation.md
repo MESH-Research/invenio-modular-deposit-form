@@ -11,7 +11,7 @@ uv add "invenio-modular-deposit-form @ git+https://github.com/MESH-Research/inve
 ## Using pipenv
 
 ```bash
-pipenv install "git+https://github.com/MESH-Research/invenio-modular-deposit-form.git#egg=invenio-modular-deposit-form"
+pipenv install "git+https://github.com/MESH-Research/invenio-modular-deposit-form.git"
 ```
 
 After installation, the extension sets `APP_RDM_DEPOSIT_FORM_TEMPLATE` to use this package's deposit template by default.

@@ -12,6 +12,10 @@ Copyright (C) 2023-2026 Mesh Research. Licensed under the MIT License. See `LICE
 This package is currently under heavy development to improve its portability and to support InvenioRDM versions 13 and 14. **As of 2026-03-06 the package is temporarily broken**, but this will be resolved shortly. Check back soon for updates!
 ```
 
+```{warning}
+This documentation is in rough draft form and is currently being edited. Check back shortly for updates.
+```
+
 ## Features
 
 This extension provides a flexible, extensible layout and validation layer for the InvenioRDM deposit form that allows:
