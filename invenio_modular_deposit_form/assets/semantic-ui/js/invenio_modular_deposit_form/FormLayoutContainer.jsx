@@ -214,7 +214,11 @@ const FormLayoutContainer = () => {
           </Grid.Row>
         </Grid>
       )}
-    <Container text id="rdm-deposit-form" className="rel-mt-1">
+    <Container
+      text={!leftSidebarVisible && !rightSidebarVisible}
+      id="rdm-deposit-form"
+      className="rel-mt-1"
+    >
       <Message warning className="mobile-deposit-warning mobile only">
         <Message.Header>
           <Icon name="info circle" />
@@ -276,7 +280,7 @@ const FormLayoutContainer = () => {
                   let actualSubsections = subsections;
                   if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
                     actualSubsections = state.currentTypeFields[section];
-                    if (!!actualSubsections[0].same_as) {
+                    if (!!actualSubsections[0]?.same_as) {
                       actualSubsections =
                         fieldsByType[actualSubsections[0].same_as][section];
                     }

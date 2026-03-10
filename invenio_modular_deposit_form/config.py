@@ -25,7 +25,21 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
         "component": "FormLeftSidebar",
         "subsections": [
             # Visibility class: use "large-monitor" (hyphen) for invenio-theme; width props use largeScreen (camelCase)
-            {"component": "FormSidebarPageMenu", "classnames": "computer widescreen large-monitor only"},
+            {
+                "component": "FormSidebarPageMenu",
+                "classnames": "computer widescreen large-monitor only",
+            },
+        ],
+    },
+    {
+        "component": "FormRightSidebar",
+        "subsections": [
+            # Visibility class: use "large-monitor" (hyphen) for invenio-theme; width props use largeScreen (camelCase)
+            {
+                "section": "submit_actions",
+                "label": "Publish",
+                "component": "SubmissionComponent",
+            },
         ],
     },
     {
@@ -107,7 +121,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 ],
             },
             {
-                "section": "page-2-publication",
+                "section": "page-3",
                 "label": "Publication & other metadata",
                 "component": "FormPage",
                 "subsections": [
@@ -234,8 +248,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 ],
             },
             {
-                "section": "page-3",
+                "section": "page-4",
                 "label": "Contributors & Funding",
+                "component": "FormPage",
                 "subsections": [
                     {
                         "section": "creators",
@@ -255,8 +270,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 ],
             },
             {
-                "section": "page-4",
+                "section": "page-5",
                 "label": "Make It Findable",
+                "component": "FormPage",
                 "subsections": [
                     {
                         "section": "subjects_keywords",
@@ -271,8 +287,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 ],
             },
             {
-                "section": "page-5",
+                "section": "page-6",
                 "label": "Access",
+                "component": "FormPage",
                 "subsections": [
                     {
                         "section": "communities",
@@ -287,8 +304,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 ],
             },
             {
-                "section": "page-6",
+                "section": "page-7",
                 "label": "Files",
+                "component": "FormPage",
                 "subsections": [
                     {
                         "section": "file_upload",
@@ -307,19 +325,8 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                     },
                 ],
             },
-            {
-                "section": "page-7",
-                "label": "Publish",
-                "subsections": [
-                    {
-                        "section": "submit_actions",
-                        "label": "Publish",
-                        "component": "SubmissionComponent",
-                    },
-                ],
-            },
         ],
-    }
+    },
 ]
 
 # Keys must match resource type IDs from invenio-rdm-records default vocabulary
@@ -353,3 +360,15 @@ INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {
 }
 
 INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}
+
+# Default RDM_CUSTOM_FIELDS_UI section names for built-in contrib custom fields
+# (journal, meeting, imprint, thesis, codemeta). Instances can override or add
+# via INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES; the merge
+# in merge_deposit_config overlays instance config on this default.
+INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES = {
+    "journal": "Journal",
+    "meeting": "Conference",
+    "imprint": "Book / Report / Chapter",
+    "thesis": "Thesis",
+    "codemeta": "Software",
+}

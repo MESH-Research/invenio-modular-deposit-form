@@ -6,7 +6,7 @@ import { useFormikContext } from "formik";
 import {
   DepositFormSubmitActions,
   DepositFormSubmitContext,
-} from "@js/invenio_rdm_records";
+} from "@js/invenio_rdm_records/src/deposit/api/DepositFormSubmitContext";
 // import { DepositStatus } from "../../state/reducers/deposit";
 import { Button, Header, Icon, Message, Modal } from "semantic-ui-react";
 import _omit from "lodash/omit";

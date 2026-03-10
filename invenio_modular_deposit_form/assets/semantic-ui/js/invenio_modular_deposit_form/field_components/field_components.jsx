@@ -20,7 +20,6 @@ import { useStore } from "react-redux";
 import {
   AccessRightField,
   CommunityHeader,
-  CopyrightsField,
   CreatibutorsField,
   DatesField,
   DeleteButton,
@@ -44,6 +43,7 @@ import {
   UppyUploader,
   VersionField,
 } from "@js/invenio_rdm_records";
+import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField"};
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Grid } from "semantic-ui-react";
@@ -75,8 +75,8 @@ const AbstractComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="DescriptionsField"
-      fieldPath="metadata.description"
       {...extraProps}
+      fieldPath="metadata.description"
     >
       <DescriptionsField
         fieldPath="metadata.description"
@@ -113,10 +113,10 @@ const AccessRightsComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="AccessRightField"
-      fieldPath="access"
+      icon="shield"
+      label={i18next.t("Public access")}
       {...extraProps}
-      icon={extraProps.icon || "shield"}
-      label={extraProps.label || i18next.t("Public access")}
+      fieldPath="access"
     >
       <AccessRightField
         fieldPath="access"
@@ -140,8 +140,8 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="DateField"
-      fieldPath="metadata.dates"
       {...extraProps}
+      fieldPath="metadata.dates"
     >
       <DatesField
         fieldPath="metadata.dates"
@@ -398,6 +398,7 @@ const DoiComponent = ({ ...extraProps }) => {
 
   return (
     <Overridable id="InvenioAppRdm.Deposit.PIDField.container">
+      <Fragment>
       {pids.map((pid) => (
         <Fragment key={pid.scheme}>
             <PIDField
@@ -421,6 +422,7 @@ const DoiComponent = ({ ...extraProps }) => {
             />
           </Fragment>
         ))}
+      </Fragment>
     </Overridable>
   );
 };
@@ -619,8 +621,8 @@ const LicensesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="LicenseField"
-      fieldPath="metadata.rights"
       {...extraProps}
+      fieldPath="metadata.rights"
     >
       <LicenseField
         searchConfig={{
@@ -656,8 +658,8 @@ const CopyrightsComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="CopyrightsField"
-      fieldPath="metadata.copyright"
       {...extraProps}
+      fieldPath="metadata.copyright"
     >
       <CopyrightsField fieldPath="metadata.copyright" />
     </FieldComponentWrapper>
@@ -672,11 +674,11 @@ const PublisherComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="PublisherField"
-      fieldPath="metadata.publisher"
       description=""
       helpText=""
       placeholder={""}
       {...extraProps}
+      fieldPath="metadata.publisher"
     >
       <PublisherField fieldPath="metadata.publisher" required />
     </FieldComponentWrapper>
@@ -691,8 +693,8 @@ const ReferencesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="ReferencesField"
-      fieldPath={"metadata.references"}
       {...extraProps}
+      fieldPath={"metadata.references"}
     >
       <ReferencesField showEmptyValue />
     </FieldComponentWrapper>
@@ -709,8 +711,8 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="RelatedWorksField"
-      fieldPath={"metadata.related_identifiers"}
       {...extraProps}
+      fieldPath={"metadata.related_identifiers"}
     >
       <RelatedWorksField
         fieldPath="metadata.related_identifiers"
@@ -731,8 +733,8 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="ResourceTypeField"
-      fieldPath={fieldPath}
       {...extraProps}
+      fieldPath={fieldPath}
     >
       <ResourceTypeField
         fieldPath={fieldPath}
@@ -761,13 +763,13 @@ const SubjectsComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="SubjectsField"
-      fieldPath="metadata.subjects"
       placeholder={i18next.t("Search for a subject by name (press 'enter' to select)")}
       label="Subjects"
       description={i18next.t(
         "These standardized subject headings help people to find your materials!"
       )}
       {...extraProps}
+      fieldPath="metadata.subjects"
     >
       <SubjectsField
         initialOptions={_get(record, "ui.subjects", null)}
@@ -903,10 +905,10 @@ const TitlesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="TitlesField"
-      fieldPath="metadata.title"
       required
       label={extraProps.label}
       {...extraProps}
+      fieldPath="metadata.title"
     >
       <TitlesField
         fieldPath="metadata.title"
@@ -925,9 +927,9 @@ const VersionComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="VersionField"
-      fieldPath="metadata.version"
       helpText=""
       {...extraProps}
+      fieldPath="metadata.version"
     >
       <VersionField />
     </FieldComponentWrapper>

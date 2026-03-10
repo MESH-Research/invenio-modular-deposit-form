@@ -3,16 +3,21 @@
 //
 // Custom field components that use CustomField (hook-based, no config
 // mutation) for built-in (invenio-rdm-records contrib-style) custom metadata:
-// imprint, journal, meeting, code, thesis. 
+// imprint, journal, meeting, code, thesis.
 
 import React from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { CustomField } from "./CustomField";
+import { useCustomFieldSectionName } from "../hooks/useCustomFieldSectionName";
 
 const BookTitleComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName(
+    "imprint",
+    "Book / Report / Chapter"
+  );
   return (
     <CustomField
-      uiConfigSectionName="Book / Report / Chapter"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="imprint:imprint.title"
       idString="ImprintTitleField"
       description={""}
@@ -24,9 +29,10 @@ const BookTitleComponent = ({ ...extraProps }) => {
 };
 
 const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("codemeta", "Software");
   return (
     <CustomField
-      uiConfigSectionName="Software"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="code:developmentStatus"
       idString="CodeDevelopmentStatusField"
       description={""}
@@ -36,9 +42,10 @@ const CodeDevelopmentStatusComponent = ({ ...extraProps }) => {
 };
 
 const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("codemeta", "Software");
   return (
     <CustomField
-      uiConfigSectionName="Software"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="code:programmingLanguage"
       idString="CodeProgrammingLanguageField"
       description={""}
@@ -48,9 +55,10 @@ const CodeProgrammingLanguageComponent = ({ ...extraProps }) => {
 };
 
 const CodeRepositoryComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("codemeta", "Software");
   return (
     <CustomField
-      uiConfigSectionName="Software"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="code:codeRepository"
       idString="CodeRepositoryField"
       description={""}
@@ -60,9 +68,13 @@ const CodeRepositoryComponent = ({ ...extraProps }) => {
 };
 
 const ISBNComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName(
+    "imprint",
+    "Book / Report / Chapter"
+  );
   return (
     <CustomField
-      uiConfigSectionName="Book / Report / Chapter"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="imprint:imprint.isbn"
       idString="ImprintISBNField"
       icon="barcode"
@@ -74,9 +86,10 @@ const ISBNComponent = ({ ...extraProps }) => {
 };
 
 const JournalTitleComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
   return (
     <CustomField
-      uiConfigSectionName="Journal"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="journal:journal.title"
       idString="JournalTitleField"
       label="Journal title"
@@ -88,9 +101,10 @@ const JournalTitleComponent = ({ ...extraProps }) => {
 };
 
 const JournalISSNComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
   return (
     <CustomField
-      uiConfigSectionName="Journal"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="journal:journal.issn"
       idString="JournalISSNField"
       label="ISSN"
@@ -103,9 +117,10 @@ const JournalISSNComponent = ({ ...extraProps }) => {
 };
 
 const JournalVolumeComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
   return (
     <CustomField
-      uiConfigSectionName="Journal"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="journal:journal.volume"
       idString="JournalVolumeField"
       label={i18next.t("Volume")}
@@ -117,9 +132,10 @@ const JournalVolumeComponent = ({ ...extraProps }) => {
 };
 
 const JournalIssueComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
   return (
     <CustomField
-      uiConfigSectionName="Journal"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="journal:journal.issue"
       idString="JournalIssueField"
       label={i18next.t("Issue")}
@@ -131,9 +147,10 @@ const JournalIssueComponent = ({ ...extraProps }) => {
 };
 
 const MeetingAcronymComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.acronym"
       idString="MeetingAcronymField"
       description={""}
@@ -143,9 +160,10 @@ const MeetingAcronymComponent = ({ ...extraProps }) => {
 };
 
 const MeetingDatesComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.dates"
       idString="MeetingDatesField"
       description={""}
@@ -155,9 +173,10 @@ const MeetingDatesComponent = ({ ...extraProps }) => {
 };
 
 const MeetingPlaceComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.place"
       idString="MeetingPlaceField"
       description={""}
@@ -167,9 +186,10 @@ const MeetingPlaceComponent = ({ ...extraProps }) => {
 };
 
 const MeetingSessionComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.session"
       idString="MeetingSessionField"
       description={""}
@@ -179,9 +199,10 @@ const MeetingSessionComponent = ({ ...extraProps }) => {
 };
 
 const MeetingSessionPartComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.session_part"
       idString="MeetingSessionPartField"
       description={""}
@@ -191,9 +212,10 @@ const MeetingSessionPartComponent = ({ ...extraProps }) => {
 };
 
 const MeetingTitleComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.title"
       idString="MeetingTitleField"
       description={""}
@@ -203,9 +225,10 @@ const MeetingTitleComponent = ({ ...extraProps }) => {
 };
 
 const MeetingURLComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("meeting", "Conference");
   return (
     <CustomField
-      uiConfigSectionName="Conference"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="meeting:meeting.url"
       idString="MeetingURLField"
       description={""}
@@ -215,9 +238,10 @@ const MeetingURLComponent = ({ ...extraProps }) => {
 };
 
 const SectionPagesComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("journal", "Journal");
   return (
     <CustomField
-      uiConfigSectionName="Journal"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="journal:journal.pages"
       idString="JournalPagesField"
       description={""}
@@ -230,9 +254,13 @@ const SectionPagesComponent = ({ ...extraProps }) => {
 };
 
 const PublicationLocationComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName(
+    "imprint",
+    "Book / Report / Chapter"
+  );
   return (
     <CustomField
-      uiConfigSectionName="Book / Report / Chapter"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="imprint:imprint.place"
       idString="ImprintPlaceField"
       label={"Place of Publication"}
@@ -245,9 +273,13 @@ const PublicationLocationComponent = ({ ...extraProps }) => {
 };
 
 const TotalPagesComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName(
+    "imprint",
+    "Book / Report / Chapter"
+  );
   return (
     <CustomField
-      uiConfigSectionName="Book / Report / Chapter"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="imprint:imprint.pages"
       idString="ImprintPagesField"
       description={""}
@@ -259,9 +291,10 @@ const TotalPagesComponent = ({ ...extraProps }) => {
 };
 
 const UniversityComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
   return (
     <CustomField
-      uiConfigSectionName="Thesis"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="thesis:thesis.university"
       idString="ThesisUniversityField"
       label={i18next.t("Awarding university")}
@@ -273,9 +306,10 @@ const UniversityComponent = ({ ...extraProps }) => {
 };
 
 const ThesisDepartmentComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
   return (
     <CustomField
-      uiConfigSectionName="Thesis"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="thesis:thesis.department"
       idString="ThesisDepartmentField"
       label={i18next.t("Awarding department")}
@@ -287,9 +321,10 @@ const ThesisDepartmentComponent = ({ ...extraProps }) => {
 };
 
 const ThesisTypeComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
   return (
     <CustomField
-      uiConfigSectionName="Thesis"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="thesis:thesis.type"
       idString="ThesisTypeField"
       label={i18next.t("Thesis type")}
@@ -304,9 +339,10 @@ const ThesisTypeComponent = ({ ...extraProps }) => {
 };
 
 const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
   return (
     <CustomField
-      uiConfigSectionName="Thesis"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="thesis:thesis.date_submitted"
       idString="ThesisDateSubmittedField"
       label={i18next.t("Submission date")}
@@ -318,9 +354,10 @@ const ThesisDateSubmittedComponent = ({ ...extraProps }) => {
 };
 
 const ThesisDateDefendedComponent = ({ ...extraProps }) => {
+  const uiConfigSectionName = useCustomFieldSectionName("thesis", "Thesis");
   return (
     <CustomField
-      uiConfigSectionName="Thesis"
+      uiConfigSectionName={uiConfigSectionName}
       fieldName="thesis:thesis.date_defended"
       idString="ThesisDateDefendedField"
       label={i18next.t("Defense date")}
