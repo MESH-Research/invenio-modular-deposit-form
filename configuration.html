@@ -1,0 +1,587 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Built-in field widget components" href="field_components.html"><link rel="prev" title="Installation" href="installation.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Configuration - Invenio Modular Deposit Form 0.3.4-dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     ⚠️  This is a beta package. Please report issues on <a href='https://github.com/MESH-Research/invenio-modular-deposit-form' target='_blank'>GitHub</a>. 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Invenio Modular Deposit Form 0.3.4-dev0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">Invenio Modular Deposit Form 0.3.4-dev0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own React components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/MESH-Research/invenio-modular-deposit-form/blob/main/docs/source/configuration.md?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/MESH-Research/invenio-modular-deposit-form/edit/main/docs/source/configuration.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section class="tex2jax_ignore mathjax_ignore" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h1>
+<p>To use this deposit form, the extension sets <code class="docutils literal notranslate"><span class="pre">APP_RDM_DEPOSIT_FORM_TEMPLATE</span></code> to this package’s template by default. Override it in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> if you need the default RDM form:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optional: only if you want to revert to the default RDM deposit form</span>
+<span class="c1"># APP_RDM_DEPOSIT_FORM_TEMPLATE = &quot;invenio_app_rdm/deposit.html&quot;</span>
+</pre></div>
+</div>
+<p>Layout and configuration of the form are available via config variables:</p>
+<ul class="simple">
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</strong> — Declares the basic form layout that will be the default for all resource types, including the stepped multi-stage structure if one is used.</p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</strong> — Declares the additional fields to be placed in the form (and on each form step) based on the currently selected resource type.</p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</strong></p></li>
+</ul>
+<p>These config variables are injected into the main form component via data attributes.</p>
+<section id="creating-a-custom-form-layout">
+<h2>Creating a custom form layout<a class="headerlink" href="#creating-a-custom-form-layout" title="Link to this heading">¶</a></h2>
+<p>You define the deposit form layout by setting <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. The default configuration in this package’s <code class="docutils literal notranslate"><span class="pre">config.py</span></code> provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:</p>
+<ul class="simple">
+<li><p>a unique <code class="docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code> id</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> property with a string corresponding to a component name in <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></li>
+<li><p>an optional <code class="docutils literal notranslate"><span class="pre">&quot;subsections&quot;</span></code> array of child components</p></li>
+<li><p>an optional readable <code class="docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code></p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The list of form layout components is extensible. The description below highlights the layout components built in by default.</p>
+</div>
+<section id="example-minimal-two-page-layout">
+<h3>Example: minimal two-page layout<a class="headerlink" href="#example-minimal-two-page-layout" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># in invenio.cfg or your config module</span>
+<span class="n">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;pages&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPages&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;page-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Type &amp; Title&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPage&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;resource_type&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Resource Type&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;ResourceTypeComponent&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;titles&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Title&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;TitlesComponent&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;abstract&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Description&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;AbstractComponent&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;page-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Publish&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;submit_actions&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Publish&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SubmissionComponent&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="top-level-form">
+<h3>Top-level form<a class="headerlink" href="#top-level-form" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> value is a <strong>list</strong> of layout objects. Regions are identified by their <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> value; <strong>order in the array does not matter</strong>.</p>
+<p>You must include exactly one object with <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormPages&quot;</span></code>; its <code class="docutils literal notranslate"><span class="pre">&quot;subsections&quot;</span></code> array defines the form pages. You may also include optional <strong>layout region</strong> objects to place content in the form header, left sidebar, right sidebar, or form footer. Each of these is a sibling of the <code class="docutils literal notranslate"><span class="pre">FormPages</span></code> object in the top-level list.</p>
+<p><strong>Required</strong></p>
+<ul class="simple">
+<li><p><strong>FormPages</strong> — One object with <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormPages&quot;</span></code> and a <code class="docutils literal notranslate"><span class="pre">&quot;subsections&quot;</span></code> array. Defines the main form body (title, stepper, and page content). Optional responsive column keys: <code class="docutils literal notranslate"><span class="pre">mobile</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span></code>, <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code>, <code class="docutils literal notranslate"><span class="pre">widescreen</span></code> (camelCase; use <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code> for the large-monitor breakpoint, not <code class="docutils literal notranslate"><span class="pre">largeMonitor</span></code>).</p></li>
+</ul>
+<p><strong>Optional layout regions</strong></p>
+<ul class="simple">
+<li><p><strong>FormHeader</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormHeader&quot;</span></code>. Rendered above the form (below the community banner if shown), full width.</p></li>
+<li><p><strong>FormLeftSidebar</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormLeftSidebar&quot;</span></code>. Rendered in a left column (default 3 grid units on computer, 16 on mobile). Optional responsive column keys: <code class="docutils literal notranslate"><span class="pre">mobile</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span></code>, <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code>, <code class="docutils literal notranslate"><span class="pre">widescreen</span></code>.</p></li>
+<li><p><strong>FormRightSidebar</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormRightSidebar&quot;</span></code>. Same as left sidebar.</p></li>
+<li><p><strong>FormFooter</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormFooter&quot;</span></code>. Rendered below the main form, full width.</p></li>
+</ul>
+<p><strong>FormPages</strong> accepts the same optional responsive column keys. If omitted, the main column at each breakpoint is <strong>16 minus the left sidebar width minus the right sidebar width</strong> at that breakpoint.</p>
+<p><strong>Page navigation components</strong> (<code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>, <code class="docutils literal notranslate"><span class="pre">FormPageNavigationFooter</span></code>, <code class="docutils literal notranslate"><span class="pre">FormSidebarPageMenu</span></code>) are in the component registry and appear when you include them in the relevant region’s <code class="docutils literal notranslate"><span class="pre">subsections</span></code>. Pass <strong><code class="docutils literal notranslate"><span class="pre">classnames</span></code></strong> to control visibility or styling. Use the same responsive visibility classes as invenio-theme/invenio-app-rdm: <code class="docutils literal notranslate"><span class="pre">mobile</span> <span class="pre">only</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span> <span class="pre">only</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span> <span class="pre">only</span></code>, etc. <strong>Column width</strong> config keys use camelCase (<code class="docutils literal notranslate"><span class="pre">largeScreen</span></code> not <code class="docutils literal notranslate"><span class="pre">largeMonitor</span></code>).</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;form-header&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormHeader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;header_message&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Notice&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SomeMessageComponent&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">},</span>
+<span class="p">{</span>
+    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;pages&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPages&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="o">...</span><span class="n">pages</span><span class="o">...</span> <span class="p">],</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="form-page-s">
+<h3>Form page(s)<a class="headerlink" href="#form-page-s" title="Link to this heading">¶</a></h3>
+<p>Each item in <code class="docutils literal notranslate"><span class="pre">subsections</span></code> is a <strong>page</strong> of the form with component value <code class="docutils literal notranslate"><span class="pre">&quot;FormPage&quot;</span></code>. The form may have just a single page; in that case all content is visible at once, like the default InvenioRDM form.</p>
+<p>If multiple pages are provided, include <strong>FormStepper</strong> in the FormHeader region and optionally <strong>FormPageNavigationFooter</strong> in the FormFooter and <strong>FormSidebarPageMenu</strong> in the FormLeftSidebar. The <code class="docutils literal notranslate"><span class="pre">label</span></code> attributes of each page dictionary are used in the stepper and sidebar menu.</p>
+</section>
+<section id="page-layout-components">
+<h3>Page layout components<a class="headerlink" href="#page-layout-components" title="Link to this heading">¶</a></h3>
+<p>Each member of a page’s <code class="docutils literal notranslate"><span class="pre">subsections</span></code> list is a top-level subdivision of that page. Three kinds of section components are provided: <code class="docutils literal notranslate"><span class="pre">SectionWrapper</span></code>, <code class="docutils literal notranslate"><span class="pre">FormRow</span></code>, or a single field component.</p>
+<section id="sectionwrapper">
+<h4>SectionWrapper<a class="headerlink" href="#sectionwrapper" title="Link to this heading">¶</a></h4>
+<p>By default, a <code class="docutils literal notranslate"><span class="pre">SectionWrapper</span></code> is rendered as a <code class="docutils literal notranslate"><span class="pre">&lt;fieldset&gt;</span></code> element. If a <code class="docutils literal notranslate"><span class="pre">label</span></code> is provided, it is shown as the fieldset’s <code class="docutils literal notranslate"><span class="pre">&lt;legend&gt;</span></code> (controlled by <code class="docutils literal notranslate"><span class="pre">show_heading</span></code>). The section is full-width and its contents are always visible.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">collapsible</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>, the section is rendered as a single accordion pane: the label becomes a clickable header that expands or collapses the content. Use this to keep long forms manageable. The initial state is controlled by <code class="docutils literal notranslate"><span class="pre">startExpanded</span></code>.</p>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p><strong>icon</strong> — FontAwesome icon name (semantic-ui icon set).</p></li>
+<li><p><strong>show_heading</strong> — When <code class="docutils literal notranslate"><span class="pre">false</span></code> (default), the fieldset has no visible legend. When non-collapsible, set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to show the legend. When collapsible, the label is always shown in the accordion title.</p></li>
+<li><p><strong>collapsible</strong> — When <code class="docutils literal notranslate"><span class="pre">true</span></code> (default <code class="docutils literal notranslate"><span class="pre">false</span></code>), the section is an accordion pane.</p></li>
+<li><p><strong>startExpanded</strong> — When <code class="docutils literal notranslate"><span class="pre">collapsible</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>, set to <code class="docutils literal notranslate"><span class="pre">true</span></code> (default) to show the section open initially, or <code class="docutils literal notranslate"><span class="pre">false</span></code> to show it collapsed.</p></li>
+<li><p><strong>classnames</strong> — Optional CSS classes added to the container.</p></li>
+</ul>
+</section>
+<section id="formrow">
+<h4>FormRow<a class="headerlink" href="#formrow" title="Link to this heading">¶</a></h4>
+<p>A <code class="docutils literal notranslate"><span class="pre">FormRow</span></code> component renders a Semantic UI <code class="docutils literal notranslate"><span class="pre">Form.Group</span></code>. It holds one or more child components in its <code class="docutils literal notranslate"><span class="pre">subsections</span></code> list, laid out in a horizontal row. Spacing can be configured with classes like <code class="docutils literal notranslate"><span class="pre">&quot;equal-width&quot;</span></code>.</p>
+<p>Like <code class="docutils literal notranslate"><span class="pre">SectionWrapper</span></code>, the <code class="docutils literal notranslate"><span class="pre">FormRow</span></code> dictionary may contain the basic component properties and <code class="docutils literal notranslate"><span class="pre">&quot;classnames&quot;</span></code>. Properties <code class="docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;show_heading&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;icon&quot;</span></code> are ignored. To get a fieldset with an overall legend, wrap the row in a <code class="docutils literal notranslate"><span class="pre">SectionWrapper</span></code>.</p>
+</section>
+<section id="wrapped-field-widget-component">
+<h4>Wrapped field widget component<a class="headerlink" href="#wrapped-field-widget-component" title="Link to this heading">¶</a></h4>
+<p>If a field widget component has <code class="docutils literal notranslate"><span class="pre">&quot;wrapped&quot;:</span> <span class="pre">True</span></code>, it will automatically be wrapped in its own <code class="docutils literal notranslate"><span class="pre">SectionWrapper</span></code>. Such a wrapped field widget cannot have a <code class="docutils literal notranslate"><span class="pre">subsections</span></code> property with children. For complex sections, use the other structuring components or extend with a new composite field widget component.</p>
+</section>
+<section id="extending-the-layout-components">
+<h4>Extending the layout components<a class="headerlink" href="#extending-the-layout-components" title="Link to this heading">¶</a></h4>
+<p>To change the HTML of any structural component, override it using the ReactOverridable mechanism and your instance’s <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> file. Ensure your layout components pass through the <code class="docutils literal notranslate"><span class="pre">children</span></code> property. You can also create entirely new custom layout components using the component extension methods described in <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p>
+</section>
+</section>
+<section id="field-widget-components">
+<h3>Field widget components<a class="headerlink" href="#field-widget-components" title="Link to this heading">¶</a></h3>
+<p>The lowest-level dictionaries represent individual form field widgets or pre-structured sets. Each must have a <code class="docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code> id and a <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> value that exists in the combined component registry.</p>
+<p>Most form field components can accept: <strong>description</strong>, <strong>helpText</strong>, <strong>placeholder</strong>, <strong>icon</strong>, <strong>label</strong>, <strong>required</strong> (defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code> unless required in Yup schema or Invenio JSONSchema), <strong>classnames</strong>, <strong>showLabel</strong> (defaults to <code class="docutils literal notranslate"><span class="pre">true</span></code>).</p>
+<p><strong>Any additional keys</strong> in the dictionary for a field widget <strong>will be passed through to the widget component as props</strong>. Props are overridden in the sequence: built-in defaults → React field_components definition → invenio.cfg values (lowest to highest priority).</p>
+</section>
+<section id="field-widths">
+<h3>Field widths<a class="headerlink" href="#field-widths" title="Link to this heading">¶</a></h3>
+<p>Within a FormRow, declare widths using the <code class="docutils literal notranslate"><span class="pre">&quot;classnames&quot;</span></code> property and Semantic UI grid classes:</p>
+<ol class="arabic simple">
+<li><p>For equal-width fields, give the FormRow a <code class="docutils literal notranslate"><span class="pre">&quot;classnames&quot;</span></code> value that includes <code class="docutils literal notranslate"><span class="pre">&quot;equal</span> <span class="pre">width&quot;</span></code>.</p></li>
+<li><p>For different widths, give each field component a <code class="docutils literal notranslate"><span class="pre">&quot;classnames&quot;</span></code> value that includes <code class="docutils literal notranslate"><span class="pre">&quot;X</span> <span class="pre">wide&quot;</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;two</span> <span class="pre">wide&quot;</span></code>). You may use responsive width classes for different breakpoints.</p></li>
+</ol>
+</section>
+<section id="compound-field-components">
+<h3>Compound field components<a class="headerlink" href="#compound-field-components" title="Link to this heading">¶</a></h3>
+<p>You can provide <strong>compound field components</strong> that render a pre-configured block of multiple field components. In the layout you reference a single component that composes them internally.</p>
+<p><strong>Built-in example: CombinedDatesComponent</strong> — Renders DateComponent (publication date) and AdditionalDatesComponent (additional dates). In the layout add one section:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;combined_dates&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Dates&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;CombinedDatesComponent&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Implementing your own compound component:</strong></p>
+<ol class="arabic simple">
+<li><p>Create a React component that imports and renders the child field components. Use the package’s <strong>SectionWrapper</strong> and <strong>FormRow</strong> to group and arrange the fields.</p></li>
+<li><p>Register the component in your instance’s component registry (or the package’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>) with value <code class="docutils literal notranslate"><span class="pre">[Component,</span> <span class="pre">fieldPaths]</span></code> where <code class="docutils literal notranslate"><span class="pre">fieldPaths</span></code> is an array of all metadata field paths the block touches.</p></li>
+<li><p>Add one section in <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> that references your component by name.</p></li>
+</ol>
+</section>
+</section>
+<section id="changing-layout-by-resource-type">
+<h2>Changing layout by resource type<a class="headerlink" href="#changing-layout-by-resource-type" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the <code class="docutils literal notranslate"><span class="pre">section</span></code> ids of the <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> components in your common fields layout.</p>
+<p>If a page is not included in the resource type dictionary, the default layout from the common fields is used. If a page is included, the new page layout <strong>replaces</strong> the default for that page.</p>
+<p>Example: replace the entire <code class="docutils literal notranslate"><span class="pre">&quot;page-3&quot;</span></code> page with a single ISBN field when the selected resource type is <code class="docutils literal notranslate"><span class="pre">&quot;textDocument-book&quot;</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;textDocument-book&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;page-3&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;isbn&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;ISBN&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;ISBNComponent&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;wrapped&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To re-use the override from another resource type, include an object with a single key <code class="docutils literal notranslate"><span class="pre">same_as</span></code> whose value is the label of another configured resource type. Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;textDocument-monograph&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;page-2&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;same_as&quot;</span><span class="p">:</span> <span class="s2">&quot;textDocument-book&quot;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+</section>
+<section id="other-changes-to-fields-by-resource-type">
+<h2>Other changes to fields by resource type<a class="headerlink" href="#other-changes-to-fields-by-resource-type" title="Link to this heading">¶</a></h2>
+<p>Additional config values allow customization of specific props at the field widget level by resource type without declaring a whole new page layout:</p>
+<ul class="simple">
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</strong></p></li>
+<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</strong></p></li>
+</ul>
+<p>Each value is a dictionary with resource types as keys. The value for each resource type is a dictionary with dot-separated metadata field paths as keys and the value to use.</p>
+<p>Example: modify the icon for the title field by resource type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;audio&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;headphones&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;table&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;image-photo&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;camera&quot;</span><span class="p">},</span>
+    <span class="s2">&quot;presentation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;microphone&quot;</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="field_components.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Built-in field widget components</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="installation.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Installation</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2026, MESH Research
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/MESH-Research/invenio-modular-deposit-form" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Configuration</a><ul>
+<li><a class="reference internal" href="#creating-a-custom-form-layout">Creating a custom form layout</a><ul>
+<li><a class="reference internal" href="#example-minimal-two-page-layout">Example: minimal two-page layout</a></li>
+<li><a class="reference internal" href="#top-level-form">Top-level form</a></li>
+<li><a class="reference internal" href="#form-page-s">Form page(s)</a></li>
+<li><a class="reference internal" href="#page-layout-components">Page layout components</a><ul>
+<li><a class="reference internal" href="#sectionwrapper">SectionWrapper</a></li>
+<li><a class="reference internal" href="#formrow">FormRow</a></li>
+<li><a class="reference internal" href="#wrapped-field-widget-component">Wrapped field widget component</a></li>
+<li><a class="reference internal" href="#extending-the-layout-components">Extending the layout components</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#field-widget-components">Field widget components</a></li>
+<li><a class="reference internal" href="#field-widths">Field widths</a></li>
+<li><a class="reference internal" href="#compound-field-components">Compound field components</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changing-layout-by-resource-type">Changing layout by resource type</a></li>
+<li><a class="reference internal" href="#other-changes-to-fields-by-resource-type">Other changes to fields by resource type</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=1263365b"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    </body>
+</html>
