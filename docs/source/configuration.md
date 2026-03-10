@@ -219,6 +219,22 @@ Additional config values allow customization of specific props at the field widg
 
 Each value is a dictionary with resource types as keys. The value for each resource type is a dictionary with dot-separated metadata field paths as keys and the value to use.
 
+**INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES** — Maps component keys to the section labels used in `RDM_CUSTOM_FIELDS_UI`. The form uses this to look up the correct UI section for each custom field component (built-in and instance-specific). The package default (in `config.py`) includes the built-in contrib keys: `journal` → `"Journal"`, `meeting` → `"Conference"`, `imprint` → `"Book / Report / Chapter"`, `thesis` → `"Thesis"`, `codemeta` → `"Software"`. When you set this variable in your instance you must provide the **full** mapping: include all built-in keys you use plus all keys for your own custom field components (e.g. `KeywordsComponent` → `"Tags"`). See [Handling custom fields](extending.md#handling-custom-fields) in Extending.
+
+Example:
+
+```python
+INVENIO_MODULAR_DEPOSIT_FORM_CUSTOM_FIELD_SECTION_NAMES = {
+    "journal": "Journal",
+    "meeting": "Conference",
+    "imprint": "Book / Report / Chapter",
+    "thesis": "Thesis",
+    "codemeta": "Software",
+    "KeywordsComponent": "Tags",
+    "SeriesComponent": "Series",
+}
+```
+
 Example: modify the icon for the title field by resource type:
 
 ```python
