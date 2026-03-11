@@ -380,14 +380,11 @@ const FileUploadComponent = ({ ...extraProps }) => {
         fieldPath="files"
         {...extraProps}
       >
-        <>
-          {/* FileModificationUntilComponent (v14): import from v14_components.jsx, register in instance, add to layout */}
-          {useUppy ? (
-            <UppyUploader {...commonFileUploaderProps} />
-          ) : (
-            <FileUploader {...commonFileUploaderProps} />
-          )}
-        </>
+        {useUppy ? (
+          <UppyUploader {...commonFileUploaderProps} />
+        ) : (
+          <FileUploader {...commonFileUploaderProps} />
+        )}
       </FieldComponentWrapper>
       {/*</Overridable> */}
     </>
