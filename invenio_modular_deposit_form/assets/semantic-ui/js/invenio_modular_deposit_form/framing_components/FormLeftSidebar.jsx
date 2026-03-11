@@ -28,7 +28,7 @@ const FormLeftSidebar = ({
     ...(widescreen != null && { widescreen }),
   };
   return (
-    <Grid.Column {...columnProps} className="form-left-sidebar">
+    <Grid.Column {...columnProps} className="deposit-left-sidebar deposit-sidebar">
       <SubsectionsRenderer subsections={subsections} />
     </Grid.Column>
   );
