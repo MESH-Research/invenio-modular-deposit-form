@@ -18,13 +18,11 @@ import { useCustomFieldWidget } from "../hooks/useCustomFieldWidget";
  * Uses the same FieldComponentWrapper as other deposit fields (mods, Overridable).
  */
 const CustomField = ({
-  uiConfigSectionName,
   fieldName,
   idString,
   ...componentProps
 }) => {
   const { Widget, fieldPath, props: mergedProps, loading } = useCustomFieldWidget(
-    uiConfigSectionName,
     fieldName,
     componentProps
   );
@@ -43,13 +41,12 @@ const CustomField = ({
       fieldPath={fieldPath}
       {...mergedProps}
     >
-      <Widget />
+      {Widget}
     </FieldComponentWrapper>
   );
 };
 
 CustomField.propTypes = {
-  uiConfigSectionName: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,
   idString: PropTypes.string.isRequired,
 };

@@ -21,19 +21,17 @@ const FIELD_COMPONENT_LOADERS = [
 
 /**
  * Resolves the widget component and merged props for a custom field from
- * deposit config (custom_fields.ui).
+ * deposit config (custom_fields.ui). Looks up by field name only (e.g. "journal:journal.title").
  *
- * @param {string} uiConfigSectionName - Section label in custom_fields.ui (e.g. "Journal")
  * @param {string} fieldName - Dot-separated field path in the metadata schema (e.g. "journal:journal.title")
  * @param {object} componentProps - Props from the calling component (icon, label, etc.)
- * @returns {{ Widget: React.ComponentType|null, fieldPath: string, props: object, loading: boolean }}
+ * @returns {{ Widget: React.Element|null, fieldPath: string, props: object, loading: boolean }}
  */
-export function useCustomFieldWidget(uiConfigSectionName, fieldName, componentProps = {}) {
+export function useCustomFieldWidget(fieldName, componentProps = {}) {
   const customFieldsUI = useStore().getState().deposit?.config?.custom_fields?.ui ?? [];
   const [Widget, setWidget] = useState(null);
 
-  const sectionConfig = customFieldsUI.find((item) => item.section === uiConfigSectionName);
-  const fieldConfig = sectionConfig?.fields?.find((item) => item.field === fieldName);
+  const fieldConfig = customFieldsUI.flatMap((s) => s.fields ?? []).find((f) => f.field === fieldName);
 
   const fieldPath = fieldConfig ? `${FIELD_PATH_PREFIX}.${fieldName}` : "";
   const mergedProps = fieldConfig ? { ...fieldConfig.props, ...componentProps } : componentProps;
@@ -51,7 +49,7 @@ export function useCustomFieldWidget(uiConfigSectionName, fieldName, componentPr
     })
       .then((components) => setWidget(components[0] ?? null))
       .catch(() => setWidget(null));
-  }, [uiConfigSectionName, fieldName, fieldConfig?.field, fieldConfig?.ui_widget]);
+  }, [fieldName, fieldConfig?.field, fieldConfig?.ui_widget]);
 
   if (!fieldConfig) {
     return {
