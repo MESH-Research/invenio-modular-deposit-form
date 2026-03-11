@@ -147,6 +147,33 @@ Custom field values are stored under `custom_fields` in the record and must be a
 
 **Enable custom fields for every component you use.** The form looks up each custom field's widget and props from `RDM_CUSTOM_FIELDS_UI`. You must define the field in `RDM_CUSTOM_FIELDS` and add a section (or add the field to an existing section) in `RDM_CUSTOM_FIELDS_UI` for **every** custom field component in your layout—including the **built-in** ones (journal, imprint, meeting, thesis, codemeta/software). If you use `JournalTitleComponent`, `BookTitleComponent`, `MeetingTitleComponent`, etc., the corresponding sections and fields must be present in your instance's `RDM_CUSTOM_FIELDS_UI`; otherwise the components cannot resolve their widgets. The form finds the field config by **field name** only (e.g. `thesis:thesis.university`), so section structure does not affect lookup.
 
+For the **single-field custom components** that this package provides for the built-in contrib fields (journal, imprint, meeting, codemeta), you can either write your own `RDM_CUSTOM_FIELDS_UI` entries or **reuse ready-made helpers shipped with this extension**:
+
+```python
+from invenio_modular_deposit_form.custom_field_ui.journal_fields import (
+    JOURNAL_CUSTOM_FIELDS_UI,
+)
+from invenio_modular_deposit_form.custom_field_ui.imprint_fields import (
+    IMPRINT_CUSTOM_FIELDS_UI,
+)
+from invenio_modular_deposit_form.custom_field_ui.meeting_fields import (
+    MEETING_CUSTOM_FIELDS_UI,
+)
+from invenio_modular_deposit_form.custom_field_ui.codemeta_fields import (
+    CODEMETA_CUSTOM_FIELDS_UI,
+)
+
+RDM_CUSTOM_FIELDS_UI = [
+    # ... any other sections ...,
+    JOURNAL_CUSTOM_FIELDS_UI,
+    IMPRINT_CUSTOM_FIELDS_UI,
+    MEETING_CUSTOM_FIELDS_UI,
+    CODEMETA_CUSTOM_FIELDS_UI,
+]
+```
+
+Each of these helpers defines **separate entries for each subfield** (for example `journal:journal.title`, `journal:journal.volume`, etc.), matching the field names used by the corresponding single-field components (`JournalTitleComponent`, `JournalVolumeComponent`, `BookTitleComponent`, `MeetingTitleComponent`, `CodeRepositoryComponent`, and so on). Including them in your `RDM_CUSTOM_FIELDS_UI` is what allows those components to resolve their widgets automatically via `CustomField`.
+
 ### Using CustomField
 
 **CustomField** resolves the field's widget and props from the **custom field UI configuration** that is part of the regular InvenioRDM custom fields system. That configuration is defined in your instance's `RDM_CUSTOM_FIELDS_UI` (in `invenio.cfg` or your config module). It is serialized into the deposit form's config as `config.custom_fields.ui`: a list of sections, each with a `section` label and a `fields` array. Each field entry includes `field` (e.g. `thesis:thesis.university`), `ui_widget`, and `props`. **CustomField** looks up the config by **field name** (searching across all sections), loads the widget, and merges props.
