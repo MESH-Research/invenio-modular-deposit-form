@@ -23,7 +23,7 @@ see LICENSE file for more details.
 {%- extends config.BASE_TEMPLATE %}
 {%- block css %}
   {{ super() }}
-  {{ webpack['invenio-modular-deposit-form.css'] }}
+  {{ webpack['invenio-modular-deposit-form-css.css'] }}
   {%- if community and community.theme and community.theme.enabled %}
     <link rel="stylesheet"
           type="text/css"
