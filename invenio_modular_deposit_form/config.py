@@ -23,6 +23,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     },
     {
         "component": "FormLeftSidebar",
+        "computer": 2,
+        "largeScreen": 2,
+        "widescreen": 2,
         "subsections": [
             # Visibility class: use "large-monitor" (hyphen) for invenio-theme; width props use largeScreen (camelCase)
             {
@@ -33,6 +36,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     },
     {
         "component": "FormRightSidebar",
+        "computer": 5,
+        "largeScreen": 5,
+        "widescreen": 5,
         "subsections": [
             {
                 "section": "form_feedback",
