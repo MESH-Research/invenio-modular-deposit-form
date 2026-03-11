@@ -476,6 +476,22 @@
 </pre></div>
 </div>
 </section>
+<section id="inveniordm-version-14-extensions">
+<h2>InvenioRDM version 14 extensions<a class="headerlink" href="#inveniordm-version-14-extensions" title="Link to this heading">¶</a></h2>
+<p>InvenioRDM v14 adds optional deposit form components that are <strong>not</strong> included in the default layout or component registry, so that this package builds and runs against invenio-app-rdm v13 (where those components do not exist).</p>
+<p>If your instance runs <strong>InvenioRDM v14</strong> and you want to enable them, you can register them via the component registry and add them to your layout.</p>
+<p><strong>Components</strong></p>
+<ul class="simple">
+<li><p><strong>RecordDeletionComponent</strong> — Request deletion of a published record. Shown in the submit-actions region (e.g. next to the delete button) when the record is published. Requires backend config for record deletion (e.g. <code class="docutils literal notranslate"><span class="pre">config.record_deletion</span></code> with <code class="docutils literal notranslate"><span class="pre">enabled</span></code>) and vocabulary <code class="docutils literal notranslate"><span class="pre">vocabularies.metadata.deletion_request_removal_reasons</span></code>.</p></li>
+<li><p><strong>FileModificationUntilComponent</strong> — Shows “Unlocked, X days to publish changes” in the Files section when <code class="docutils literal notranslate"><span class="pre">config.file_modification</span></code> is set. Place it as a sibling before the file uploader in the Files page content.</p></li>
+</ul>
+<p><strong>How to enable</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Register the components</strong> — In your instance’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> (the directory you expose via the <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.components_registry</span></code> entry point), import the wrappers from <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/field_components/v14_components</span></code> and add them to the registry as <code class="docutils literal notranslate"><span class="pre">RecordDeletionComponent</span></code> and <code class="docutils literal notranslate"><span class="pre">FileModificationUntilComponent</span></code> (value <code class="docutils literal notranslate"><span class="pre">[RecordDeletionComponent,</span> <span class="pre">[]]</span></code> and <code class="docutils literal notranslate"><span class="pre">[FileModificationUntilComponent,</span> <span class="pre">[]]</span></code>). This file is only loaded when your instance imports it, so the app-rdm v14 imports inside it do not affect the package build when building against v13.</p></li>
+<li><p><strong>Add them to the layout</strong> — To show RecordDeletion in the submit area, add a section that references <code class="docutils literal notranslate"><span class="pre">RecordDeletionComponent</span></code> in the same region as <code class="docutils literal notranslate"><span class="pre">SubmissionComponent</span></code> (e.g. in <code class="docutils literal notranslate"><span class="pre">FormRightSidebar</span></code> subsections). To show FileModificationUntil in the Files section, add it as a subsection of the Files page (e.g. before or after the file upload section). The default package layout does not include these sections; copy the layout from the package’s <code class="docutils literal notranslate"><span class="pre">config.py</span></code> and add the v14 sections where you want them.</p></li>
+</ol>
+<p>See <a class="reference internal" href="extending.html"><span class="std std-doc">Adding your own React components</span></a> for how to register the <code class="docutils literal notranslate"><span class="pre">components_registry</span></code> entry point.</p>
+</section>
 </section>
 
         </article>
@@ -559,6 +575,7 @@
 </li>
 <li><a class="reference internal" href="#changing-layout-by-resource-type">Changing layout by resource type</a></li>
 <li><a class="reference internal" href="#other-changes-to-fields-by-resource-type">Other changes to fields by resource type</a></li>
+<li><a class="reference internal" href="#inveniordm-version-14-extensions">InvenioRDM version 14 extensions</a></li>
 </ul>
 </li>
 </ul>
