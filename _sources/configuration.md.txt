@@ -114,7 +114,7 @@ Each member of a page's `subsections` list is a top-level subdivision of that pa
 
 #### SectionWrapper
 
-By default, a `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is full-width and its contents are always visible.
+By default, a `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is full-width and its contents are always visible. **Children are stacked vertically (full width)**. For horizontal layout of two or more fields, put them inside a **FormRow** in the section's `subsections` (see FormRow below).
 
 When `collapsible` is `true`, the section is rendered as a single accordion pane: the label becomes a clickable header that expands or collapses the content. Use this to keep long forms manageable. The initial state is controlled by `startExpanded`.
 
@@ -159,7 +159,7 @@ Within a FormRow, declare widths using the `"classnames"` property and Semantic 
 
 You can provide **compound field components** that render a pre-configured block of multiple field components. In the layout you reference a single component that composes them internally.
 
-**Built-in example: CombinedDatesComponent** — Renders DateComponent (publication date) and AdditionalDatesComponent (additional dates). In the layout add one section:
+**Built-in example: CombinedDatesComponent** — Renders PublicationDateComponent (publication date) and AdditionalDatesComponent (additional dates). In the layout add one section. Alternatively, use **PublicationDateComponent** and **AdditionalDatesComponent** as two separate sections if you want to place or configure them independently.
 
 ```python
 {
