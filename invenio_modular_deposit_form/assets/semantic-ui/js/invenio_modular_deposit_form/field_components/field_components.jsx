@@ -141,42 +141,6 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Additional descriptions field (metadata.additional_descriptions). Uses stock DescriptionsField.
- * @overridable InvenioAppRdm.Deposit.DescriptionsField.container (via FieldComponentWrapper)
- */
-const AdditionalDescriptionComponent = ({ ...extraProps }) => {
-  const record = useStore().getState().deposit.record;
-  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
-
-  return (
-    <FieldComponentWrapper
-      componentName="DescriptionsField"
-      fieldPath="metadata.description"
-      {...extraProps}
-    >
-      <DescriptionsField
-        options={vocabularies.metadata.descriptions}
-        recordUI={_get(record, "ui", null)}
-        editorConfig={{
-          removePlugins: [
-            "Image",
-            "ImageCaption",
-            "ImageStyle",
-            "ImageToolbar",
-            "ImageUpload",
-            "MediaEmbed",
-            "Table",
-            "TableToolbar",
-            "TableProperties",
-            "TableCellProperties",
-          ],
-        }}
-      />
-    </FieldComponentWrapper>
-  );
-};
-
-/**
  * Alternate identifiers / URLs (metadata.identifiers). Uses stock IdentifiersField.
  * @overridable InvenioAppRdm.Deposit.IdentifiersField.container (via FieldComponentWrapper)
  */
@@ -1005,7 +969,6 @@ export {
   AbstractComponent,
   AccessRightsComponent,
   AdditionalDatesComponent,
-  AdditionalDescriptionComponent,
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,

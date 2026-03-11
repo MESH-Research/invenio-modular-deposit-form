@@ -23,8 +23,9 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     },
     {
         "component": "FormLeftSidebar",
-        "computer": 2,
-        "largeScreen": 2,
+        # Sidebar widths: 2 (widescreen), 3 (largeScreen), 3 (computer)
+        "computer": 3,
+        "largeScreen": 3,
         "widescreen": 2,
         "subsections": [
             # Visibility class: use "large-monitor" (hyphen) for invenio-theme; width props use largeScreen (camelCase)
@@ -36,9 +37,10 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     },
     {
         "component": "FormRightSidebar",
+        # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
         "computer": 5,
-        "largeScreen": 5,
-        "widescreen": 5,
+        "largeScreen": 4,
+        "widescreen": 4,
         "subsections": [
             {
                 "section": "form_feedback",
@@ -95,11 +97,6 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                         "section": "abstract",
                         "label": "Description",
                         "component": "AbstractComponent",
-                    },
-                    {
-                        "section": "additional_descriptions",
-                        "label": "Additional descriptions",
-                        "component": "AdditionalDescriptionComponent",
                     },
                     {
                         "section": "version",

@@ -3,7 +3,6 @@ import {
   AbstractComponent,
   AccessRightsComponent,
   AdditionalDatesComponent,
-  AdditionalDescriptionComponent,
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,
@@ -66,10 +65,6 @@ const componentsRegistry = {
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
-  AdditionalDescriptionComponent: [
-    AdditionalDescriptionComponent,
-    ["metadata.additional_descriptions"],
-  ],
   AlternateIdentifiersComponent: [
     AlternateIdentifiersComponent,
     ["metadata.identifiers"],
