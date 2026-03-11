@@ -51,19 +51,6 @@ import Overridable from "react-overridable";
 import { moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 
-// v14 (invenio-app-rdm master) components; not present in v13. Safe to import when app
-// provides @js/invenio_app_rdm; wrap in try/catch so build/runtime with v13 does not break.
-let RecordDeletion = null;
-let FileModificationUntil = null;
-try {
-  const recordDeletionMod = require("@js/invenio_app_rdm/components/RecordDeletion");
-  RecordDeletion = recordDeletionMod.RecordDeletion;
-} catch (_) {}
-try {
-  const fileModMod = require("@js/invenio_app_rdm/components/FileModificationUntil");
-  FileModificationUntil = fileModMod.FileModificationUntil;
-} catch (_) {}
-
 /**
  * Main description/abstract field (metadata.description). Uses stock DescriptionsField.
  * @overridable InvenioAppRdm.Deposit.DescriptionsField.container (via FieldComponentWrapper)
@@ -334,44 +321,6 @@ const DeleteComponent = ({ ...extraProps }) => {
   );
 };
 
-// Wrapper for v14 RecordDeletion (invenio-app-rdm). Renders only when stock component
-// is available and config.record_deletion is present with enabled flag (v13 has neither).
-const RecordDeletionComponent = () => {
-  const store = useStore();
-  const { config, record, permissions } = store.getState().deposit;
-  const recordDeletion = config.record_deletion ?? {};
-  const options = _get(config, "vocabularies.metadata.deletion_request_removal_reasons", []);
-  if (!RecordDeletion || !record?.is_published || !recordDeletion.enabled) {
-    return null;
-  }
-  return (
-    <RecordDeletion
-      record={record ?? {}}
-      permissions={permissions ?? {}}
-      recordDeletion={recordDeletion}
-      options={options}
-    />
-  );
-};
-
-// Wrapper for v14 FileModificationUntil (invenio-app-rdm). Shows "Unlocked, X days to
-// publish changes" in the Files section when file_modification is present. Not part of
-// FileUploader; v13 does not have this component.
-const FileModificationUntilComponent = () => {
-  const store = useStore();
-  const { config, record } = store.getState().deposit;
-  const fileModification = config.file_modification;
-  const filesLocked = config.files_locked ?? false;
-  if (!FileModificationUntil || fileModification == null) return null;
-  return (
-    <FileModificationUntil
-      filesLocked={filesLocked}
-      fileModification={fileModification}
-      record={record ?? {}}
-    />
-  );
-};
-
 const ShareDraftButtonComponent = () => {
   const store = useStore();
   const { config, record, permissions } = store.getState().deposit;
@@ -428,7 +377,7 @@ const DoiComponent = ({ ...extraProps }) => {
 };
 
 /**
- * File upload section (files). Uses stock FileUploader or UppyUploader. Includes FileModificationUntil when available (v14).
+ * File upload section (files). Uses stock FileUploader or UppyUploader.
  * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
  */
 const FileUploadComponent = ({ ...extraProps }) => {
@@ -463,7 +412,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
         {...extraProps}
       >
         <>
-          <FileModificationUntilComponent />
+          {/* FileModificationUntilComponent (v14): import from v14_components.jsx, register in instance, add to layout */}
           {useUppy ? (
             <UppyUploader {...commonFileUploaderProps} />
           ) : (
@@ -864,7 +813,7 @@ const SubmissionComponent = () => {
               aria-describedby="delete-button-description"
               icon="trash alternate outline"
             />
-            {record?.is_published && <RecordDeletionComponent />}
+            {/* RecordDeletionComponent (v14): import from v14_components.jsx, register in instance, add to layout */}
           </Grid.Column>
           <Grid.Column
             tablet="10"

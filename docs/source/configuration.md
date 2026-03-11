@@ -245,3 +245,23 @@ INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS = {
     "presentation": {"metadata.title": "microphone"},
 }
 ```
+
+## InvenioRDM version 14 extensions
+
+InvenioRDM v14 adds optional deposit form components that are **not** included in the default layout or component registry, so that this package builds and runs against invenio-app-rdm v13 (where those components do not exist).
+
+If your instance runs **InvenioRDM v14** and you want to enable them, you can register them via the component registry and add them to your layout.
+
+**Components**
+
+- **RecordDeletionComponent** — Request deletion of a published record. Shown in the submit-actions region (e.g. next to the delete button) when the record is published. Requires backend config for record deletion (e.g. `config.record_deletion` with `enabled`) and vocabulary `vocabularies.metadata.deletion_request_removal_reasons`.
+- **FileModificationUntilComponent** — Shows "Unlocked, X days to publish changes" in the Files section when `config.file_modification` is set. Place it as a sibling before the file uploader in the Files page content.
+
+**How to enable**
+
+1. **Register the components** — In your instance's `componentsRegistry.js` (the directory you expose via the `invenio_modular_deposit_form.components_registry` entry point), import the wrappers from `@js/invenio_modular_deposit_form/field_components/v14_components` and add them to the registry as `RecordDeletionComponent` and `FileModificationUntilComponent` (value `[RecordDeletionComponent, []]` and `[FileModificationUntilComponent, []]`). This file is only loaded when your instance imports it, so the app-rdm v14 imports inside it do not affect the package build when building against v13.
+
+2. **Add them to the layout** — To show RecordDeletion in the submit area, add a section that references `RecordDeletionComponent` in the same region as `SubmissionComponent` (e.g. in `FormRightSidebar` subsections). To show FileModificationUntil in the Files section, add it as a subsection of the Files page (e.g. before or after the file upload section). The default package layout does not include these sections; copy the layout from the package's `config.py` and add the v14 sections where you want them.
+
+See [Adding your own React components](extending.md) for how to register the `components_registry` entry point.
+
