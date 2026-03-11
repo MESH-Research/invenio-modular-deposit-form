@@ -70,22 +70,18 @@ const FieldComponentWrapper = ({
       fieldPath={fieldPath}
     >
       {children &&
-        React.cloneElement(
-          children,
-          {
-            defaultFieldValue: defaultFieldValue,
-            description: moddedDescription,
-            fieldPath: fieldPath,
-            helpText: moddedHelpText,
-            label: moddedLabel,
-            icon: effectiveIcon,
-            placeholder: moddedPlaceholder,
-            priorityFieldValues: priorityFieldValueSet,
-            required: moddedRequired,
-            ...cleanedExtraProps,
-          },
-          null
-        )}
+        React.cloneElement(children, {
+          defaultFieldValue: defaultFieldValue,
+          description: moddedDescription,
+          fieldPath: fieldPath,
+          helpText: moddedHelpText,
+          label: moddedLabel,
+          icon: effectiveIcon,
+          placeholder: moddedPlaceholder,
+          priorityFieldValues: priorityFieldValueSet,
+          required: moddedRequired,
+          ...cleanedExtraProps,
+        })}
     </Overridable>
   );
 };
