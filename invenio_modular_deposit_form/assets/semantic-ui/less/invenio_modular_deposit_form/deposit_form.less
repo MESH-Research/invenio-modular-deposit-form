@@ -68,7 +68,21 @@
     font-family: Icons;
     font-size: 1rem;
     color: @errorColor;
-    margin-right: 0.5em;
+    float: right;
+    margin-right: 0;
+    margin-left: 0.5em;
     vertical-align: middle;
+    display: inline-block !important; /* override Semantic UI .ui.vertical.menu .item:first-child:before { display: none !important } */
+  }
+  &:first-child::before {
+    content: "\f06a";
+    font-family: Icons;
+    font-size: 1rem;
+    color: @errorColor;
+    float: right;
+    margin-right: 0;
+    margin-left: 0.5em;
+    vertical-align: middle;
+    display: inline-block !important;
   }
 }
