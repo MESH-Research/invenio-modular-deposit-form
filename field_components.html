@@ -259,6 +259,7 @@
 <p>The package maintains a componentsRegistry that maps available field-level components to strings you can use in your layout configuration. Components are included for all of the field widgets from the stock InvenioRDM deposit form (defined in <code class="docutils literal notranslate"><span class="pre">field_components/field_components.jsx</span></code>). Each wraps a stock Invenio RDM or vocabularies field and inserts it into the form layout following your configuration:</p>
 <ul class="simple">
 <li><p>AbstractComponent</p></li>
+<li><p>AccessComponent</p></li>
 <li><p>AccessRightsComponent</p></li>
 <li><p>AdditionalDatesComponent</p></li>
 <li><p>AdditionalDescriptionComponent</p></li>
@@ -271,7 +272,9 @@
 <li><p>DeleteComponent</p></li>
 <li><p>DoiComponent</p></li>
 <li><p>FileUploadComponent</p></li>
+<li><p>FormFeedbackComponent</p></li>
 <li><p>FundingComponent</p></li>
+<li><p>HorizontalSubmissionComponent</p></li>
 <li><p>LanguagesComponent</p></li>
 <li><p>LicensesComponent</p></li>
 <li><p>PublisherComponent</p></li>
@@ -283,6 +286,32 @@
 <li><p>TitlesComponent</p></li>
 <li><p>VersionComponent</p></li>
 </ul>
+<p>Where the same logical field or region has more than one component (access, submit area, form feedback), see <strong>Multiple components for the same field or region</strong> below.</p>
+</section>
+<section id="multiple-components-for-the-same-field-or-region">
+<h2>Multiple components for the same field or region<a class="headerlink" href="#multiple-components-for-the-same-field-or-region" title="Link to this heading">¶</a></h2>
+<p>Some fields or layout regions have two (or more) registered components. The layout config chooses which one to use by name.</p>
+<section id="access-visibility">
+<h3>Access (visibility)<a class="headerlink" href="#access-visibility" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>AccessRightsComponent</strong> — Wraps the stock <code class="docutils literal notranslate"><span class="pre">AccessRightField</span></code> in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>, reads <code class="docutils literal notranslate"><span class="pre">record</span></code>, <code class="docutils literal notranslate"><span class="pre">permissions</span></code>, and <code class="docutils literal notranslate"><span class="pre">config</span></code> from the deposit store, and passes <code class="docutils literal notranslate"><span class="pre">recordRestrictionGracePeriod</span></code>, <code class="docutils literal notranslate"><span class="pre">allowRecordRestriction</span></code>, and <code class="docutils literal notranslate"><span class="pre">showMetadataAccess</span></code> into the field. <strong>Use this</strong> in your layout (e.g. in the right sidebar) so the visibility field is fully wired.</p></li>
+<li><p><strong>AccessComponent</strong> — Registered name for the raw <code class="docutils literal notranslate"><span class="pre">AccessRightField</span></code> with no wrapper. It does not receive <code class="docutils literal notranslate"><span class="pre">record</span></code>, <code class="docutils literal notranslate"><span class="pre">recordRestrictionGracePeriod</span></code>, or <code class="docutils literal notranslate"><span class="pre">allowRecordRestriction</span></code> from the layout, so it is not suitable for the default config. It remains in the registry for instances that reference it by name or that pass those props another way.</p></li>
+</ul>
+</section>
+<section id="submit-area-save-preview-publish-delete">
+<h3>Submit area (save, preview, publish, delete)<a class="headerlink" href="#submit-area-save-preview-publish-delete" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>SubmissionComponent</strong> — Matches the stock invenio-app-rdm sidebar: a Card with DepositStatusBox (draft/published status), then a button grid (Save | Preview, Publish, Share), then an optional second Card with DeleteButton. No form feedback inside the component (use FormFeedbackComponent above it in the sidebar). This is the <strong>default</strong> in the package layout.</p></li>
+<li><p><strong>HorizontalSubmissionComponent</strong> — Two-column layout: one column with FormFeedback (when there are errors or action state), Save, Preview, Publish, Share, and Delete buttons; the other column with helptext about drafts and publishing. Use this in your layout config if you prefer this layout instead of the stock-style cards.</p></li>
+<li><p><strong>OverrideSubmissionComponent</strong> (in <code class="docutils literal notranslate"><span class="pre">field_components/overridable/</span></code>) — Overridable variant that uses SubmitButtonModal and the same horizontal layout; register it via the Overridable slot <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.CardDepositStatusBox.container</span></code> or as the component for the submit section in the registry.</p></li>
+</ul>
+</section>
+<section id="form-feedback-errors-and-action-state">
+<h3>Form feedback (errors and action state)<a class="headerlink" href="#form-feedback-errors-and-action-state" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>FormFeedbackComponent</strong> — Standalone block that shows form feedback (validation errors, non-validation errors, and action state). It renders nothing when there is nothing to show. Use it as a <strong>separate subsection</strong> in the right sidebar (e.g. above SubmissionComponent) so feedback appears above the submit buttons without being part of the submit component itself. The default layout uses it that way.</p></li>
+</ul>
+</section>
 </section>
 <section id="contrib-components">
 <h2>Contrib components<a class="headerlink" href="#contrib-components" title="Link to this heading">¶</a></h2>
@@ -300,7 +329,7 @@
 <li><p><strong>OverrideDoiComponent</strong> — uses replacement PIDField</p></li>
 <li><p><strong>OverrideLanguagesComponent</strong> — uses replacement LanguagesField with state normalization (id/title_l10n)</p></li>
 <li><p><strong>OverrideResourceTypeComponent</strong> — uses ResourceTypeSelectorField (button-style)</p></li>
-<li><p><strong>OverrideSubmissionComponent</strong> — uses SubmitButtonModal and custom form feedback</p></li>
+<li><p><strong>OverrideSubmissionComponent</strong> — uses SubmitButtonModal and custom form feedback; same horizontal layout as HorizontalSubmissionComponent. See <strong>Multiple components for the same field or region</strong> (submit area) above.</p></li>
 </ul>
 <p>In your instance’s <code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code> file, you can import any of these components from <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/field_components/overridable</span></code>. See <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a> for slot ids.</p>
 </section>
@@ -406,6 +435,12 @@
             <ul>
 <li><a class="reference internal" href="#">Built-in field widget components</a><ul>
 <li><a class="reference internal" href="#stock-component-wrappers">Stock component wrappers</a></li>
+<li><a class="reference internal" href="#multiple-components-for-the-same-field-or-region">Multiple components for the same field or region</a><ul>
+<li><a class="reference internal" href="#access-visibility">Access (visibility)</a></li>
+<li><a class="reference internal" href="#submit-area-save-preview-publish-delete">Submit area (save, preview, publish, delete)</a></li>
+<li><a class="reference internal" href="#form-feedback-errors-and-action-state">Form feedback (errors and action state)</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#contrib-components">Contrib components</a></li>
 <li><a class="reference internal" href="#overridable-components">Overridable components</a></li>
 <li><a class="reference internal" href="#custom-field-components">Custom field components</a></li>
