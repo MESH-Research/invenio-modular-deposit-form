@@ -24,85 +24,82 @@ see LICENSE file for more details.
 {%- block css %}
   {{ super() }}
   {{ webpack['invenio-modular-deposit-form.css'] }}
-{%- endblock %}
-{%- if community and community.theme and community.theme.enabled %}
-  {%- block css %}
-    {{ super() }}
+  {%- if community and community.theme and community.theme.enabled %}
     <link rel="stylesheet"
           type="text/css"
           href="/communities/{{ community.slug }}/community-theme-{{ community.revision_id }}.css">
-    {%- if config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED %}{{ webpack['uppy-file-uploader.css'] }}{%- endif %}
+  {%- endif %}
+  {%- if config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED %}{{ webpack['uppy-file-uploader.css'] }}{%- endif %}
   {%- endblock %}
-{%- endif %}
-{% set cu_dict = "" | current_user_profile_dict %}
-{%- block page_body %}
-  {%- if record %}
-    <input id="deposits-record"
-           type="hidden"
-           name="deposits-record"
-           value='{{ record | tojson }}'>
-    <input id="deposits-record-locked-files"
-           type="hidden"
-           name="deposits-record-locked-files"
-           value='{{ files_locked | tojson }}'>
-  {%- endif %}
-  {%- if preselectedCommunity %}
-    <input id="deposits-draft-community"
-           type="hidden"
-           name="deposits-draft-community"
-           value='{{ preselectedCommunity | tojson }}'>
-  {%- endif %}
-  {%- if files %}
-    <input id="deposits-record-files"
-           type="hidden"
-           name="deposits-record-files"
-           value='{{ files | tojson }}'>
-  {%- endif %}
-  {%- if permissions %}
-    <input id="deposits-record-permissions"
-           type="hidden"
-           name="deposits-record-permissions"
-           value='{{ permissions | tojson }}'>
-  {%- endif %}
-  {%- set _extra = {"current_user_profile": cu_dict, "previewable_extensions": "" | previewable_extensions} %}
-  <input type="hidden"
-         name="deposits-config"
-         value='{{ (forms_config or {}) | merge_deposit_config(_extra) | tojson }}'>
-  <input type="hidden"
-         name="deposits-record-restriction-grace-period"
-         value='{{ config.RDM_RECORDS_RESTRICTION_GRACE_PERIOD.days | tojson }}'>
-  <input type="hidden"
-         name="deposits-allow-record-restriction"
-         value='{{ config.RDM_RECORDS_ALLOW_RESTRICTION_AFTER_GRACE_PERIOD | tojson }}'>
-  <input type="hidden"
-         name="config-groups-enabled"
-         value='{{ config.USERS_RESOURCES_GROUPS_ENABLED | tojson }}'>
-  <input type="hidden"
-         name="records-resources-allow-empty-files"
-         value='{{ config.RECORDS_RESOURCES_ALLOW_EMPTY_FILES | tojson }}'>
-  <input type="hidden"
-         name="deposits-use-uppy-ui"
-         value='{{ config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED | tojson }}'>
-  {%- if record_deletion is defined and record_deletion is not none %}
+  {% set cu_dict = "" | current_user_profile_dict %}
+  {%- block page_body %}
+    {%- if record %}
+      <input id="deposits-record"
+             type="hidden"
+             name="deposits-record"
+             value='{{ record | tojson }}'>
+      <input id="deposits-record-locked-files"
+             type="hidden"
+             name="deposits-record-locked-files"
+             value='{{ files_locked | tojson }}'>
+    {%- endif %}
+    {%- if preselectedCommunity %}
+      <input id="deposits-draft-community"
+             type="hidden"
+             name="deposits-draft-community"
+             value='{{ preselectedCommunity | tojson }}'>
+    {%- endif %}
+    {%- if files %}
+      <input id="deposits-record-files"
+             type="hidden"
+             name="deposits-record-files"
+             value='{{ files | tojson }}'>
+    {%- endif %}
+    {%- if permissions %}
+      <input id="deposits-record-permissions"
+             type="hidden"
+             name="deposits-record-permissions"
+             value='{{ permissions | tojson }}'>
+    {%- endif %}
+    {%- set _extra = {"current_user_profile": cu_dict, "previewable_extensions": "" | previewable_extensions} %}
     <input type="hidden"
-           name="deposits-record-deletion"
-           value='{{ record_deletion | tojson }}'>
-  {%- endif %}
-  {%- if file_modification is defined and file_modification is not none %}
+           name="deposits-config"
+           value='{{ (forms_config or {}) | merge_deposit_config(_extra) | tojson }}'>
     <input type="hidden"
-           name="deposits-file-modification"
-           value='{{ file_modification | tojson }}'>
-  {%- endif %}
-  {%- if 'RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION' in config %}
+           name="deposits-record-restriction-grace-period"
+           value='{{ config.RDM_RECORDS_RESTRICTION_GRACE_PERIOD.days | tojson }}'>
     <input type="hidden"
-           id="deposits-share-btn-require-link-expiration"
-           name="deposits-share-btn-require-link-expiration"
-           value='{{ config.RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION | tojson }}'
-           data-share-btn-require-link-expiration="{{ config.RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION | tojson }}">
-  {%- endif %}
-  <div id="deposit-form"></div>
-{%- endblock page_body %}
-{%- block javascript %}
-  {{ super() }}
-  {{ webpack['invenio-modular-deposit-form.js'] }}
-{%- endblock javascript %}
+           name="deposits-allow-record-restriction"
+           value='{{ config.RDM_RECORDS_ALLOW_RESTRICTION_AFTER_GRACE_PERIOD | tojson }}'>
+    <input type="hidden"
+           name="config-groups-enabled"
+           value='{{ config.USERS_RESOURCES_GROUPS_ENABLED | tojson }}'>
+    <input type="hidden"
+           name="records-resources-allow-empty-files"
+           value='{{ config.RECORDS_RESOURCES_ALLOW_EMPTY_FILES | tojson }}'>
+    <input type="hidden"
+           name="deposits-use-uppy-ui"
+           value='{{ config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED | tojson }}'>
+    {%- if record_deletion is defined and record_deletion is not none %}
+      <input type="hidden"
+             name="deposits-record-deletion"
+             value='{{ record_deletion | tojson }}'>
+    {%- endif %}
+    {%- if file_modification is defined and file_modification is not none %}
+      <input type="hidden"
+             name="deposits-file-modification"
+             value='{{ file_modification | tojson }}'>
+    {%- endif %}
+    {%- if 'RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION' in config %}
+      <input type="hidden"
+             id="deposits-share-btn-require-link-expiration"
+             name="deposits-share-btn-require-link-expiration"
+             value='{{ config.RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION | tojson }}'
+             data-share-btn-require-link-expiration="{{ config.RDM_RECORDS_REQUIRE_SECRET_LINKS_EXPIRATION | tojson }}">
+    {%- endif %}
+    <div id="deposit-form"></div>
+  {%- endblock page_body %}
+  {%- block javascript %}
+    {{ super() }}
+    {{ webpack['invenio-modular-deposit-form.js'] }}
+  {%- endblock javascript %}
