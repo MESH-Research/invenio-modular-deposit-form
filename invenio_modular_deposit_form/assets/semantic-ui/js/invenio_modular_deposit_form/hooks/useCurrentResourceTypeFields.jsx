@@ -31,7 +31,8 @@ const useCurrentResourceTypeFields = (
         ? flattenWrappers({ subsections: adjustedTypeFields[p.section] })
         : flattenWrappers(p);
       const pageMetaFields = pageFields.reduce((accum, { component }) => {
-        accum = accum.concat(componentsRegistry[component][1]);
+        const entry = componentsRegistry[component];
+        accum = accum.concat(entry?.[1] ?? []);
         return accum;
       }, []);
       newTypeFields[p.section] = pageMetaFields;
