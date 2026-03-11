@@ -1,0 +1,74 @@
+/*
+ * Site variables: same cascade as invenio-app-rdm theme (theme.less) and
+ * invenio-theme. Resolved via app webpack aliases: themes/rdm, themes/invenio,
+ * ../../less/site. When those aliases are missing, (optional) skips and we keep
+ * default Semantic UI variables.
+ */
+@import (optional) "~semantic-ui-less/themes/default/globals/site.variables";
+@import (optional) "themes/invenio/globals/site.variables";
+@import (optional) "themes/rdm/globals/site.variables";
+@import (optional) "../../less/site/globals/site.variables";
+
+/* Light border: built-in modification (no custom @negativeBorderColorLight). */
+@negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
+
+/* Sticky footer */
+#rdm-deposit-form .sticky-footer-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
+}
+
+#rdm-deposit-form .sticky-footer-static {
+  /* In normal flow when the footer scroll target is in view. */
+}
+
+/* Stepper error: matches parent theme step.overrides using theme variables. */
+#rdm-deposit-form .upload-form-pager .upload-form-stepper-step.has-error {
+  color: @errorColor;
+  background-color: @negativeBackgroundColor;
+  border: 1px solid @negativeBorderColor;
+  border-left: 0;
+  border-top: 1px solid @negativeBorderColorLight;
+  border-bottom: 1px solid @negativeBorderColorLight;
+
+  &:first-child {
+    border-left: 1px solid @negativeBorderColorLight;
+  }
+  &:last-child {
+    border-right: 1px solid @negativeBorderColorLight;
+  }
+  .title {
+    color: @errorTextColor;
+  }
+  &:after {
+    background-color: @negativeBackgroundColor;
+    border-color: @negativeBorderColor;
+  }
+  &:before {
+    content: "\f06a";
+    font-family: Icons;
+    font-size: @huge;
+    position: absolute;
+    bottom: -1.5rem;
+  }
+}
+
+/* Sidebar menu error */
+#rdm-deposit-form .deposit-form-sidebar-menu .item.has-error {
+  border-left: 3px solid @negativeBorderColor;
+  background-color: @negativeBackgroundColor;
+
+  &::before {
+    content: "\f06a";
+    font-family: Icons;
+    font-size: 1rem;
+    color: @errorColor;
+    margin-right: 0.5em;
+    vertical-align: middle;
+  }
+}

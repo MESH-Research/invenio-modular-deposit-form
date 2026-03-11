@@ -21,7 +21,7 @@ theme = WebpackThemeBundle(
         "semantic-ui": dict(
             entry={
                 "invenio-modular-deposit-form": "./js/invenio_modular_deposit_form/index.js",
-                "invenio-modular-deposit-form-css": "./css/invenio_modular_deposit_form/deposit_form.css",
+                "invenio-modular-deposit-form-css": "./less/invenio_modular_deposit_form/deposit_form.less",
             },
             dependencies={
                 "geopattern": "^1.2.3",
