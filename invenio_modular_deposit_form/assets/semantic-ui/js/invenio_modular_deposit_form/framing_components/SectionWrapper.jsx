@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Accordion, Form, Icon, Segment } from "semantic-ui-react";
+import { Accordion, Icon, Segment } from "semantic-ui-react";
 
 const SectionWrapper = ({
   children,
@@ -14,10 +14,6 @@ const SectionWrapper = ({
   const [isOpen, setIsOpen] = useState(startExpanded);
 
   if (collapsible) {
-    const childArray = React.Children.toArray(children);
-    const wrapInFormGroup =
-      childArray.length > 1 &&
-      !childArray.some((child) => child?.props?.component === "FormRow");
     return (
       <Accordion
         fluid
@@ -41,7 +37,7 @@ const SectionWrapper = ({
           <Icon name="dropdown" className="accordion-dropdown-icon" />
         </Accordion.Title>
         <Accordion.Content active={isOpen}>
-          {wrapInFormGroup ? <Form.Group>{children}</Form.Group> : children}
+          {children}
         </Accordion.Content>
       </Accordion>
     );
@@ -60,14 +56,7 @@ const SectionWrapper = ({
           {!!icon && <Icon name={icon} />} {label}
         </legend>
       )}
-      {children.length > 1 &&
-      !React.Children.toArray(children).some(
-        (child) => child.props.component === "FormRow"
-      ) ? (
-        <Form.Group>{children}</Form.Group>
-      ) : (
-        children
-      )}
+      {children}
     </Segment>
   );
 };

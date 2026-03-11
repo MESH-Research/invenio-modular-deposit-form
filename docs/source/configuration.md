@@ -114,7 +114,7 @@ Each member of a page's `subsections` list is a top-level subdivision of that pa
 
 #### SectionWrapper
 
-By default, a `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is full-width and its contents are always visible.
+By default, a `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is full-width and its contents are always visible. **Children are stacked vertically (full width)**. For horizontal layout of two or more fields, put them inside a **FormRow** in the section's `subsections` (see FormRow below).
 
 When `collapsible` is `true`, the section is rendered as a single accordion pane: the label becomes a clickable header that expands or collapses the content. Use this to keep long forms manageable. The initial state is controlled by `startExpanded`.
 
