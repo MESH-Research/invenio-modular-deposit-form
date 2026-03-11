@@ -21,6 +21,10 @@ see LICENSE file for more details.
   {%- set title = _("Edit upload") %}
 {%- endif %}
 {%- extends config.BASE_TEMPLATE %}
+{%- block css %}
+  {{ super() }}
+  {{ webpack['invenio-modular-deposit-form.css'] }}
+{%- endblock %}
 {%- if community and community.theme and community.theme.enabled %}
   {%- block css %}
     {{ super() }}
