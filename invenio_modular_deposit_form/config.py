@@ -34,11 +34,19 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     {
         "component": "FormRightSidebar",
         "subsections": [
-            # Visibility class: use "large-monitor" (hyphen) for invenio-theme; width props use largeScreen (camelCase)
+            {
+                "section": "form_feedback",
+                "component": "FormFeedbackComponent",
+            },
             {
                 "section": "submit_actions",
                 "label": "Publish",
                 "component": "SubmissionComponent",
+            },
+            {
+                "section": "access",
+                "label": "Visibility",
+                "component": "AccessRightsComponent",
             },
         ],
     },
@@ -295,11 +303,6 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                         "section": "communities",
                         "label": "Communities",
                         "component": "CommunitiesComponent",
-                    },
-                    {
-                        "section": "access",
-                        "label": "Access",
-                        "component": "AccessComponent",
                     },
                 ],
             },

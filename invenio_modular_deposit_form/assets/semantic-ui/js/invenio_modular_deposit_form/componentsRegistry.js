@@ -13,7 +13,9 @@ import {
   DeleteComponent,
   DoiComponent,
   FileUploadComponent,
+  FormFeedbackComponent,
   FundingComponent,
+  HorizontalSubmissionComponent,
   LanguagesComponent,
   LicensesComponent,
   PublisherComponent,
@@ -95,6 +97,7 @@ const componentsRegistry = {
   DateComponent: [DateComponent, ["metadata.publication_date"]],
   DoiComponent: [DoiComponent, ["pids.doi"]],
   FundingComponent: [FundingComponent, ["metadata.funding"]],
+  FormFeedbackComponent: [FormFeedbackComponent, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
   JournalISSNComponent: [
     JournalISSNComponent,
@@ -193,6 +196,7 @@ const componentsRegistry = {
   DeleteComponent: [DeleteComponent, []],
   FormRow: [FormRow, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
+  HorizontalSubmissionComponent: [HorizontalSubmissionComponent, []],
   SubmissionComponent: [SubmissionComponent, []],
   // Layout / page navigation (no field paths; registered for config-driven regions)
   FormStepper: [FormStepper, []],

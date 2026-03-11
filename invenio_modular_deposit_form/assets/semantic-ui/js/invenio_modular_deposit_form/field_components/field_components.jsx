@@ -23,6 +23,7 @@ import {
   CreatibutorsField,
   DatesField,
   DeleteButton,
+  DepositStatusBox,
   DescriptionsField,
   FileUploader,
   FormFeedback,
@@ -46,7 +47,7 @@ import {
 import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
-import { Grid } from "semantic-ui-react";
+import { Grid, Card } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
@@ -342,8 +343,11 @@ const ShareDraftButtonComponent = () => {
  */
 const DoiComponent = ({ ...extraProps }) => {
   const store = useStore();
-  const pids = store.getState().deposit.config.pids;
+  const pids = Array.isArray(store.getState().deposit.config?.pids)
+    ? store.getState().deposit.config.pids
+    : [];
   const record = store.getState().deposit.record;
+  console.log("Render DOI");
 
   return (
     <Overridable id="InvenioAppRdm.Deposit.PIDField.container">
@@ -728,10 +732,50 @@ const SubjectsComponent = ({ ...extraProps }) => {
   );
 };
 
+/**
+ * Standalone form feedback block for the sidebar. Renders only when there are
+ * errors or action state. Use above SubmissionComponent in FormRightSidebar to
+ * show save/publish feedback without bundling it into the submission component.
+ * @overridable InvenioAppRdm.Deposit.FormFeedback.container
+ */
+const FormFeedbackComponent = () => {
+  const { errors: clientErrors } = useFormikContext();
+  const store = useStore();
+  const { actionState, config, errors } = store.getState().deposit;
+
+  let nonValidationErrors;
+  if (!_isEmpty(errors)) {
+    nonValidationErrors = Object.fromEntries(
+      Object.entries(errors).filter(
+        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
+      )
+    );
+  }
+
+  if (!actionState && _isEmpty(clientErrors) && _isEmpty(nonValidationErrors)) {
+    return null;
+  }
+
+  return (
+    <Overridable
+      id="InvenioAppRdm.Deposit.FormFeedback.container"
+      labels={config?.custom_fields?.error_labels}
+      fieldPath="message"
+    >
+      <FormFeedback
+        fieldPath="message"
+        labels={config?.custom_fields?.error_labels}
+        clientErrors={clientErrors}
+        nonValidationErrors={nonValidationErrors}
+      />
+    </Overridable>
+  );
+};
+
 // OVERRIDDEN
 /**
- * SubmissionComponent is the component that displays the submission buttons
- * and the form feedback.
+ * HorizontalSubmissionComponent displays the submission buttons and form feedback
+ * in a horizontal two-column layout (buttons + helptext).
  *
  * Note: the `clientErrors` variable is an alias for the Formik client-side
  * error state. The `errors` variable comes from the Redux store and represents
@@ -744,7 +788,7 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * missing-files confirmation and "no files" flow; stock uses separate buttons and
  * PublishButton disables when files enabled but none uploaded (no confirm modal for that).
  */
-const SubmissionComponent = () => {
+const HorizontalSubmissionComponent = () => {
   const { errors: clientErrors } = useFormikContext();
   const store = useStore();
 
@@ -845,6 +889,78 @@ const SubmissionComponent = () => {
 };
 
 /**
+ * SubmissionComponent matches the stock invenio-app-rdm deposit sidebar layout:
+ * Card with DepositStatusBox, then Card.Content with Save | Preview, Publish, Share,
+ * then optional Card with DeleteButton. No FormFeedback (stock shows it at top of form).
+ * Use with AccessRightsComponent in the right sidebar to mimic the full stock sidebar.
+ * @overridable InvenioAppRdm.Deposit.CardDepositStatusBox.container (outer); InvenioAppRdm.Deposit.CardDeleteButton.container (delete card).
+ */
+const SubmissionComponent = () => {
+  const store = useStore();
+  const { config, record, permissions } = store.getState().deposit;
+  const groupsEnabled = config?.groups_enabled ?? false;
+
+  return (
+    <>
+      <Overridable
+        id="InvenioAppRdm.Deposit.CardDepositStatusBox.container"
+        record={record}
+        permissions={permissions}
+        groupsEnabled={groupsEnabled}
+      >
+        <Card>
+          <Card.Content>
+            <DepositStatusBox />
+          </Card.Content>
+          <Card.Content>
+            <Grid relaxed>
+              <Grid.Column
+                computer={8}
+                mobile={16}
+                className="pb-0 left-btn-col"
+              >
+                <SaveButton fluid />
+              </Grid.Column>
+
+              <Grid.Column
+                computer={8}
+                mobile={16}
+                className="pb-0 right-btn-col"
+              >
+                <PreviewButton fluid />
+              </Grid.Column>
+
+              <Grid.Column width={16} className="pt-10">
+                <PublishButton fluid record={record} />
+              </Grid.Column>
+
+              <Grid.Column width={16} className="pt-0">
+                {(record?.is_draft === null || permissions?.can_manage) && (
+                  <ShareDraftButton
+                    record={record}
+                    permissions={permissions}
+                    groupsEnabled={groupsEnabled}
+                  />
+                )}
+              </Grid.Column>
+            </Grid>
+          </Card.Content>
+        </Card>
+      </Overridable>
+      {permissions?.can_delete_draft && (
+        <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
+          <Card>
+            <Card.Content>
+              <DeleteButton fluid />
+            </Card.Content>
+          </Card>
+        </Overridable>
+      )}
+    </>
+  );
+};
+
+/**
  * Title (metadata.title). Uses stock TitlesField.
  * @overridable InvenioAppRdm.Deposit.TitlesField.container (via FieldComponentWrapper)
  */
@@ -899,7 +1015,9 @@ export {
   DeleteComponent,
   DoiComponent,
   FileUploadComponent,
+  FormFeedbackComponent,
   FundingComponent,
+  HorizontalSubmissionComponent,
   LanguagesComponent,
   LicensesComponent,
   PublisherComponent,

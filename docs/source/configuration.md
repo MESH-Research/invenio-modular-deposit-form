@@ -74,7 +74,7 @@ You must include exactly one object with `"component": "FormPages"`; its `"subse
 
 - **FormHeader** — `"component": "FormHeader"`. Rendered above the form (below the community banner if shown), full width.
 - **FormLeftSidebar** — `"component": "FormLeftSidebar"`. Rendered in a left column (default 3 grid units on computer, 16 on mobile). Optional responsive column keys: `mobile`, `tablet`, `computer`, `largeScreen`, `widescreen`.
-- **FormRightSidebar** — `"component": "FormRightSidebar"`. Same as left sidebar.
+- **FormRightSidebar** — `"component": "FormRightSidebar"`. Same as left sidebar. The default package layout uses it with **FormFeedbackComponent** (form feedback above), **SubmissionComponent** (stock-style submit card), and **AccessRightsComponent** (Visibility). See [Built-in field widget components](field_components.md#multiple-components-for-the-same-field-or-region) for the difference between SubmissionComponent and HorizontalSubmissionComponent and when to use FormFeedbackComponent.
 - **FormFooter** — `"component": "FormFooter"`. Rendered below the main form, full width.
 
 **FormPages** accepts the same optional responsive column keys. If omitted, the main column at each breakpoint is **16 minus the left sidebar width minus the right sidebar width** at that breakpoint.
