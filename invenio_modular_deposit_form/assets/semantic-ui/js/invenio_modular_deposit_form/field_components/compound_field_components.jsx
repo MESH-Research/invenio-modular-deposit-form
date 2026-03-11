@@ -18,6 +18,7 @@ import {
   AdditionalDatesComponent,
   PublicationDateComponent,
 } from "./field_components";
+import { CustomField } from "./CustomField";
 
 const CombinedDatesComponent = ({ ...extraProps }) => {
   return (
@@ -28,26 +29,42 @@ const CombinedDatesComponent = ({ ...extraProps }) => {
   );
 };
 
-// const SubmitActionsComponent = () => {
-//   const store = useStore();
-//   const record = store.getState().deposit.record;
-//   const permissions = store.getState().deposit.permissions;
+/**
+ * Renders the stock Journal block widget (field journal:journal from RDM_CUSTOM_FIELDS_UI).
+ * Use one section with component "CombinedJournalComponent" to show the full journal block.
+ */
+const CombinedJournalComponent = (props) => (
+  <CustomField fieldName="journal:journal" idString="JournalField" {...props} />
+);
 
-//   return (
-//     <Grid className="submit-actions">
-//       <Grid.Row>
-//         <Grid.Column width="16">
-//           <AccessRightsComponent permissions={permissions} />
-//         </Grid.Column>
-//       </Grid.Row>
-//       <Grid.Row className="submit-buttons-row">
-//         <SubmissionComponent record={record} permissions={permissions} />
-//       </Grid.Row>
-//     </Grid>
-//   );
-// };
+/**
+ * Renders the stock Imprint block widget (field imprint:imprint from RDM_CUSTOM_FIELDS_UI).
+ * Use one section with component "CombinedImprintComponent" to show the full imprint block.
+ */
+const CombinedImprintComponent = (props) => (
+  <CustomField fieldName="imprint:imprint" idString="ImprintField" {...props} />
+);
+
+/**
+ * Renders the stock Meeting block widget (field meeting:meeting from RDM_CUSTOM_FIELDS_UI).
+ * Use one section with component "CombinedMeetingComponent" to show the full meeting block.
+ */
+const CombinedMeetingComponent = (props) => (
+  <CustomField fieldName="meeting:meeting" idString="MeetingField" {...props} />
+);
+
+/**
+ * Renders the stock Thesis block widget (field thesis:thesis from RDM_CUSTOM_FIELDS_UI).
+ * Use one section with component "CombinedThesisComponent" to show the full thesis block.
+ */
+const CombinedThesisComponent = (props) => (
+  <CustomField fieldName="thesis:thesis" idString="ThesisField" {...props} />
+);
 
 export {
   CombinedDatesComponent,
-  // SubmitActionsComponent,
+  CombinedJournalComponent,
+  CombinedImprintComponent,
+  CombinedMeetingComponent,
+  CombinedThesisComponent,
 };

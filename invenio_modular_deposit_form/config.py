@@ -97,7 +97,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                             {
                                 "section": "publication_date",
                                 "label": "Publication Date",
-                                "component": "DateComponent",
+                                "component": "PublicationDateComponent",
                             },
                             {
                                 "section": "other_dates",
@@ -151,109 +151,24 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 "component": "FormPage",
                 "subsections": [
                     {
-                        "section": "journal_title",
-                        "label": "Journal title",
-                        "component": "JournalTitleComponent",
+                        "section": "journal",
+                        "label": "Journal",
+                        "component": "CombinedJournalComponent",
                     },
                     {
-                        "section": "journal_issn",
-                        "label": "Journal ISSN",
-                        "component": "JournalISSNComponent",
+                        "section": "imprint",
+                        "label": "Book / Report / Conference proceedings",
+                        "component": "CombinedImprintComponent",
                     },
                     {
-                        "section": "journal_volume",
-                        "label": "Journal volume",
-                        "component": "JournalVolumeComponent",
+                        "section": "meeting",
+                        "label": "Conference",
+                        "component": "CombinedMeetingComponent",
                     },
                     {
-                        "section": "journal_issue",
-                        "label": "Journal issue",
-                        "component": "JournalIssueComponent",
-                    },
-                    {
-                        "section": "journal_pages",
-                        "label": "Article pages",
-                        "component": "SectionPagesComponent",
-                    },
-                    {
-                        "section": "imprint_title",
-                        "label": "Book title",
-                        "component": "BookTitleComponent",
-                    },
-                    {
-                        "section": "imprint_isbn",
-                        "label": "ISBN",
-                        "component": "ISBNComponent",
-                    },
-                    {
-                        "section": "imprint_place",
-                        "label": "Publication location",
-                        "component": "PublicationLocationComponent",
-                    },
-                    {
-                        "section": "imprint_pages",
-                        "label": "Total pages",
-                        "component": "TotalPagesComponent",
-                    },
-                    {
-                        "section": "meeting_title",
-                        "label": "Meeting title",
-                        "component": "MeetingTitleComponent",
-                    },
-                    {
-                        "section": "meeting_acronym",
-                        "label": "Meeting acronym",
-                        "component": "MeetingAcronymComponent",
-                    },
-                    {
-                        "section": "meeting_dates",
-                        "label": "Meeting dates",
-                        "component": "MeetingDatesComponent",
-                    },
-                    {
-                        "section": "meeting_place",
-                        "label": "Meeting place",
-                        "component": "MeetingPlaceComponent",
-                    },
-                    {
-                        "section": "meeting_session",
-                        "label": "Meeting session",
-                        "component": "MeetingSessionComponent",
-                    },
-                    {
-                        "section": "meeting_session_part",
-                        "label": "Meeting session part",
-                        "component": "MeetingSessionPartComponent",
-                    },
-                    {
-                        "section": "meeting_url",
-                        "label": "Meeting URL",
-                        "component": "MeetingURLComponent",
-                    },
-                    {
-                        "section": "thesis_university",
-                        "label": "University",
-                        "component": "UniversityComponent",
-                    },
-                    {
-                        "section": "thesis_department",
-                        "label": "Department",
-                        "component": "ThesisDepartmentComponent",
-                    },
-                    {
-                        "section": "thesis_type",
-                        "label": "Thesis type",
-                        "component": "ThesisTypeComponent",
-                    },
-                    {
-                        "section": "thesis_date_submitted",
-                        "label": "Date submitted",
-                        "component": "ThesisDateSubmittedComponent",
-                    },
-                    {
-                        "section": "thesis_date_defended",
-                        "label": "Date defended",
-                        "component": "ThesisDateDefendedComponent",
+                        "section": "thesis",
+                        "label": "Thesis",
+                        "component": "CombinedThesisComponent",
                     },
                     {
                         "section": "code_development_status",

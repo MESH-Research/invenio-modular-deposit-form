@@ -54,6 +54,10 @@ import {
 } from "./field_components/custom_field_components";
 import {
   CombinedDatesComponent,
+  CombinedJournalComponent,
+  CombinedImprintComponent,
+  CombinedMeetingComponent,
+  CombinedThesisComponent,
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
 import { FormStepper } from "./nav_components/FormStepper";
@@ -187,6 +191,22 @@ const componentsRegistry = {
   CombinedDatesComponent: [
     CombinedDatesComponent,
     ["metadata.publication_date", "metadata.dates"],
+  ],
+  CombinedJournalComponent: [
+    CombinedJournalComponent,
+    ["custom_fields.journal:journal"],
+  ],
+  CombinedImprintComponent: [
+    CombinedImprintComponent,
+    ["custom_fields.imprint:imprint"],
+  ],
+  CombinedMeetingComponent: [
+    CombinedMeetingComponent,
+    ["custom_fields.meeting:meeting"],
+  ],
+  CombinedThesisComponent: [
+    CombinedThesisComponent,
+    ["custom_fields.thesis:thesis"],
   ],
   DeleteComponent: [DeleteComponent, []],
   FormRow: [FormRow, []],
