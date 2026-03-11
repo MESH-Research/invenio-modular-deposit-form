@@ -18,7 +18,7 @@ The package maintains a componentsRegistry that maps available field-level compo
 - ContributorsComponent
 - CopyrightsComponent
 - CreatorsComponent
-- DateComponent
+- PublicationDateComponent
 - DeleteComponent
 - DoiComponent
 - FileUploadComponent

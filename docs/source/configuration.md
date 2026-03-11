@@ -159,7 +159,7 @@ Within a FormRow, declare widths using the `"classnames"` property and Semantic 
 
 You can provide **compound field components** that render a pre-configured block of multiple field components. In the layout you reference a single component that composes them internally.
 
-**Built-in example: CombinedDatesComponent** — Renders DateComponent (publication date) and AdditionalDatesComponent (additional dates). In the layout add one section:
+**Built-in example: CombinedDatesComponent** — Renders PublicationDateComponent (publication date) and AdditionalDatesComponent (additional dates). In the layout add one section. Alternatively, use **PublicationDateComponent** and **AdditionalDatesComponent** as two separate sections if you want to place or configure them independently.
 
 ```python
 {

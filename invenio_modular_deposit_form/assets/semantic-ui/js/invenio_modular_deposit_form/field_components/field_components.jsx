@@ -250,9 +250,10 @@ const CreatorsComponent = ({ ...extraProps }) => {
 
 /**
  * Publication date (metadata.publication_date). Uses stock PublicationDateField.
+ * Can be used alone or inside CombinedDatesComponent with AdditionalDatesComponent.
  * @overridable InvenioAppRdm.Deposit.PublicationDateField.container (via FieldComponentWrapper)
  */
-const DateComponent = ({ ...extraProps }) => {
+const PublicationDateComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="PublicationDateField"
@@ -974,7 +975,7 @@ export {
   ContributorsComponent,
   CopyrightsComponent,
   CreatorsComponent,
-  DateComponent,
+  PublicationDateComponent,
   DeleteComponent,
   DoiComponent,
   FileUploadComponent,

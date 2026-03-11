@@ -91,7 +91,21 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                     {
                         "section": "combined_dates",
                         "label": "Dates",
-                        "component": "CombinedDatesComponent",
+                        "component": "SectionWrapper",
+                        "show_heading": True,
+                        "subsections": [
+                            {
+                                "section": "publication_date",
+                                "label": "Publication Date",
+                                "component": "DateComponent",
+                            },
+                            {
+                                "section": "other_dates",
+                                "label": "Additional Dates",
+                                "component": "AdditionalDatesComponent",
+                                "show_heading": False,
+                            },
+                        ],
                     },
                     {
                         "section": "abstract",

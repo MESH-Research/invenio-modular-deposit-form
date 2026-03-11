@@ -16,13 +16,13 @@ import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import {
   AdditionalDatesComponent,
-  DateComponent,
+  PublicationDateComponent,
 } from "./field_components";
 
 const CombinedDatesComponent = ({ ...extraProps }) => {
   return (
     <>
-      <DateComponent {...extraProps } />
+      <PublicationDateComponent {...extraProps} />
       <AdditionalDatesComponent />
     </>
   );
