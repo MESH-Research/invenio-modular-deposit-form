@@ -19,11 +19,11 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
       <Header as="h2" className="ui medium top attached header">
         {i18next.t("Form pages")}
       </Header>
-      <div className="ui segment bottom attached">
+      <div className="ui segment bottom attached p-0">
         <Menu
           vertical
           fluid
-          className="theme-primary-menu deposit-form-sidebar-menu"
+          className="theme-primary-menu deposit-form-sidebar-menu borderless"
           role="navigation"
           aria-label={i18next.t("Form pages")}
         >
