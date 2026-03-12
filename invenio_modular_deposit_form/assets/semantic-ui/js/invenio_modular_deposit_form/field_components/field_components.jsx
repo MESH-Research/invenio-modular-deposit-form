@@ -47,6 +47,7 @@ import {
 import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
+import { depositFormSectionsConfig } from "@js/invenio_app_rdm/deposit/config";
 import { Grid, Card } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { moveToArrayStart } from "../utils";
@@ -729,6 +730,7 @@ const FormFeedbackComponent = () => {
         labels={config?.custom_fields?.error_labels}
         clientErrors={clientErrors}
         nonValidationErrors={nonValidationErrors}
+        sectionConfig={depositFormSectionsConfig}
       />
     </Overridable>
   );
