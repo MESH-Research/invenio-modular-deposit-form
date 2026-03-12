@@ -268,19 +268,23 @@ const formikFromStartingState = {
 
 const mockDispatch = jest.fn();
 
+const mockStore = {
+  getState: () => ({ deposit: { actionState: null } }),
+};
+
 describe("FormErrorManager", () => {
   it("should be defined", () => {
     expect(FormErrorManager).toBeDefined();
   });
 
   it("should instantiate a FormErrorManager instance", () => {
-    expect(new FormErrorManager(formPages, formPageFields, formikFromStartingState)).toBeInstanceOf(
+    expect(new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore)).toBeInstanceOf(
       FormErrorManager
     );
   });
 
   it("should update the form error state with backend errors and flagged pages with errors", () => {
-    const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState);
+    const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
     formErrorManager.updateFormErrorState(mockDispatch);
     expect(mockFormikContext.setFieldError).toHaveBeenCalledTimes(2);
     expect(mockFormikContext.setFieldError).toHaveBeenCalledWith(
@@ -316,7 +320,7 @@ describe("FormErrorManager", () => {
 
   describe("constructor", () => {
     it("should initialize the form error manager", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState);
+      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
       expect(formErrorManager).toBeInstanceOf(FormErrorManager);
     });
   });
@@ -329,7 +333,7 @@ describe("FormErrorManager", () => {
   // error is only in initial errors and untouched and unchanged (flag: ai_usage)
   describe("errorsToFieldSets", () => {
     it("should return the correct error pages", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState);
+      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
       const fieldSets = formErrorManager.errorsToFieldSets();
       expect(fieldSets).toEqual({
         errorFields: ["metadata.title", "metadata.resource_type"],
@@ -345,7 +349,7 @@ describe("FormErrorManager", () => {
 
   describe("addBackendErrors", () => {
     it("should add unchanged backend errors to the form error state and update touched state if backend error field is unchanged and untouched", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState);
+      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
       formErrorManager.addBackendErrors(
         ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"]
       );
@@ -361,7 +365,7 @@ describe("FormErrorManager", () => {
 
   describe("getErrorPages", () => {
     it("should return the correct error pages", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState);
+      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
       const fieldState = formErrorManager.errorsToFieldSets();
       const [errorPages, flaggedErrorPages] = formErrorManager.getErrorPages(
         formErrorManager.formPages,

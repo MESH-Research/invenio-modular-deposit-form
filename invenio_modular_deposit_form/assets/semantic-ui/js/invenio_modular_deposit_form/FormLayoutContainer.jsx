@@ -136,20 +136,13 @@ const FormLayoutContainer = () => {
     formUIStateReducer,
     getInitialFormUIState(formPages, defaultResourceType, fieldsByType)
   );
-  const isUpdatingRef = useRef(false);
   const pageTargetRef = useRef(null);
 
   useStickyFooterOverlapFix(state.currentFormPage);
   const pageTargetInViewport = useIsInViewport(pageTargetRef);
 
   useEffect(() => {
-    if (!isUpdatingRef.current) {
-      isUpdatingRef.current = true;
-      new FormErrorManager(formPages, state.formPageFields, formik).updateFormErrorState(dispatch);
-      setTimeout(() => {
-        isUpdatingRef.current = false;
-      }, 0);
-    }
+    new FormErrorManager(formPages, state.formPageFields, formik, store).updateFormErrorState(dispatch);
   }, [formik.errors, formik.touched, formik.initialErrors, formik.initialValues, formik.values, state.formPageFields]);
 
   const {

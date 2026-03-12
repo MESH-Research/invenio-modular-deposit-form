@@ -16,7 +16,7 @@ import { FORM_UI_ACTION } from "./formUIStateReducer";
  * the touched state) would be briefly lost after submission, and then regained
  * when the client-side validation runs again for the first time after submission.
  * To avoid this, we need to set all errors in the formik error state to `touched`
- * after the form is submitted. This is handled by the `<FormFeedback>` component.
+ * after the form is submitted. This is handled by syncTouchedForBackendValidationErrors().
  *
  * All fields must also be set to touched to trigger client-side validation
  * before submission. This is handled by the ??? component.
@@ -27,12 +27,34 @@ class FormErrorManager {
    * @param {Object} formPages - the form pages
    * @param {Object} formPageFields - the form page fields
    * @param {Object} formik - Formik context (errors, touched, initialErrors, initialValues, values, setFieldError, setFieldTouched)
+   * @param {Object} store - Redux store (for reading deposit.actionState)
    */
-  constructor(formPages, formPageFields, formik) {
+  constructor(formPages, formPageFields, formik, store) {
     this.formPages = formPages;
     this.formPageFields = formPageFields;
     this.formik = formik;
+    this.store = store;
   }
+
+  /**
+   * When we have backend validation errors (submit or load), sync touched for all current error
+   * fields so the stepper/sidebar can flag them. Only runs when Redux actionState indicates
+   * server-side validation errors; does not run on every client-side validation change.
+   */
+  syncTouchedForBackendValidationErrors = () => {
+    const actionState = this.store?.getState?.()?.deposit?.actionState;
+    const hasBackendValidationErrors =
+      actionState && String(actionState).includes("VALIDATION_ERRORS");
+    if (!hasBackendValidationErrors) return;
+    const { errors, touched, setFieldTouched } = this.formik;
+    const errorFields = errors ? flattenKeysDotJoined(errors) : [];
+    if (errorFields.length === 0) return;
+    errorFields.forEach((field) => {
+      if (!get(touched, field) && !getTouchedParent(touched, field)) {
+        setFieldTouched(field, true);
+      }
+    });
+  };
 
   /**
    * Convert error state object to lists of fields in various states
@@ -189,9 +211,9 @@ class FormErrorManager {
    * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_PAGES_WITH_ERRORS, SET_PAGES_WITH_FLAGGED_ERRORS)
    */
   updateFormErrorState = (dispatch) => {
-    console.log("Updating form error state");
+    this.syncTouchedForBackendValidationErrors();
+
     const errorFieldSets = this.errorsToFieldSets();
-    console.log("errorFieldSets:", errorFieldSets);
 
     this.addBackendErrors(
       errorFieldSets.initialErrorFieldsToFlag
