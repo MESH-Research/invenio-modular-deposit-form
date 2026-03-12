@@ -730,7 +730,7 @@ const FormFeedbackComponent = () => {
         labels={config?.custom_fields?.error_labels}
         clientErrors={clientErrors}
         nonValidationErrors={nonValidationErrors}
-        sectionConfig={depositFormSectionsConfig}
+        sectionsConfig={depositFormSectionsConfig}
       />
     </Overridable>
   );
