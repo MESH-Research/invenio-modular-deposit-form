@@ -26,7 +26,6 @@ import {
   DepositStatusBox,
   DescriptionsField,
   FileUploader,
-  FormFeedback,
   IdentifiersField,
   LanguagesField,
   LicenseField,
@@ -44,6 +43,8 @@ import {
   UppyUploader,
   VersionField,
 } from "@js/invenio_rdm_records";
+import { FormUIStateContext } from "../FormLayoutContainer";
+import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
 import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
@@ -51,7 +52,6 @@ import { Grid, Card } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
-import { FormUIStateContext } from "../FormLayoutContainer";
 
 /**
  * Main description/abstract field (metadata.description). Uses stock DescriptionsField.
@@ -704,9 +704,10 @@ const SubjectsComponent = ({ ...extraProps }) => {
 const FormFeedbackComponent = () => {
   const { errors: clientErrors } = useFormikContext();
   const store = useStore();
+  const { formUIState } = useContext(FormUIStateContext) ?? {};
+  const currentResourceType = formUIState?.currentResourceType;
   const { actionState, config, errors } = store.getState().deposit;
-  const { FormUIState } = useContext(FormUIStateContext);
-
+  const sectionsConfig = config?.formSectionFields;
   let nonValidationErrors;
   if (!_isEmpty(errors)) {
     nonValidationErrors = Object.fromEntries(
@@ -726,12 +727,13 @@ const FormFeedbackComponent = () => {
       labels={config?.custom_fields?.error_labels}
       fieldPath="message"
     >
-      <FormFeedback
+      <ModularFormFeedback
         fieldPath="message"
         labels={config?.custom_fields?.error_labels}
         clientErrors={clientErrors}
         nonValidationErrors={nonValidationErrors}
-        sectionsConfig={FormUIState.formPageFields}
+        sectionsConfig={sectionsConfig}
+        currentResourceType={currentResourceType}
       />
     </Overridable>
   );

@@ -16,6 +16,7 @@ import { DepositFormApp } from "@js/invenio_rdm_records";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { componentsRegistry } from "./componentsRegistry";
+import { buildFormSections } from "./buildFormStructure";
 import { FormLayoutContainer } from "./FormLayoutContainer";
 
 const validator = require(`@js/invenio_modular_deposit_form_validator/validator.js`);
@@ -83,7 +84,12 @@ export const RDMDepositForm = ({
       }
     : { metadata: {} };
 
-  // Config for Redux store: backend config + enriched vocabularies + components registry
+  const formSectionFields = buildFormSections(
+    config.common_fields,
+    config.fields_by_type,
+    componentsRegistry
+  );
+
   const configForStore = {
     ...config,
     files_locked: filesLocked ?? false,
@@ -95,6 +101,7 @@ export const RDMDepositForm = ({
     allow_empty_files: allowEmptyFiles ?? true,
     vocabularies,
     componentsRegistry,
+    formSectionFields,
   };
 
   // Master-only: add to config only when present (v13 view/config may not provide them)

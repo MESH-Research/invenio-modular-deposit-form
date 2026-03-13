@@ -40,7 +40,10 @@ const SubsectionsRenderer = ({ subsections = [], className, id }) => (
             key={section ?? index}
             section={section}
             component={component}
-            wrapped={wrapped}
+            // Top-level fields (not explicitly in a SectionWrapper) must always
+            // be wrapped in a SectionWrapper so every field lives inside a
+            // section container with a stable id. Ignore any wrapped=false here.
+            wrapped={true}
             index={index}
             {...props}
           />
