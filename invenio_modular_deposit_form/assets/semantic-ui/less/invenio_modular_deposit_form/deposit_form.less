@@ -23,9 +23,9 @@
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
 }
 
-#rdm-deposit-form .sticky-footer-static {
-  /* In normal flow when the footer scroll target is in view. */
-}
+// #rdm-deposit-form .sticky-footer-static {
+/* In normal flow when the footer scroll target is in view. */
+// }
 
 /* Stepper error: matches parent theme step.overrides using theme variables. */
 #rdm-deposit-form .upload-form-pager .upload-form-stepper-step.has-error {
@@ -68,9 +68,10 @@
     font-family: Icons;
     font-size: 1rem;
     color: @errorColor;
-    float: right;
     margin-right: 0;
     margin-left: 0.5em;
+    left: -1.5rem;
+    top: 0.75rem;
     vertical-align: middle;
     display: inline-block !important; /* override Semantic UI .ui.vertical.menu .item:first-child:before { display: none !important } */
     background-color: @negativeBackgroundColor; /* opaque so background does not show through glyph */
@@ -80,7 +81,8 @@
     font-family: Icons;
     font-size: 1rem;
     color: @errorColor;
-    float: right;
+    left: -1.5rem;
+    top: 0.75rem;
     margin-right: 0;
     margin-left: 0.5em;
     vertical-align: middle;
