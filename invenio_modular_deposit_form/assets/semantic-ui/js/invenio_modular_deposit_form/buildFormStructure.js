@@ -8,7 +8,11 @@ import { flattenWrappers } from "./utils";
 
 function getFieldPathsForSubsection(subsection, registry) {
   if (!subsection) return [];
-  if (subsection.component === "SectionWrapper" && Array.isArray(subsection.subsections)) {
+  if (
+    (subsection.component === "FormSection" ||
+      subsection.component === "SectionWrapper") &&
+    Array.isArray(subsection.subsections)
+  ) {
     const flat = flattenWrappers({ subsections: subsection.subsections });
     return flat.reduce(
       (acc, item) => acc.concat(Array.isArray(registry?.[item.component]?.[1]) ? registry[item.component][1] : []),

@@ -1,28 +1,36 @@
 import React from "react";
+import Overridable from "react-overridable";
 import { useStore } from "react-redux";
 import { Form } from "semantic-ui-react";
-import { SectionWrapper } from "./SectionWrapper";
+import { FormSection } from "./FormSection";
 
 const FormRow = ({ subsections, classnames, ...props }) => {
-  const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
+  const componentsRegistry =
+    useStore().getState().deposit?.config?.componentsRegistry ?? {};
   return (
-    <Form.Group className={classnames ? classnames : null}>
-      {subsections.map(({ section, component, ...innerProps }, index) => {
-        const MyField = componentsRegistry[component][0];
-        return (
-          <MyField
-            key={index}
-            {...{
-              section,
-              component,
-              index,
-              ...props,
-              ...innerProps,
-            }}
-          />
-        );
-      })}
-    </Form.Group>
+    <Overridable
+      id="InvenioModularDepositForm.FormRow.container"
+      classnames={classnames}
+      subsections={subsections}
+    >
+      <Form.Group className={classnames ? classnames : null}>
+        {subsections.map(({ section, component, ...innerProps }, index) => {
+          const MyField = componentsRegistry[component][0];
+          return (
+            <MyField
+              key={index}
+              {...{
+                section,
+                component,
+                index,
+                ...props,
+                ...innerProps,
+              }}
+            />
+          );
+        })}
+      </Form.Group>
+    </Overridable>
   );
 };
 
@@ -37,14 +45,15 @@ const FieldsContent = ({
   const MyField = componentsRegistry[component][0];
 
   return !!wrapped ? (
-    <SectionWrapper
+    <FormSection
       sectionName={section}
       icon={props.icon}
       label={props.label}
       show_heading={props.show_heading}
+      classnames={props.classnames}
     >
       <MyField key={index} {...props} />
-    </SectionWrapper>
+    </FormSection>
   ) : (
     <MyField key={index} {...props} />
   );

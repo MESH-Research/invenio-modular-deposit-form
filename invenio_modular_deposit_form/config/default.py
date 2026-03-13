@@ -84,7 +84,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                     {
                         "section": "files",
                         "label": "Files",
-                        "component": "SectionWrapper",
+                        "component": "FormSection",
                         "subsections": [
                             {
                                 "section": "file_upload",
@@ -102,7 +102,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                     {
                         "section": "basic-info",
                         "label": "Basic Information",
-                        "component": "SectionWrapper",
+                        "component": "FormSection",
                         "subsections": [
                             {
                                 "section": "doi",
@@ -157,7 +157,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                     {
                         "section": "recommended",
                         "label": "Recommended Information",
-                        "component": "SectionWrapper",
+                        "component": "FormSection",
                         "subsections": [
                             {
                                 "section": "contributors",
@@ -201,7 +201,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                     {
                         "section": "related",
                         "label": "Funding and Related",
-                        "component": "SectionWrapper",
+                        "component": "FormSection",
                         "classnames": "basic",
                         "subsections": [
                             {

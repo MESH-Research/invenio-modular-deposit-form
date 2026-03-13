@@ -269,7 +269,7 @@ const FormLayoutContainer = () => {
               widescreen={mainColumnWidths.widescreen}
             >
               <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
-                {formPages.map(({ section, subsections }, index) => {
+                {formPages.map(({ section, subsections, classnames, ...pageProps }, index) => {
                   let actualSubsections = subsections;
                   if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
                     actualSubsections = state.currentTypeFields[section];
@@ -285,7 +285,9 @@ const FormLayoutContainer = () => {
                           focusFirstElement={focusFirstElement}
                           id={`InvenioAppRdm.Deposit.FormPage.${section}`}
                           recoveryAsked={recoveryAsked}
+                          classnames={classnames}
                           subsections={actualSubsections}
+                          {...pageProps}
                         />
                       </div>
                     )

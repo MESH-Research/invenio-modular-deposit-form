@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useContext } from "react";
+import Overridable from "react-overridable";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { FormUIStateContext } from "../FormLayoutContainer";
@@ -10,6 +11,7 @@ const FormPage = ({
   focusFirstElement,
   id,
   recoveryAsked,
+  classnames,
   subsections,
 }) => {
   const { formUIState, fileUploadPageId } = useContext(FormUIStateContext);
@@ -22,14 +24,21 @@ const FormPage = ({
   }, [currentFormPage, recoveryAsked, fileUploadPageId]);
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <SubsectionsRenderer
-        className="formPageWrapper"
-        id={id}
-        subsections={subsections}
-        isFormPagesRegion
-      />
-    </DndProvider>
+    <Overridable
+      id="InvenioModularDepositForm.FormPage.container"
+      pageId={id}
+      subsections={subsections}
+      classnames={classnames}
+    >
+      <DndProvider backend={HTML5Backend}>
+        <SubsectionsRenderer
+          className={["formPageWrapper", classnames].filter(Boolean).join(" ")}
+          id={id}
+          subsections={subsections}
+          isFormPagesRegion
+        />
+      </DndProvider>
+    </Overridable>
   );
 };
 
@@ -37,6 +46,7 @@ FormPage.propTypes = {
   focusFirstElement: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
   recoveryAsked: PropTypes.bool,
+  classnames: PropTypes.string,
   subsections: PropTypes.array.isRequired,
 };
 

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { SectionWrapper } from "./SectionWrapper";
+import { FormSection } from "./FormSection";
 import { FieldsContent } from "./FieldsContent";
 
 /**
@@ -23,8 +23,10 @@ const SubsectionsRenderer = ({ subsections = [], className, id, isFormPagesRegio
         },
         index
       ) => {
-        return component === "SectionWrapper" ? (
-          <SectionWrapper sectionName={section} key={section} {...props}>
+        const isFormSection =
+          component === "FormSection" || component === "SectionWrapper";
+        return isFormSection ? (
+          <FormSection sectionName={section} key={section} {...props}>
             {(innerSections ?? []).map(({ component: innerComponent, ...innerProps }, i) => (
               <FieldsContent
                 key={i}
@@ -35,7 +37,7 @@ const SubsectionsRenderer = ({ subsections = [], className, id, isFormPagesRegio
                 {...innerProps}
               />
             ))}
-          </SectionWrapper>
+          </FormSection>
         ) : (
           <FieldsContent
             key={section ?? index}

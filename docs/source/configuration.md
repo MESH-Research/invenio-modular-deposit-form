@@ -110,11 +110,11 @@ If multiple pages are provided, include **FormStepper** in the FormHeader region
 
 ### Page layout components
 
-Each member of a page's `subsections` list is a top-level subdivision of that page. Three kinds of section components are provided: `SectionWrapper`, `FormRow`, or a single field component.
+Each member of a page's `subsections` list is a top-level subdivision of that page. Three kinds of section components are provided: `FormSection`, `FormRow`, or a single field component.
 
-#### SectionWrapper
+#### FormSection
 
-By default, a `SectionWrapper` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is full-width and its contents are always visible. **Children are stacked vertically (full width)**. For horizontal layout of two or more fields, put them inside a **FormRow** in the section's `subsections` (see FormRow below).
+By default, a `FormSection` is rendered as a `<fieldset>` element. If a `label` is provided, it is shown as the fieldset's `<legend>` (controlled by `show_heading`). The section is full-width and its contents are always visible. **Children are stacked vertically (full width)**. For horizontal layout of two or more fields, put them inside a **FormRow** in the section's `subsections` (see FormRow below).
 
 When `collapsible` is `true`, the section is rendered as a single accordion pane: the label becomes a clickable header that expands or collapses the content. Use this to keep long forms manageable. The initial state is controlled by `startExpanded`.
 
@@ -130,11 +130,11 @@ When `collapsible` is `true`, the section is rendered as a single accordion pane
 
 A `FormRow` component renders a Semantic UI `Form.Group`. It holds one or more child components in its `subsections` list, laid out in a horizontal row. Spacing can be configured with classes like `"equal-width"`.
 
-Like `SectionWrapper`, the `FormRow` dictionary may contain the basic component properties and `"classnames"`. Properties `"label"`, `"show_heading"`, and `"icon"` are ignored. To get a fieldset with an overall legend, wrap the row in a `SectionWrapper`.
+Like `FormSection`, the `FormRow` dictionary may contain the basic component properties and `"classnames"`. Properties `"label"`, `"show_heading"`, and `"icon"` are ignored. To get a fieldset with an overall legend, wrap the row in a `FormSection`.
 
 #### Wrapped field widget component
 
-If a field widget component has `"wrapped": True`, it will automatically be wrapped in its own `SectionWrapper`. Such a wrapped field widget cannot have a `subsections` property with children. For complex sections, use the other structuring components or extend with a new composite field widget component.
+If a field widget component has `"wrapped": True`, it will automatically be wrapped in its own `FormSection`. Such a wrapped field widget cannot have a `subsections` property with children. For complex sections, use the other structuring components or extend with a new composite field widget component.
 
 #### Extending the layout components
 
@@ -171,7 +171,7 @@ You can provide **compound field components** that render a pre-configured block
 
 **Implementing your own compound component:**
 
-1. Create a React component that imports and renders the child field components. Use the package's **SectionWrapper** and **FormRow** to group and arrange the fields.
+1. Create a React component that imports and renders the child field components. Use the package's **FormSection** and **FormRow** to group and arrange the fields.
 2. Register the component in your instance's component registry (or the package's `componentsRegistry.js`) with value `[Component, fieldPaths]` where `fieldPaths` is an array of all metadata field paths the block touches.
 3. Add one section in `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` that references your component by name.
 
