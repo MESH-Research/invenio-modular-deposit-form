@@ -9,6 +9,9 @@
 @import (optional) "themes/rdm/globals/site.variables";
 @import (optional) "../../less/site/globals/site.variables";
 
+/* Same as Semantic UI button.variables: text on primary background = inverted. */
+@primaryTextColor: @invertedTextColor;
+
 /* Light border: built-in modification (no custom @negativeBorderColorLight). */
 @negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
 
