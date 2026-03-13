@@ -67,6 +67,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
     },
     {
         "component": "FormFooter",
+        "classnames": "basic",
         "subsections": [
             {"component": "FormPageNavigationBar"},
         ],
@@ -79,12 +80,12 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "section": "1",
                 "label": "Files",
                 "component": "FormPage",
-                "classnames": "basic",
                 "subsections": [
                     {
                         "section": "files",
                         "label": "Files",
                         "component": "FormSection",
+                        "classnames": "basic",
                         "subsections": [
                             {
                                 "section": "file_upload",
@@ -98,6 +99,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
             {
                 "section": "2",
                 "label": "Basic Information",
+                "classnames": "basic",
                 "subsections": [
                     {
                         "section": "basic-info",
@@ -152,12 +154,12 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "section": "3",
                 "label": "Recommended Information",
                 "component": "FormPage",
-                "classnames": "basic",
                 "subsections": [
                     {
                         "section": "recommended",
                         "label": "Recommended Information",
                         "component": "FormSection",
+                        "classnames": "basic",
                         "subsections": [
                             {
                                 "section": "contributors",
