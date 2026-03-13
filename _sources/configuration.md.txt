@@ -79,7 +79,7 @@ You must include exactly one object with `"component": "FormPages"`; its `"subse
 
 **FormPages** accepts the same optional responsive column keys. If omitted, the main column at each breakpoint is **16 minus the left sidebar width minus the right sidebar width** at that breakpoint.
 
-**Page navigation components** (`FormStepper`, `FormPageNavigationFooter`, `FormSidebarPageMenu`) are in the component registry and appear when you include them in the relevant region's `subsections`. Pass **`classnames`** to control visibility or styling. Use the same responsive visibility classes as invenio-theme/invenio-app-rdm: `mobile only`, `tablet only`, `computer only`, etc. **Column width** config keys use camelCase (`largeScreen` not `largeMonitor`).
+**Page navigation components** (`FormStepper`, `FormPageNavigationBar`, `FormSidebarPageMenu`) are in the component registry and appear when you include them in the relevant region's `subsections`. Pass **`classnames`** to control visibility or styling. Use the same responsive visibility classes as invenio-theme/invenio-app-rdm: `mobile only`, `tablet only`, `computer only`, etc. **Column width** config keys use camelCase (`largeScreen` not `largeMonitor`).
 
 Example:
 
@@ -106,7 +106,7 @@ Example:
 
 Each item in `subsections` is a **page** of the form with component value `"FormPage"`. The form may have just a single page; in that case all content is visible at once, like the default InvenioRDM form.
 
-If multiple pages are provided, include **FormStepper** in the FormHeader region and optionally **FormPageNavigationFooter** in the FormFooter and **FormSidebarPageMenu** in the FormLeftSidebar. The `label` attributes of each page dictionary are used in the stepper and sidebar menu.
+If multiple pages are provided, include **FormStepper** in the FormHeader region and optionally **FormPageNavigationBar** in the FormFooter and **FormSidebarPageMenu** in the FormLeftSidebar. The `label` attributes of each page dictionary are used in the stepper and sidebar menu.
 
 ### Page layout components
 
