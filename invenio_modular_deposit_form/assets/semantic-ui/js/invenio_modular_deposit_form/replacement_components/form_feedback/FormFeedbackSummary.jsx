@@ -14,6 +14,7 @@ import _isEmpty from "lodash/isEmpty";
 import React, { Component } from "react";
 import { Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
+import { FormUIStateContext } from "../../FormLayoutContainer";
 
 function fieldMatches(errorPath, fieldPath) {
   return (
@@ -28,6 +29,37 @@ export class FormFeedbackSummary extends Component {
     super(props);
     this.sectionsConfig = props.sectionsConfig || [];
   }
+
+  static contextType = FormUIStateContext;
+
+  scrollToSection = (sectionId) => {
+    if (!sectionId) return;
+    const scroll = () => {
+      const sectionEl = document.getElementById(sectionId);
+      if (!sectionEl) return;
+
+      sectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      // Try to focus the first focusable element within the section
+      const focusable = sectionEl.querySelector(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const targetEl = focusable || sectionEl;
+
+      if (typeof targetEl.focus === "function") {
+        try {
+          targetEl.focus({ preventScroll: true });
+        } catch {
+          targetEl.focus();
+        }
+      }
+    };
+    if (typeof window !== "undefined" && window.requestAnimationFrame) {
+      window.requestAnimationFrame(scroll);
+    } else {
+      setTimeout(scroll, 0);
+    }
+  };
 
   getAllErrPaths = (obj, prev = "") => {
     const result = [];
@@ -83,8 +115,12 @@ export class FormFeedbackSummary extends Component {
       return null;
     }
 
-    const pageIds = new Set(orderedSections.map((key) => errorSections.get(key).pageId));
+    const pageIds = new Set(
+      orderedSections.map((key) => errorSections.get(key).pageId)
+    );
     const multiPage = pageIds.size > 1;
+    const ctx = this.context;
+    const handleFormPageChange = ctx?.handleFormPageChange;
 
     return orderedSections.map((sectionKey) => {
       const { pageId, sectionId, pageLabel, sectionLabel, count } = errorSections.get(sectionKey);
@@ -93,7 +129,18 @@ export class FormFeedbackSummary extends Component {
         : `#${sectionId}`;
       const label = multiPage ? `${pageLabel} / ${sectionLabel}` : sectionLabel;
       return (
-        <a key={sectionKey} className="pl-5 comma-separated" href={href}>
+        <a
+          key={sectionKey}
+          className="pl-5 comma-separated"
+          href={href}
+          onClick={(e) => {
+            e.preventDefault();
+            if (multiPage && handleFormPageChange) {
+              handleFormPageChange(e, { value: pageId });
+            }
+            this.scrollToSection(sectionId);
+          }}
+        >
           {label}{" "}
           <Label circular size="tiny">
             {count}
