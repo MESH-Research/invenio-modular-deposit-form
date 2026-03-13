@@ -44,14 +44,19 @@ const FormSection = ({
     <Segment
       id={`InvenioAppRdm.Deposit.${sectionName}.container`}
       as="fieldset"
-      className={["invenio-fieldset", sectionName, classnames]
+      className={[
+        "invenio-fieldset",
+        show_heading ? "invenio-accordion-field" : null,
+        sectionName,
+        classnames,
+      ]
         .filter(Boolean)
         .join(" ")}
     >
       {show_heading && (
-        <legend className="field-label-class invenio-field-label">
+        <div className="title invenio-field-label">
           {!!icon && <Icon name={icon} />} {label}
-        </legend>
+        </div>
       )}
       {children}
     </Segment>
