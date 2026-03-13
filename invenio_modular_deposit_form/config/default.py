@@ -79,6 +79,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "section": "1",
                 "label": "Files",
                 "component": "FormPage",
+                "classnames": "basic",
                 "subsections": [
                     {
                         "section": "files",
@@ -95,11 +96,11 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 ],
             },
             {
-                "section": "page-2",
+                "section": "2",
                 "label": "Basic Information",
                 "subsections": [
                     {
-                        "section": "basic",
+                        "section": "basic-info",
                         "label": "Basic Information",
                         "component": "SectionWrapper",
                         "subsections": [
@@ -148,9 +149,10 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 ],
             },
             {
-                "section": "page-3",
+                "section": "3",
                 "label": "Recommended Information",
                 "component": "FormPage",
+                "classnames": "basic",
                 "subsections": [
                     {
                         "section": "recommended",
@@ -192,7 +194,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 ],
             },
             {
-                "section": "other",
+                "section": "4",
                 "label": "Funding and Related",
                 "component": "FormPage",
                 "subsections": [
@@ -200,6 +202,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                         "section": "related",
                         "label": "Funding and Related",
                         "component": "SectionWrapper",
+                        "classnames": "basic",
                         "subsections": [
                             {
                                 "section": "funding",
