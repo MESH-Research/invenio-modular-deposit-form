@@ -7,7 +7,7 @@
 
 """An InvenioRDM extension that adds a more modular and customizable version of the record deposit form."""
 
-from invenio_i18n import get_lazytext as _
+from invenio_i18n import lazy_gettext as _
 from .default import COMMON_FIELDS_DEFAULT_PAGED
 
 INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "publication-article"
