@@ -8,8 +8,9 @@ import { FieldsContent } from "./FieldsContent";
  * the component registry. Handles SectionWrapper (with inner subsections) and
  * single field components via FieldsContent. Used by FormPage and by layout
  * regions (FormHeader, FormLeftSidebar, FormRightSidebar, FormFooter).
+ * Only when isFormPagesRegion is true are top-level fields forced into a SectionWrapper.
  */
-const SubsectionsRenderer = ({ subsections = [], className, id }) => (
+const SubsectionsRenderer = ({ subsections = [], className, id, isFormPagesRegion = false }) => (
   <div className={className} id={id}>
     {subsections.map(
       (
@@ -40,10 +41,7 @@ const SubsectionsRenderer = ({ subsections = [], className, id }) => (
             key={section ?? index}
             section={section}
             component={component}
-            // Top-level fields (not explicitly in a SectionWrapper) must always
-            // be wrapped in a SectionWrapper so every field lives inside a
-            // section container with a stable id. Ignore any wrapped=false here.
-            wrapped={true}
+            wrapped={isFormPagesRegion ? true : (wrapped ?? false)}
             index={index}
             {...props}
           />
@@ -57,6 +55,7 @@ SubsectionsRenderer.propTypes = {
   subsections: PropTypes.array,
   className: PropTypes.string,
   id: PropTypes.string,
+  isFormPagesRegion: PropTypes.bool,
 };
 
 export { SubsectionsRenderer };

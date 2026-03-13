@@ -27,6 +27,7 @@ const FormPage = ({
         className="formPageWrapper"
         id={id}
         subsections={subsections}
+        isFormPagesRegion
       />
     </DndProvider>
   );

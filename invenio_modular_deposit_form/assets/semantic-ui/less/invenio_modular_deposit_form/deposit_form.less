@@ -73,6 +73,7 @@
     margin-left: 0.5em;
     vertical-align: middle;
     display: inline-block !important; /* override Semantic UI .ui.vertical.menu .item:first-child:before { display: none !important } */
+    background-color: @negativeBackgroundColor; /* opaque so background does not show through glyph */
   }
   &:first-child::before {
     content: "\f06a";
@@ -84,5 +85,6 @@
     margin-left: 0.5em;
     vertical-align: middle;
     display: inline-block !important;
+    background-color: @negativeBackgroundColor;
   }
 }

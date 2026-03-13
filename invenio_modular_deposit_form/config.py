@@ -61,7 +61,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     {
         "component": "FormFooter",
         "subsections": [
-            {"component": "FormPageNavigationFooter"},
+            {"component": "FormPageNavigationBar"},
         ],
     },
     {

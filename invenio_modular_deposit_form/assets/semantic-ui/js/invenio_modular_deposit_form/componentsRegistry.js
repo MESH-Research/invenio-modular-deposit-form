@@ -61,7 +61,7 @@ import {
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
 import { FormStepper } from "./nav_components/FormStepper";
-import { FormPageNavigationFooter } from "./nav_components/FormPageNavigationFooter";
+import { FormPageNavigationBar } from "./nav_components/FormPageNavigationBar";
 import { FormSidebarPageMenu } from "./nav_components/FormSidebarPageMenu";
 
 const componentsRegistry = {
@@ -215,7 +215,7 @@ const componentsRegistry = {
   SubmissionComponent: [SubmissionComponent, []],
   // Layout / page navigation (no field paths; registered for config-driven regions)
   FormStepper: [FormStepper, []],
-  FormPageNavigationFooter: [FormPageNavigationFooter, []],
+  FormPageNavigationBar: [FormPageNavigationBar, []],
   FormSidebarPageMenu: [FormSidebarPageMenu, []],
 };
 
