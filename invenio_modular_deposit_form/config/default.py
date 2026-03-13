@@ -76,15 +76,22 @@ COMMON_FIELDS_DEFAULT_PAGED = [
         "component": "FormPages",
         "subsections": [
             {
-                "section": "page-1",
+                "section": "1",
                 "label": "Files",
                 "component": "FormPage",
                 "subsections": [
                     {
-                        "section": "file_upload",
-                        "label": "Files Upload",
-                        "component": "FileUploadComponent",
-                    },
+                        "section": "files",
+                        "label": "Files",
+                        "component": "SectionWrapper",
+                        "subsections": [
+                            {
+                                "section": "file_upload",
+                                "label": "Files Upload",
+                                "component": "FileUploadComponent",
+                            },
+                        ],
+                    }
                 ],
             },
             {
@@ -92,44 +99,51 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "label": "Basic Information",
                 "subsections": [
                     {
-                        "section": "doi",
-                        "label": "Digital Object Identifier",
-                        "component": "DoiComponent",
-                    },
-                    {
-                        "section": "resource_type",
-                        "label": "Resource Type",
-                        "component": "ResourceTypeComponent",
-                    },
-                    {
-                        "section": "combined_titles",
-                        "label": "Title",
-                        "component": "TitlesComponent",
-                    },
-                    {
-                        "section": "publication_date",
-                        "label": "Publication Date",
-                        "component": "PublicationDateComponent",
-                    },
-                    {
-                        "section": "creators",
-                        "label": "Creators",
-                        "component": "CreatorsComponent",
-                    },
-                    {
-                        "section": "abstract",
-                        "label": "Description",
-                        "component": "AbstractComponent",
-                    },
-                    {
-                        "section": "licenses",
-                        "label": "Licenses",
-                        "component": "LicensesComponent",
-                    },
-                    {
-                        "section": "copyright",
-                        "label": "Copyright",
-                        "component": "CopyrightsComponent",
+                        "section": "basic",
+                        "label": "Basic Information",
+                        "component": "SectionWrapper",
+                        "subsections": [
+                            {
+                                "section": "doi",
+                                "label": "Digital Object Identifier",
+                                "component": "DoiComponent",
+                            },
+                            {
+                                "section": "resource_type",
+                                "label": "Resource Type",
+                                "component": "ResourceTypeComponent",
+                            },
+                            {
+                                "section": "combined_titles",
+                                "label": "Title",
+                                "component": "TitlesComponent",
+                            },
+                            {
+                                "section": "publication_date",
+                                "label": "Publication Date",
+                                "component": "PublicationDateComponent",
+                            },
+                            {
+                                "section": "creators",
+                                "label": "Creators",
+                                "component": "CreatorsComponent",
+                            },
+                            {
+                                "section": "abstract",
+                                "label": "Description",
+                                "component": "AbstractComponent",
+                            },
+                            {
+                                "section": "licenses",
+                                "label": "Licenses",
+                                "component": "LicensesComponent",
+                            },
+                            {
+                                "section": "copyright",
+                                "label": "Copyright",
+                                "component": "CopyrightsComponent",
+                            },
+                        ],
                     },
                 ],
             },
@@ -139,34 +153,41 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "component": "FormPage",
                 "subsections": [
                     {
-                        "section": "contributors",
-                        "label": "Contributors",
-                        "component": "ContributorsComponent",
-                    },
-                    {
-                        "section": "subjects_keywords",
-                        "label": "Subjects",
-                        "component": "SubjectsComponent",
-                    },
-                    {
-                        "section": "language",
-                        "label": "Language",
-                        "component": "LanguagesComponent",
-                    },
-                    {
-                        "section": "additional_dates",
-                        "label": "Dates",
-                        "component": "AdditionalDatesComponent",
-                    },
-                    {
-                        "section": "version",
-                        "label": "Version",
-                        "component": "VersionComponent",
-                    },
-                    {
-                        "section": "publisher",
-                        "label": "Publisher",
-                        "component": "PublisherComponent",
+                        "section": "recommended",
+                        "label": "Recommended Information",
+                        "component": "SectionWrapper",
+                        "subsections": [
+                            {
+                                "section": "contributors",
+                                "label": "Contributors",
+                                "component": "ContributorsComponent",
+                            },
+                            {
+                                "section": "subjects_keywords",
+                                "label": "Subjects",
+                                "component": "SubjectsComponent",
+                            },
+                            {
+                                "section": "language",
+                                "label": "Language",
+                                "component": "LanguagesComponent",
+                            },
+                            {
+                                "section": "additional_dates",
+                                "label": "Dates",
+                                "component": "AdditionalDatesComponent",
+                            },
+                            {
+                                "section": "version",
+                                "label": "Version",
+                                "component": "VersionComponent",
+                            },
+                            {
+                                "section": "publisher",
+                                "label": "Publisher",
+                                "component": "PublisherComponent",
+                            },
+                        ],
                     },
                 ],
             },
@@ -176,19 +197,26 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "component": "FormPage",
                 "subsections": [
                     {
-                        "section": "funding",
-                        "label": "Funding",
-                        "component": "FundingComponent",
-                    },
-                    {
-                        "section": "alternate_identifiers",
-                        "label": "Alternate Identifiers",
-                        "component": "AlternateIdentifiersComponent",
-                    },
-                    {
-                        "section": "related_works",
-                        "label": "Related Works",
-                        "component": "RelatedWorksComponent",
+                        "section": "related",
+                        "label": "Funding and Related",
+                        "component": "SectionWrapper",
+                        "subsections": [
+                            {
+                                "section": "funding",
+                                "label": "Funding",
+                                "component": "FundingComponent",
+                            },
+                            {
+                                "section": "alternate_identifiers",
+                                "label": "Alternate Identifiers",
+                                "component": "AlternateIdentifiersComponent",
+                            },
+                            {
+                                "section": "related_works",
+                                "label": "Related Works",
+                                "component": "RelatedWorksComponent",
+                            },
+                        ],
                     },
                 ],
             },
