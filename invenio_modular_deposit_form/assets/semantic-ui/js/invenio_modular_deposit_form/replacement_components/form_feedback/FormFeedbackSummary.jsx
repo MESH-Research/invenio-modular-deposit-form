@@ -12,7 +12,7 @@
 
 import _isEmpty from "lodash/isEmpty";
 import React, { Component } from "react";
-import { Label } from "semantic-ui-react";
+import { Button, Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../../FormLayoutContainer";
 
@@ -124,17 +124,15 @@ export class FormFeedbackSummary extends Component {
 
     return orderedSections.map((sectionKey) => {
       const { pageId, sectionId, pageLabel, sectionLabel, count } = errorSections.get(sectionKey);
-      const href = multiPage
-        ? `?depositFormPage=${encodeURIComponent(pageId)}#${encodeURIComponent(sectionId)}`
-        : `#${sectionId}`;
       const label = multiPage ? `${pageLabel} / ${sectionLabel}` : sectionLabel;
       return (
-        <a
+        <Button
           key={sectionKey}
+          type="button"
+          transparent
+          link
           className="pl-5 comma-separated"
-          href={href}
           onClick={(e) => {
-            e.preventDefault();
             if (multiPage && handleFormPageChange) {
               handleFormPageChange(e, { value: pageId });
             }
@@ -145,7 +143,7 @@ export class FormFeedbackSummary extends Component {
           <Label circular size="tiny">
             {count}
           </Label>
-        </a>
+        </Button>
       );
     });
   }

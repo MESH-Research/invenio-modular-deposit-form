@@ -40,10 +40,10 @@ const useFormPageNavigation = (
       value = currentFormPage;
     }
     let urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.has("depositFormPage")) {
-      urlParams.append("depositFormPage", value);
-    } else if (!urlParams.depositFormPage !== value) {
-      urlParams.set("depositFormPage", value);
+    if (!urlParams.has("page")) {
+      urlParams.append("page", value);
+    } else if (urlParams.get("page") !== value) {
+      urlParams.set("page", value);
     }
     const currentBaseURL = window.location.origin;
     const currentPath = window.location.pathname;
@@ -54,11 +54,20 @@ const useFormPageNavigation = (
 
   function handleFormPageParam() {
     const urlParams = new URLSearchParams(window.location.search);
-    let urlFormPage = urlParams.get("depositFormPage");
+    let urlFormPage = urlParams.get("page");
+
+    // Support aliases for first/last page to avoid hard-coding page ids
+    if (urlFormPage === "first") {
+      urlFormPage = formPageSlugs[0] ?? null;
+    } else if (urlFormPage === "last") {
+      urlFormPage = formPageSlugs[formPageSlugs.length - 1] ?? null;
+    }
+
     if (!!urlFormPage && formPageSlugs.includes(urlFormPage)) {
       dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload: urlFormPage });
     } else {
-      urlFormPage = "1";
+      // Default to first page slug if available
+      urlFormPage = formPageSlugs[0] ?? null;
     }
     return urlFormPage;
   }
