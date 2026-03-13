@@ -63,10 +63,11 @@
   border-left: 3px solid @negativeBorderColor;
   background-color: @negativeBackgroundColor;
 
-  &::before {
+  &::before,
+  &:first-child::before {
     content: "\f06a";
     font-family: Icons;
-    font-size: 1rem;
+    font-size: 1.5rem;
     color: @errorColor;
     margin-right: 0;
     margin-left: 0.5em;
@@ -75,18 +76,5 @@
     vertical-align: middle;
     display: inline-block !important; /* override Semantic UI .ui.vertical.menu .item:first-child:before { display: none !important } */
     background-color: @negativeBackgroundColor; /* opaque so background does not show through glyph */
-  }
-  &:first-child::before {
-    content: "\f06a";
-    font-family: Icons;
-    font-size: 1rem;
-    color: @errorColor;
-    left: -1.5rem;
-    top: 0.75rem;
-    margin-right: 0;
-    margin-left: 0.5em;
-    vertical-align: middle;
-    display: inline-block !important;
-    background-color: @negativeBackgroundColor;
   }
 }
