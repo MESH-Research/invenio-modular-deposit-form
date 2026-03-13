@@ -99,12 +99,12 @@ COMMON_FIELDS_DEFAULT_PAGED = [
             {
                 "section": "2",
                 "label": "Basic Information",
-                "classnames": "basic",
                 "subsections": [
                     {
                         "section": "basic-info",
                         "label": "Basic Information",
                         "component": "FormSection",
+                        "classnames": "basic",
                         "subsections": [
                             {
                                 "section": "doi",

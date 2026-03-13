@@ -46,7 +46,7 @@ const FormSection = ({
       as="fieldset"
       className={[
         "invenio-fieldset",
-        show_heading ? "invenio-accordion-field" : null,
+        "invenio-form-section",
         sectionName,
         classnames,
       ]
@@ -54,9 +54,9 @@ const FormSection = ({
         .join(" ")}
     >
       {show_heading && (
-        <div className="title invenio-field-label">
+        <legend className="field-label-class title invenio-field-label">
           {!!icon && <Icon name={icon} />} {label}
-        </div>
+        </legend>
       )}
       {children}
     </Segment>
