@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { FORM_UI_ACTION } from "../helpers/formUIStateReducer";
+import { useEffect, useMemo, useState } from "react";
+import { useStore } from "react-redux";
+import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReducer";
 
 /**
  * Custom hook for managing form page navigation state and history
- * @param {Array} formPages - Array of form page objects
- * @param {Object} formUIState - Full form UI state object (currentFormPage, pagesWithErrors, formPageFields)
+ * @param {Object} formUIState - Full form UI state object (currentFormPage, sectionErrorsFlagged, sectionErrorsAll, currentFormPageFields)
  * @param {Function} dispatch - Form UI reducer dispatch
  * @param {Object} confirmModalRef - Ref for the confirmation modal
  * @param {Function} focusFirstElement - Function to focus the first element on a page
@@ -14,7 +14,6 @@ import { FORM_UI_ACTION } from "../helpers/formUIStateReducer";
  * @returns {Object} Navigation state and handlers
  */
 const useFormPageNavigation = (
-  formPages,
   formUIState,
   dispatch,
   confirmModalRef,
@@ -23,7 +22,16 @@ const useFormPageNavigation = (
   formik,
   fileUploadPageId
 ) => {
-  const { currentFormPage, pagesWithErrors, formPageFields } = formUIState;
+  const store = useStore();
+  const formPages = store.getState().deposit?.config?.common_fields?.find(
+    (item) => item.component === "FormPages"
+  )?.subsections ?? [];
+
+  const pagesWithErrors = useMemo(
+    () => getPagesWithErrors(formUIState ?? {}),
+    [formUIState]
+  );
+  const { currentFormPage, currentFormPageFields } = formUIState ?? {};
   const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
 
@@ -99,7 +107,7 @@ const useFormPageNavigation = (
   }
 
   function handleFormPageChange(event, { value }) {
-    for (const field of formPageFields[currentFormPage] || []) {
+    for (const field of currentFormPageFields[currentFormPage] || []) {
       formik.setFieldTouched(field);
     }
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {

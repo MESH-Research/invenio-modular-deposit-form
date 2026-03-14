@@ -8,7 +8,7 @@
 """Jinja filter that merges stock forms_config with this extension's config for deposits-config.
 
 Use in templates so the single hidden input name=\"deposits-config\" carries both
-the view's forms_config and our INVENIO_MODULAR_DEPOSIT_FORM_* (and related) keys.
+the view's forms_config and our MODULAR_DEPOSIT_FORM_* (and related) keys.
 """
 
 from flask import current_app
@@ -16,25 +16,25 @@ from flask import current_app
 
 # Map Flask config key -> key in merged JSON (snake_case for React unpacking)
 _CONFIG_KEYS = [
-    ("INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS", "common_fields"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", "fields_by_type"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", "label_modifications"),
+    ("MODULAR_DEPOSIT_FORM_COMMON_FIELDS", "common_fields"),
+    ("MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", "fields_by_type"),
+    ("MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", "label_modifications"),
     (
-        "INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS",
+        "MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS",
         "placeholder_modifications",
     ),
     (
-        "INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS",
+        "MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS",
         "description_modifications",
     ),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", "icon_modifications"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", "help_text_modifications"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", "default_field_values"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", "priority_field_values"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", "extra_required_fields"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", "default_resource_type"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
-    ("INVENIO_MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP", "show_community_banner_at_top"),
+    ("MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", "icon_modifications"),
+    ("MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", "help_text_modifications"),
+    ("MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", "default_field_values"),
+    ("MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", "priority_field_values"),
+    ("MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", "extra_required_fields"),
+    ("MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", "default_resource_type"),
+    ("MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
+    ("MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP", "show_community_banner_at_top"),
     ("RDM_RECORDS_PERMISSIONS_PER_FIELD", "permissions_per_field"),
 ]
 

@@ -185,7 +185,7 @@ Each of these helpers defines **separate entries for each subfield** (for exampl
    - `idString` — a stable id for the wrapper (e.g. `"MyField"`)
    - Any extra props you want to override or add. These are merged over the config props.
 
-3. **Register the component and add it to the layout** — Add your component to your instance's `componentsRegistry.js` with the field path(s) it handles, then reference it in `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` like any other field component.
+3. **Register the component and add it to the layout** — Add your component to your instance's `componentsRegistry.js` with the field path(s) it handles, then reference it in `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` like any other field component.
 
 **Example — single custom field in the instance registry:**
 

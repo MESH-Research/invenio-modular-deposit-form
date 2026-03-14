@@ -54,5 +54,5 @@ class InvenioModularDepositForm:
         """Initialize configuration."""
         app.config["APP_RDM_DEPOSIT_FORM_TEMPLATE"] = "invenio_modular_deposit_form/deposit.html"
         for k in dir(config):
-            if k.startswith("INVENIO_MODULAR_DEPOSIT_FORM_"):
+            if k.startswith("MODULAR_DEPOSIT_FORM_"):
                 app.config.setdefault(k, getattr(config, k))

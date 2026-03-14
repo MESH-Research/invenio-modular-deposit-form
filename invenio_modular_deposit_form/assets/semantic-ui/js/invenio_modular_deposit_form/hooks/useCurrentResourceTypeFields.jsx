@@ -1,24 +1,27 @@
 import { useEffect } from "react";
+import { useStore } from "react-redux";
 import { FORM_UI_ACTION } from "../helpers/formUIStateReducer";
 import { flattenWrappers } from "../utils";
 
 /**
- * Updates formPageFields when currentResourceType changes (resource-type-specific form layout).
+ * Updates currentFormPageFields when currentResourceType changes (resource-type-specific form layout).
  * @param {Object} formUIState - Full form UI state object (currentResourceType, currentTypeFields)
  * @param {Function} dispatch - Form UI reducer dispatch
- * @param {array} formPages
  * @param {object} fieldsByType
  * @param {object} componentsRegistry
  */
 const useCurrentResourceTypeFields = (
   formUIState,
   dispatch,
-  formPages,
   fieldsByType,
   componentsRegistry
 ) => {
+  const store = useStore();
   const { currentResourceType, currentTypeFields } = formUIState;
   useEffect(() => {
+    const formPages = store.getState().deposit?.config?.common_fields?.find(
+      (item) => item.component === "FormPages"
+    )?.subsections ?? [];
     let newTypeFields = {};
     for (const p of formPages) {
       let adjustedTypeFields = currentTypeFields;
@@ -37,7 +40,7 @@ const useCurrentResourceTypeFields = (
       }, []);
       newTypeFields[p.section] = pageMetaFields;
     }
-    dispatch({ type: FORM_UI_ACTION.SET_FORM_PAGE_FIELDS, payload: newTypeFields });
+    dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE_FIELDS, payload: newTypeFields });
   }, [currentResourceType]);
 };
 

@@ -116,6 +116,12 @@ const formPageFields = {
   "page-3": ["metadata.creators", "custom_fields.kcr:ai_usage"],
 };
 
+const formSectionFields = [
+  { pageId: "page-1", sectionId: "main", fields: formPageFields["page-1"] },
+  { pageId: "page-2", sectionId: "main", fields: formPageFields["page-2"] },
+  { pageId: "page-3", sectionId: "main", fields: formPageFields["page-3"] },
+];
+
 const errors = {
   metadata: {
     title: "A title is required",
@@ -278,13 +284,13 @@ describe("FormErrorManager", () => {
   });
 
   it("should instantiate a FormErrorManager instance", () => {
-    expect(new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore)).toBeInstanceOf(
+    expect(new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore)).toBeInstanceOf(
       FormErrorManager
     );
   });
 
-  it("should update the form error state with backend errors and flagged pages with errors", () => {
-    const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
+  it("should update the form error state with backend errors and section error state", () => {
+    const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
     formErrorManager.updateFormErrorState(mockDispatch);
     expect(mockFormikContext.setFieldError).toHaveBeenCalledTimes(2);
     expect(mockFormikContext.setFieldError).toHaveBeenCalledWith(
@@ -301,26 +307,26 @@ describe("FormErrorManager", () => {
       true
     );
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: FORM_UI_ACTION.SET_PAGES_WITH_ERRORS,
-      payload: {
-        "page-1": ["metadata.resource_type", "metadata.title"],
-        "page-2": ["metadata.publisher"],
-        "page-3": ["custom_fields.kcr:ai_usage"],
-      },
+      type: FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED,
+      payload: [
+        { page: "page-1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
+        { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
+        { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
+      ],
     });
     expect(mockDispatch).toHaveBeenCalledWith({
-      type: FORM_UI_ACTION.SET_PAGES_WITH_FLAGGED_ERRORS,
-      payload: {
-        "page-1": ["metadata.resource_type", "metadata.title"],
-        "page-2": ["metadata.publisher"],
-        "page-3": ["custom_fields.kcr:ai_usage"],
-      },
+      type: FORM_UI_ACTION.SET_SECTION_ERRORS_ALL,
+      payload: [
+        { page: "page-1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
+        { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
+        { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
+      ],
     });
   });
 
   describe("constructor", () => {
     it("should initialize the form error manager", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
       expect(formErrorManager).toBeInstanceOf(FormErrorManager);
     });
   });
@@ -333,7 +339,7 @@ describe("FormErrorManager", () => {
   // error is only in initial errors and untouched and unchanged (flag: ai_usage)
   describe("errorsToFieldSets", () => {
     it("should return the correct error pages", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
       const fieldSets = formErrorManager.errorsToFieldSets();
       expect(fieldSets).toEqual({
         errorFields: ["metadata.title", "metadata.resource_type"],
@@ -349,7 +355,7 @@ describe("FormErrorManager", () => {
 
   describe("addBackendErrors", () => {
     it("should add unchanged backend errors to the form error state and update touched state if backend error field is unchanged and untouched", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
       formErrorManager.addBackendErrors(
         ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"]
       );
@@ -363,29 +369,19 @@ describe("FormErrorManager", () => {
     });
   });
 
-  describe("getErrorPages", () => {
-    it("should return the correct error pages", () => {
-      const formErrorManager = new FormErrorManager(formPages, formPageFields, formikFromStartingState, mockStore);
+  describe("getSectionErrorState", () => {
+    it("should return the correct section error list", () => {
+      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
       const fieldState = formErrorManager.errorsToFieldSets();
-      const [errorPages, flaggedErrorPages] = formErrorManager.getErrorPages(
-        formErrorManager.formPages,
-        formErrorManager.formPageFields,
-        fieldState.errorFields,
+      const sectionErrorsFlagged = formErrorManager.getSectionErrorState(
         fieldState.touchedErrorFields,
-        fieldState.initialErrorFields,
-        fieldState.initialErrorFieldsUnchanged,
         fieldState.initialErrorFieldsToFlag,
       );
-      expect(errorPages).toEqual({
-        "page-1": ["metadata.resource_type", "metadata.title"],
-        "page-2": ["metadata.publisher"],
-        "page-3": ["custom_fields.kcr:ai_usage"],
-      });
-      expect(flaggedErrorPages).toEqual({
-        "page-1": ["metadata.resource_type", "metadata.title"],
-        "page-2": ["metadata.publisher"],
-        "page-3": ["custom_fields.kcr:ai_usage"],
-      });
+      expect(sectionErrorsFlagged).toEqual([
+        { page: "page-1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
+        { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
+        { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
+      ]);
     });
   });
 });

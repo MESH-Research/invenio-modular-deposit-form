@@ -2,36 +2,81 @@ import { get, isEqual } from "lodash";
 import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils";
 import { FORM_UI_ACTION } from "./formUIStateReducer";
 
+const SEVERITIES = ["error", "warning", "info"];
+
+/**
+ * Resolve severity for a field path from the errors object at that path.
+ * Error values may be a string (legacy) or an object { message, severity?, description? }.
+ * Backend and validation can set severity to "error" | "warning" | "info"; if missing, treated as "error".
+ * @param {Object} errors - Formik errors or initialErrors
+ * @param {string} path - Dot-notation field path
+ * @returns {"error"|"warning"|"info"}
+ */
+function getSeverityAtPath(errors, path) {
+  const err = get(errors, path);
+  if (err && typeof err === "object" && SEVERITIES.includes(err.severity)) {
+    return err.severity;
+  }
+  return "error";
+}
+
+/**
+ * Find the section (pageId, sectionId) that owns this field path.
+ * formSectionFields is the full section config (common_fields + fields_by_type for all resource types),
+ * so paths are attributed to a section even if that section is not visible for the current type.
+ * Matching: path equals a section field, or path is a descendant (path.startsWith(f + ".")), or section field is a descendant of path. Same rule as FormFeedbackSummary.
+ * @param {Array<{ pageId, sectionId, fields: string[] }>} formSectionFields
+ * @param {string} fieldPath
+ * @returns {{ pageId: string, sectionId: string } | null} null if path is not in any section's fields
+ */
+function fieldPathToSection(formSectionFields, fieldPath) {
+  if (!Array.isArray(formSectionFields)) return null;
+  for (const entry of formSectionFields) {
+    const fields = entry?.fields ?? [];
+    for (const f of fields) {
+      if (fieldPath === f || fieldPath.startsWith(f + ".") || f.startsWith(fieldPath + ".")) {
+        return { pageId: entry.pageId ?? "", sectionId: entry.sectionId ?? "" };
+      }
+    }
+  }
+  return null;
+}
+
 /**
  * Helper to harmonize server-side, client-side validation, and form page error states
  *
  * NOTE: fields marked if error + touched or if initial error + value unchanged
  *       (initial errors should become errors when touched and not fixed)
  *
- * Fields must be touched . This
- * class will set the touched state appropriately for backend errors that aren't
- * in the current formik context `errors` object. But on form submission all
- * fields are automatically untouched again, and all backend errors enter the
- * formik error state. As a result, error flagging on the form (which is based on
- * the touched state) would be briefly lost after submission, and then regained
- * when the client-side validation runs again for the first time after submission.
- * To avoid this, we need to set all errors in the formik error state to `touched`
- * after the form is submitted. This is handled by syncTouchedForBackendValidationErrors().
+ * Fields must be touched to display formik errors. This presents challenges when 
+ * merging server-side and client-side validation errors. 
+ * 
+ * - This class will set the touched state appropriately for backend errors that haven't actually been touched yet 
+ *   but should be displayed. (i.e. the initial value that caused the error has not changed)
+ * 
+ * - On form submission all fields are automatically untouched again, so error flagging on the form
+ *   (which is based on the touched state) would be briefly lost after submission and only regained 
+ *   when the field is touched again. To avoid this, we need to set all fields with errors in the formik 
+ *   error state to `touched` after the form is submitted. This is handled by
+ *   syncTouchedForBackendValidationErrors().
  *
- * All fields must also be set to touched to trigger client-side validation
- * before submission. This is handled by the ??? component.
+ * Output (refactor): two flat lists of section entries, both of shape
+ *   { page, section, error_fields: string[], info_fields: string[], warning_fields: string[] }.
+ * sectionErrorsFlagged: only paths that should be displayed (touched + initial-to-flag). Used for stepper, sidebar, section headers.
+ * sectionErrorsAll: any path with an error (client or initial/unchanged). Used for nav guard.
+ * Severity comes from the error value at each path ("error"|"warning"|"info"). Paths not in formSectionFields are skipped.
  */
 class FormErrorManager {
   /**
    * FormErrorManager constructor
-   * @param {Object} formPages - the form pages
-   * @param {Object} formPageFields - the form page fields
+   * @param {Object} currentFormPageFields - pageId -> field path[] (unused here; section data from formSectionFields)
+   * @param {Array<{ pageId, sectionId, fields }>} formSectionFields - full section config for path->section lookup (all types)
    * @param {Object} formik - Formik context (errors, touched, initialErrors, initialValues, values, setFieldError, setFieldTouched)
    * @param {Object} store - Redux store (for reading deposit.actionState)
    */
-  constructor(formPages, formPageFields, formik, store) {
-    this.formPages = formPages;
-    this.formPageFields = formPageFields;
+  constructor(currentFormPageFields, formSectionFields, formik, store) {
+    this.currentFormPageFields = currentFormPageFields;
+    this.formSectionFields = formSectionFields ?? [];
     this.formik = formik;
     this.store = store;
   }
@@ -140,61 +185,86 @@ class FormErrorManager {
   };
 
   /**
-   * Get the form pages with errors and flagged errors
-   * @param {Object} fieldState - the field state object
-   * @returns {Object} - the error pages and flagged error pages
+   * Build a flat list of section error entries from a set of field paths. Each entry has
+   * page, section, error_fields, info_fields, warning_fields (string[] each). Paths that
+   * do not resolve to any section (fieldPathToSection returns null) are skipped.
+   * useErrorsForPath(path) returns the errors object to use for severity for that path
+   * (formik.errors vs formik.initialErrors depending on whether the path is in the "current"
+   * or "initial" set). Severity is read from the error value and paths are bucketed into
+   * error_fields, warning_fields, or info_fields. Arrays are sorted for stable output.
+   *
+   * @param {string[]} fieldPaths - paths to aggregate by section
+   * @param {function(string): Object} useErrorsForPath - (path) => errors object for getSeverityAtPath
+   * @returns {Array<{ page, section, error_fields, info_fields, warning_fields }>}
    */
-  getErrorPages = (
-    formPages,
-    formPageFields,
-    errorFields,
-    touchedErrorFields,
-    initialErrorFields,
-    initialErrorFieldsUnchanged,
-    initialErrorFieldsToFlag,
-  ) => {
-    let errorPages = {};
-    let flaggedErrorPages = {};
-
-    for (const p of formPages) {
-      const pageErrorFields = formPageFields[p.section]?.filter((item) =>
-        errorFields?.some(e => item.startsWith(e) || e.startsWith(item))
-      );
-      const pageTouchedErrorFields = pageErrorFields?.filter(
-        (item) => touchedErrorFields?.some(e => item.startsWith(e) || e.startsWith(item))
-      );
-      const pageInitialErrorFields = formPageFields[p.section]?.filter((item) =>
-        initialErrorFields?.some(i => item.startsWith(i) || i.startsWith(item))
-      );
-      const pageInitialUnchangedFields = pageInitialErrorFields?.filter((item) =>
-        initialErrorFieldsUnchanged?.some(i => item.startsWith(i) || i.startsWith(item))
-      );
-      const hasInitialUnchangedFields = pageInitialUnchangedFields?.length > 0;
-      const pageInitialErrorFieldsToFlag = pageInitialErrorFields?.filter((item) =>
-        initialErrorFieldsToFlag?.some(i => item.startsWith(i) || i.startsWith(item))
-      );
-      const hasInitialErrorFieldsToFlag = pageInitialErrorFieldsToFlag?.length > 0;
-      if (
-        pageErrorFields?.length > 0 ||
-        hasInitialUnchangedFields
-      ) {
-        errorPages[p.section] = [
-          ...new Set([
-            ...pageErrorFields,
-            ...pageInitialUnchangedFields,
-          ]),
-        ];
+  _buildSectionErrorList = (fieldPaths, useErrorsForPath) => {
+    const byKey = new Map();
+    for (const path of fieldPaths) {
+      const section = fieldPathToSection(this.formSectionFields, path);
+      if (!section) continue;
+      const key = `${section.pageId}\0${section.sectionId}`;
+      if (!byKey.has(key)) {
+        byKey.set(key, {
+          page: section.pageId,
+          section: section.sectionId,
+          error_fields: [],
+          info_fields: [],
+          warning_fields: [],
+        });
       }
-      if (pageTouchedErrorFields?.length > 0 || hasInitialErrorFieldsToFlag) {
-        flaggedErrorPages[p.section] = [
-          ...new Set([
-            ...pageTouchedErrorFields,
-            ...pageInitialErrorFieldsToFlag,
-          ]),
-        ];
-      }
+      const entry = byKey.get(key);
+      const errors = useErrorsForPath(path);
+      const severity = getSeverityAtPath(errors, path);
+      if (severity === "error") entry.error_fields.push(path);
+      else if (severity === "warning") entry.warning_fields.push(path);
+      else entry.info_fields.push(path);
     }
-    return [errorPages, flaggedErrorPages];
+    return Array.from(byKey.values()).map((entry) => ({
+      ...entry,
+      error_fields: [...entry.error_fields].sort(),
+      info_fields: [...entry.info_fields].sort(),
+      warning_fields: [...entry.warning_fields].sort(),
+    }));
+  };
+
+  /**
+   * Section error list for "flagged" paths only: those that should be displayed (touched errors
+   * plus initial errors that are unchanged and not superseded by a client error). Used by
+   * stepper, sidebar, and section headers. For severity we use formik.errors for touched paths
+   * and formik.initialErrors for initial-to-flag paths.
+   *
+   * @param {string[]} touchedErrorFields - paths with errors that are touched
+   * @param {string[]} initialErrorFieldsToFlag - paths with initial errors to show (unchanged, not in client errors)
+   * @returns {Array<{ page, section, error_fields, info_fields, warning_fields }>}
+   */
+  getSectionErrorState = (touchedErrorFields, initialErrorFieldsToFlag) => {
+    const paths = [
+      ...new Set([...(touchedErrorFields ?? []), ...(initialErrorFieldsToFlag ?? [])]),
+    ];
+    const touchedSet = new Set(touchedErrorFields ?? []);
+    const { errors, initialErrors } = this.formik;
+    return this._buildSectionErrorList(paths, (path) =>
+      touchedSet.has(path) ? errors : initialErrors
+    );
+  };
+
+  /**
+   * Section error list for "any" error paths: client errorFields plus initial errors that are
+   * unchanged (regardless of touched). Used for the nav guard so we show "confirm when leaving"
+   * even when the user has not yet touched a field with an error. For severity we use
+   * formik.errors for paths in errorFields and formik.initialErrors for initial/unchanged.
+   *
+   * @param {string[]} errorFields - all paths with a current error
+   * @param {string[]} initialErrorFieldsUnchanged - paths with initial error and value unchanged
+   * @returns {Array<{ page, section, error_fields, info_fields, warning_fields }>}
+   */
+  getSectionErrorStateAll = (errorFields, initialErrorFieldsUnchanged) => {
+    const paths = [...new Set([...(errorFields ?? []), ...(initialErrorFieldsUnchanged ?? [])])];
+    const errorSet = new Set(errorFields ?? []);
+    const { errors, initialErrors } = this.formik;
+    return this._buildSectionErrorList(paths, (path) =>
+      errorSet.has(path) ? errors : initialErrors
+    );
   };
 
   /**
@@ -208,37 +278,27 @@ class FormErrorManager {
    * before this method is called. So if a field has a client-side validation error,
    * it will take precedence over the state of any backend errors.
    *
-   * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_PAGES_WITH_ERRORS, SET_PAGES_WITH_FLAGGED_ERRORS)
+   * Implementation builds section error lists (sectionErrorsFlagged, sectionErrorsAll) and
+   * dispatches SET_SECTION_ERRORS_FLAGGED and SET_SECTION_ERRORS_ALL.
+   *
+   * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_SECTION_ERRORS_FLAGGED, SET_SECTION_ERRORS_ALL)
    */
   updateFormErrorState = (dispatch) => {
     this.syncTouchedForBackendValidationErrors();
 
     const errorFieldSets = this.errorsToFieldSets();
+    this.addBackendErrors(errorFieldSets.initialErrorFieldsToFlag);
 
-    this.addBackendErrors(
-      errorFieldSets.initialErrorFieldsToFlag
-    );
-    console.log("added backend errors");
-    console.log("errors:", this.formik.errors);
-    console.log("touched:", this.formik.touched);
-
-    const [errorPages, flaggedErrorPages] = this.getErrorPages(
-      this.formPages,
-      this.formPageFields,
-      errorFieldSets.errorFields,
+    const sectionErrorsFlagged = this.getSectionErrorState(
       errorFieldSets.touchedErrorFields,
-      errorFieldSets.initialErrorFields,
-      errorFieldSets.initialErrorFieldsUnchanged,
-      errorFieldSets.initialErrorFieldsToFlag
+      errorFieldSets.initialErrorFieldsToFlag,
     );
-    console.log("got error pages");
-    console.log("errorPages:", errorPages);
-    console.log("flaggedErrorPages:", flaggedErrorPages);
-
-    dispatch({ type: FORM_UI_ACTION.SET_PAGES_WITH_ERRORS, payload: errorPages });
-    console.log("set error pages");
-    dispatch({ type: FORM_UI_ACTION.SET_PAGES_WITH_FLAGGED_ERRORS, payload: flaggedErrorPages });
-    console.log("set flagged error pages");
+    const sectionErrorsAll = this.getSectionErrorStateAll(
+      errorFieldSets.errorFields,
+      errorFieldSets.initialErrorFieldsUnchanged,
+    );
+    dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED, payload: sectionErrorsFlagged });
+    dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_ALL, payload: sectionErrorsAll });
   };
 }
 

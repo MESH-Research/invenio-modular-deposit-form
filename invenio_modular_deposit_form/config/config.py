@@ -10,21 +10,23 @@
 from invenio_i18n import lazy_gettext as _
 from .default import COMMON_FIELDS_DEFAULT_PAGED
 
-INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "publication-article"
+MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = False
 
-INVENIO_MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP = True
+MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "publication-article"
+
+MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP = True
 """When True, a full-width region above the form title shows the stock community 
 banner (CommunityHeader) when the deposit state would show it (e.g. community 
 selected or selectable)."""
 
-INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_DEFAULT_PAGED
+MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_DEFAULT_PAGED
 """Basic page and field layout for the deposit form. Other presets are included 
 in this package's config/ folder. If you wish to use an alternate default, or 
 to create a custom layout, override this variable in your instance invenio.cfg
 with your preferred layout.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {}
+MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {}
 """Page and field layout overrides for specific resource types. Other presets are included 
 in this package's config/ folder along with the matching 'COMMON_FIELDS' layouts. If you 
 wish to use an alternate preset, or to create a custom set of resource type layout overrides, 
@@ -44,7 +46,7 @@ COMMON_FIELDS layout entirely.
 Omit resource types you are not customizing; missing resource types fall back to COMMON_FIELDS layout.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS = {
+MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS = {
     "publication-article": {"metadata.title": _("Article title")},
     "publication-book": {"metadata.title": _("Book title")},
     "publication-section": {"metadata.title": _("Chapter/section title")},
@@ -57,36 +59,36 @@ instance's resource_types vocabulary. Values map dot-separated metadata field pa
 readable labels.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS = {}
+MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS = {}
 """Field placeholder modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 
 placeholder values.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS = {}
+MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS = {}
 """Field description modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 
 description values.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS = {}
+MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS = {}
 """Field label icon modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 
 icon name strings (matching semantic-ui fontawesome icon names).
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS = {}
+MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS = {}
 """Field help text modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 
 help text values.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES = {}
+MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES = {}
 """Field default value modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 
 default values.
 """
 
-INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {}
+MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {}
 
-INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}
+MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}

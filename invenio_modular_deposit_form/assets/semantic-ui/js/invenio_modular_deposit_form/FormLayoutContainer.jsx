@@ -64,8 +64,10 @@ const FormLayoutContainer = () => {
   const formRightSidebarConfig = commonFields.find((item) => item.component === "FormRightSidebar");
   const formFooterConfig = commonFields.find((item) => item.component === "FormFooter");
 
-  // Main form pages (stepper content) come from the FormPages region
-  const formPagesConfig = commonFields.find((item) => item.component === "FormPages");
+  const formPagesConfig = store.getState().deposit?.config?.common_fields?.find(
+    (item) => item.component === "FormPages"
+  );
+  const formPages = formPagesConfig?.subsections ?? [];
 
   let selectedCommunityLabel = selectedCommunity?.metadata?.title;
   if (
@@ -76,7 +78,6 @@ const FormLayoutContainer = () => {
   }
 
   const isNewVersionDraft = record?.status === "new_version_draft";
-  const formPages = formPagesConfig?.subsections ?? [];
   const fileUploadPageId = useMemo(
     () => findPageIdContainingComponent(formPages, "FileUploadComponent"),
     [formPages]
@@ -141,9 +142,24 @@ const FormLayoutContainer = () => {
   useStickyFooterOverlapFix(state.currentFormPage);
   const pageTargetInViewport = useIsInViewport(pageTargetRef);
 
+  const formSectionFields = config?.formSectionFields ?? [];
+
   useEffect(() => {
-    new FormErrorManager(formPages, state.formPageFields, formik, store).updateFormErrorState(dispatch);
-  }, [formik.errors, formik.touched, formik.initialErrors, formik.initialValues, formik.values, state.formPageFields]);
+    new FormErrorManager(
+      state.currentFormPageFields,
+      formSectionFields,
+      formik,
+      store
+    ).updateFormErrorState(dispatch);
+  }, [
+    formik.errors,
+    formik.touched,
+    formik.initialErrors,
+    formik.initialValues,
+    formik.values,
+    state.currentFormPageFields,
+    formSectionFields,
+  ]);
 
   const {
     handleStorageData,
@@ -154,7 +170,6 @@ const FormLayoutContainer = () => {
   } = useLocalStorageRecovery(currentUserprofile, state.currentFormPage, fileUploadPageId);
 
   const navigation = useFormPageNavigation(
-    formPages,
     state,
     dispatch,
     confirmModalRef,
@@ -167,7 +182,6 @@ const FormLayoutContainer = () => {
   useCurrentResourceTypeFields(
     state,
     dispatch,
-    formPages,
     fieldsByType,
     componentsRegistry
   );
@@ -187,7 +201,6 @@ const FormLayoutContainer = () => {
     formUIState: state,
     fileUploadPageId,
     handleFormPageChange: navigation.handleFormPageChange,
-    formPages,
     previousFormPage: navigation.previousFormPage,
     nextFormPage: navigation.nextFormPage,
     pageTargetInViewport,

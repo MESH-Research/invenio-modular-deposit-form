@@ -1,17 +1,29 @@
-import React, { useContext } from "react";
-import { Header, Menu } from "semantic-ui-react";
+import React, { useContext, useMemo } from "react";
+import { useStore } from "react-redux";
+import { Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../FormLayoutContainer";
+import { getPageFlaggedErrorCounts } from "../helpers/formUIStateReducer";
+import { getSeverityLabel } from "../helpers/severityChecksConfig";
 
 /**
  * Vertically stacked sidebar menu for stepping through form pages.
- * Gets runtime data from FormUIStateContext; accepts classnames and other props from config.
+ * Menu items show severity-aware badges (error/warning/info counts) and
+ * a severity class (has-error, has-warning, has-info).
  */
 const FormSidebarPageMenu = ({ classnames, ...props }) => {
+  const store = useStore();
+  const formPages = store.getState().deposit?.config?.common_fields?.find(
+    (item) => item.component === "FormPages"
+  )?.subsections ?? [];
   const ctx = useContext(FormUIStateContext);
-  const formPages = ctx?.formPages;
-  const { currentFormPage, pagesWithFlaggedErrors = {} } = ctx?.formUIState ?? {};
+  const formUIState = ctx?.formUIState ?? {};
+  const pageCounts = useMemo(
+    () => getPageFlaggedErrorCounts(formUIState),
+    [formUIState]
+  );
+  const currentFormPage = formUIState?.currentFormPage;
   const handleFormPageChange = ctx?.handleFormPageChange;
   if (!formPages?.length) return null;
   return (
@@ -27,18 +39,43 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
           role="navigation"
           aria-label={i18next.t("Form pages")}
         >
-          {formPages.map(({ section, label }) => (
-            <Menu.Item
-              key={section}
-              name={section}
-              active={currentFormPage === section}
-              className={pagesWithFlaggedErrors[section] ? "has-error" : ""}
-              onClick={(e, data) =>
-                handleFormPageChange(e, { value: data.name })
-              }
-              content={i18next.t(label ?? section)}
-            />
-          ))}
+          {formPages.map(({ section, label }) => {
+            const counts = pageCounts[section];
+            const severityClass = counts?.severity ? `has-${counts.severity}` : "";
+            const hasBadges = counts && (counts.errors > 0 || counts.warnings > 0 || counts.info > 0);
+            return (
+              <Menu.Item
+                key={section}
+                name={section}
+                active={currentFormPage === section}
+                className={severityClass}
+                onClick={(e, data) =>
+                  handleFormPageChange(e, { value: data.name })
+                }
+              >
+                <span className="deposit-form-sidebar-menu-label">{i18next.t(label ?? section)}</span>
+                {hasBadges && (
+                  <span className="deposit-form-sidebar-menu-badges">
+                    {counts.errors > 0 && (
+                      <Label size="tiny" circular className="severity-error" key="error">
+                        {counts.errors} {getSeverityLabel("error")}{counts.errors !== 1 ? "s" : ""}
+                      </Label>
+                    )}
+                    {counts.warnings > 0 && (
+                      <Label size="tiny" circular className="severity-warning" key="warning">
+                        {counts.warnings} {getSeverityLabel("warning")}{counts.warnings !== 1 ? "s" : ""}
+                      </Label>
+                    )}
+                    {counts.info > 0 && (
+                      <Label size="tiny" circular className="severity-info" key="info">
+                        {counts.info} {getSeverityLabel("info")}{counts.info !== 1 ? "s" : ""}
+                      </Label>
+                    )}
+                  </span>
+                )}
+              </Menu.Item>
+            );
+          })}
         </Menu>
       </div>
     </div>

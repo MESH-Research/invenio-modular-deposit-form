@@ -4,6 +4,7 @@ module.exports = {
   roots: ["<rootDir>/invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form"],
   moduleFileExtensions: ["js", "jsx", "json"],
   moduleNameMapper: {
+    "^@custom-test-utils/(.*)$": "<rootDir>/tests/js/$1",
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/__mocks__/fileMock.js",

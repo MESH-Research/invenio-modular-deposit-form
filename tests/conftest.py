@@ -19,7 +19,7 @@ from invenio_app.factory import create_app as _create_app
 def app_config(app_config):
     """Application config override."""
     # TODO: Override any necessary config values for tests
-    app_config["INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_VALUE"] = "test-foobar"
+    app_config["MODULAR_DEPOSIT_FORM_DEFAULT_VALUE"] = "test-foobar"
     return app_config
 
 

@@ -46,7 +46,7 @@ The extension replaces the template `deposit.html`. That template has access to 
 
 The `forms_config` dictionary includes keys such as: **vocabularies**, **autocomplete_names**, **current_locale**, **default_locale**, **pids**, **quota**, **decimal_size_display**, **links**, **user_communities_memberships**, **custom_fields**, **publish_modal_extra**, **createUrl**, **apiUrl**.
 
-The `pids` variable is a list with a configuration dictionary for each enabled PID scheme (at present only "doi" is supported). This extension will read a variable named **INVENIO_MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES** and, if it has a key `"doi"`, use any values provided there to override the default PID config values with the same key.
+The `pids` variable is a list with a configuration dictionary for each enabled PID scheme (at present only "doi" is supported). This extension will read a variable named **MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES** and, if it has a key `"doi"`, use any values provided there to override the default PID config values with the same key.
 
 ## Form state management
 

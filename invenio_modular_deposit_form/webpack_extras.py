@@ -13,6 +13,9 @@ are loaded from instance-provided paths when entry points are registered.
 
 import os
 
+from flask import current_app
+from pathlib import Path
+
 _GROUP_VALIDATOR = "invenio_modular_deposit_form.validator"
 _GROUP_COMPONENTS_REGISTRY = "invenio_modular_deposit_form.components_registry"
 
@@ -50,14 +53,34 @@ def _resolve_path(group):
     return os.path.abspath(path)
 
 
-def get_validator_path():
+def get_validator_path() -> None | str:
     """Return the directory path for validator.js, or None.
 
-    Resolves the first entry point in ``invenio_modular_deposit_form.validator``.
+    If the MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION config variable is
+    not True, this will always return None. Otherwise, it resolves the
+    first entry point in ``invenio_modular_deposit_form.validator``.
     The callable must return a path to a directory containing validator.js
-    (absolute path recommended).
+    (absolute path recommended). If that path cannot be found, this falls
+    back to the path to the default validator.js.
+
+    Returns:
+        None or a path string.
     """
-    return _resolve_path(_GROUP_VALIDATOR)
+    validation_flag = current_app.config.get(
+        "MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION", False
+    )
+    if not validation_flag:
+        return None
+    module_path = Path(__file__).resolve().parent
+    default_path = (
+        module_path
+        / "assets"
+        / "semantic-ui"
+        / "js"
+        / "invenio_modular_deposit_form"
+        / "validation"
+    )
+    return _resolve_path(_GROUP_VALIDATOR) or str(default_path.resolve())
 
 
 def get_components_registry_path():

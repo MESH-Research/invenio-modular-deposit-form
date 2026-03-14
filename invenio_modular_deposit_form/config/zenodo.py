@@ -14,7 +14,7 @@ value for the common fields layout:
 ````
 from invenio_modular_deposit_form.config.default import COMMON_FIELDS_ZENODO_PAGED
 
-INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_ZENODO_PAGED
+MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_ZENODO_PAGED
 ````
 
 To use the non-paged version, use COMMON_FIELD_ZENODO_UNPAGED instead.
