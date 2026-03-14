@@ -252,7 +252,7 @@
 <h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h1>
 <section id="creating-a-custom-form-layout">
 <h2>Creating a custom form layout<a class="headerlink" href="#creating-a-custom-form-layout" title="Link to this heading">¶</a></h2>
-<p>You define the deposit form layout by setting <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. The default configuration in this package’s <code class="docutils literal notranslate"><span class="pre">config.py</span></code> provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:</p>
+<p>You define the deposit form layout by setting <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. The default configuration in this package’s <code class="docutils literal notranslate"><span class="pre">config.py</span></code> provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:</p>
 <ul class="simple">
 <li><p>a unique <code class="docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code> id</p></li>
 <li><p>a <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> property with a string corresponding to a component name in <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></li>
@@ -266,7 +266,7 @@
 <section id="example-minimal-two-page-layout">
 <h3>Example: minimal two-page layout<a class="headerlink" href="#example-minimal-two-page-layout" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># in invenio.cfg or your config module</span>
-<span class="n">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+<span class="n">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
         <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;pages&quot;</span><span class="p">,</span>
         <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPages&quot;</span><span class="p">,</span>
@@ -312,7 +312,7 @@
 </section>
 <section id="top-level-form">
 <h3>Top-level form<a class="headerlink" href="#top-level-form" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> value is a <strong>list</strong> of layout objects. Regions are identified by their <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> value; <strong>order in the array does not matter</strong>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> value is a <strong>list</strong> of layout objects. Regions are identified by their <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> value; <strong>order in the array does not matter</strong>.</p>
 <p>You must include exactly one object with <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormPages&quot;</span></code>; its <code class="docutils literal notranslate"><span class="pre">&quot;subsections&quot;</span></code> array defines the form pages. You may also include optional <strong>layout region</strong> objects to place content in the form header, left sidebar, right sidebar, or form footer. Each of these is a sibling of the <code class="docutils literal notranslate"><span class="pre">FormPages</span></code> object in the top-level list.</p>
 <p><strong>Required</strong></p>
 <ul class="simple">
@@ -411,13 +411,13 @@
 <ol class="arabic simple">
 <li><p>Create a React component that imports and renders the child field components. Use the package’s <strong>FormSection</strong> and <strong>FormRow</strong> to group and arrange the fields.</p></li>
 <li><p>Register the component in your instance’s component registry (or the package’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>) with value <code class="docutils literal notranslate"><span class="pre">[Component,</span> <span class="pre">fieldPaths]</span></code> where <code class="docutils literal notranslate"><span class="pre">fieldPaths</span></code> is an array of all metadata field paths the block touches.</p></li>
-<li><p>Add one section in <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> that references your component by name.</p></li>
+<li><p>Add one section in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> that references your component by name.</p></li>
 </ol>
 </section>
 </section>
 <section id="changing-layout-by-resource-type">
 <h2>Changing layout by resource type<a class="headerlink" href="#changing-layout-by-resource-type" title="Link to this heading">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the <code class="docutils literal notranslate"><span class="pre">section</span></code> ids of the <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> components in your common fields layout.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the <code class="docutils literal notranslate"><span class="pre">section</span></code> ids of the <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> components in your common fields layout.</p>
 <p>If a page is not included in the resource type dictionary, the default layout from the common fields is used. If a page is included, the new page layout <strong>replaces</strong> the default for that page.</p>
 <p>Example: replace the entire <code class="docutils literal notranslate"><span class="pre">&quot;page-3&quot;</span></code> page with a single ISBN field when the selected resource type is <code class="docutils literal notranslate"><span class="pre">&quot;textDocument-book&quot;</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -443,18 +443,18 @@
 <h2>Other changes to fields by resource type<a class="headerlink" href="#other-changes-to-fields-by-resource-type" title="Link to this heading">¶</a></h2>
 <p>Additional config values allow customization of specific props at the field widget level by resource type without declaring a whole new page layout:</p>
 <ul class="simple">
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</strong></p></li>
-<li><p><strong>INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</strong></p></li>
+<li><p><strong>MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</strong></p></li>
 </ul>
 <p>Each value is a dictionary with resource types as keys. The value for each resource type is a dictionary with dot-separated metadata field paths as keys and the value to use.</p>
 <p>Example: modify the icon for the title field by resource type:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;audio&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;headphones&quot;</span><span class="p">},</span>
     <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;table&quot;</span><span class="p">},</span>
     <span class="s2">&quot;image-photo&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;camera&quot;</span><span class="p">},</span>

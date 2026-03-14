@@ -2,7 +2,7 @@
 
 ## Creating a custom form layout
 
-You define the deposit form layout by setting `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` in your instance's `invenio.cfg`. The default configuration in this package's `config.py` provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:
+You define the deposit form layout by setting `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` in your instance's `invenio.cfg`. The default configuration in this package's `config.py` provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:
 
 - a unique `"section"` id
 - a `"component"` property with a string corresponding to a component name in `componentsRegistry.js`
@@ -17,7 +17,7 @@ The list of form layout components is extensible. The description below highligh
 
 ```python
 # in invenio.cfg or your config module
-INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
+MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
     {
         "section": "pages",
         "component": "FormPages",
@@ -62,7 +62,7 @@ INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
 
 ### Top-level form
 
-The `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` value is a **list** of layout objects. Regions are identified by their `"component"` value; **order in the array does not matter**.
+The `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` value is a **list** of layout objects. Regions are identified by their `"component"` value; **order in the array does not matter**.
 
 You must include exactly one object with `"component": "FormPages"`; its `"subsections"` array defines the form pages. You may also include optional **layout region** objects to place content in the form header, left sidebar, right sidebar, or form footer. Each of these is a sibling of the `FormPages` object in the top-level list.
 
@@ -173,11 +173,11 @@ You can provide **compound field components** that render a pre-configured block
 
 1. Create a React component that imports and renders the child field components. Use the package's **FormSection** and **FormRow** to group and arrange the fields.
 2. Register the component in your instance's component registry (or the package's `componentsRegistry.js`) with value `[Component, fieldPaths]` where `fieldPaths` is an array of all metadata field paths the block touches.
-3. Add one section in `INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` that references your component by name.
+3. Add one section in `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` that references your component by name.
 
 ## Changing layout by resource type
 
-The `INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance's `resource_types` vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the `section` ids of the `FormPage` components in your common fields layout.
+The `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance's `resource_types` vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the `section` ids of the `FormPage` components in your common fields layout.
 
 If a page is not included in the resource type dictionary, the default layout from the common fields is used. If a page is included, the new page layout **replaces** the default for that page.
 
@@ -208,21 +208,21 @@ To re-use the override from another resource type, include an object with a sing
 
 Additional config values allow customization of specific props at the field widget level by resource type without declaring a whole new page layout:
 
-- **INVENIO_MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS**
-- **INVENIO_MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES**
-- **INVENIO_MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES**
-- **INVENIO_MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS**
+- **MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS**
+- **MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS**
+- **MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS**
+- **MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS**
+- **MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS**
+- **MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES**
+- **MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES**
+- **MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS**
 
 Each value is a dictionary with resource types as keys. The value for each resource type is a dictionary with dot-separated metadata field paths as keys and the value to use.
 
 Example: modify the icon for the title field by resource type:
 
 ```python
-INVENIO_MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS = {
+MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS = {
     "audio": {"metadata.title": "headphones"},
     "dataset": {"metadata.title": "table"},
     "image-photo": {"metadata.title": "camera"},

@@ -438,7 +438,7 @@
 <li><p>Any extra props you want to override or add. These are merged over the config props.</p></li>
 </ul>
 </li>
-<li><p><strong>Register the component and add it to the layout</strong> — Add your component to your instance’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> with the field path(s) it handles, then reference it in <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">INVENIO_MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> like any other field component.</p></li>
+<li><p><strong>Register the component and add it to the layout</strong> — Add your component to your instance’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> with the field path(s) it handles, then reference it in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> like any other field component.</p></li>
 </ol>
 <p><strong>Example — single custom field in the instance registry:</strong></p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CustomField</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/field_components/CustomField&quot;</span><span class="p">;</span>
