@@ -17,6 +17,7 @@ import _isEmpty from "lodash/isEmpty";
 import { connect } from "react-redux";
 import { Grid, Message, Icon } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
+import { FormUIStateContext } from "../../FormLayoutContainer";
 import { FormFeedbackSummary } from "./FormFeedbackSummary";
 import {
   DISCARD_PID_FAILED,
@@ -123,7 +124,15 @@ const feedbackConfig = {
   warning: { icon: "exclamation triangle", type: "warning" },
 };
 
+/** True when formUIState has at least one flagged section with validation errors. */
+function hasCurrentValidationErrors(formUIState) {
+  const list = formUIState?.sectionErrorsFlagged ?? [];
+  return list.some((entry) => (entry?.error_fields?.length ?? 0) > 0);
+}
+
 class DisconnectedFormFeedback extends Component {
+  static contextType = FormUIStateContext;
+
   constructor(props) {
     super(props);
     this.labels = {
@@ -133,25 +142,39 @@ class DisconnectedFormFeedback extends Component {
 
   render() {
     const { errors: errorsProp, actionState, sectionsConfig, currentResourceType } = this.props;
+    const formUIState = this.context?.formUIState ?? {};
     const errors = errorsProp || {};
 
-    const { feedback: initialFeedback, message } = _get(ACTIONS, actionState, {
+    const { feedback: initialFeedback, message: actionMessage } = _get(ACTIONS, actionState, {
       feedback: undefined,
       message: undefined,
     });
 
-    if (!message) {
+    const hasCurrentErrors = hasCurrentValidationErrors(formUIState);
+    const validationErrorsMessage = i18next.t(
+      "Please fix the validation errors in the following sections:"
+    );
+    const backendErrorMessage = errors.message || errors._schema;
+
+    // Prefer dynamic message when form has current validation errors; otherwise action or backend message
+    const displayMessage = hasCurrentErrors
+      ? validationErrorsMessage
+      : backendErrorMessage || actionMessage;
+
+    if (!displayMessage) {
       return null;
     }
 
     const noSeverityChecksWithErrors = Object.values(errors).every(
-      (severityObject) => severityObject.severity !== "error"
+      (severityObject) => severityObject?.severity !== "error"
     );
 
     const feedback =
-      _isEmpty(errors) && noSeverityChecksWithErrors ? "suggestive" : initialFeedback;
-
-    const backendErrorMessage = errors.message || errors._schema;
+      hasCurrentErrors
+        ? "warning"
+        : _isEmpty(errors) && noSeverityChecksWithErrors
+          ? "suggestive"
+          : initialFeedback;
 
     const { icon, type } = feedbackConfig[feedback] || feedbackConfig["warning"];
 
@@ -165,7 +188,7 @@ class DisconnectedFormFeedback extends Component {
         <Grid container>
           <Grid.Column width={15} textAlign="left">
             <strong>
-              <Icon name={icon} middle aligned /> {backendErrorMessage || message}
+              <Icon name={icon} middle aligned /> {displayMessage}
               <FormFeedbackSummary errors={errors} sectionsConfig={sectionsConfig} currentResourceType={currentResourceType} />
             </strong>
           </Grid.Column>
