@@ -6,9 +6,9 @@
  *
  * State:
  * - currentFormPage: current form page id (section id from form pages config).
+ * - currentFormPageFields: resolved Formik field paths per page for current type { [pageId]: string[] }.
  * - currentResourceType: current resource type id.
  * - currentTypeFields: layout config for the current resource type { [pageId]: subsectionConfig[] }.
- * - currentFormPageFields: resolved Formik field paths per page for current type { [pageId]: string[] }.
  * - sectionErrorsFlagged: flat list of section entries for "flagged" errors only (touched + initial-to-flag).
  *   Used by stepper, sidebar, section headers. Same shape as sectionErrorsAll.
  * - sectionErrorsAll: flat list of section entries for any error (client + initial/unchanged).
@@ -28,11 +28,11 @@ const FORM_UI_ACTION = {
 
 const defaultState = {
   currentFormPage: "",
-  sectionErrorsFlagged: [],
-  sectionErrorsAll: [],
+  currentFormPageFields: {},
   currentResourceType: "",
   currentTypeFields: {},
-  currentFormPageFields: {},
+  sectionErrorsFlagged: [],
+  sectionErrorsAll: [],
 };
 
 /**

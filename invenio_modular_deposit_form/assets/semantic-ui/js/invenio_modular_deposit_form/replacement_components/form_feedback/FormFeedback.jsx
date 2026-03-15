@@ -10,11 +10,12 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
-import { connect } from "react-redux";
+import { useStore } from "react-redux";
+import { useFormikContext } from "formik"; 
 import { Grid, Message, Icon } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { FormUIStateContext } from "../../FormLayoutContainer";
@@ -35,8 +36,19 @@ import {
   FILE_UPLOAD_SAVE_DRAFT_FAILED,
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
+import { filterNestedObject } from "../../utils";
 
 const ACTIONS = {
+  // Add action state representing purely client-side validation errors
+  ["CLIENT_VALIDATION_ERRORS"]: {
+    feedback: "negative",
+    message: i18next.t("Please fix the issues in"),
+  },
+  // Add action state representing cleared errors
+  ["ERRORS_CLEARED"]: {
+    feedback: "positive",
+    message: undefined,
+  },
   [DRAFT_SAVE_SUCCEEDED]: {
     feedback: "positive",
     message: i18next.t("Record successfully saved."),
@@ -124,105 +136,120 @@ const feedbackConfig = {
   warning: { icon: "exclamation triangle", type: "warning" },
 };
 
-/** True when formUIState has at least one flagged section with validation errors. */
-function hasCurrentValidationErrors(formUIState) {
-  const list = formUIState?.sectionErrorsFlagged ?? [];
-  return list.some((entry) => (entry?.error_fields?.length ?? 0) > 0);
+/**
+  * Filter a formik error object based on the currently flagged errors.
+  */
+function getFlaggedErrors(formUIState, clientErrors) {
+  const flaggedClientErrorPaths = formUIState.sectionErrorsFlagged.reduce(function (collected, item) {
+    return collected.concat(element.error_fields);
+  });
+  return filterNestedObject(clientErrors, flaggedClientErrorPaths);
 }
 
-class DisconnectedFormFeedback extends Component {
-  static contextType = FormUIStateContext;
-
-  constructor(props) {
-    super(props);
-    this.labels = {
-      ...props.labels,
-    };
-  }
-
-  render() {
-    const { errors: errorsProp, actionState, sectionsConfig, currentResourceType } = this.props;
-    const formUIState = this.context?.formUIState ?? {};
-    const errors = errorsProp || {};
-
-    const { feedback: initialFeedback, message: actionMessage } = _get(ACTIONS, actionState, {
-      feedback: undefined,
-      message: undefined,
-    });
-
-    const hasCurrentErrors = hasCurrentValidationErrors(formUIState);
-    const validationErrorsMessage = i18next.t(
-      "Please fix the validation errors in the following sections:"
-    );
-    const backendErrorMessage = errors.message || errors._schema;
-
-    // Prefer dynamic message when form has current validation errors; otherwise action or backend message
-    const displayMessage = hasCurrentErrors
-      ? validationErrorsMessage
-      : backendErrorMessage || actionMessage;
-
-    if (!displayMessage) {
-      return null;
-    }
-
-    const noSeverityChecksWithErrors = Object.values(errors).every(
-      (severityObject) => severityObject?.severity !== "error"
-    );
-
-    const feedback =
-      hasCurrentErrors
-        ? "warning"
-        : _isEmpty(errors) && noSeverityChecksWithErrors
-          ? "suggestive"
-          : initialFeedback;
-
-    const { icon, type } = feedbackConfig[feedback] || feedbackConfig["warning"];
-
-    return (
-      <Message
-        visible
-        {...{ [type]: true }}
-        className="flashed top attached"
-        id={type + "-feedback-div"}
-      >
-        <Grid container>
-          <Grid.Column width={15} textAlign="left">
-            <strong>
-              <Icon name={icon} middle aligned /> {displayMessage}
-              <FormFeedbackSummary errors={errors} sectionsConfig={sectionsConfig} currentResourceType={currentResourceType} />
-            </strong>
-          </Grid.Column>
-        </Grid>
-      </Message>
+/**
+  * Filter out validation errors from a nested error object.
+  */
+function getNonValidationErrors(backendErrors) {
+  let nonValidationErrors;
+  if (!_isEmpty(backendErrors)) {
+    nonValidationErrors = Object.fromEntries(
+      Object.entries(backendErrors).filter(
+        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
+      )
     );
   }
 }
 
-DisconnectedFormFeedback.propTypes = {
-  errors: PropTypes.object,
-  actionState: PropTypes.string,
+/**
+  * React component to display error and warning messages to the user as the form is filled.
+  */
+const FormFeedback = ({}) => {
+  const store = useStore();
+  const { actionState, errors: backendErrors, config } = store.getState().deposit;
+  const sectionsConfig = config?.formSectionFields;
+
+  // Find currently flagged client errors
+  const { errors: clientErrors } = useFormikContext();
+  const { formUIState } = useContext(FormUIStateContext) ?? {};
+  const flaggedClientErrors = getFlaggedErrors(formUIState, clientErrors); 
+
+  // Distinguish validation errors (that might be fixed since last submission) from
+  // backend system errors that will not have been fixed.
+  const nonValidationErrors = getNonValidationErrors(backendErrors);
+
+  // We don't display any message if there are no backend errors or flagged frontend errors.
+  if (!actionState && _isEmpty(flaggedClientErrors) && _isEmpty(nonValidationErrors)) {
+    return null;
+  }
+
+  // Combine flagged client-side errors with backend non-validation errors.
+  // We don't want to display old server-side validation errors that have been fixed,
+  // and we don't want to display client-side errors that aren't yet displayed (e.g., for untouched fields).
+  const mergedErrors = mergeNestedObjects(flaggedClientErrors, nonValidationErrors);
+
+  // Update actionState if client validation errors are cleared
+  // keep non-validation-error actionState if backendErrors remain
+  const effectiveActionState = !_isEmpty(flaggedClientErrors)
+    ? "CLIENT_VALIDATION_ERRORS"
+    : (
+      _isEmpty(nonValidationErrors) &&
+      _isEmpty(flaggedClientErrors) &&
+      !actionState?.includes("ERROR")
+    )
+    ? "ERRORS_CLEARED"
+    : actionState;
+
+  const { feedback: initialFeedback, message: actionMessage } = _get(ACTIONS, effectiveActionState, {
+    feedback: undefined,
+    message: undefined,
+  });
+
+  const backendErrorMessage = errors.message || errors._schema;
+  const displayMessage = actionMessage || backendErrorMessage;
+
+  if (!displayMessage) {
+    return null;
+  }
+
+  const noSeverityChecksWithErrors = Object.values(errors).every(
+    (severityObject) => severityObject?.severity !== "error"
+  );
+
+  const feedback =
+    hasCurrentErrors
+      ? "warning"
+      : _isEmpty(errors) && noSeverityChecksWithErrors
+        ? "suggestive"
+        : initialFeedback;
+
+  const { icon, type } = feedbackConfig[feedback] || feedbackConfig["warning"];
+
+  return (
+    <Message
+      visible
+      {...{ [type]: true }}
+      className="flashed top attached"
+      id={type + "-feedback-div"}
+    >
+      <Grid container>
+        <Grid.Column width={15} textAlign="left">
+          <strong>
+            <Icon name={icon} middle aligned /> {displayMessage}
+            <FormFeedbackSummary errors={mergedErrors} sectionsConfig={sectionsConfig} currentResourceType={currentResourceType} />
+          </strong>
+        </Grid.Column>
+      </Grid>
+    </Message>
+  );
+}
+
+FormFeedback.propTypes = {
   labels: PropTypes.object,
-  sectionsConfig: PropTypes.array,
-  currentResourceType: PropTypes.string,
 };
 
-DisconnectedFormFeedback.defaultProps = {
-  errors: undefined,
-  actionState: undefined,
+FormFeedback.defaultProps = {
   labels: undefined,
-  sectionsConfig: undefined,
-  currentResourceType: undefined,
 };
 
-const mapStateToProps = (state) => ({
-  actionState: state.deposit.actionState,
-  errors: state.deposit.errors,
-});
-
-const ConnectedFormFeedback = connect(
-  mapStateToProps,
-  null
-)(DisconnectedFormFeedback);
-
-export { DisconnectedFormFeedback, ConnectedFormFeedback as FormFeedback };
+export { FormFeedback };
 

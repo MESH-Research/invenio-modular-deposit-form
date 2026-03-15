@@ -1,3 +1,10 @@
+// This file is part of Invenio Modular Deposit Form
+// Copyright (C) 2023-2026 MESH Research
+//
+// Invenio Modular Deposit Form is free software;
+// you can redistribute them and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import { func } from "prop-types";
 import { getIn } from "formik";
 import { readableFieldLabels } from "./readableFieldLabels";
@@ -237,17 +244,129 @@ function getReadableFields(fields) {
   return [readableFields, readableFieldsWithArrays];
 }
 
+/**
+ * Merge two deeply nested objects so that the properties of A take priority.
+ * 
+ * @param {string} arrayStrategy: One of "concat", "dedup", or "override"
+ */
+function mergeNestedObjects(objA, objB, arrayStrategy="concat") {
+  let mergedObj = objA;
+  if ( Array.isArray(objA) ) {
+    switch ( arrayStrategy ) {
+    case "concat":
+       mergedObj = objA.concat(objB); 
+       break;
+    case "dedup":
+      mergedObj = [...new Set([...objA, ...objB])];
+      break;
+    case "override":
+        break;
+    }
+  } else if ( typeof objA === "object" ) {
+    const aKeys = Object.keys(objA);
+    const bKeys = Object.keys(objB);
+    const allKeys = aKeys.concat(bKeys);
+    for (let i=0; i<allKeys.length; i++) {
+      const focusKey = allKeys[i];
+      if ( bKeys.includes(focusKey) && aKeys.includes(focusKey) ) {
+        mergedObj[focusKey] = mergeNestedObjects(objA[focusKey], objB[focusKey], arrayStrategy);
+      } 
+      else if ( bKeys.includes(focusKey) ) {
+        mergedObj[focusKey] = objB[focusKey];
+      }
+    }
+  } 
+  return mergedObj;
+}
+
+/**
+  * Filter a nested object based on a whitelist of dot-separated paths.
+  * Preserves array structure when allowed paths refer to properties inside array elements.
+  */
+function filterNestedObject(errors, allowedPaths) {
+  const result = {};
+  const allowed = new Set(allowedPaths);
+
+  // Build nested structure in target; path may contain numeric segments for array indices.
+  function setDeep(target, path, value) {
+    const parts = path.split('.');
+    let ref = target;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      const isIndex = /^\d+$/.test(part);
+      if (isIndex) {
+        const num = parseInt(part, 10);
+        if (!Array.isArray(ref)) ref = [];
+        while (ref.length <= num) ref.push(undefined);
+        if (ref[num] === undefined || typeof ref[num] !== 'object') ref[num] = {};
+        ref = ref[num];
+      } else {
+        const nextPart = parts[i + 1];
+        const nextIsIndex = /^\d+$/.test(nextPart);
+        if (nextIsIndex) {
+          if (!Array.isArray(ref[part])) ref[part] = [];
+          ref = ref[part];
+        } else {
+          if (!ref[part] || typeof ref[part] !== 'object') ref[part] = {};
+          ref = ref[part];
+        }
+      }
+    }
+    ref[parts[parts.length - 1]] = value;
+  }
+
+  // pathWithIndex: includes array indices for writing to result; pathWithoutIndex: for allowed check.
+  function walk(obj, pathWithIndex, pathWithoutIndex) {
+    if (obj === null || typeof obj !== 'object') return;
+
+    const prefixWith = pathWithIndex;
+    const prefixWithout = pathWithoutIndex;
+
+    if (allowed.has(prefixWithout)) {
+      setDeep(result, prefixWith, obj);
+      return;
+    }
+
+    if (Array.isArray(obj)) {
+      for (let i = 0; i < obj.length; i++) {
+        const nextWith = prefixWith ? `${prefixWith}.${i}` : String(i);
+        walk(obj[i], nextWith, prefixWithout);
+      }
+      return;
+    }
+
+    for (const key in obj) {
+      const pathWith = prefixWith ? `${prefixWith}.${key}` : key;
+      const pathWithout = prefixWithout ? `${prefixWithout}.${key}` : key;
+      const value = obj[key];
+
+      if (Array.isArray(value) || (value !== null && typeof value === 'object')) {
+        walk(value, pathWith, pathWithout);
+      } else {
+        if (allowed.has(pathWithout)) {
+          setDeep(result, pathWith, value);
+        }
+      }
+    }
+  }
+
+  walk(errors, '', '');
+  return result;
+}
+
 export {
   areDeeplyEqual,
   findPageIdContainingComponent,
+  filterNestedObject,
+  flattenKeysDotJoined,
+  flattenWrappers,
   focusFirstElement,
   getErrorParent,
   getReadableFields,
   getTouchedParent,
   isNearViewportBottom,
-  scrollTop,
+  mergeNestedObjects,
   moveToArrayStart,
   pushToArrayEnd,
-  flattenKeysDotJoined,
-  flattenWrappers,
+  scrollTop,
 };

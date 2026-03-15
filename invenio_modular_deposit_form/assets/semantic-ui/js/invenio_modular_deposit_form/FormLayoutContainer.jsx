@@ -34,6 +34,79 @@ import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 
 const FormUIStateContext = createContext();
 
+const SIDEBAR_DEFAULTS_WIDTHS = {
+  mobile: 16,
+  tablet: 3,
+  computer: 3,
+  largeScreen: 3,
+  widescreen: 3,
+};
+
+/* Get sidebar configs and calculate form column visibility and widths.
+ * @param {object} commonFields
+*/
+function getColumnsConfig(commonFields) {
+  const formPagesConfig = commonFields?.find((item) => item.component === "FormPages");
+  const leftSidebarConfig = commonFields.find((item) => item.component === "FormLeftSidebar");
+  const rightSidebarConfig = commonFields.find((item) => item.component === "FormRightSidebar");
+  const leftSidebarVisible =
+    (leftSidebarConfig?.subsections?.length ?? 0) > 0;
+  const rightSidebarVisible =
+    (rightSidebarConfig?.subsections?.length ?? 0) > 0;
+
+  const left = (key) =>
+    leftSidebarVisible
+      ? (leftSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS_WIDTHS[key])
+      : 0;
+  const right = (key) =>
+    rightSidebarVisible
+      ? (rightSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS_WIDTHS[key])
+      : 0;
+
+  const mainColumnWidths = {
+    mobile:
+      formPagesConfig?.mobile ??
+      16,
+    tablet:
+      formPagesConfig?.tablet ??
+      Math.max(1, 16 - left("tablet") - right("tablet")),
+    computer:
+      formPagesConfig?.computer ??
+      Math.max(1, 16 - left("computer") - right("computer")),
+    largeScreen:
+      formPagesConfig?.largeScreen ??
+      Math.max(1, 16 - left("largeScreen") - right("largeScreen")),
+    widescreen:
+      formPagesConfig?.widescreen ??
+      Math.max(1, 16 - left("widescreen") - right("widescreen")),
+  };
+
+  return {
+    leftSidebar: {
+      config: leftSidebarConfig,
+      visible: leftSidebarVisible
+    },
+    rightSidebar: {
+      config: rightSidebarConfig,
+      visible: rightSidebarVisible
+    },
+    mainColumnWidths
+  }
+}
+
+/* Adapt community header label based on title content
+*/
+function makeSelectedCommunityLabel(selectedCommunity) {
+  let selectedCommunityLabel = selectedCommunity?.metadata?.title;
+  if (
+    !!selectedCommunityLabel &&
+    !selectedCommunityLabel?.toLowerCase().includes("community")
+  ) {
+    selectedCommunityLabel = `the "${selectedCommunityLabel}" community`;
+  }
+  return selectedCommunityLabel;
+};
+
 /*
 FormLayoutContainer class to provide layout and UI state management.
 
@@ -51,105 +124,48 @@ const FormLayoutContainer = () => {
   const store = useStore();
   const { config, record, editorState } = store.getState().deposit ?? {};
 
+  // Static layout and ui configuration
   const componentsRegistry = config?.componentsRegistry ?? {};
   const commonFields = config?.common_fields ?? [];
   const currentUserprofile = config?.current_user_profile ?? {};
   const defaultResourceType = config?.default_resource_type;
   const fieldsByType = config?.fields_by_type ?? {};
-  const selectedCommunity = editorState?.selectedCommunity;
-  const formik = useFormikContext();
-
   const formHeaderConfig = commonFields.find((item) => item.component === "FormHeader");
-  const formLeftSidebarConfig = commonFields.find((item) => item.component === "FormLeftSidebar");
-  const formRightSidebarConfig = commonFields.find((item) => item.component === "FormRightSidebar");
   const formFooterConfig = commonFields.find((item) => item.component === "FormFooter");
-
   const formPagesConfig = store.getState().deposit?.config?.common_fields?.find(
     (item) => item.component === "FormPages"
   );
-  const formPages = formPagesConfig?.subsections ?? [];
-
-  let selectedCommunityLabel = selectedCommunity?.metadata?.title;
-  if (
-    !!selectedCommunityLabel &&
-    !selectedCommunityLabel?.toLowerCase().includes("collection")
-  ) {
-    selectedCommunityLabel = `the "${selectedCommunityLabel}" collection`;
-  }
-
+  const formPagesCommon = formPagesConfig?.subsections ?? [];
   const isNewVersionDraft = record?.status === "new_version_draft";
   const fileUploadPageId = useMemo(
-    () => findPageIdContainingComponent(formPages, "FileUploadComponent"),
-    [formPages]
+    () => findPageIdContainingComponent(formPagesCommon, "FileUploadComponent"),
+    [formPagesCommon]
   );
-  const leftSidebarVisible =
-    (formLeftSidebarConfig?.subsections?.length ?? 0) > 0;
-  const rightSidebarVisible =
-    (formRightSidebarConfig?.subsections?.length ?? 0) > 0;
 
-  // Default column widths for sidebars when not specified (match FormLeftSidebar/FormRightSidebar)
-  const SIDEBAR_DEFAULTS = {
-    mobile: 16,
-    tablet: 3,
-    computer: 3,
-    largeScreen: 3,
-    widescreen: 3,
-  };
-  const mainColumnWidths = useMemo(() => {
-    const left = (key) =>
-      leftSidebarVisible
-        ? (formLeftSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS[key])
-        : 0;
-    const right = (key) =>
-      rightSidebarVisible
-        ? (formRightSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS[key])
-        : 0;
-    return {
-      mobile:
-        formPagesConfig?.mobile ??
-        16,
-      tablet:
-        formPagesConfig?.tablet ??
-        Math.max(1, 16 - left("tablet") - right("tablet")),
-      computer:
-        formPagesConfig?.computer ??
-        Math.max(1, 16 - left("computer") - right("computer")),
-      largeScreen:
-        formPagesConfig?.largeScreen ??
-        Math.max(1, 16 - left("largeScreen") - right("largeScreen")),
-      widescreen:
-        formPagesConfig?.widescreen ??
-        Math.max(1, 16 - left("widescreen") - right("widescreen")),
-    };
-  }, [
-    leftSidebarVisible,
-    rightSidebarVisible,
-    formLeftSidebarConfig,
-    formRightSidebarConfig,
-    formPagesConfig?.mobile,
-    formPagesConfig?.tablet,
-    formPagesConfig?.computer,
-    formPagesConfig?.largeScreen,
-    formPagesConfig?.widescreen,
-  ]);
+  // Dynamic form state
+  const formik = useFormikContext();
+  const selectedCommunity = editorState?.selectedCommunity;
+  const selectedCommunityLabel = makeSelectedCommunityLabel(selectedCommunity);
 
+  // Set up form UI state reducer
   const [state, dispatch] = useReducer(
     formUIStateReducer,
-    getInitialFormUIState(formPages, defaultResourceType, fieldsByType)
+    getInitialFormUIState(formPagesCommon, defaultResourceType, fieldsByType)
   );
-  const pageTargetRef = useRef(null);
 
+  // Default column widths for sidebars when not specified (match FormLeftSidebar/FormRightSidebar)
+  const { leftSidebar, rightSidebar, mainColumnWidths } = useMemo(() => getColumnsConfig(commonFields));
+
+  const pageTargetRef = useRef(null);
   useStickyFooterOverlapFix(state.currentFormPage);
   const pageTargetInViewport = useIsInViewport(pageTargetRef);
 
-  const formSectionFields = config?.formSectionFields ?? [];
-
+  // Keep client and server errors in sync and track which errors to display
   useEffect(() => {
     new FormErrorManager(
       state.currentFormPageFields,
-      formSectionFields,
       formik,
-      store
+      store,
     ).updateFormErrorState(dispatch);
   }, [
     formik.errors,
@@ -161,6 +177,7 @@ const FormLayoutContainer = () => {
     formSectionFields,
   ]);
 
+  // Autosave form data in browser local storage
   const {
     handleStorageData,
     storageDataPresent,
@@ -169,6 +186,7 @@ const FormLayoutContainer = () => {
     handleRecoveryAsked,
   } = useLocalStorageRecovery(currentUserprofile, state.currentFormPage, fileUploadPageId);
 
+  // Set up form page navigation and url parameter handling
   const navigation = useFormPageNavigation(
     state,
     dispatch,
@@ -179,6 +197,7 @@ const FormLayoutContainer = () => {
     fileUploadPageId
   );
 
+  // Keep UI layout updated with currently selected resource type
   useCurrentResourceTypeFields(
     state,
     dispatch,
@@ -197,6 +216,7 @@ const FormLayoutContainer = () => {
     });
   }, [formik.values.metadata.resource_type, fieldsByType]);
 
+  // Set up form UI context for provider
   const contextValue = {
     formUIState: state,
     fileUploadPageId,
@@ -221,7 +241,7 @@ const FormLayoutContainer = () => {
         </Grid>
       )}
     <Container
-      text={!leftSidebarVisible && !rightSidebarVisible}
+      text={!leftSidebar.visible && !rightSidebar.visible}
       id="rdm-deposit-form"
       className="rel-mt-1"
     >
@@ -267,12 +287,12 @@ const FormLayoutContainer = () => {
 
           <Grid.Row>
             <FormLeftSidebar
-              subsections={formLeftSidebarConfig?.subsections ?? []}
-              mobile={formLeftSidebarConfig?.mobile}
-              tablet={formLeftSidebarConfig?.tablet}
-              computer={formLeftSidebarConfig?.computer}
-              largeScreen={formLeftSidebarConfig?.largeScreen}
-              widescreen={formLeftSidebarConfig?.widescreen}
+              subsections={leftSidebar.config?.subsections ?? []}
+              mobile={leftSidebar.config?.mobile}
+              tablet={leftSidebar.config?.tablet}
+              computer={leftSidebar.config?.computer}
+              largeScreen={leftSidebar.config?.largeScreen}
+              widescreen={leftSidebar.config?.widescreen}
             />
             <Grid.Column
               computer={mainColumnWidths.computer}
@@ -282,7 +302,7 @@ const FormLayoutContainer = () => {
               widescreen={mainColumnWidths.widescreen}
             >
               <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
-                {formPages.map(({ section, subsections, classnames, ...pageProps }, index) => {
+                {formPagesCommon.map(({ section, subsections, classnames, ...pageProps }, index) => {
                   let actualSubsections = subsections;
                   if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
                     actualSubsections = state.currentTypeFields[section];
@@ -309,12 +329,12 @@ const FormLayoutContainer = () => {
               </Transition.Group>
             </Grid.Column>
             <FormRightSidebar
-              subsections={formRightSidebarConfig?.subsections ?? []}
-              mobile={formRightSidebarConfig?.mobile}
-              tablet={formRightSidebarConfig?.tablet}
-              computer={formRightSidebarConfig?.computer}
-              largeScreen={formRightSidebarConfig?.largeScreen}
-              widescreen={formRightSidebarConfig?.widescreen}
+              subsections={rightSidebar.config?.subsections ?? []}
+              mobile={rightSidebar.config?.mobile}
+              tablet={rightSidebar.config?.tablet}
+              computer={rightSidebar.config?.computer}
+              largeScreen={rightSidebar.config?.largeScreen}
+              widescreen={rightSidebar.config?.widescreen}
             />
           </Grid.Row>
 

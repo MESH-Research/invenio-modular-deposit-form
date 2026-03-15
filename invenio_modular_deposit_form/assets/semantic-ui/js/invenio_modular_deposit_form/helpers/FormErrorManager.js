@@ -69,16 +69,14 @@ function fieldPathToSection(formSectionFields, fieldPath) {
 class FormErrorManager {
   /**
    * FormErrorManager constructor
-   * @param {Object} currentFormPageFields - pageId -> field path[] (unused here; section data from formSectionFields)
    * @param {Array<{ pageId, sectionId, fields }>} formSectionFields - full section config for path->section lookup (all types)
    * @param {Object} formik - Formik context (errors, touched, initialErrors, initialValues, values, setFieldError, setFieldTouched)
    * @param {Object} store - Redux store (for reading deposit.actionState)
    */
-  constructor(currentFormPageFields, formSectionFields, formik, store) {
-    this.currentFormPageFields = currentFormPageFields;
-    this.formSectionFields = formSectionFields ?? [];
+  constructor(formik, store) {
     this.formik = formik;
     this.store = store;
+    this.formSectionFields = config?.formSectionFields ?? [];
   }
 
   /**

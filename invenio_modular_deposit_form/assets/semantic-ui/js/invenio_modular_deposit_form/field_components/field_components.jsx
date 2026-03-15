@@ -702,24 +702,6 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * @overridable InvenioAppRdm.Deposit.FormFeedback.container
  */
 const FormFeedbackComponent = () => {
-  const { errors: clientErrors } = useFormikContext();
-  const store = useStore();
-  const { formUIState } = useContext(FormUIStateContext) ?? {};
-  const currentResourceType = formUIState?.currentResourceType;
-  const { actionState, config, errors } = store.getState().deposit;
-  const sectionsConfig = config?.formSectionFields;
-  let nonValidationErrors;
-  if (!_isEmpty(errors)) {
-    nonValidationErrors = Object.fromEntries(
-      Object.entries(errors).filter(
-        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
-      )
-    );
-  }
-
-  if (!actionState && _isEmpty(clientErrors) && _isEmpty(nonValidationErrors)) {
-    return null;
-  }
 
   return (
     <Overridable
@@ -730,10 +712,6 @@ const FormFeedbackComponent = () => {
       <ModularFormFeedback
         fieldPath="message"
         labels={config?.custom_fields?.error_labels}
-        clientErrors={clientErrors}
-        nonValidationErrors={nonValidationErrors}
-        sectionsConfig={sectionsConfig}
-        currentResourceType={currentResourceType}
       />
     </Overridable>
   );
