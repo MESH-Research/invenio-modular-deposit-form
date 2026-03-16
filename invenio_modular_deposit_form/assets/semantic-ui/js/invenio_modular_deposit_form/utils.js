@@ -246,36 +246,40 @@ function getReadableFields(fields) {
 
 /**
  * Merge two deeply nested objects so that the properties of A take priority.
- * 
+ *
  * @param {string} arrayStrategy: One of "concat", "dedup", or "override"
  */
-function mergeNestedObjects(objA, objB, arrayStrategy="concat") {
+function mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
+  // Object.keys(null|undefined) throws; return the other so callers can pass arbitrary types.
+  if (objA == null) return objB;
+  if (objB == null) return objA;
+
   let mergedObj = objA;
-  if ( Array.isArray(objA) ) {
-    switch ( arrayStrategy ) {
+  if (Array.isArray(objA)) {
+    const safeB = Array.isArray(objB) ? objB : [];
+    switch (arrayStrategy) {
     case "concat":
-       mergedObj = objA.concat(objB); 
-       break;
+      mergedObj = objA.concat(safeB);
+      break;
     case "dedup":
-      mergedObj = [...new Set([...objA, ...objB])];
+      mergedObj = [...new Set([...objA, ...safeB])];
       break;
     case "override":
-        break;
+      break;
     }
-  } else if ( typeof objA === "object" ) {
+  } else if (typeof objA === "object") {
     const aKeys = Object.keys(objA);
     const bKeys = Object.keys(objB);
     const allKeys = aKeys.concat(bKeys);
-    for (let i=0; i<allKeys.length; i++) {
+    for (let i = 0; i < allKeys.length; i++) {
       const focusKey = allKeys[i];
-      if ( bKeys.includes(focusKey) && aKeys.includes(focusKey) ) {
+      if (bKeys.includes(focusKey) && aKeys.includes(focusKey)) {
         mergedObj[focusKey] = mergeNestedObjects(objA[focusKey], objB[focusKey], arrayStrategy);
-      } 
-      else if ( bKeys.includes(focusKey) ) {
+      } else if (bKeys.includes(focusKey)) {
         mergedObj[focusKey] = objB[focusKey];
       }
     }
-  } 
+  }
   return mergedObj;
 }
 
@@ -354,13 +358,43 @@ function filterNestedObject(errors, allowedPaths) {
   return result;
 }
 
+/**
+ * Whether an error path matches a section field path (exact, or one is a prefix of the other).
+ */
+function fieldMatches(errorPath, fieldPath) {
+  return (
+    errorPath === fieldPath ||
+    errorPath.startsWith(fieldPath + ".") ||
+    fieldPath.startsWith(errorPath + ".")
+  );
+}
+
+/**
+ * Flatten a Formik-style errors object to dot-notation paths of leaf errors (string or { severity }).
+ */
+function getAllErrPaths(obj, prev = "") {
+  const result = [];
+  for (const k in obj) {
+    const path = prev ? `${prev}.${k}` : k;
+    const v = obj[k];
+    if (typeof v === "string" || (v && typeof v === "object" && v.severity !== undefined)) {
+      result.push(path);
+    } else if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+      result.push(...getAllErrPaths(v, path));
+    }
+  }
+  return result;
+}
+
 export {
   areDeeplyEqual,
+  fieldMatches,
   findPageIdContainingComponent,
   filterNestedObject,
   flattenKeysDotJoined,
   flattenWrappers,
   focusFirstElement,
+  getAllErrPaths,
   getErrorParent,
   getReadableFields,
   getTouchedParent,

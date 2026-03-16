@@ -264,6 +264,12 @@ describe('mergeNestedObjects', () => {
     const b = { meta: { b: 3, c: 4 } };
     expect(mergeNestedObjects(a, b)).toEqual({ meta: { a: 1, b: 2, c: 4 } });
   });
+
+  test('returns the other when one is null/undefined (avoids Object.keys throw)', () => {
+    expect(mergeNestedObjects(null, null)).toBe(null);
+    expect(mergeNestedObjects(undefined, { x: 1 })).toEqual({ x: 1 });
+    expect(mergeNestedObjects({ a: 1 }, null)).toEqual({ a: 1 });
+  });
 });
 
 describe('moveToArrayStart', () => {
