@@ -16,15 +16,8 @@ import { Button, Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../../FormLayoutContainer";
 import { getSeverityLabel } from "../../helpers/severityChecksConfig";
-import { fieldMatches, getAllErrPaths, getSeverityAtPath } from "../../utils";
-import { feedbackConfig } from "./FormFeedback";
-
-/** Map severity level to feedbackConfig key for label type (and styling). */
-const severityToFeedbackKey = {
-  error: "negative",
-  warning: "warning",
-  info: "suggestive",
-};
+import { fieldMatches, getFormSectionElementId, getAllErrPaths, getSeverityAtPath } from "../../utils";
+import { getSeverityBadgeType } from "../../helpers/severityChecksConfig";
 
 
 /**
@@ -86,6 +79,7 @@ function getErrorSections(errors, sectionsConfig, currentResourceType) {
 const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
   const ctx = useContext(FormUIStateContext) ?? {};
   const { formUIState, handleFormPageChange } = ctx;
+  const currentFormPage = formUIState?.currentFormPage;
   const currentResourceType = currentResourceTypeProp ?? formUIState?.currentResourceType;
   const sectionsWithCount = getErrorSections(errors, sectionsConfig, currentResourceType);
   if (_isEmpty(sectionsWithCount)) {
@@ -93,10 +87,11 @@ const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType:
   }
   const multiPage = new Set(sectionsWithCount.map((s) => s.pageId)).size > 1;
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (sectionId, options = {}) => {
     if (!sectionId) return;
+    const elementId = getFormSectionElementId(sectionId);
     const scroll = () => {
-      const sectionEl = document.getElementById(sectionId);
+      const sectionEl = document.getElementById(elementId);
       if (!sectionEl) return;
 
       sectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -115,7 +110,23 @@ const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType:
         }
       }
     };
-    if (typeof window !== "undefined" && window.requestAnimationFrame) {
+    if (options.waitForElement) {
+      // Section is on another page; give the UI a moment to render, then poll until it appears.
+      const maxAttempts = 40;
+      let attempts = 0;
+      const tryScroll = () => {
+        const sectionEl = document.getElementById(elementId);
+        if (sectionEl) {
+          scroll();
+          return;
+        }
+        attempts += 1;
+        if (attempts < maxAttempts) {
+          setTimeout(tryScroll, 50);
+        }
+      };
+      setTimeout(tryScroll, 200);
+    } else if (typeof window !== "undefined" && window.requestAnimationFrame) {
       window.requestAnimationFrame(scroll);
     } else {
       setTimeout(scroll, 0);
@@ -125,36 +136,36 @@ const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType:
   return sectionsWithCount.map((section) => {
     const { pageId, sectionId, pageLabel, sectionLabel, errors: errorsCount = 0, warnings: warningsCount = 0, info: infoCount = 0 } = section;
     const label = multiPage ? `${pageLabel ?? pageId} / ${sectionLabel ?? sectionId}` : (sectionLabel ?? sectionId);
-    const labelTypeFor = (severity) =>
-      (feedbackConfig[severityToFeedbackKey[severity]] || feedbackConfig.warning).type;
     const severityClass =
-      errorsCount > 0 ? labelTypeFor("error") : warningsCount > 0 ? labelTypeFor("warning") : infoCount > 0 ? labelTypeFor("info") : "";
+      errorsCount > 0 ? getSeverityBadgeType("error") : warningsCount > 0 ? getSeverityBadgeType("warning") : infoCount > 0 ? getSeverityBadgeType("info") : "";
     return (
       <Button
         key={`${pageId}\0${sectionId}`}
+        type="button"
         transparent
         basic
         className={`pl-5 comma-separated ${severityClass}`}
         onClick={(e) => {
-          if (multiPage && handleFormPageChange) {
+          if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
             handleFormPageChange(e, { value: pageId });
           }
-          scrollToSection(sectionId);
+          const waitForElement = multiPage && pageId !== currentFormPage;
+          scrollToSection(sectionId, { waitForElement });
         }}
       >
         {label}{" "}
         {errorsCount > 0 && (
-          <Label size="tiny" circular className={labelTypeFor("error")} key="error">
+          <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
             {errorsCount} {getSeverityLabel("error")}{errorsCount !== 1 ? "s" : ""}
           </Label>
         )}
         {warningsCount > 0 && (
-          <Label size="tiny" circular className={labelTypeFor("warning")} key="warning">
+          <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
             {warningsCount} {getSeverityLabel("warning")}{warningsCount !== 1 ? "s" : ""}
           </Label>
         )}
         {infoCount > 0 && (
-          <Label size="tiny" circular className={labelTypeFor("info")} key="info">
+          <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
             {infoCount} {getSeverityLabel("info")}{infoCount !== 1 ? "s" : ""}
           </Label>
         )}
