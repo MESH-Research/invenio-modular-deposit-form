@@ -129,7 +129,7 @@ const ACTIONS = {
   },
 };
 
-const feedbackConfig = {
+export const feedbackConfig = {
   positive: { icon: "check", type: "positive" },
   suggestive: { icon: "info circle", type: "info" },
   negative: { icon: "times circle", type: "negative" },
@@ -205,21 +205,22 @@ const FormFeedback = ({}) => {
     message: undefined,
   });
 
-  const backendErrorMessage = errors.message || errors._schema;
+  const backendErrorMessage = backendErrors.message || backendErrors._schema;
   const displayMessage = actionMessage || backendErrorMessage;
 
   if (!displayMessage) {
     return null;
   }
 
-  const noSeverityChecksWithErrors = Object.values(errors).every(
+  // Check whether all of the errors are less than "error" severity
+  const noSeverityChecksWithErrors = Object.values(mergedErrors).every(
     (severityObject) => severityObject?.severity !== "error"
   );
 
   const feedback =
-    hasCurrentErrors
+    !_isEmpty(flaggedClientErrors)
       ? "warning"
-      : _isEmpty(errors) && noSeverityChecksWithErrors
+      : _isEmpty(flaggedClientErrors) && noSeverityChecksWithErrors
         ? "suggestive"
         : initialFeedback;
 

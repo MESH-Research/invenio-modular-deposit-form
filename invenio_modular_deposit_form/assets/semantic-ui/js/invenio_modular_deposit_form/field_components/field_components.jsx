@@ -541,6 +541,7 @@ const LicensesComponent = ({ ...extraProps }) => {
       fieldPath="metadata.rights"
     >
       <LicenseField
+        fieldPath="metadata.rights"
         searchConfig={{
           searchApi: {
             axios: {
