@@ -14,8 +14,8 @@ import React, { Component, useContext } from "react";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
+import _set from "lodash/set";
 import { useStore } from "react-redux";
-import { useFormikContext } from "formik"; 
 import { Grid, Message, Icon } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { FormUIStateContext } from "../../FormLayoutContainer";
@@ -36,7 +36,13 @@ import {
   FILE_UPLOAD_SAVE_DRAFT_FAILED,
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
-import { filterNestedObject, mergeNestedObjects } from "../../utils";
+
+const WITH_VALIDATION_TO_PLAIN = {
+  [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_PUBLISH_FAILED,
+  [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_SUBMIT_REVIEW_FAILED,
+  [DRAFT_HAS_VALIDATION_ERRORS]: DRAFT_SAVE_FAILED,
+  [DRAFT_LOADED_WITH_VALIDATION_ERRORS]: DRAFT_SAVE_FAILED,
+};
 
 const ACTIONS = {
   // Add action state representing purely client-side validation errors
@@ -136,29 +142,35 @@ export const feedbackConfig = {
   warning: { icon: "exclamation triangle", type: "warning" },
 };
 
-/**
-  * Filter a formik error object based on the currently flagged errors.
-  */
-function getFlaggedErrors(formUIState, clientErrors) {
-  const flaggedClientErrorPaths = (formUIState?.sectionErrorsFlagged ?? []).reduce(
-    (collected, item) => collected.concat(item?.error_fields ?? []),
-    []
-  );
-  return filterNestedObject(clientErrors, flaggedClientErrorPaths);
+function getFlaggedErrors(formUIState) {
+  const result = {};
+  for (const entry of formUIState?.sectionErrorsFlagged ?? []) {
+    for (const path of entry?.error_fields ?? []) {
+      _set(result, path, { severity: "error" });
+    }
+    for (const path of entry?.warning_fields ?? []) {
+      _set(result, path, { severity: "warning" });
+    }
+    for (const path of entry?.info_fields ?? []) {
+      _set(result, path, { severity: "info" });
+    }
+  }
+  return result;
 }
 
-/**
-  * Filter out validation errors from a nested error object.
-  */
 function getNonValidationErrors(backendErrors) {
-  let nonValidationErrors;
-  if (!_isEmpty(backendErrors)) {
-    nonValidationErrors = Object.fromEntries(
-      Object.entries(backendErrors).filter(
-        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
-      )
-    );
-  }
+  if (_isEmpty(backendErrors)) return undefined;
+  return Object.fromEntries(
+    Object.entries(backendErrors).filter(
+      ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
+    )
+  );
+}
+
+function hasErrorSeverityInObject(obj) {
+  if (obj == null || typeof obj !== "object") return false;
+  if (typeof obj.severity === "string" && obj.severity === "error") return true;
+  return Object.values(obj).some((v) => hasErrorSeverityInObject(v));
 }
 
 /**
@@ -169,13 +181,8 @@ const FormFeedback = ({}) => {
   const { actionState, errors: backendErrors, config } = store.getState().deposit;
   const sectionsConfig = config?.formSectionFields;
 
-  // Find currently flagged client errors
-  const { errors: clientErrors } = useFormikContext();
   const { formUIState } = useContext(FormUIStateContext) ?? {};
-  const flaggedClientErrors = getFlaggedErrors(formUIState, clientErrors); 
-
-  // Distinguish validation errors (that might be fixed since last submission) from
-  // backend system errors that will not have been fixed.
+  const flaggedClientErrors = getFlaggedErrors(formUIState);
   const nonValidationErrors = getNonValidationErrors(backendErrors);
 
   // We don't display any message if there are no backend errors or flagged frontend errors.
@@ -183,46 +190,36 @@ const FormFeedback = ({}) => {
     return null;
   }
 
-  // Combine flagged client-side errors with backend non-validation errors.
-  // We don't want to display old server-side validation errors that have been fixed,
-  // and we don't want to display client-side errors that aren't yet displayed (e.g., for untouched fields).
-  const mergedErrors = mergeNestedObjects(flaggedClientErrors, nonValidationErrors);
-
-  // Update actionState if client validation errors are cleared
-  // keep non-validation-error actionState if backendErrors remain
-  const effectiveActionState = !_isEmpty(flaggedClientErrors)
+  // Update the actionState if there are new client-side validation errors or if
+  // we have cleared all of the validation errors.
+  let effectiveActionState = !_isEmpty(flaggedClientErrors)
     ? "CLIENT_VALIDATION_ERRORS"
-    : (
-      _isEmpty(nonValidationErrors) &&
-      _isEmpty(flaggedClientErrors) &&
-      !actionState?.includes("ERROR")
-    )
-    ? "ERRORS_CLEARED"
-    : actionState;
+    : _isEmpty(nonValidationErrors)
+      ? "ERRORS_CLEARED"
+      : actionState;
+  // Provide a sensical actionState if we've cleared validation errors client side, but there were also
+  // non-validation errors.
+  if (_isEmpty(flaggedClientErrors) && !_isEmpty(nonValidationErrors) && WITH_VALIDATION_TO_PLAIN[actionState]) {
+    effectiveActionState = WITH_VALIDATION_TO_PLAIN[actionState];
+  }
 
   const { feedback: initialFeedback, message: actionMessage } = _get(ACTIONS, effectiveActionState, {
     feedback: undefined,
     message: undefined,
   });
 
-  const backendErrorMessage = backendErrors.message || backendErrors._schema;
+  const backendErrorMessage = backendErrors?.message || backendErrors?._schema;
   const displayMessage = actionMessage || backendErrorMessage;
 
   if (!displayMessage) {
     return null;
   }
 
-  // Check whether all of the errors are less than "error" severity
-  const noSeverityChecksWithErrors = Object.values(mergedErrors).every(
-    (severityObject) => severityObject?.severity !== "error"
-  );
+  const noSeverityChecksWithErrors =
+    !(formUIState?.sectionErrorsFlagged ?? []).some((entry) => (entry?.error_fields?.length ?? 0) > 0) ||
+    hasErrorSeverityInObject(nonValidationErrors);
 
-  const feedback =
-    !_isEmpty(flaggedClientErrors)
-      ? "warning"
-      : _isEmpty(flaggedClientErrors) && noSeverityChecksWithErrors
-        ? "suggestive"
-        : initialFeedback;
+  const feedback = noSeverityChecksWithErrors ? "suggestive" : initialFeedback;
 
   const { icon, type } = feedbackConfig[feedback] || feedbackConfig["warning"];
 
@@ -237,7 +234,9 @@ const FormFeedback = ({}) => {
         <Grid.Column width={15} textAlign="left">
           <strong>
             <Icon name={icon} middle aligned /> {displayMessage}
-            <FormFeedbackSummary errors={mergedErrors} sectionsConfig={sectionsConfig} currentResourceType={formUIState?.currentResourceType} />
+            {!_isEmpty(flaggedClientErrors) && (
+              <FormFeedbackSummary sectionsConfig={sectionsConfig} currentResourceType={formUIState?.currentResourceType} />
+            )}
           </strong>
         </Grid.Column>
       </Grid>

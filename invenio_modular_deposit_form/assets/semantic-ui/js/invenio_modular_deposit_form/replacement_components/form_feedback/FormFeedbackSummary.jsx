@@ -16,20 +16,16 @@ import { Button, Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../../FormLayoutContainer";
 import { getSeverityLabel } from "../../helpers/severityChecksConfig";
-import { fieldMatches, getFormSectionElementId, getAllErrPaths, getSeverityAtPath } from "../../utils";
+import { getFormSectionElementId } from "../../utils";
 import { getSeverityBadgeType } from "../../helpers/severityChecksConfig";
 
-
 /**
- * sectionsConfig from buildFormSections can have multiple entries per (pageId, sectionId)
- * when resource types define different fields for that section (merge only when fieldsEqual).
- * Dedupe by (pageId, sectionId), pick the entry for currentResourceType when multiple exist,
- * add counts of matching error paths by severity, return sections with total count > 0 in config order.
+ * Section list and counts from formUIState.sectionErrorsFlagged (FormErrorManager), so badges
+ * match the menu/stepper/section headers and update on resubmit. sectionsConfig is used only
+ * for key order and labels.
  */
-function getErrorSections(errors, sectionsConfig, currentResourceType) {
+function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceType) {
   const config = Array.isArray(sectionsConfig) ? sectionsConfig : [];
-  const paths = getAllErrPaths(errors);
-
   const keyOrder = [];
   const byKey = new Map();
   for (const entry of config) {
@@ -41,47 +37,47 @@ function getErrorSections(errors, sectionsConfig, currentResourceType) {
     byKey.get(key).push(entry);
   }
 
+  const list = formUIState?.sectionErrorsFlagged ?? [];
+  const countsByKey = {};
+  for (const entry of list) {
+    const page = entry?.page ?? "";
+    const section = entry?.section ?? "";
+    const key = `${page}\0${section}`;
+    const errorsCount = (entry?.error_fields ?? []).length;
+    const warningsCount = (entry?.warning_fields ?? []).length;
+    const infoCount = (entry?.info_fields ?? []).length;
+    const total = errorsCount + warningsCount + infoCount;
+    if (total === 0) continue;
+    countsByKey[key] = { errors: errorsCount, warnings: warningsCount, info: infoCount };
+  }
+
   const result = [];
   for (const key of keyOrder) {
+    const counts = countsByKey[key];
+    if (!counts) continue;
     const entries = byKey.get(key);
     const chosen =
       currentResourceType && entries.length > 1
         ? entries.find((s) => (s.resourceTypes || []).includes(currentResourceType)) ?? entries[0]
         : entries[0];
-    const fieldList = chosen.fields ?? [];
-    let errorsCount = 0;
-    let warningsCount = 0;
-    let infoCount = 0;
-    for (const path of paths) {
-      if (!fieldList.some((field) => fieldMatches(path, field))) continue;
-      const severity = getSeverityAtPath(errors, path);
-      if (severity === "error") errorsCount += 1;
-      else if (severity === "warning") warningsCount += 1;
-      else infoCount += 1;
-    }
-    const count = errorsCount + warningsCount + infoCount;
-    if (count === 0) continue;
     result.push({
       ...chosen,
-      count,
-      errors: errorsCount,
-      warnings: warningsCount,
-      info: infoCount,
+      errors: counts.errors,
+      warnings: counts.warnings,
+      info: counts.info,
     });
   }
   return result;
 }
 
-/* React component to display validation and system error messages.
-  *
-  *
+/* React component to display validation error messages.
   */
-const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
+const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
   const ctx = useContext(FormUIStateContext) ?? {};
   const { formUIState, handleFormPageChange } = ctx;
   const currentFormPage = formUIState?.currentFormPage;
   const currentResourceType = currentResourceTypeProp ?? formUIState?.currentResourceType;
-  const sectionsWithCount = getErrorSections(errors, sectionsConfig, currentResourceType);
+  const sectionsWithCount = getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceType);
   if (_isEmpty(sectionsWithCount)) {
     return null;
   }
@@ -176,7 +172,6 @@ const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType:
 
 FormFeedbackSummary.propTypes = {
   sectionsConfig: PropTypes.array.isRequired,
-  errors: PropTypes.object.isRequired,
   currentResourceType: PropTypes.string,
 };
 
