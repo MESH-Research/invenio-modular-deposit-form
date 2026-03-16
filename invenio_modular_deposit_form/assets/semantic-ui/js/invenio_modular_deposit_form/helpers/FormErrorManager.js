@@ -75,8 +75,8 @@ class FormErrorManager {
    */
   constructor(formik, store) {
     this.formik = formik;
-    this.store = store;
-    this.formSectionFields = config?.formSectionFields ?? [];
+    this.store = store.getState();
+    this.formSectionFields = this.store.config?.formSectionFields ?? [];
   }
 
   /**
@@ -85,7 +85,7 @@ class FormErrorManager {
    * server-side validation errors; does not run on every client-side validation change.
    */
   syncTouchedForBackendValidationErrors = () => {
-    const actionState = this.store?.getState?.()?.deposit?.actionState;
+    const actionState = this.store?.deposit?.actionState;
     const hasBackendValidationErrors =
       actionState && String(actionState).includes("VALIDATION_ERRORS");
     if (!hasBackendValidationErrors) return;
