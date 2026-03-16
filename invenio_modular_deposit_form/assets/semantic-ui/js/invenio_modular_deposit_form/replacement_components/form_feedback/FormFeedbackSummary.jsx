@@ -23,6 +23,7 @@ import { getSeverityBadgeType } from "../../helpers/severityChecksConfig";
  * Section list and counts from formUIState.sectionErrorsFlagged (FormErrorManager), so badges
  * match the menu/stepper/section headers and update on resubmit. sectionsConfig is used only
  * for key order and labels.
+ *
  */
 function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceType) {
   const config = Array.isArray(sectionsConfig) ? sectionsConfig : [];
@@ -70,7 +71,9 @@ function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceT
   return result;
 }
 
-/* React component to display validation error messages.
+/* React component to display validation and system error messages.
+  *
+  *
   */
 const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
   const ctx = useContext(FormUIStateContext) ?? {};
@@ -81,7 +84,7 @@ const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: current
   if (_isEmpty(sectionsWithCount)) {
     return null;
   }
-  const multiPage = new Set(sectionsWithCount.map((s) => s.pageId)).size > 1;
+  const multiPage = new Set((sectionsConfig || []).map((e) => e.pageId)).size > 1;
 
   const scrollToSection = (sectionId, options = {}) => {
     if (!sectionId) return;
@@ -131,7 +134,13 @@ const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: current
 
   return sectionsWithCount.map((section) => {
     const { pageId, sectionId, pageLabel, sectionLabel, errors: errorsCount = 0, warnings: warningsCount = 0, info: infoCount = 0 } = section;
-    const label = multiPage ? `${pageLabel ?? pageId} / ${sectionLabel ?? sectionId}` : (sectionLabel ?? sectionId);
+    const pagePart = pageLabel ?? pageId;
+    const sectionPart = sectionLabel ?? sectionId;
+    const label = multiPage
+      ? pagePart === sectionPart
+        ? sectionPart
+        : `${pagePart} / ${sectionPart}`
+      : sectionPart;
     const severityClass =
       errorsCount > 0 ? getSeverityBadgeType("error") : warningsCount > 0 ? getSeverityBadgeType("warning") : infoCount > 0 ? getSeverityBadgeType("info") : "";
     return (
