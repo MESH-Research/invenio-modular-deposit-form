@@ -140,9 +140,10 @@ const feedbackConfig = {
   * Filter a formik error object based on the currently flagged errors.
   */
 function getFlaggedErrors(formUIState, clientErrors) {
-  const flaggedClientErrorPaths = formUIState.sectionErrorsFlagged.reduce(function (collected, item) {
-    return collected.concat(element.error_fields);
-  });
+  const flaggedClientErrorPaths = (formUIState?.sectionErrorsFlagged ?? []).reduce(
+    (collected, item) => collected.concat(item?.error_fields ?? []),
+    []
+  );
   return filterNestedObject(clientErrors, flaggedClientErrorPaths);
 }
 
@@ -235,7 +236,7 @@ const FormFeedback = ({}) => {
         <Grid.Column width={15} textAlign="left">
           <strong>
             <Icon name={icon} middle aligned /> {displayMessage}
-            <FormFeedbackSummary errors={mergedErrors} sectionsConfig={sectionsConfig} currentResourceType={currentResourceType} />
+            <FormFeedbackSummary errors={mergedErrors} sectionsConfig={sectionsConfig} currentResourceType={formUIState?.currentResourceType} />
           </strong>
         </Grid.Column>
       </Grid>

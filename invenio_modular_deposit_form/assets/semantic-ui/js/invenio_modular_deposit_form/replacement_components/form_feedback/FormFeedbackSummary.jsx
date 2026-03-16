@@ -39,53 +39,57 @@ function getAllErrPaths(obj, prev = "") {
 };
 
 
+/**
+ * sectionsConfig from buildFormSections can have multiple entries per (pageId, sectionId)
+ * when resource types define different fields for that section (merge only when fieldsEqual).
+ * Dedupe by (pageId, sectionId), pick the entry for currentResourceType when multiple exist,
+ * add count of matching error paths, return sections with count > 0 in config order.
+ */
 function getErrorSections(errors, sectionsConfig, currentResourceType) {
-  const errorSections = new Map();
-  const orderedSections = [];
+  const config = Array.isArray(sectionsConfig) ? sectionsConfig : [];
   const paths = getAllErrPaths(errors);
 
-  paths.forEach((path) => {
-    const matches = sectionsConfig.filter((section) =>
-      (section.fields || []).some((field) => fieldMatches(path, field))
-    );
-    if (matches.length === 0) return;
-    const entry =
-      currentResourceType && matches.length > 1
-        ? matches.find((s) => (s.resourceTypes || []).includes(currentResourceType)) ?? matches[0]
-        : matches[0];
-    const sectionKey = `${entry.pageId}\0${entry.sectionId}`;
-    if (!errorSections.has(sectionKey)) {
-      orderedSections.push(sectionKey);
-      errorSections.set(sectionKey, {
-        pageId: entry.pageId,
-        sectionId: entry.sectionId,
-        pageLabel: entry.pageLabel ?? entry.pageId,
-        sectionLabel: entry.sectionLabel ?? entry.sectionId,
-        count: 0,
-      });
+  const keyOrder = [];
+  const byKey = new Map();
+  for (const entry of config) {
+    const key = `${entry.pageId}\0${entry.sectionId}`;
+    if (!byKey.has(key)) {
+      keyOrder.push(key);
+      byKey.set(key, []);
     }
-    const rec = errorSections.get(sectionKey);
-    rec.count += 1;
-  });
+    byKey.get(key).push(entry);
+  }
 
-  return { orderedSections, errorSections };
-};
+  const result = [];
+  for (const key of keyOrder) {
+    const entries = byKey.get(key);
+    const chosen =
+      currentResourceType && entries.length > 1
+        ? entries.find((s) => (s.resourceTypes || []).includes(currentResourceType)) ?? entries[0]
+        : entries[0];
+    const fieldList = chosen.fields ?? [];
+    const count = paths.filter((path) =>
+      fieldList.some((field) => fieldMatches(path, field))
+    ).length;
+    if (count === 0) continue;
+    result.push({ ...chosen, count });
+  }
+  return result;
+}
 
 /* React component to display validation and system error messages.
   *
   *
   */
-FormFeedbackSummary = ({ errors, sectionsConfig = [] }) => {
-  const { formUIState, handleFormPageChange } = FormUIStateContext;
-  const currentResourceType = formUIState.currentResourceType;
-  const { orderedSections, errorSections } = this.getErrorSections(errors);
-  if (_isEmpty(orderedSections)) {
+const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
+  const ctx = useContext(FormUIStateContext) ?? {};
+  const { formUIState, handleFormPageChange } = ctx;
+  const currentResourceType = currentResourceTypeProp ?? formUIState?.currentResourceType;
+  const sectionsWithCount = getErrorSections(errors, sectionsConfig, currentResourceType);
+  if (_isEmpty(sectionsWithCount)) {
     return null;
   }
-  const pageIds = new Set(
-    orderedSections.map((key) => errorSections.get(key).pageId)
-  );
-  const multiPage = pageIds.size > 1;
+  const multiPage = new Set(sectionsWithCount.map((s) => s.pageId)).size > 1;
 
   const scrollToSection = (sectionId) => {
     if (!sectionId) return;
@@ -116,12 +120,12 @@ FormFeedbackSummary = ({ errors, sectionsConfig = [] }) => {
     }
   };
 
-  return orderedSections.map((sectionKey) => {
-    const { pageId, sectionId, pageLabel, sectionLabel, count } = errorSections.get(sectionKey);
-    const label = multiPage ? `${pageLabel} / ${sectionLabel}` : sectionLabel;
+  return sectionsWithCount.map((section) => {
+    const { pageId, sectionId, pageLabel, sectionLabel, count } = section;
+    const label = multiPage ? `${pageLabel ?? pageId} / ${sectionLabel ?? sectionId}` : (sectionLabel ?? sectionId);
     return (
       <Button
-        key={sectionKey}
+        key={`${pageId}\0${sectionId}`}
         transparent
         basic
         className="pl-5 comma-separated error"
@@ -133,7 +137,7 @@ FormFeedbackSummary = ({ errors, sectionsConfig = [] }) => {
         }}
       >
         {label}{" "}
-        <Label circular size="tiny">
+        <Label circular size="tiny" className="error">
           {count}
         </Label>
       </Button>

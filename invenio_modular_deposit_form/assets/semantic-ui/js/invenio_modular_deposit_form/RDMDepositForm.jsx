@@ -104,7 +104,7 @@ export const RDMDepositForm = ({
     formSectionFields,
   };
 
-  // Master-only: add to config only when present (v13 view/config may not provide them)
+  // V14-only: add to config only when present (v13 view/config may not provide them)
   if (recordDeletion != null) {
     configForStore.record_deletion = recordDeletion;
   }
