@@ -129,6 +129,7 @@ const FormLayoutContainer = () => {
   const commonFields = config?.common_fields ?? [];
   const currentUserprofile = config?.current_user_profile ?? {};
   const defaultResourceType = config?.default_resource_type;
+  const formSectionFields = config?.formSectionFields;
   const fieldsByType = config?.fields_by_type ?? {};
   const formHeaderConfig = commonFields.find((item) => item.component === "FormHeader");
   const formFooterConfig = commonFields.find((item) => item.component === "FormFooter");
