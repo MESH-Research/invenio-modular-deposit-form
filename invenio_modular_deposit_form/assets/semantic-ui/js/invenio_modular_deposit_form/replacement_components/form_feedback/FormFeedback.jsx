@@ -36,7 +36,7 @@ import {
   FILE_UPLOAD_SAVE_DRAFT_FAILED,
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
-import { filterNestedObject } from "../../utils";
+import { filterNestedObject, mergeNestedObjects } from "../../utils";
 
 const ACTIONS = {
   // Add action state representing purely client-side validation errors
