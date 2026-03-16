@@ -163,18 +163,13 @@ const FormLayoutContainer = () => {
 
   // Keep client and server errors in sync and track which errors to display
   useEffect(() => {
-    new FormErrorManager(
-      state.currentFormPageFields,
-      formik,
-      store,
-    ).updateFormErrorState(dispatch);
+    new FormErrorManager(formik, store).updateFormErrorState(dispatch);
   }, [
     formik.errors,
     formik.touched,
     formik.initialErrors,
     formik.initialValues,
     formik.values,
-    state.currentFormPageFields,
     formSectionFields,
   ]);
 
@@ -220,6 +215,7 @@ const FormLayoutContainer = () => {
   // Set up form UI context for provider
   const contextValue = {
     formUIState: state,
+    formSectionFields,
     fileUploadPageId,
     handleFormPageChange: navigation.handleFormPageChange,
     previousFormPage: navigation.previousFormPage,
