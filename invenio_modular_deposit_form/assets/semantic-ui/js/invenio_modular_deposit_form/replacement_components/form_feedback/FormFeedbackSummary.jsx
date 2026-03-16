@@ -15,27 +15,15 @@ import React, { useContext } from "react";
 import { Button, Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../../FormLayoutContainer";
+import { getSeverityLabel } from "../../helpers/severityChecksConfig";
+import { fieldMatches, getAllErrPaths, getSeverityAtPath } from "../../utils";
+import { feedbackConfig } from "./FormFeedback";
 
-function fieldMatches(errorPath, fieldPath) {
-  return (
-    errorPath === fieldPath ||
-    errorPath.startsWith(fieldPath + ".") ||
-    fieldPath.startsWith(errorPath + ".")
-  );
-}
-
-
-function getAllErrPaths(obj, prev = "") {
-  const result = [];
-  for (let k in obj) {
-    let path = prev + (prev ? "." : "") + k;
-    if (typeof obj[k] == "string" || obj[k].severity !== undefined) {
-      result.push(path);
-    } else if (typeof obj[k] == "object") {
-      result.push(...getAllErrPaths(obj[k], path));
-    }
-  }
-  return result;
+/** Map severity level to feedbackConfig key for label type (and styling). */
+const severityToFeedbackKey = {
+  error: "negative",
+  warning: "warning",
+  info: "suggestive",
 };
 
 
@@ -43,7 +31,7 @@ function getAllErrPaths(obj, prev = "") {
  * sectionsConfig from buildFormSections can have multiple entries per (pageId, sectionId)
  * when resource types define different fields for that section (merge only when fieldsEqual).
  * Dedupe by (pageId, sectionId), pick the entry for currentResourceType when multiple exist,
- * add count of matching error paths, return sections with count > 0 in config order.
+ * add counts of matching error paths by severity, return sections with total count > 0 in config order.
  */
 function getErrorSections(errors, sectionsConfig, currentResourceType) {
   const config = Array.isArray(sectionsConfig) ? sectionsConfig : [];
@@ -68,11 +56,25 @@ function getErrorSections(errors, sectionsConfig, currentResourceType) {
         ? entries.find((s) => (s.resourceTypes || []).includes(currentResourceType)) ?? entries[0]
         : entries[0];
     const fieldList = chosen.fields ?? [];
-    const count = paths.filter((path) =>
-      fieldList.some((field) => fieldMatches(path, field))
-    ).length;
+    let errorsCount = 0;
+    let warningsCount = 0;
+    let infoCount = 0;
+    for (const path of paths) {
+      if (!fieldList.some((field) => fieldMatches(path, field))) continue;
+      const severity = getSeverityAtPath(errors, path);
+      if (severity === "error") errorsCount += 1;
+      else if (severity === "warning") warningsCount += 1;
+      else infoCount += 1;
+    }
+    const count = errorsCount + warningsCount + infoCount;
     if (count === 0) continue;
-    result.push({ ...chosen, count });
+    result.push({
+      ...chosen,
+      count,
+      errors: errorsCount,
+      warnings: warningsCount,
+      info: infoCount,
+    });
   }
   return result;
 }
@@ -121,14 +123,18 @@ const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType:
   };
 
   return sectionsWithCount.map((section) => {
-    const { pageId, sectionId, pageLabel, sectionLabel, count } = section;
+    const { pageId, sectionId, pageLabel, sectionLabel, errors: errorsCount = 0, warnings: warningsCount = 0, info: infoCount = 0 } = section;
     const label = multiPage ? `${pageLabel ?? pageId} / ${sectionLabel ?? sectionId}` : (sectionLabel ?? sectionId);
+    const labelTypeFor = (severity) =>
+      (feedbackConfig[severityToFeedbackKey[severity]] || feedbackConfig.warning).type;
+    const severityClass =
+      errorsCount > 0 ? labelTypeFor("error") : warningsCount > 0 ? labelTypeFor("warning") : infoCount > 0 ? labelTypeFor("info") : "";
     return (
       <Button
         key={`${pageId}\0${sectionId}`}
         transparent
         basic
-        className="pl-5 comma-separated error"
+        className={`pl-5 comma-separated ${severityClass}`}
         onClick={(e) => {
           if (multiPage && handleFormPageChange) {
             handleFormPageChange(e, { value: pageId });
@@ -137,9 +143,21 @@ const FormFeedbackSummary = ({ errors, sectionsConfig = [], currentResourceType:
         }}
       >
         {label}{" "}
-        <Label circular size="tiny" className="error">
-          {count}
-        </Label>
+        {errorsCount > 0 && (
+          <Label size="tiny" circular className={labelTypeFor("error")} key="error">
+            {errorsCount} {getSeverityLabel("error")}{errorsCount !== 1 ? "s" : ""}
+          </Label>
+        )}
+        {warningsCount > 0 && (
+          <Label size="tiny" circular className={labelTypeFor("warning")} key="warning">
+            {warningsCount} {getSeverityLabel("warning")}{warningsCount !== 1 ? "s" : ""}
+          </Label>
+        )}
+        {infoCount > 0 && (
+          <Label size="tiny" circular className={labelTypeFor("info")} key="info">
+            {infoCount} {getSeverityLabel("info")}{infoCount !== 1 ? "s" : ""}
+          </Label>
+        )}
       </Button>
     );
   });
