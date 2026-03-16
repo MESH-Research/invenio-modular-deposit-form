@@ -6,8 +6,11 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import { func } from "prop-types";
+import get from "lodash/get";
 import { getIn } from "formik";
 import { readableFieldLabels } from "./readableFieldLabels";
+
+const SEVERITIES = ["error", "warning", "info"];
 
 /**
  * Scroll page to top
@@ -386,6 +389,22 @@ function getAllErrPaths(obj, prev = "") {
   return result;
 }
 
+/**
+ * Resolve severity for a field path from the errors object.
+ * Error values may be a string (legacy) or an object { message, severity?, description? }.
+ * If missing or invalid severity, treated as "error".
+ * @param {Object} errors - Nested errors object (Formik-style or merged)
+ * @param {string} path - Dot-notation field path
+ * @returns {"error"|"warning"|"info"}
+ */
+function getSeverityAtPath(errors, path) {
+  const err = get(errors, path);
+  if (err && typeof err === "object" && SEVERITIES.includes(err.severity)) {
+    return err.severity;
+  }
+  return "error";
+}
+
 export {
   areDeeplyEqual,
   fieldMatches,
@@ -396,6 +415,7 @@ export {
   focusFirstElement,
   getAllErrPaths,
   getErrorParent,
+  getSeverityAtPath,
   getReadableFields,
   getTouchedParent,
   isNearViewportBottom,

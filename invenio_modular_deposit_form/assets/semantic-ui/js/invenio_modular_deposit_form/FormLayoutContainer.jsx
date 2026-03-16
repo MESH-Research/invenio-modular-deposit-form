@@ -215,7 +215,6 @@ const FormLayoutContainer = () => {
   // Set up form UI context for provider
   const contextValue = {
     formUIState: state,
-    formSectionFields,
     fileUploadPageId,
     handleFormPageChange: navigation.handleFormPageChange,
     previousFormPage: navigation.previousFormPage,

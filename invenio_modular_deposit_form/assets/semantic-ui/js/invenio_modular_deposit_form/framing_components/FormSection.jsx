@@ -1,7 +1,9 @@
 import React, { useContext, useMemo, useState } from "react";
 import Overridable from "react-overridable";
+import { useStore } from "react-redux";
 import { Accordion, Icon, Label, Segment } from "semantic-ui-react";
 import { FormUIStateContext } from "../FormLayoutContainer";
+import { HiddenFieldsBanner } from "./HiddenFieldsBanner";
 import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
 import { getSeverityLabel } from "../helpers/severityChecksConfig";
 
@@ -17,15 +19,20 @@ const FormSection = ({
 }) => {
   const [isOpen, setIsOpen] = useState(startExpanded);
   const ctx = useContext(FormUIStateContext);
+  const store = useStore();
   const formUIState = ctx?.formUIState ?? {};
+  const formSectionFields = store?.getState?.()?.deposit?.config?.formSectionFields ?? [];
   const currentFormPage = formUIState?.currentFormPage ?? "";
+  const currentResourceType = formUIState?.currentResourceType ?? "";
+
   const sectionErrorsByKey = useMemo(
     () => getSectionErrorsBySectionKey(formUIState),
     [formUIState]
   );
   const sectionKey = `${currentFormPage}\0${sectionName}`;
   const sectionErrors = sectionErrorsByKey[sectionKey];
-  const errorCount = (sectionErrors?.error_fields ?? []).length;
+  const sectionErrorPaths = sectionErrors?.error_fields ?? [];
+  const errorCount = sectionErrorPaths.length;
   const warningCount = (sectionErrors?.warning_fields ?? []).length;
   const infoCount = (sectionErrors?.info_fields ?? []).length;
   const hasAny = errorCount > 0 || warningCount > 0 || infoCount > 0;
@@ -77,6 +84,13 @@ const FormSection = ({
         <Icon name="dropdown" className="accordion-dropdown-icon" />
       </Accordion.Title>
       <Accordion.Content active={isOpen}>
+        <HiddenFieldsBanner
+          pageId={currentFormPage}
+          sectionId={sectionName}
+          sectionErrorPaths={sectionErrorPaths}
+          formSectionFields={formSectionFields}
+          currentResourceType={currentResourceType}
+        />
         {children}
       </Accordion.Content>
     </Accordion>
@@ -100,6 +114,13 @@ const FormSection = ({
           {severityBadges}
         </legend>
       )}
+      <HiddenFieldsBanner
+        pageId={currentFormPage}
+        sectionId={sectionName}
+        sectionErrorPaths={sectionErrorPaths}
+        formSectionFields={formSectionFields}
+        currentResourceType={currentResourceType}
+      />
       {children}
     </Segment>
   );
