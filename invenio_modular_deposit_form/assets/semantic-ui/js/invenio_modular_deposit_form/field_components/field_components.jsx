@@ -706,13 +706,9 @@ const FormFeedbackComponent = () => {
   return (
     <Overridable
       id="InvenioAppRdm.Deposit.FormFeedback.container"
-      labels={config?.custom_fields?.error_labels}
       fieldPath="message"
     >
-      <ModularFormFeedback
-        fieldPath="message"
-        labels={config?.custom_fields?.error_labels}
-      />
+      <ModularFormFeedback fieldPath="message" />
     </Overridable>
   );
 };
