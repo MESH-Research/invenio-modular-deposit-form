@@ -405,6 +405,16 @@ function getSeverityAtPath(errors, path) {
   return "error";
 }
 
+/**
+ * DOM id for a form section container. Uses hyphens only (no dots), safe for
+ * getElementById, scroll targets, and CSS. Not the same as Overridable ids.
+ * @param {string} sectionId - Section id from form config (e.g. "resource_type")
+ * @returns {string|null}
+ */
+function getFormSectionElementId(sectionId) {
+  return sectionId ? `deposit-form-section-${sectionId}` : null;
+}
+
 export {
   areDeeplyEqual,
   fieldMatches,
@@ -413,10 +423,11 @@ export {
   flattenKeysDotJoined,
   flattenWrappers,
   focusFirstElement,
-  getAllErrPaths,
   getErrorParent,
-  getSeverityAtPath,
+  getFormSectionElementId,
+  getAllErrPaths,
   getReadableFields,
+  getSeverityAtPath,
   getTouchedParent,
   isNearViewportBottom,
   mergeNestedObjects,

@@ -15,180 +15,156 @@
 /* Light border: built-in modification (no custom @negativeBorderColorLight). */
 @negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
 
-/* Sticky footer */
-#rdm-deposit-form .sticky-footer-fixed {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: #fff;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
-}
-
-// #rdm-deposit-form .sticky-footer-static {
-/* In normal flow when the footer scroll target is in view. */
-// }
-
-/* Stepper severity: error, warning, info. Badges replace exclamation icon. */
-#rdm-deposit-form .upload-form-pager .upload-form-stepper-step.has-error {
-  color: @errorColor;
-  background-color: @negativeBackgroundColor;
-  border: 1px solid @negativeBorderColor;
-  border-left: 0;
-  border-top: 1px solid @negativeBorderColorLight;
-  border-bottom: 1px solid @negativeBorderColorLight;
-
-  &:first-child {
-    border-left: 1px solid @negativeBorderColorLight;
+#rdm-deposit-form {
+  /* Sticky footer */
+  .sticky-footer-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
   }
-  &:last-child {
-    border-right: 1px solid @negativeBorderColorLight;
+
+  // #rdm-deposit-form .sticky-footer-static {
+  /* In normal flow when the footer scroll target is in view. */
+  // }
+
+  .upload-form-pager {
+
+    /* Stepper severity: error, warning, info. Badges replace exclamation icon. */
+    .upload-form-stepper-step.has-error {
+      color: @errorColor;
+      background-color: @negativeBackgroundColor;
+      border: 1px solid @negativeBorderColor;
+      border-left: 0;
+      border-top: 1px solid @negativeBorderColorLight;
+      border-bottom: 1px solid @negativeBorderColorLight;
+
+      &:first-child {
+        border-left: 1px solid @negativeBorderColorLight;
+      }
+      &:last-child {
+        border-right: 1px solid @negativeBorderColorLight;
+      }
+      .title {
+        color: @errorTextColor;
+      }
+      &:after {
+        background-color: @negativeBackgroundColor;
+        border-color: @negativeBorderColor;
+      }
+    }
+
+    .upload-form-stepper-step.has-warning {
+      color: #f2711c;
+      background-color: #fff8e6;
+      border: 1px solid #f2711c;
+      border-left: 0;
+
+      .title {
+        color: #b45309;
+      }
+      &:after {
+        background-color: #fff8e6;
+        border-color: #f2711c;
+      }
+    }
+
+    .upload-form-stepper-step.has-info {
+      color: #2185d0;
+      background-color: #e8f4fc;
+      border: 1px solid #2185d0;
+      border-left: 0;
+
+      .title {
+        color: #0d71bb;
+      }
+      &:after {
+        background-color: #e8f4fc;
+        border-color: #2185d0;
+      }
+    }
+
+    .upload-form-stepper-badges {
+      margin-left: 0.5em;
+
+      .ui.label {
+        margin-left: 0.25em;
+      }
+    }
   }
-  .title {
-    color: @errorTextColor;
+
+  .deposit-form-sidebar-menu {
+
+    /* Sidebar menu severity: error, warning, info. Badges replace exclamation icon. */
+    .item.has-error {
+      border-left: 3px solid @negativeBorderColor;
+      background-color: @negativeBackgroundColor;
+    }
+
+    .item.has-warning {
+      border-left: 3px solid #f2711c;
+      background-color: #fff8e6;
+    }
+
+    .item.has-info {
+      border-left: 3px solid #2185d0;
+      background-color: #e8f4fc;
+    }
+
+    .deposit-form-sidebar-menu-badges {
+      margin-left: 0.5em;
+
+      .ui.label {
+        margin-left: 0.25em;
+        position: relative;
+        top: -0.15em;
+      }
+    }
+
+  /* Non-collapsible form sections: match accordion header styling */
+  .invenio-form-section .title {
+    background-color: @primaryColor;
+    color: @primaryTextColor;
   }
-  &:after {
+
+  /* Form section severity: accordion/segment strip and severity badges (stock-equivalent). */
+  .invenio-accordion-field.error,
+  .invenio-form-section.error {
+    border-left: 3px solid @negativeBorderColor;
     background-color: @negativeBackgroundColor;
-    border-color: @negativeBorderColor;
   }
-}
 
-#rdm-deposit-form .upload-form-pager .upload-form-stepper-step.has-warning {
-  color: #f2711c;
-  background-color: #fff8e6;
-  border: 1px solid #f2711c;
-  border-left: 0;
-
-  .title {
-    color: #b45309;
-  }
-  &:after {
+  .invenio-accordion-field.warning,
+  .invenio-form-section.warning {
+    border-left: 3px solid #f2711c;
     background-color: #fff8e6;
-    border-color: #f2711c;
   }
-}
 
-#rdm-deposit-form .upload-form-pager .upload-form-stepper-step.has-info {
-  color: #2185d0;
-  background-color: #e8f4fc;
-  border: 1px solid #2185d0;
-  border-left: 0;
-
-  .title {
-    color: #0d71bb;
-  }
-  &:after {
+  .invenio-accordion-field.info,
+  .invenio-form-section.info {
+    border-left: 3px solid #2185d0;
     background-color: #e8f4fc;
-    border-color: #2185d0;
   }
-}
 
-#rdm-deposit-form .upload-form-pager .upload-form-stepper-badges {
-  margin-left: 0.5em;
+  .form-section-severity-badges {
+    margin-left: 0.5em;
 
-  .ui.label {
-    margin-left: 0.25em;
+    .ui.label {
+      margin-left: 0.25em;
+    }
   }
-  .severity-error {
-    background-color: @negativeBorderColor !important;
-    color: #fff !important;
-  }
-  .severity-warning {
-    background-color: #f2711c !important;
-    color: #fff !important;
-  }
-  .severity-info {
-    background-color: #2185d0 !important;
-    color: #fff !important;
-  }
-}
 
-/* Sidebar menu severity: error, warning, info. Badges replace exclamation icon. */
-#rdm-deposit-form .deposit-form-sidebar-menu .item.has-error {
-  border-left: 3px solid @negativeBorderColor;
-  background-color: @negativeBackgroundColor;
-}
-
-#rdm-deposit-form .deposit-form-sidebar-menu .item.has-warning {
-  border-left: 3px solid #f2711c;
-  background-color: #fff8e6;
-}
-
-#rdm-deposit-form .deposit-form-sidebar-menu .item.has-info {
-  border-left: 3px solid #2185d0;
-  background-color: #e8f4fc;
-}
-
-#rdm-deposit-form .deposit-form-sidebar-menu .deposit-form-sidebar-menu-badges {
-  margin-left: 0.5em;
-
-  .ui.label {
-    margin-left: 0.25em;
-  }
-  .severity-error {
-    background-color: @negativeBorderColor !important;
-    color: #fff !important;
-  }
-  .severity-warning {
-    background-color: #f2711c !important;
-    color: #fff !important;
-  }
-  .severity-info {
-    background-color: #2185d0 !important;
-    color: #fff !important;
-  }
-}
-
-/* Non-collapsible form sections: match accordion header styling */
-.invenio-form-section .title {
-  background-color: @primaryColor;
-  color: @primaryTextColor;
-}
-
-/* Form section severity: accordion/segment strip and severity badges (stock-equivalent). */
-#rdm-deposit-form .invenio-accordion-field.error,
-#rdm-deposit-form .invenio-form-section.error {
-  border-left: 3px solid @negativeBorderColor;
-  background-color: @negativeBackgroundColor;
-}
-
-#rdm-deposit-form .invenio-accordion-field.warning,
-#rdm-deposit-form .invenio-form-section.warning {
-  border-left: 3px solid #f2711c;
-  background-color: #fff8e6;
-}
-
-#rdm-deposit-form .invenio-accordion-field.info,
-#rdm-deposit-form .invenio-form-section.info {
-  border-left: 3px solid #2185d0;
-  background-color: #e8f4fc;
-}
-
-#rdm-deposit-form .form-section-severity-badges {
-  margin-left: 0.5em;
-
-  .accordion-label.error {
-    background-color: @negativeBorderColor !important;
-    color: #fff !important;
-  }
-  .accordion-label.warning {
-    background-color: #f2711c !important;
-    color: #fff !important;
-  }
-  .accordion-label.info {
-    background-color: #2185d0 !important;
-    color: #fff !important;
-  }
-  .ui.label {
-    margin-left: 0.25em;
-  }
-}
-
-#rdm-deposit-form #warning-feedback-div {
-  .ui.button.basic {
-    border: none;
-    box-shadow: none;
-    padding: 0;
+  #warning-feedback-div {
+    .ui.button.basic {
+      border: none;
+      box-shadow: none !important;
+      padding: 0;
+      .label {
+        top: -0.15em;
+      }
+    }
   }
 }

@@ -76,7 +76,7 @@ class FormErrorManager {
   constructor(formik, store) {
     this.formik = formik;
     this.store = store.getState();
-    this.formSectionFields = this.store.config?.formSectionFields ?? [];
+    this.formSectionFields = this.store.deposit?.config?.formSectionFields ?? [];
   }
 
   /**

@@ -3,9 +3,10 @@ import Overridable from "react-overridable";
 import { useStore } from "react-redux";
 import { Accordion, Icon, Label, Segment } from "semantic-ui-react";
 import { FormUIStateContext } from "../FormLayoutContainer";
-import { HiddenFieldsBanner } from "./HiddenFieldsBanner";
+import { getFormSectionElementId } from "../utils";
 import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
-import { getSeverityLabel } from "../helpers/severityChecksConfig";
+import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityChecksConfig";
+import { HiddenFieldsBanner } from "./HiddenFieldsBanner";
 
 const FormSection = ({
   children,
@@ -42,27 +43,28 @@ const FormSection = ({
     hasAny && (
       <span className="form-section-severity-badges">
         {errorCount > 0 && (
-          <Label size="tiny" circular className="accordion-label error" key="error">
+          <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
             {errorCount} {getSeverityLabel("error")}{errorCount !== 1 ? "s" : ""}
           </Label>
         )}
         {warningCount > 0 && (
-          <Label size="tiny" circular className="accordion-label warning" key="warning">
+          <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
             {warningCount} {getSeverityLabel("warning")}{warningCount !== 1 ? "s" : ""}
           </Label>
         )}
         {infoCount > 0 && (
-          <Label size="tiny" circular className="accordion-label info" key="info">
+          <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
             {infoCount} {getSeverityLabel("info")}{infoCount !== 1 ? "s" : ""}
           </Label>
         )}
       </span>
     );
 
+  const sectionElementId = getFormSectionElementId(sectionName);
   const content = collapsible ? (
     <Accordion
       fluid
-      id={`InvenioAppRdm.Deposit.${sectionName}.container`}
+      id={sectionElementId}
       className={[
         "invenio-fieldset",
         "invenio-accordion-field",
@@ -96,7 +98,7 @@ const FormSection = ({
     </Accordion>
   ) : (
     <Segment
-      id={`InvenioAppRdm.Deposit.${sectionName}.container`}
+      id={sectionElementId}
       as="fieldset"
       className={[
         "invenio-fieldset",

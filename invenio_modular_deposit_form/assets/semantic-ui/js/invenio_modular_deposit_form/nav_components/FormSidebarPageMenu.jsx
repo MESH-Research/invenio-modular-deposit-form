@@ -5,7 +5,7 @@ import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import { getPageFlaggedErrorCounts } from "../helpers/formUIStateReducer";
-import { getSeverityLabel } from "../helpers/severityChecksConfig";
+import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityChecksConfig";
 
 /**
  * Vertically stacked sidebar menu for stepping through form pages.
@@ -57,17 +57,17 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
                 {hasBadges && (
                   <span className="deposit-form-sidebar-menu-badges">
                     {counts.errors > 0 && (
-                      <Label size="tiny" circular className="severity-error" key="error">
+                      <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
                         {counts.errors} {getSeverityLabel("error")}{counts.errors !== 1 ? "s" : ""}
                       </Label>
                     )}
                     {counts.warnings > 0 && (
-                      <Label size="tiny" circular className="severity-warning" key="warning">
+                      <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
                         {counts.warnings} {getSeverityLabel("warning")}{counts.warnings !== 1 ? "s" : ""}
                       </Label>
                     )}
                     {counts.info > 0 && (
-                      <Label size="tiny" circular className="severity-info" key="info">
+                      <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
                         {counts.info} {getSeverityLabel("info")}{counts.info !== 1 ? "s" : ""}
                       </Label>
                     )}
