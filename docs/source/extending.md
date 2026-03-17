@@ -1,40 +1,65 @@
-# Adding your own React components
+# Adding your own components and validator
 
 To add your own React components or provide a custom `validator.js` and/or `componentsRegistry.js`, you point the package at the directory (or directories) that contain those files. You can use **Python entry points** (recommended) or **webpack aliases**.
 
 ## Python entry points (recommended)
 
-You can register one or both of these entry point groups; each callable returns the **absolute path** to a directory containing the named file.
+You can register one or both of these entry point groups; each callable returns the **webpack request string** for the file in question:
 
-| Entry point group | File in directory | Purpose |
-|-------------------|-------------------|---------|
-| `invenio_modular_deposit_form.validator` | `validator.js` | Client-side validation schema and/or `validate` function |
-| `invenio_modular_deposit_form.components_registry` | `componentsRegistry.js` | Extra or overriding React components |
+| Entry point group                                  | File in directory       | Purpose                                                  |
+| -------------------------------------------------- | ----------------------- | -------------------------------------------------------- |
+| `invenio_modular_deposit_form.validator`           | `validator.js`          | Client-side validation schema and/or `validate` function |
+| `invenio_modular_deposit_form.components_registry` | `componentsRegistry.js` | Extra or overriding React components                     |
 
-**One directory with both files:** Register the same path under **both** `.validator` and `.components_registry` (e.g. one callable that returns that path, referenced in both entry points).
+### Register a base alias for your js assets
 
-**Example: separate entry points**
+Both of the methods described below depend on your first setting up an alias that points to your local js assets in your instance's `site/webpack.py` file like this:
 
-In your instance package, expose callables that return the directory paths. For example in `site/my_instance_name/deposit_extras.py`:
+```python
+themes={
+    "semantic-ui": dict(
+        entry={ ... },
+        aliases={
+            "@js/my_instance_name": "js/my_instance_name",
+        },
+    ),
+},
+```
+
+Ensure your theme bundle is loaded (e.g. via `invenio_assets.webpack` entry point).
+
+### Create a registration function for each entry point
+
+In your instance package, expose callables that return a webpack request string for each of your custom files. Each of these functions should return a single string, beginning with "@js/my*instance_name" (the basic alias for your js assets). Onto this base alis, add the \_relative* path to each file.
+
+So if your validator lives at `site/my_instance_name/assets/semantic-ui/js/my_instance_name/validation/validator.js` then your registration function would return "@js/my_instance_name/validation/validator.js".
+
+Likewise, if your components registry lives at `site/my_instance_name/assets/semantic-ui/js/my_instance_name/deposit_extras/componentsRegistry.js` then your registration function would return "@js/my_instance_name/deposit_extras/componentsRegistry.js".
+
+For example, you could place the following functions in a new `site/my_instance_name/deposit_extras/alias_registration.py` file:
 
 ```python
 from pathlib import Path
 
 def get_validator_path():
-    return str(Path(__file__).parent / "assets" / "js" / "deposit_validator")
+    return "@/js/my_instance_name/validation/validator.js")
 
 def get_components_registry_path():
-    return str(Path(__file__).parent / "assets" / "js" / "deposit_components")
+    return "@js/my_instance_name/deposit_extras/componentsRegistry.js")
 ```
 
-Register in `pyproject.toml`:
+The precise name or location of these files and the functions does not matter, as long as webpack can find them via the alias.
+
+### Register the functions on the entry points
+
+If you are using a `pyproject.toml` file to manage your project, add these entry points (adjusting the paths to point to your registration functions):
 
 ```toml
 [project.entry-points."invenio_modular_deposit_form.validator"]
-my_instance = "my_instance.deposit_extras:get_validator_path"
+my_instance = "my_instance_name.deposit_extras.alias_registration:get_validator_path"
 
 [project.entry-points."invenio_modular_deposit_form.components_registry"]
-my_instance = "my_instance.deposit_extras:get_components_registry_path"
+my_instance = "my_instance_name.deposit_extras.alias_registration:get_components_registry_path"
 ```
 
 Or in `setup.cfg`:
@@ -42,47 +67,38 @@ Or in `setup.cfg`:
 ```ini
 [options.entry_points]
 invenio_modular_deposit_form.validator =
-    my_instance = my_instance.deposit_extras:get_validator_path
+    my_instance = my_instance_name.deposit_extras.alias_registration:get_validator_path
 invenio_modular_deposit_form.components_registry =
-    my_instance = my_instance.deposit_extras:get_components_registry_path
+    my_instance = my_instance_name.deposit_extras.alias_registration:get_components_registry_path
 ```
-
-**One directory for both:** register the same path for both groups, e.g. use one callable and reference it twice:
-
-```toml
-[project.entry-points."invenio_modular_deposit_form.validator"]
-my_instance = "my_instance.deposit_extras:get_extras_path"
-
-[project.entry-points."invenio_modular_deposit_form.components_registry"]
-my_instance = "my_instance.deposit_extras:get_extras_path"
-```
-
-(Here `get_extras_path()` returns the directory that contains both `validator.js` and `componentsRegistry.js`.)
-
-The package uses the **first** registered entry point per group. If no entry point is registered for validator (or components map), the package uses built-in stubs (no-op validator, empty components registry).
 
 ## Webpack alias (alternative)
 
-If you prefer not to use entry points, add one or both aliases in your instance's `webpack.py` so they point at the directory containing `validator.js` and/or `componentsRegistry.js`:
+If you prefer not to use entry points, you can override the aliases in your instance's `webpack.py` so they point **directly to the files**:
 
-- `@js/invenio_modular_deposit_form_validator` → directory containing `validator.js`
-- `@js/invenio_modular_deposit_form_components` → directory containing `componentsRegistry.js`
+- `@js/invenio_modular_deposit_form_validator` → path to `validator.js`
+- `@js/invenio_modular_deposit_form_components` → path to `componentsRegistry.js`
 
 Example snippet for `webpack.py`:
 
 ```python
-themes={
+themes = {
     "semantic-ui": dict(
         entry={ ... },
         aliases={
-            "@js/invenio_modular_deposit_form_validator": "js/deposit_validator",
-            "@js/invenio_modular_deposit_form_components": "js/deposit_components",
+            # Point directly to your validator.js file
+            "@js/invenio_modular_deposit_form_validator": "js/deposit_validator/validator.js",
+            # Point directly to your componentsRegistry.js file
+            "@js/invenio_modular_deposit_form_components": "js/deposit_components/componentsRegistry.js",
         },
     ),
-},
+}
 ```
 
-Ensure your theme bundle is loaded (e.g. via `invenio_assets.webpack` entry point).
+These aliases completely override the defaults computed by
+`invenio_modular_deposit_form.webpack_extras.get_validator_path()` and
+`get_components_registry_path()`. Only define them if you want to bypass
+the entry-point based resolution.
 
 ## The componentsRegistry object
 
@@ -96,7 +112,7 @@ The `componentsRegistry` object must have the following structure:
       "custom_fields.journal:journal.pages",
       "custom_fields.imprint:imprint.pages",
     ],
-  ]
+  ];
 }
 ```
 
@@ -104,9 +120,10 @@ The keys are strings matching the names of the React components you want to expo
 
 ## Overriding
 
-Normally, overriding a React component should be done using the Overridable API. This extension also allows a second method: if you include a component definition in your `componentsRegistry.js` that duplicates the key of a built-in component, your definition will supersede the built-in one. This is useful when you want to *change the metadata fields handled by a component*. See [Customizing field components](#customizing-field-components) for when to use each approach.
+Normally, overriding a React component should be done using the Overridable API. This extension also allows a second method: if you include a component definition in your `componentsRegistry.js` that duplicates the key of a built-in component, your definition will supersede the built-in one. This is useful when you want to _change the metadata fields handled by a component_. See [Customizing field components](#customizing-field-components) for when to use each approach.
 
 (customizing-field-components)=
+
 ## Customizing field components
 
 There are two ways to customize how a form section or field is rendered: via the **component registry** or via **Overridable**.
@@ -126,17 +143,18 @@ Your component is what the layout renders for that section name. It is responsib
 
 ### 2. Overridable
 
-Use Overridable when you only want to **replace the inner widget** for a section that already has a default wrapper. Your component is rendered *inside* the existing wrapper (e.g. inside `FieldComponentWrapper`'s `<Overridable>`), so it receives the **same props the default child would get**. Your override does not need to wrap itself in `FieldComponentWrapper` again.
+Use Overridable when you only want to **replace the inner widget** for a section that already has a default wrapper. Your component is rendered _inside_ the existing wrapper (e.g. inside `FieldComponentWrapper`'s `<Overridable>`), so it receives the **same props the default child would get**. Your override does not need to wrap itself in `FieldComponentWrapper` again.
 
 Register your component in the instance's overridable registry (`assets/js/invenio_app_rdm/overridableRegistry/mapping.js`) under the slot id for that section. See the package's [Override guide](override-guide.md) for the list of slot ids.
 
-| Goal | Method |
-|------|--------|
-| Replace whole section and control how props are assembled | Component registry (override by section name, wrap in `FieldComponentWrapper` if needed) |
-| Add a section for a metadata field with no default component | Component registry (new name + `FieldComponentWrapper` + all props) |
-| Replace only the inner widget and use the wrapper's props | Overridable (register in `mapping.js` under the slot id) |
+| Goal                                                         | Method                                                                                   |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Replace whole section and control how props are assembled    | Component registry (override by section name, wrap in `FieldComponentWrapper` if needed) |
+| Add a section for a metadata field with no default component | Component registry (new name + `FieldComponentWrapper` + all props)                      |
+| Replace only the inner widget and use the wrapper's props    | Overridable (register in `mapping.js` under the slot id)                                 |
 
 (handling-custom-fields)=
+
 ## Handling custom fields
 
 Custom field values are stored under `custom_fields` in the record and must be accessed via the correct field path (e.g. `custom_fields.kcr:my_field`). To implement your own custom field widgets while reusing the standard InvenioRDM custom field configuration, use the **CustomField** component.
@@ -193,11 +211,7 @@ Each of these helpers defines **separate entries for each subfield** (for exampl
 import { CustomField } from "@js/invenio_modular_deposit_form/field_components/CustomField";
 
 const MyFieldComponent = (props) => (
-  <CustomField
-    fieldName="kcr:my_field"
-    idString="MyField"
-    {...props}
-  />
+  <CustomField fieldName="kcr:my_field" idString="MyField" {...props} />
 );
 
 // In componentsRegistry.js:

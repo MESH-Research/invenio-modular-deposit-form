@@ -20,6 +20,7 @@ from flask import current_app
 
 _GROUP_VALIDATOR = "invenio_modular_deposit_form.validator"
 _GROUP_COMPONENTS_REGISTRY = "invenio_modular_deposit_form.components_registry"
+_STUBS_PATH = "./js/invenio_modular_deposit_form/stubs"
 
 
 def _resolve_path(group):
@@ -50,9 +51,7 @@ def _resolve_path(group):
         path = get_path()
     except Exception:
         return None
-    if not path or not isinstance(path, str):
-        return None
-    return os.path.abspath(path)
+    return path
 
 
 def get_validator_path() -> str:
@@ -63,46 +62,14 @@ def get_validator_path() -> str:
        (only when MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION is truthy).
     2. Package default ``assets/semantic-ui/js/invenio_modular_deposit_form/validation``.
     """
-    module_path = Path(__file__).resolve().parent
-    default_path = (
-        module_path
-        / "assets"
-        / "semantic-ui"
-        / "js"
-        / "invenio_modular_deposit_form"
-        / "validation"
-    )
-
     validation_flag = current_app.config.get(
         "MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION", False
     )
-    override_path = _resolve_path(_GROUP_VALIDATOR) if validation_flag else None
-    resolved_path = str((override_path or default_path).resolve())
-
-    # region agent log
-    try:
-        payload = {
-            "sessionId": "1ba8a1",
-            "runId": "pre-fix",
-            "hypothesisId": "H1",
-            "location": "webpack_extras.get_validator_path",
-            "message": "Resolved validator path",
-            "data": {
-                "validation_flag": bool(validation_flag),
-                "override_path": override_path,
-                "resolved_path": resolved_path,
-            },
-            "timestamp": int(time() * 1000),
-        }
-        log_path = "/Users/ianscott/Development/v13test/debug-1ba8a1.log"
-        with open(log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload) + "\n")
-    except Exception:
-        # Logging must never affect runtime behavior.
-        pass
-    # endregion
-
-    return resolved_path
+    if validation_flag:
+        override_path = _resolve_path(_GROUP_VALIDATOR)
+        validation_path = "./js/invenio_modular_deposit_form/validation/validator.js"
+        return override_path if override_path else validation_path
+    return _STUBS_PATH + "/validator.js"
 
 
 def get_components_registry_path():
@@ -112,4 +79,7 @@ def get_components_registry_path():
     The callable must return a path to a directory containing componentsRegistry.js
     (absolute path recommended).
     """
-    return _resolve_path(_GROUP_COMPONENTS_REGISTRY)
+    return (
+        _resolve_path(_GROUP_COMPONENTS_REGISTRY)
+        or _STUBS_PATH + "/componentsRegistry.js"
+    )
