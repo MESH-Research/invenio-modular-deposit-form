@@ -11,10 +11,12 @@ Used by webpack.py to set webpack aliases so validator.js and componentsRegistry
 are loaded from instance-provided paths when entry points are registered.
 """
 
+import json
 import os
+from pathlib import Path
+from time import time
 
 from flask import current_app
-from pathlib import Path
 
 _GROUP_VALIDATOR = "invenio_modular_deposit_form.validator"
 _GROUP_COMPONENTS_REGISTRY = "invenio_modular_deposit_form.components_registry"
@@ -53,24 +55,14 @@ def _resolve_path(group):
     return os.path.abspath(path)
 
 
-def get_validator_path() -> None | str:
-    """Return the directory path for validator.js, or None.
+def get_validator_path() -> str:
+    """Return the directory path for validator.js.
 
-    If the MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION config variable is
-    not True, this will always return None. Otherwise, it resolves the
-    first entry point in ``invenio_modular_deposit_form.validator``.
-    The callable must return a path to a directory containing validator.js
-    (absolute path recommended). If that path cannot be found, this falls
-    back to the path to the default validator.js.
-
-    Returns:
-        None or a path string.
+    Resolution priority:
+    1. Instance-provided entry point in ``invenio_modular_deposit_form.validator``
+       (only when MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION is truthy).
+    2. Package default ``assets/semantic-ui/js/invenio_modular_deposit_form/validation``.
     """
-    validation_flag = current_app.config.get(
-        "MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION", False
-    )
-    if not validation_flag:
-        return None
     module_path = Path(__file__).resolve().parent
     default_path = (
         module_path
@@ -80,7 +72,37 @@ def get_validator_path() -> None | str:
         / "invenio_modular_deposit_form"
         / "validation"
     )
-    return _resolve_path(_GROUP_VALIDATOR) or str(default_path.resolve())
+
+    validation_flag = current_app.config.get(
+        "MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION", False
+    )
+    override_path = _resolve_path(_GROUP_VALIDATOR) if validation_flag else None
+    resolved_path = str((override_path or default_path).resolve())
+
+    # region agent log
+    try:
+        payload = {
+            "sessionId": "1ba8a1",
+            "runId": "pre-fix",
+            "hypothesisId": "H1",
+            "location": "webpack_extras.get_validator_path",
+            "message": "Resolved validator path",
+            "data": {
+                "validation_flag": bool(validation_flag),
+                "override_path": override_path,
+                "resolved_path": resolved_path,
+            },
+            "timestamp": int(time() * 1000),
+        }
+        log_path = "/Users/ianscott/Development/v13test/debug-1ba8a1.log"
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload) + "\n")
+    except Exception:
+        # Logging must never affect runtime behavior.
+        pass
+    # endregion
+
+    return resolved_path
 
 
 def get_components_registry_path():

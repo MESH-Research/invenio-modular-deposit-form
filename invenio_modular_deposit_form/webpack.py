@@ -8,7 +8,7 @@ _STUBS_PATH = "js/invenio_modular_deposit_form/stubs"
 _aliases = {
     "@js/invenio_modular_deposit_form": "js/invenio_modular_deposit_form",
     "@translations/invenio_modular_deposit_form": "translations/invenio_modular_deposit_form",
-    "@js/invenio_modular_deposit_form_validator": get_validator_path() or _STUBS_PATH,
+    "@js/invenio_modular_deposit_form_validator": get_validator_path(),
     "@js/invenio_modular_deposit_form_components": get_components_registry_path()
     or _STUBS_PATH,
 }
