@@ -3,7 +3,6 @@ import * as yup from "yup";
 import {
   gndValidator,
   isniValidator,
-  kcUsernameValidator,
   orcidValidator,
   rorValidator,
 } from "./validatorsForIds";

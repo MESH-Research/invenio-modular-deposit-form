@@ -1,3 +1,9 @@
+// This file is part of Invenio Modular Deposit Form
+// Copyright (C) 2023-2026 MESH Research.
+//
+// Invenio Modular Deposit Form is free software; you can redistribute and/or 
+// modify it under the terms of the MIT License; see LICENSE file for more details.
+
 import {
   addMethod,
   array as yupArray,
@@ -11,10 +17,16 @@ import {
 import {
   gndValidator,
   isniValidator,
-  kcUsernameValidator,
   orcidValidator,
   rorValidator,
 } from "./validatorsForIds";
+
+import {
+  dateInSequence,
+  edtfValidator,
+} from "./validatorsForDates.js";
+
+addMethod(yupString, "edtf", edtfValidator);
 
 addMethod(yupString, "ror", rorValidator);
 
@@ -24,30 +36,10 @@ addMethod(yupString, "orcid", orcidValidator);
 
 addMethod(yupString, "isni", isniValidator);
 
+addMethod(yupString, "dateInSequence", dateInSequence);
+
 // Must match RDM_RECORDS_MAX_TITLE_LENGTH in invenio.cfg (metadata validation)
 const TITLE_MAX_LENGTH = 260;
-
-addMethod(yupString, "dateInSequence", function () {
-  return this.test("test-name", function (value) {
-    const { path, createError } = this;
-    let outOfSequence = false;
-
-    if (!!value) {
-      const dateParts = value.split("/");
-      if (dateParts?.length > 1) {
-        const aDate = new Date(dateParts[0]);
-        const bDate = new Date(dateParts[1]);
-        if (aDate > bDate) {
-          outOfSequence = true;
-        }
-      }
-    }
-    return (
-      outOfSequence === false ||
-      createError({ message: "End date must be after start date" })
-    );
-  });
-});
 
 const validationSchema = yupObject().shape({
   access: yupObject().shape({}),
@@ -181,8 +173,9 @@ const validationSchema = yupObject().shape({
       // Publisher is not required in form validation because a default value is set
       // in the form before submission.
       publication_date: yupString()
-        .dateInSequence()
-        .required("A publication date is required"),
+          .edtf()
+          .dateInSequence()
+          .required("A publication date is required"),
       title: yupString()
         .matches(/(?!\s).+/, "Title cannot be blank")
         .min(1, "Title must be at least 1 character")

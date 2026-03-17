@@ -18,7 +18,8 @@
     "prop-types": "^15.8.1",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
-    "react-test-renderer": "^16.13.0"
+    "react-test-renderer": "^16.13.0",
+    "yup": "^0.32.11"
   },
   "scripts": {
     "test": "jest",
