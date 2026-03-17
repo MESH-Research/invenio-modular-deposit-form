@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Architecture" href="architecture.html"><link rel="prev" title="Adding your own React components" href="extending.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Architecture" href="architecture.html"><link rel="prev" title="Adding your own components and validator" href="extending.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>Client-side form validation - Invenio Modular Deposit Form 0.3.4-dev0 documentation</title>
@@ -178,7 +178,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -202,7 +202,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
-<li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own React components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
@@ -243,22 +243,31 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="client-side-form-validation">
 <h1>Client-side form validation<a class="headerlink" href="#client-side-form-validation" title="Link to this heading">¶</a></h1>
-<p>To enable client-side form validation, provide a <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> file in a directory that you expose via the <strong>validator</strong> entry point (or the <strong>extras</strong> entry point). See <a class="reference internal" href="extending.html"><span class="std std-doc">Adding your own React components</span></a> for how to register <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.validator</span></code> or <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.extras</span></code>.</p>
+<p>Invenio Modular Deposit Form allows for client-side (in-browser) validation of form values, to complement InvenioRDM’s server-side validation. This means that users will see errors immediately, as they complete the form, rather than only when they submit the form.</p>
+<section id="enabling-client-side-validation">
+<h2>Enabling client-side validation<a class="headerlink" href="#enabling-client-side-validation" title="Link to this heading">¶</a></h2>
+<p>To enable client-side form validation, set the <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code> config variable to <code class="docutils literal notranslate"><span class="pre">True</span></code> in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> file.</p>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<p>Before client-side validation can work, you will also need to patch your installed invenio-rdm-records package, since that package does not currently pass the <code class="docutils literal notranslate"><span class="pre">validator</span></code> or <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> props through to Formik. Run the patch script from your instance root as described in the <a class="reference internal" href="installation.html"><span class="std std-doc">Installation</span></a> section.</p>
+</section>
+<section id="configuring-the-validator">
+<h2>Configuring the validator<a class="headerlink" href="#configuring-the-validator" title="Link to this heading">¶</a></h2>
+<p>This package comes with a default validation schema at <code class="docutils literal notranslate"><span class="pre">assets/semantic-ui/js/invenio_modular_deposit_form/validation/validator.js</span></code>. If you wish to change any of the validation behaviour, you can use this as a template and provide your own file, exposing it via the <strong>validator</strong> entry point. See <a class="reference internal" href="extending.html"><span class="std std-doc">Adding your own React components</span></a> for how to register <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.validator</span></code>.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> file may export one or both of:</p>
 <ul class="simple">
 <li><p><strong>validationSchema</strong> — A <code class="docutils literal notranslate"><span class="pre">yup</span></code> schema. If provided, it will be passed to the Formik form validation handler via the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> property, which will handle validation and update the form’s <code class="docutils literal notranslate"><span class="pre">errors</span></code> object as necessary.</p></li>
 <li><p><strong>validate</strong> — A custom validation function that will be passed to the Formik form <code class="docutils literal notranslate"><span class="pre">validate</span></code> property.</p></li>
 </ul>
-<p>If neither of these is exported from a file with that name, client-side validation will be deactivated.</p>
-<p>For invenio-rdm-records versions that do not accept these props, run the patch script from your instance root as described in the <a class="reference internal" href="installation.html"><span class="std std-doc">Installation</span></a> section.</p>
-<p>TextField components are aware not just of their own <code class="docutils literal notranslate"><span class="pre">touched</span></code> state, but also the <code class="docutils literal notranslate"><span class="pre">touched</span></code> state of parents.</p>
+</section>
 </section>
 
         </article>
@@ -282,7 +291,7 @@
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Adding your own React components</div>
+                <div class="title">Adding your own components and validator</div>
                 
               </div>
             </a>
@@ -311,8 +320,29 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Client-side form validation</a><ul>
+<li><a class="reference internal" href="#enabling-client-side-validation">Enabling client-side validation</a></li>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#configuring-the-validator">Configuring the validator</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
