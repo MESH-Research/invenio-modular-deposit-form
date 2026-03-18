@@ -1,10 +1,12 @@
 // This file is part of Invenio Modular Deposit Form
 // Copyright (C) 2023-2026 MESH Research.
 //
-// Invenio Modular Deposit Form is free software; you can redistribute and/or 
+// Invenio Modular Deposit Form is free software; you can redistribute and/or
 // modify it under the terms of the MIT License; see LICENSE file for more details.
 
-function edtfValidator(message = "Invalid EDTF format") {
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
+
+function edtfValidator(message = i18next.t("Invalid EDTF format")) {
   return this.test('edtf', message, value => {
     if (!value) return true;
     const edtfRegex = /^\d{4}(?:-\d{2})?(?:-\d{2})?(?:\/\d{4}(?:-\d{2})?(?:-\d{2})?)?$/;
@@ -41,7 +43,7 @@ function dateInSequence() {
     }
     return (
       outOfSequence === false ||
-      createError({ message: "End date must be after start date" })
+      createError({ message: i18next.t("End date must be after start date") })
     );
   });
 };

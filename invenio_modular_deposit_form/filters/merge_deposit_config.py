@@ -55,6 +55,30 @@ def merge_deposit_config(forms_config, extra=None):
         value = current_app.config.get(config_key)
         if value is not None:
             base[payload_key] = value
+
+    # Validation: max title length and identifier schemes for dynamic schema
+    base["max_title_length"] = current_app.config.get("RDM_RECORDS_MAX_TITLE_LENGTH", 260)
+    personorg_schemes = current_app.config.get("RDM_RECORDS_PERSONORG_SCHEMES", {})
+    if personorg_schemes:
+        base.setdefault("vocabularies", {})
+        base["vocabularies"].setdefault("metadata", {})
+        base["vocabularies"]["metadata"].setdefault("creators", {})
+        base["vocabularies"]["metadata"]["creators"]["identifiers"] = {
+            "scheme": [
+                {"id": k, "title_l10n": str(v.get("label", k))}
+                for k, v in personorg_schemes.items()
+            ]
+        }
+    record_identifiers_schemes = current_app.config.get("RDM_RECORDS_IDENTIFIERS_SCHEMES", {})
+    if record_identifiers_schemes:
+        base.setdefault("vocabularies", {})
+        base["vocabularies"].setdefault("metadata", {})
+        base["vocabularies"]["metadata"].setdefault("identifiers", {})
+        base["vocabularies"]["metadata"]["identifiers"]["scheme"] = [
+            {"id": k, "title_l10n": str(v.get("label", k))}
+            for k, v in record_identifiers_schemes.items()
+        ]
+
     if extra:
         base.update(extra)
     return base

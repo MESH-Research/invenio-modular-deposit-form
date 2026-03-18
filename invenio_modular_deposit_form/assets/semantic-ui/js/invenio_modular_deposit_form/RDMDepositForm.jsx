@@ -11,7 +11,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React from "react";
+import React, { useMemo } from "react";
 import { DepositFormApp } from "@js/invenio_rdm_records";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -19,11 +19,12 @@ import { componentsRegistry } from "./componentsRegistry";
 import { buildFormSections } from "./buildFormStructure";
 import { FormLayoutContainer } from "./FormLayoutContainer";
 
-const validator = require(`@js/invenio_modular_deposit_form_validator`);
-const validationSchema = validator?.validationSchema
-  ? validator?.validationSchema
-  : null;
-const validate = validator?.validate ? validator?.validate : null;
+// Validator module: resolved via webpack alias @js/invenio_modular_deposit_form_validator
+// (package default or entry-point override). Contract: module exports a single value
+// (default or module.exports). If callable, it is the schema builder (config) => schema;
+// otherwise it is the schema itself. Schema only — no separate validate function.
+const validatorModule = require(`@js/invenio_modular_deposit_form_validator`);
+const validatorExport = validatorModule?.default ?? validatorModule;
 
 
 
@@ -116,6 +117,11 @@ export const RDMDepositForm = ({
     configForStore.require_secret_links_expiration = shareBtnRequireLinkExpiration;
   }
 
+  const validationSchema = useMemo(() => {
+    if (typeof validatorExport === "function") return validatorExport(configForStore);
+    return validatorExport ?? null;
+  }, [config]);
+
   return (
       <DepositFormApp
         config={configForStore}
@@ -123,7 +129,6 @@ export const RDMDepositForm = ({
         preselectedCommunity={preselectedCommunity}
         files={files}
         permissions={permissions}
-        validate={validate}
         validationSchema={validationSchema}
       >
         <FormLayoutContainer />

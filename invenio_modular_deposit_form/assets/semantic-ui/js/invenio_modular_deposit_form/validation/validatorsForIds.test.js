@@ -1,17 +1,18 @@
 import { addMethod } from "yup";
 import * as yup from "yup";
-import {
-  gndValidator,
-  isniValidator,
-  orcidValidator,
-  rorValidator,
-} from "./validatorsForIds";
 
-// Add validators to yup
-addMethod(yup.string, "ror", rorValidator);
-addMethod(yup.string, "isni", isniValidator);
-addMethod(yup.string, "gnd", gndValidator);
-addMethod(yup.string, "orcid", orcidValidator);
+import {
+  buildCreatorIdentifierChain,
+  buildRecordIdentifierChain,
+  CREATOR_SCHEME_IDS,
+  RECORD_SCHEME_IDS,
+} from "./identifierSchemeValidators";
+import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
+
+// Register all scheme validators from the map (mirrors validator.js)
+for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
+  addMethod(yup.string, schemeId, validatorFn);
+}
 
 describe("validatorsForIds", () => {
   describe("rorValidator", () => {
@@ -216,6 +217,196 @@ describe("validatorsForIds", () => {
       await expect(schema.validate({ orcid: undefined })).rejects.toThrow();
       await expect(schema.validate({})).rejects.toThrow();
     });
+  });
+
+  describe("urlValidator", () => {
+    const schema = yup.object().shape({
+      url: yup.string().nullable().url(),
+    });
+
+    it("should validate correct URL format", async () => {
+      const validURLs = ["https://example.com", "http://example.org/path", "https://sub.example.com/foo?q=1"];
+      for (const url of validURLs) {
+        await expect(schema.validate({ url })).resolves.toBeTruthy();
+      }
+    });
+
+    it("should reject invalid URL format", async () => {
+      const invalidURLs = ["not a url", "ftp://example.com", "javascript:alert(1)"];
+      for (const url of invalidURLs) {
+        await expect(schema.validate({ url })).rejects.toThrow();
+      }
+    });
+  });
+
+  describe("applies the correct validation function for each identifier scheme", () => {
+    const identifierSchema = yup.object().shape({
+      scheme: yup.string().required(),
+      identifier: buildCreatorIdentifierChain(
+        yup.string().required(),
+        CREATOR_SCHEME_IDS,
+        yup.string
+      ),
+    });
+
+    const validPerScheme = {
+      ark: "ark:/12345/x7q84",
+      arxiv: "2101.12345",
+      ads: "2021arXiv210112345A",
+      crossreffunderid: "100000001",
+      doi: "10.1234/example.12345",
+      ean13: "5901234123457",
+      eissn: "2049-3630",
+      grid: "grid.12345.6",
+      handle: "20.1000/100",
+      igsn: "AU1234",
+      isbn: "978-0-262-03293-3",
+      isni: "000000012146438X",
+      issn: "2049-3630",
+      istc: "A02-2009-000004B3-9",
+      lissn: "2049-3630",
+      lsid: "urn:lsid:ubio.org:namebank:11815",
+      pmid: "12345678",
+      purl: "https://purl.org/example",
+      upc: "012345678905",
+      url: "https://example.com",
+      urn: "urn:nbn:de:123",
+      w3id: "https://w3id.org/example",
+      other: "any",
+      orcid: "0000-0001-2345-6789",
+      gnd: "118627813",
+      ror: "0w4pz9h89",
+    };
+
+    const invalidPerScheme = {
+      ark: "not-an-ark",
+      arxiv: "99.9999",
+      ads: "short",
+      crossreffunderid: "", // required fails
+      doi: "not-a-doi",
+      ean13: "123",
+      eissn: "123",
+      grid: "", // required fails
+      handle: "invalid",
+      igsn: "", // required fails
+      isbn: "000",
+      isni: "0000000121464389",
+      issn: "1234",
+      istc: "A02-2009-000004B3-X",
+      lissn: "12",
+      lsid: "urn:invalid:lsid",
+      pmid: "abc",
+      purl: "https://example.com/not-purl",
+      upc: "", // required fails
+      url: "not-a-url",
+      urn: "http://example.com",
+      w3id: "", // required fails
+      other: "", // required fails
+      orcid: "0000-0001-2345-678X",
+      gnd: "invalid",
+      ror: "short",
+    };
+
+    for (const schemeId of CREATOR_SCHEME_IDS) {
+      it(`${schemeId}: accepts valid identifier`, async () => {
+        const value = validPerScheme[schemeId];
+        await expect(
+          identifierSchema.validate({ scheme: schemeId, identifier: value })
+        ).resolves.toBeTruthy();
+      });
+
+      it(`${schemeId}: rejects invalid identifier`, async () => {
+        const value = invalidPerScheme[schemeId];
+        await expect(
+          identifierSchema.validate({ scheme: schemeId, identifier: value })
+        ).rejects.toThrow();
+      });
+    }
+  });
+
+  describe("metadata.identifiers / record identifiers: applies the correct validation per scheme", () => {
+    const recordIdentifierSchema = yup.object().shape({
+      scheme: yup.string().required(),
+      identifier: buildRecordIdentifierChain(
+        yup.string().required(),
+        RECORD_SCHEME_IDS,
+        yup.string
+      ),
+    });
+
+    const validPerScheme = {
+      ark: "ark:/12345/x7q84",
+      arxiv: "2101.12345",
+      ads: "2021arXiv210112345A",
+      crossreffunderid: "100000001",
+      doi: "10.1234/example.12345",
+      ean13: "5901234123457",
+      eissn: "2049-3630",
+      grid: "grid.12345.6",
+      handle: "20.1000/100",
+      igsn: "AU1234",
+      isbn: "978-0-262-03293-3",
+      isni: "000000012146438X",
+      issn: "2049-3630",
+      istc: "A02-2009-000004B3-9",
+      lissn: "2049-3630",
+      lsid: "urn:lsid:ubio.org:namebank:11815",
+      pmid: "12345678",
+      purl: "https://purl.org/example",
+      upc: "012345678905",
+      url: "https://example.com",
+      urn: "urn:nbn:de:123",
+      w3id: "https://w3id.org/example",
+      other: "any",
+      orcid: "0000-0001-2345-6789",
+      gnd: "118627813",
+      ror: "0w4pz9h89",
+    };
+
+    const invalidPerScheme = {
+      ark: "not-an-ark",
+      arxiv: "99.9999",
+      ads: "short",
+      crossreffunderid: "",
+      doi: "not-a-doi",
+      ean13: "123",
+      eissn: "123",
+      grid: "",
+      handle: "invalid",
+      igsn: "",
+      isbn: "000",
+      isni: "0000000121464389",
+      issn: "1234",
+      istc: "A02-2009-000004B3-X",
+      lissn: "12",
+      lsid: "urn:invalid:lsid",
+      pmid: "abc",
+      purl: "https://example.com/not-purl",
+      upc: "",
+      url: "not-a-url",
+      urn: "http://example.com",
+      w3id: "",
+      other: "",
+      orcid: "0000-0001-2345-678X",
+      gnd: "invalid",
+      ror: "short",
+    };
+
+    for (const schemeId of RECORD_SCHEME_IDS) {
+      it(`${schemeId}: accepts valid identifier`, async () => {
+        const value = validPerScheme[schemeId];
+        await expect(
+          recordIdentifierSchema.validate({ scheme: schemeId, identifier: value })
+        ).resolves.toBeTruthy();
+      });
+
+      it(`${schemeId}: rejects invalid identifier`, async () => {
+        const value = invalidPerScheme[schemeId];
+        await expect(
+          recordIdentifierSchema.validate({ scheme: schemeId, identifier: value })
+        ).rejects.toThrow();
+      });
+    }
   });
 });
 

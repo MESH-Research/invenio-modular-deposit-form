@@ -219,7 +219,7 @@ const componentsRegistry = {
   FormSidebarPageMenu: [FormSidebarPageMenu, []],
 };
 
-const extras = require(`@js/invenio_modular_deposit_form_components/componentsRegistry.js`);
+const extras = require(`@js/invenio_modular_deposit_form_components`);
 if (extras && extras.componentsRegistry) {
   Object.assign(componentsRegistry, extras.componentsRegistry);
 }
