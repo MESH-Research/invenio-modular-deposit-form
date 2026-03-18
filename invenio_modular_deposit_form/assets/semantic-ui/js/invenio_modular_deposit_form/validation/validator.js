@@ -13,7 +13,6 @@ import {
   string as yupString,
   date as yupDate,
 } from "yup";
-
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
   buildCreatorIdentifierChain,
@@ -30,12 +29,36 @@ import {
 
 addMethod(yupString, "edtf", edtfValidator);
 addMethod(yupString, "dateInSequence", dateInSequence);
-
 for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
   addMethod(yupString, schemeId, validatorFn);
 }
 
 const DEFAULT_TITLE_MAX_LENGTH = 260;
+
+const accessSchema = yupObject().shape({
+  files: yupString().oneOf(["public", "restricted"]),
+  record: yupString().oneOf(["public", "restricted"]),
+  status: yupString(),
+  embargo: yupObject().shape({
+    active: yupBoolean(),
+    until: yupString().edtf().dateInSequence(),
+    reason: yupString()
+  })
+})
+
+// Helper schema for individual PID entries
+// NOTE: We don't make it required in the client-side schema since 
+// a PID may only be reserved and added on submission
+const pidEntrySchema = yupObject().shape({
+  identifier: yupString().when("provider", {
+    is: "external",
+    then: (schema) => schema
+      .doi()
+      .required(i18next.t("You must provide a valid DOI if you say that you already have one.")),
+  }),
+  provider: yupString(),
+  client: yupString(),
+});
 
 /**
  * Build the validation schema from deposit config.
@@ -87,7 +110,13 @@ function buildValidationSchema(config = {}) {
     : yupString().required(i18next.t("A type is required"));
 
   return yupObject().shape({
-    access: yupObject().shape({}),
+    access: accessSchema, 
+    // Backend schema: `pids` is a dict of PID schemes (e.g. `pids: { doi: {...} }`).
+    // Allow empty `{}` while validating `pids.doi.*` when present.
+    pids: yupObject()
+      .shape({doi: pidEntrySchema})
+      .default({})
+      .notRequired(),
     custom_fields: yupObject().shape({}),
     metadata: yupObject()
       .shape({

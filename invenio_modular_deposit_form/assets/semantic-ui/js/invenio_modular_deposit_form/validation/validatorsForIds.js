@@ -543,8 +543,10 @@ function doiValidator(message) {
       return createError({ path, message: message ?? i18next.t("DOI must be a string") });
     }
 
-    // 10.<prefix>/<suffix> - prefix: digits and dots; suffix: non-empty
-    const doiRegexp = /^10\.\d{4,}(\.\d+)*\/.+$/;
+    // Matches python `idutils.is_doi` via `idutils.validators.doi_regexp`.
+    // python: (doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(\.\d+)*/.+)$
+    const doiRegexp =
+      /^(doi:\s*|(?:https?:\/\/)?(?:dx\.)?doi\.org\/)?(10\.\d+(\.\d+)*\/.+)$/i;
     if (!doiRegexp.test(val.trim())) {
       return createError({
         path,
