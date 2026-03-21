@@ -150,6 +150,7 @@ describe("validatorsForIds", () => {
 
         // With prefixes
         "http://d-nb.info/gnd/100000000",
+        "https://d-nb.info/gnd/100000000",
         "GND:100000000",
         "gnd:100000000",
       ];
@@ -223,20 +224,35 @@ describe("validatorsForIds", () => {
     });
   });
 
+  describe("adsValidator", () => {
+    const schema = yup.object().shape({
+      ads: yup.string().nullable().ads(),
+    });
+
+    it("accepts bibcode with unicode ellipsis (NFKD matches idutils.is_ads)", async () => {
+      await expect(schema.validate({ ads: "1992ApJ…400L…1W" })).resolves.toBeTruthy();
+    });
+  });
+
   describe("urlValidator", () => {
     const schema = yup.object().shape({
       url: yup.string().nullable().url(),
     });
 
     it("should validate correct URL format", async () => {
-      const validURLs = ["https://example.com", "http://example.org/path", "https://sub.example.com/foo?q=1"];
+      const validURLs = [
+        "https://example.com",
+        "http://example.org/path",
+        "https://sub.example.com/foo?q=1",
+        "ftp://example.com/resource",
+      ];
       for (const url of validURLs) {
         await expect(schema.validate({ url })).resolves.toBeTruthy();
       }
     });
 
     it("should reject invalid URL format", async () => {
-      const invalidURLs = ["not a url", "ftp://example.com", "javascript:alert(1)"];
+      const invalidURLs = ["not a url", "javascript:alert(1)"];
       for (const url of invalidURLs) {
         await expect(schema.validate({ url })).rejects.toThrow();
       }

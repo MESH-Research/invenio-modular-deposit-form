@@ -183,8 +183,8 @@ function isniValidator(message) {
  * "Invalid GND identifier". Otherwise this is overridden by
  * the custom error message.
  *
- * If the value to be tested starts with "http://d-nb.info/gnd/",
- * the prefix is ignored for validation.
+ * Resolver prefixes are stripped to match {@link idutils.validators.is_gnd} /
+ * `gnd_regexp` in idutils (http, https, and bare `d-nb.info/gnd/`).
  *
  * @param {string} message
  * @returns either true or an error message
@@ -197,10 +197,15 @@ function gndValidator(message) {
       return createError({ path, message: i18next.t("GND identifier cannot be empty") });
     }
 
-    const gndResolverUrl = "http://d-nb.info/gnd/";
-
-    if (val.startsWith(gndResolverUrl)) {
-      val = val.slice(gndResolverUrl.length);
+    for (const prefix of [
+      "http://d-nb.info/gnd/",
+      "https://d-nb.info/gnd/",
+      "d-nb.info/gnd/",
+    ]) {
+      if (val.startsWith(prefix)) {
+        val = val.slice(prefix.length);
+        break;
+      }
     }
 
     // GND must match one of these patterns:
@@ -351,6 +356,8 @@ function adsValidator(message) {
     const { path, createError } = this;
     if (val === undefined || val === null || val === "") return true;
     if (typeof val !== "string") return createError({ path, message: message ?? i18next.t("ADS/Bibcode must be a string") });
+    // idutils.is_ads uses unicodedata.normalize("NFKD", val) before matching ads_regexp.
+    val = val.normalize("NFKD");
     const ads = /^(ads:|ADS:)?(\d{4}[A-Za-z]\S{13}[A-Za-z.:])$/;
     if (!ads.test(val.trim())) return createError({ path, message: message ?? i18next.t("This is not a valid ADS/Bibcode identifier.") });
     return true;
@@ -525,7 +532,8 @@ function urnValidator(message) {
 }
 
 /**
- * Test if argument is a valid URL. Mirrors server-side idutils.is_url.
+ * Test if argument is a valid URL. Mirrors idutils.is_url (urllib.parse.urlparse:
+ * truthy scheme and netloc).
  */
 function urlValidator(message) {
   return this.test("url", message, function (val) {
@@ -541,7 +549,7 @@ function urlValidator(message) {
 
     try {
       const u = new URL(val);
-      if (!["http:", "https:"].includes(u.protocol)) {
+      if (!u.protocol || !u.hostname) {
         return createError({ path, message: message ?? i18next.t("This is not a valid URL identifier.") });
       }
     } catch {
