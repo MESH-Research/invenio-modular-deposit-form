@@ -7,21 +7,65 @@
 import { string as yupString } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
-import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
+import { identifierMessagesForScheme, SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
+
+/**
+ * Default keys of `RDM_RECORDS_PERSONORG_SCHEMES` in
+ * `invenio_rdm_records.config` (stock InvenioRDM). Used when creator identifier
+ * vocab is missing or empty; instances override via config / merge_deposit_config.
+ */
+export const DEFAULT_PERSONORG_SCHEME_IDS = ["orcid", "isni", "gnd", "ror"];
+
+/**
+ * Default keys of `RDM_RECORDS_IDENTIFIERS_SCHEMES` in
+ * `invenio_rdm_records.config` (stock InvenioRDM). Used when record identifier
+ * vocab is missing or empty; instances override via config / merge_deposit_config.
+ */
+export const DEFAULT_RECORD_IDENTIFIER_SCHEME_IDS = [
+  "ark",
+  "arxiv",
+  "ads",
+  "crossreffunderid",
+  "doi",
+  "ean13",
+  "eissn",
+  "grid",
+  "handle",
+  "igsn",
+  "isbn",
+  "isni",
+  "issn",
+  "istc",
+  "lissn",
+  "lsid",
+  "pmid",
+  "purl",
+  "upc",
+  "url",
+  "urn",
+  "w3id",
+  "other",
+];
+
+/** All scheme ids that have a JS validator in {@link SCHEME_ID_TO_VALIDATOR}. */
+export const VALIDATOR_SCHEME_IDS = Object.keys(SCHEME_ID_TO_VALIDATOR);
 
 /**
  * Extract scheme id strings from vocabularies.creators.identifiers.scheme.
  * Expects array of { id, title_l10n } or { value, text }.
+ * If missing or empty, returns a copy of {@link DEFAULT_PERSONORG_SCHEME_IDS}
+ * (matches default `RDM_RECORDS_PERSONORG_SCHEMES` in invenio-rdm-records).
  *
  * @param {Object} config - Deposit config (e.g. from Redux store)
- * @returns {string[]} List of scheme ids, e.g. ["orcid", "isni", "gnd", "ror", "url"]
+ * @returns {string[]} Allowed scheme ids — always use this list as the single restriction set.
  */
 export function getCreatorIdentifierSchemeIdsFromVocab(config) {
   const schemeVocab =
     config?.vocabularies?.metadata?.creators?.identifiers?.scheme ??
     config?.vocabularies?.creators?.identifiers?.scheme;
-  if (!Array.isArray(schemeVocab)) return [];
-  return schemeVocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
+  if (!Array.isArray(schemeVocab)) return [...DEFAULT_PERSONORG_SCHEME_IDS];
+  const ids = schemeVocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
+  return ids.length > 0 ? ids : [...DEFAULT_PERSONORG_SCHEME_IDS];
 }
 
 /**
@@ -36,105 +80,80 @@ export function getVocabOptionValues(vocab) {
   return vocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
 }
 
-/**
- * Creator identifier error messages keyed by scheme id.
- * Used by makeCreatorIdentifierTest and by buildValidationSchema.
- */
-export const CREATOR_IDENTIFIER_MESSAGES = {
-  url: {
-    invalid: i18next.t("Must be a valid URL (e.g. https://example.com)"),
-    required: i18next.t("You must provide a URL or remove this row"),
-  },
-  orcid: {
-    invalid: i18next.t("Must be a valid ORCID id (e.g., 0000-0001-2345-6789)"),
-    required: i18next.t("You must provide an ORCID id or remove this row"),
-  },
-  isni: {
-    invalid: i18next.t("Must be a valid ISNI id (e.g., 0000-0001-2345-6789)"),
-    required: i18next.t("You must provide an ISNI id or remove this row"),
-  },
-  gnd: {
-    invalid: i18next.t("Must be a valid GND id (e.g., gnd:118627813)"),
-    required: i18next.t("You must provide a GND id or remove this row"),
-  },
-  ror: {
-    invalid: i18next.t("Must be a valid ROR id (e.g., 03rjyp183)"),
-    required: i18next.t("You must provide a ROR id or remove this row"),
-  },
-};
-
 const DEFAULT_REQUIRED_MSG = i18next.t("You must provide an identifier or remove this row");
 
-/** Scheme ids that have a validator in SCHEME_ID_TO_VALIDATOR (creator/contributor identifiers). */
-export const CREATOR_SCHEME_IDS = Object.keys(SCHEME_ID_TO_VALIDATOR);
+export { identifierMessagesForScheme } from "./validatorsForIds";
 
-/**
- * Same set of scheme ids used for record identifiers (metadata.identifiers, metadata.related_identifiers).
- * RDM_RECORDS_IDENTIFIERS_SCHEMES includes all of these; backend may restrict via config.
- */
-export const RECORD_SCHEME_IDS = Object.keys(SCHEME_ID_TO_VALIDATOR);
+/** @deprecated Use {@link identifierMessagesForScheme} */
+export const CREATOR_IDENTIFIER_MESSAGES = new Proxy(
+  {},
+  {
+    get(_, schemeId) {
+      return identifierMessagesForScheme(String(schemeId));
+    },
+  }
+);
+
+/** Shown when `parent.scheme` is not in the configured `allowedSchemeIds` list. */
+const SCHEME_NOT_ALLOWED_MSG = i18next.t(
+  "This identifier scheme is not allowed."
+);
 
 /**
  * Extract scheme id strings from vocabularies.metadata.identifiers.scheme.
  * Used for metadata.identifiers and metadata.related_identifiers validation.
+ * If missing or empty, returns a copy of {@link DEFAULT_RECORD_IDENTIFIER_SCHEME_IDS}
+ * (matches default `RDM_RECORDS_IDENTIFIERS_SCHEMES` in invenio-rdm-records).
  *
  * @param {Object} config - Deposit config (e.g. from Redux store)
- * @returns {string[]} List of scheme ids, e.g. ["doi", "ark", "url", "isbn", ...]
+ * @returns {string[]} Allowed scheme ids — always use this list as the single restriction set.
  */
 export function getRecordIdentifierSchemeIdsFromVocab(config) {
   const schemeVocab =
     config?.vocabularies?.metadata?.identifiers?.scheme ??
     config?.vocabularies?.identifiers?.scheme;
-  if (!Array.isArray(schemeVocab)) return [];
-  return schemeVocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
+  if (!Array.isArray(schemeVocab)) return [...DEFAULT_RECORD_IDENTIFIER_SCHEME_IDS];
+  const ids = schemeVocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
+  return ids.length > 0 ? ids : [...DEFAULT_RECORD_IDENTIFIER_SCHEME_IDS];
 }
 
 /**
- * Build the record identifier yup chain for the given scheme ids.
- * Same logic as buildCreatorIdentifierChain; used for metadata.identifiers and metadata.related_identifiers.
+ * Returns a yup test function for record identifiers that validates by parent.scheme.
+ * Looks up `this.parent.scheme`, builds `yupString().required(...)[scheme](...)`, and runs
+ * validateSync on the identifier value — so any scheme in SCHEME_ID_TO_VALIDATOR is handled
+ * in one place without chaining .when() per scheme.
  *
- * @param {import("yup").StringSchema} base - yupString().required("...")
- * @param {string[]} allowedSchemeIds - From getRecordIdentifierSchemeIdsFromVocab(config)
- * @param {Object} yupString - The yup string schema (with addMethod from SCHEME_ID_TO_VALIDATOR)
- * @returns {import("yup").StringSchema}
- */
-export function buildRecordIdentifierChain(base, allowedSchemeIds, yupString) {
-  let chain = base;
-  const schemes = allowedSchemeIds.length ? allowedSchemeIds : RECORD_SCHEME_IDS;
-  for (const schemeId of schemes) {
-    if (!SCHEME_ID_TO_VALIDATOR[schemeId]) continue;
-    const msgs = CREATOR_IDENTIFIER_MESSAGES[schemeId] ?? {
-      invalid: i18next.t("Invalid identifier for this scheme"),
-      required: DEFAULT_REQUIRED_MSG,
-    };
-    const thenSchema = yupString().required(msgs.required)[schemeId](msgs.invalid);
-    chain = chain.when("scheme", { is: schemeId, then: thenSchema });
-  }
-  return chain;
-}
-
-/**
- * Build the creator identifier yup chain for the given scheme ids.
- * Uses SCHEME_ID_TO_VALIDATOR: only adds .when() for schemes that have a validator and messages.
+ * Used by {@link validRecordIdentifierForScheme} for
+ * `metadata.identifiers[].identifier` and related_identifiers (see validator.js).
  *
- * @param {import("yup").StringSchema} base - yupString().required("A value is required for each identifier")
- * @param {string[]} allowedSchemeIds - From getCreatorIdentifierSchemeIdsFromVocab(config)
- * @param {Object} yupString - The yup string schema (with addMethod already applied from SCHEME_ID_TO_VALIDATOR)
- * @returns {import("yup").StringSchema}
+ * @param {string[]} allowedSchemeIds - Allowed schemes only; `parent.scheme` must be in this list.
+ *   Callers should pass {@link getRecordIdentifierSchemeIdsFromVocab} (which defaults to
+ *   {@link DEFAULT_RECORD_IDENTIFIER_SCHEME_IDS} when vocab is empty).
+ * @param {Object} yupString - yup string schema with methods added from SCHEME_ID_TO_VALIDATOR
+ * @returns {function} Yup test function
  */
-export function buildCreatorIdentifierChain(base, allowedSchemeIds, yupString) {
-  let chain = base;
-  const schemes = allowedSchemeIds.length ? allowedSchemeIds : CREATOR_SCHEME_IDS;
-  for (const schemeId of schemes) {
-    if (!SCHEME_ID_TO_VALIDATOR[schemeId]) continue;
-    const msgs = CREATOR_IDENTIFIER_MESSAGES[schemeId] ?? {
-      invalid: i18next.t("Invalid identifier for this scheme"),
-      required: DEFAULT_REQUIRED_MSG,
-    };
-    const thenSchema = yupString().required(msgs.required)[schemeId](msgs.invalid);
-    chain = chain.when("scheme", { is: schemeId, then: thenSchema });
-  }
-  return chain;
+export function makeRecordIdentifierTest(allowedSchemeIds, yupString) {
+  return function (value, context) {
+    const { createError, path } = this;
+    const scheme = this.parent?.scheme;
+    if (!scheme) return true;
+    if (!allowedSchemeIds.includes(scheme)) {
+      return createError({ path, message: SCHEME_NOT_ALLOWED_MSG });
+    }
+    const validatorFn = SCHEME_ID_TO_VALIDATOR[scheme];
+    const msgs = identifierMessagesForScheme(scheme);
+    const requiredMsg = msgs.required;
+    const schema = validatorFn
+      ? yupString().required(requiredMsg)[scheme](msgs.invalid)
+      : yupString().required(DEFAULT_REQUIRED_MSG);
+    try {
+      schema.validateSync(value);
+      return true;
+    } catch (err) {
+      const message = err.errors?.[0] ?? err.message;
+      return createError({ path, message });
+    }
+  };
 }
 
 /**
@@ -146,22 +165,25 @@ export function buildCreatorIdentifierChain(base, allowedSchemeIds, yupString) {
  * Used by {@link validIdentifierForScheme} for
  * `metadata.creators[].person_or_org.identifiers[].identifier` (schema built in validator.js).
  *
- * @param {string[]} allowedSchemeIds - From getCreatorIdentifierSchemeIdsFromVocab(config)
+ * @param {string[]} allowedSchemeIds - Allowed schemes only; `parent.scheme` must be in this list.
+ *   Callers should pass {@link getCreatorIdentifierSchemeIdsFromVocab} (which defaults to
+ *   {@link DEFAULT_PERSONORG_SCHEME_IDS} when vocab is empty).
  * @param {Object} yupString - yup string schema with methods added from SCHEME_ID_TO_VALIDATOR
  * @returns {function} Yup test function
  */
 export function makeCreatorIdentifierTest(allowedSchemeIds, yupString) {
-  const schemes = allowedSchemeIds.length ? allowedSchemeIds : CREATOR_SCHEME_IDS;
   return function (value, context) {
     const { createError, path } = this;
     const scheme = this.parent?.scheme;
     if (!scheme) return true;
+    if (!allowedSchemeIds.includes(scheme)) {
+      return createError({ path, message: SCHEME_NOT_ALLOWED_MSG });
+    }
     const validatorFn = SCHEME_ID_TO_VALIDATOR[scheme];
-    if (!validatorFn && !schemes.includes(scheme)) return true;
-    const msgs = CREATOR_IDENTIFIER_MESSAGES[scheme];
-    const requiredMsg = msgs?.required ?? DEFAULT_REQUIRED_MSG;
+    const msgs = identifierMessagesForScheme(scheme);
+    const requiredMsg = msgs.required;
     const schema = validatorFn
-      ? yupString().required(requiredMsg)[scheme](msgs?.invalid)
+      ? yupString().required(requiredMsg)[scheme](msgs.invalid)
       : yupString().required(DEFAULT_REQUIRED_MSG);
     try {
       schema.validateSync(value);
@@ -184,7 +206,23 @@ export function makeCreatorIdentifierTest(allowedSchemeIds, yupString) {
 export function validIdentifierForScheme(allowedSchemeIds) {
   return this.test(
     "creator-identifier-by-scheme",
-    i18next.t("Invalid identifier for this scheme"),
+    i18next.t("This is not a valid identifier for this scheme."),
     makeCreatorIdentifierTest(allowedSchemeIds, yupString)
+  );
+}
+
+/**
+ * Schema method for record / related identifiers: returns `this.test(...)` with
+ * {@link makeRecordIdentifierTest}. Register with
+ * `addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme)` after
+ * per-scheme validators are attached to `yup.string`.
+ *
+ * @param {string[]} allowedSchemeIds - From getRecordIdentifierSchemeIdsFromVocab(config)
+ */
+export function validRecordIdentifierForScheme(allowedSchemeIds) {
+  return this.test(
+    "record-identifier-by-scheme",
+    i18next.t("This is not a valid identifier for this scheme."),
+    makeRecordIdentifierTest(allowedSchemeIds, yupString)
   );
 }

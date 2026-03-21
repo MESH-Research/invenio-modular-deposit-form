@@ -2,11 +2,12 @@ import { addMethod } from "yup";
 import * as yup from "yup";
 
 import {
-  buildRecordIdentifierChain,
-  CREATOR_SCHEME_IDS,
-  RECORD_SCHEME_IDS,
+  makeCreatorIdentifierTest,
+  makeRecordIdentifierTest,
+  validIdentifierForScheme,
+  validRecordIdentifierForScheme,
+  VALIDATOR_SCHEME_IDS,
 } from "./identifierSchemeValidators";
-import { validIdentifierForScheme } from "./identifierSchemeValidators";
 import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
 
 // Register all scheme validators from the map (mirrors validator.js)
@@ -15,6 +16,7 @@ for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
 }
 
 addMethod(yup.string, "validIdentifierForScheme", validIdentifierForScheme);
+addMethod(yup.string, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
 describe("validatorsForIds", () => {
   describe("rorValidator", () => {
@@ -48,7 +50,7 @@ describe("validatorsForIds", () => {
 
       for (const ror of invalidRORs) {
         await expect(schema.validate({ ror }))
-          .rejects.toThrow("Invalid ROR identifier");
+          .rejects.toThrow("This is not a valid ROR identifier.");
       }
     });
 
@@ -171,7 +173,7 @@ describe("validatorsForIds", () => {
 
       for (const gnd of invalidGNDs) {
         await expect(schema.validate({ gnd }))
-          .rejects.toThrow("Invalid GND");
+          .rejects.toThrow("This is not a valid GND identifier.");
       }
     });
 
@@ -241,10 +243,72 @@ describe("validatorsForIds", () => {
     });
   });
 
+  describe("makeCreatorIdentifierTest / makeRecordIdentifierTest: restricted vocab", () => {
+    const creatorRestricted = yup.object().shape({
+      scheme: yup.string().required(),
+      identifier: yup
+        .string()
+        .required()
+        .test(
+          "creator-identifier-by-scheme",
+          "invalid",
+          makeCreatorIdentifierTest(["orcid", "url"], yup.string)
+        ),
+    });
+
+    const recordRestricted = yup.object().shape({
+      scheme: yup.string().required(),
+      identifier: yup
+        .string()
+        .required()
+        .test(
+          "record-identifier-by-scheme",
+          "invalid",
+          makeRecordIdentifierTest(["doi", "ark"], yup.string)
+        ),
+    });
+
+    it("creator: rejects scheme not in allowed list even if value would be valid for that scheme", async () => {
+      await expect(
+        creatorRestricted.validate({
+          scheme: "doi",
+          identifier: "10.1234/abc",
+        })
+      ).rejects.toThrow(/not allowed/i);
+    });
+
+    it("creator: accepts scheme in allowed list", async () => {
+      await expect(
+        creatorRestricted.validate({
+          scheme: "orcid",
+          identifier: "0000-0001-2345-6789",
+        })
+      ).resolves.toBeTruthy();
+    });
+
+    it("record: rejects scheme not in allowed list", async () => {
+      await expect(
+        recordRestricted.validate({
+          scheme: "url",
+          identifier: "https://example.com",
+        })
+      ).rejects.toThrow(/not allowed/i);
+    });
+
+    it("record: accepts scheme in allowed list", async () => {
+      await expect(
+        recordRestricted.validate({
+          scheme: "doi",
+          identifier: "10.1234/abc",
+        })
+      ).resolves.toBeTruthy();
+    });
+  });
+
   describe("applies the correct validation function for each identifier scheme (creator: validIdentifierForScheme)", () => {
     const identifierSchema = yup.object().shape({
       scheme: yup.string().required(),
-      identifier: yup.string().required().validIdentifierForScheme(CREATOR_SCHEME_IDS),
+      identifier: yup.string().required().validIdentifierForScheme(VALIDATOR_SCHEME_IDS),
     });
 
     const validPerScheme = {
@@ -305,7 +369,7 @@ describe("validatorsForIds", () => {
       ror: "short",
     };
 
-    for (const schemeId of CREATOR_SCHEME_IDS) {
+    for (const schemeId of VALIDATOR_SCHEME_IDS) {
       it(`${schemeId}: accepts valid identifier`, async () => {
         const value = validPerScheme[schemeId];
         await expect(
@@ -325,11 +389,10 @@ describe("validatorsForIds", () => {
   describe("metadata.identifiers / record identifiers: applies the correct validation per scheme", () => {
     const recordIdentifierSchema = yup.object().shape({
       scheme: yup.string().required(),
-      identifier: buildRecordIdentifierChain(
-        yup.string().required(),
-        RECORD_SCHEME_IDS,
-        yup.string
-      ),
+      identifier: yup
+        .string()
+        .required()
+        .validRecordIdentifierForScheme(VALIDATOR_SCHEME_IDS),
     });
 
     const validPerScheme = {
@@ -390,7 +453,7 @@ describe("validatorsForIds", () => {
       ror: "short",
     };
 
-    for (const schemeId of RECORD_SCHEME_IDS) {
+    for (const schemeId of VALIDATOR_SCHEME_IDS) {
       it(`${schemeId}: accepts valid identifier`, async () => {
         const value = validPerScheme[schemeId];
         await expect(

@@ -2,6 +2,35 @@ import { ORCID } from "orcid-utils";
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
+/** Uppercase scheme id for user-visible copy (e.g. `ror` → `ROR`). */
+export function schemeIdLabelUppercase(schemeId) {
+  return String(schemeId ?? "").toUpperCase();
+}
+
+/** Default invalid/required messages using the scheme id in uppercase. */
+export function identifierMessagesForScheme(schemeId) {
+  const scheme = schemeIdLabelUppercase(schemeId);
+  return {
+    invalid: i18next.t("This is not a valid {{scheme}} identifier.", { scheme }),
+    required: i18next.t(
+      "You must provide a {{scheme}} identifier or remove this row",
+      { scheme }
+    ),
+  };
+}
+
+export function defaultInvalidMessageForScheme(schemeId) {
+  return identifierMessagesForScheme(schemeId).invalid;
+}
+
+export function defaultInvalidMessageForSchemeWithDetail(schemeId, detail) {
+  const scheme = schemeIdLabelUppercase(schemeId);
+  return i18next.t("This is not a valid {{scheme}} identifier ({{detail}}).", {
+    scheme,
+    detail,
+  });
+}
+
 /**
  * Test if argument is a Research Organization Registry identifier.
  *
@@ -48,7 +77,7 @@ function rorValidator(message) {
     if (!rorRegexp.test(val)) {
       return createError({
         path,
-        message: message ?? i18next.t("Invalid ROR identifier"),
+        message: message ?? defaultInvalidMessageForScheme("ror"),
       });
     }
 
@@ -101,7 +130,9 @@ function isniValidator(message) {
     if (val.length !== 16) {
       return createError({
         path,
-        message: message ?? i18next.t("ISNI is not a valid length"),
+        message:
+          message ??
+          defaultInvalidMessageForSchemeWithDetail("isni", "it must be 16 characters"),
       });
     }
 
@@ -114,13 +145,13 @@ function isniValidator(message) {
       if (ck !== convertXTo10(val.slice(-1))) {
         return createError({
           path,
-          message: message ?? i18next.t("Invalid ISNI identifier"),
+          message: message ?? defaultInvalidMessageForScheme("isni"),
         });
       }
     } catch (error) {
       return createError({
         path,
-        message: message ?? i18next.t("Invalid ISNI identifier"),
+        message: message ?? defaultInvalidMessageForScheme("isni"),
       });
     }
 
@@ -187,7 +218,7 @@ function gndValidator(message) {
     );
 
     if (!gndRegexp.test(val)) {
-      return createError({ path, message: message ?? i18next.t("Invalid GND") });
+      return createError({ path, message: message ?? defaultInvalidMessageForScheme("gnd") });
     }
 
     return true;
@@ -230,7 +261,7 @@ function orcidValidator(message) {
     if (typeof val !== "string") {
       return createError({ path, message: i18next.t("ORCID must be a string") });
     } else if (!ORCID.isValid(val)) {
-      return createError({ path, message: message ?? i18next.t("Invalid ORCID") });
+      return createError({ path, message: message ?? defaultInvalidMessageForScheme("orcid") });
     }
 
     return true;
@@ -285,9 +316,9 @@ function arkValidator(message) {
     try {
       const u = new URL(val);
       const match = arkSuffix.test(val) || (u.protocol === "http:" && u.hostname && arkSuffix.test(u.pathname.slice(1)));
-      if (!match) return createError({ path, message: message ?? i18next.t("Invalid ARK") });
+      if (!match) return createError({ path, message: message ?? i18next.t("This is not a valid ARK identifier.") });
     } catch {
-      if (!arkSuffix.test(val)) return createError({ path, message: message ?? i18next.t("Invalid ARK") });
+      if (!arkSuffix.test(val)) return createError({ path, message: message ?? i18next.t("This is not a valid ARK identifier.") });
     }
     return true;
   });
@@ -306,7 +337,7 @@ function arxivValidator(message) {
     const withClass = /^(arxiv:)?(?:[a-z\-]+)(?:\.[a-z]{2})?\/(\d{4})\.(\d{4,5})(v\d+)?$/i;
     const v = val.trim();
     if (!post2007.test(v) && !pre2007.test(v) && !withClass.test(v)) {
-      return createError({ path, message: message ?? i18next.t("Invalid arXiv identifier") });
+      return createError({ path, message: message ?? i18next.t("This is not a valid arXiv identifier.") });
     }
     return true;
   });
@@ -321,7 +352,7 @@ function adsValidator(message) {
     if (val === undefined || val === null || val === "") return true;
     if (typeof val !== "string") return createError({ path, message: message ?? i18next.t("ADS/Bibcode must be a string") });
     const ads = /^(ads:|ADS:)?(\d{4}[A-Za-z]\S{13}[A-Za-z.:])$/;
-    if (!ads.test(val.trim())) return createError({ path, message: message ?? i18next.t("Invalid ADS/Bibcode") });
+    if (!ads.test(val.trim())) return createError({ path, message: message ?? i18next.t("This is not a valid ADS/Bibcode identifier.") });
     return true;
   });
 }
@@ -333,12 +364,12 @@ function ean13Validator(message) {
   return this.test("ean13", message, function (val) {
     const { path, createError } = this;
     if (val === undefined || val === null || val === "") return true;
-    if (typeof val !== "string" || val.length !== 13) return createError({ path, message: message ?? i18next.t("Invalid EAN-13") });
+    if (typeof val !== "string" || val.length !== 13) return createError({ path, message: message ?? i18next.t("This is not a valid EAN-13 identifier.") });
     const sequence = [1, 3];
     let r = 0;
     for (let i = 0; i < 12; i++) r += parseInt(val[i], 10) * sequence[i % 2];
     const ck = (10 - (r % 10)) % 10;
-    if (ck !== parseInt(val[12], 10)) return createError({ path, message: message ?? i18next.t("Invalid EAN-13") });
+      if (ck !== parseInt(val[12], 10)) return createError({ path, message: message ?? i18next.t("This is not a valid EAN-13 identifier.") });
     return true;
   });
 }
@@ -351,11 +382,11 @@ function issnValidator(message) {
     const { path, createError } = this;
     if (val === undefined || val === null || val === "") return true;
     const v = val.replace(/-/g, "").replace(/ /g, "").toUpperCase();
-    if (v.length !== 8) return createError({ path, message: message ?? i18next.t("Invalid ISSN") });
+    if (v.length !== 8) return createError({ path, message: message ?? i18next.t("This is not a valid ISSN identifier.") });
     const convertX = (x) => (x === "X" ? 10 : parseInt(x, 10));
     let r = 0;
     for (let i = 0; i < 8; i++) r += (8 - i) * convertX(v[i]);
-    if (r % 11 !== 0) return createError({ path, message: message ?? i18next.t("Invalid ISSN") });
+    if (r % 11 !== 0) return createError({ path, message: message ?? i18next.t("This is not a valid ISSN identifier.") });
     return true;
   });
 }
@@ -369,7 +400,7 @@ function handleValidator(message) {
     if (val === undefined || val === null || val === "") return true;
     if (typeof val !== "string") return createError({ path, message: message ?? i18next.t("Handle must be a string") });
     const handle = /^(hdl:\s*|(?:https?:\/\/)?hdl\.handle\.net\/)?([^/.]+(\.[^/.]+)*\/.*)$/i;
-    if (!handle.test(val.trim())) return createError({ path, message: message ?? i18next.t("Invalid Handle") });
+    if (!handle.test(val.trim())) return createError({ path, message: message ?? i18next.t("This is not a valid Handle identifier.") });
     return true;
   });
 }
@@ -387,7 +418,7 @@ function isbnValidator(message) {
       for (let i = 0; i < 9; i++) r += (10 - i) * parseInt(v[i], 10);
       r = (11 - (r % 11)) % 11;
       const ck = v[9].toUpperCase() === "X" ? 10 : parseInt(v[9], 10);
-      if (r !== ck) return createError({ path, message: message ?? i18next.t("Invalid ISBN") });
+      if (r !== ck) return createError({ path, message: message ?? i18next.t("This is not a valid ISBN identifier.") });
       return true;
     }
     if (v.length === 13 && (v.startsWith("978") || v.startsWith("979"))) {
@@ -395,10 +426,10 @@ function isbnValidator(message) {
       let r = 0;
       for (let i = 0; i < 12; i++) r += parseInt(v[i], 10) * seq[i % 2];
       const ck = (10 - (r % 10)) % 10;
-      if (ck !== parseInt(v[12], 10)) return createError({ path, message: message ?? i18next.t("Invalid ISBN") });
+      if (ck !== parseInt(v[12], 10)) return createError({ path, message: message ?? i18next.t("This is not a valid ISBN identifier.") });
       return true;
     }
-    return createError({ path, message: message ?? i18next.t("Invalid ISBN") });
+    return createError({ path, message: message ?? i18next.t("This is not a valid ISBN identifier.") });
   });
 }
 
@@ -410,12 +441,12 @@ function istcValidator(message) {
     const { path, createError } = this;
     if (val === undefined || val === null || val === "") return true;
     const v = val.replace(/-/g, "").replace(/ /g, "").toUpperCase();
-    if (v.length !== 16) return createError({ path, message: message ?? i18next.t("Invalid ISTC") });
+    if (v.length !== 16) return createError({ path, message: message ?? i18next.t("This is not a valid ISTC identifier.") });
     const sequence = [11, 9, 3, 1];
     let r = 0;
     for (let i = 0; i < 15; i++) r += parseInt(v[i], 16) * sequence[i % 4];
     const ck = (r % 16).toString(16).toUpperCase();
-    if (ck !== v[15]) return createError({ path, message: message ?? i18next.t("Invalid ISTC") });
+    if (ck !== v[15]) return createError({ path, message: message ?? i18next.t("This is not a valid ISTC identifier.") });
     return true;
   });
 }
@@ -431,10 +462,10 @@ function lsidValidator(message) {
     const lsid = /^urn:lsid:[^:]+(:[^:]+){2,3}$/i;
     try {
       const u = new URL(val);
-      if (u.protocol !== "urn:" || u.hostname !== "" || !u.pathname) return createError({ path, message: message ?? i18next.t("Invalid LSID") });
-      if (!lsid.test(val)) return createError({ path, message: message ?? i18next.t("Invalid LSID") });
+      if (u.protocol !== "urn:" || u.hostname !== "" || !u.pathname) return createError({ path, message: message ?? i18next.t("This is not a valid LSID identifier.") });
+      if (!lsid.test(val)) return createError({ path, message: message ?? i18next.t("This is not a valid LSID identifier.") });
     } catch {
-      if (!lsid.test(val)) return createError({ path, message: message ?? i18next.t("Invalid LSID") });
+      if (!lsid.test(val)) return createError({ path, message: message ?? i18next.t("This is not a valid LSID identifier.") });
     }
     return true;
   });
@@ -449,7 +480,7 @@ function pmidValidator(message) {
     if (val === undefined || val === null || val === "") return true;
     if (typeof val !== "string") return createError({ path, message: message ?? i18next.t("PMID must be a string") });
     const pmid = /^(pmid:|https?:\/\/pubmed\.ncbi\.nlm\.nih\.gov\/)?(\d+)\/?$/i;
-    if (!pmid.test(val.trim())) return createError({ path, message: message ?? i18next.t("Invalid PubMed ID") });
+    if (!pmid.test(val.trim())) return createError({ path, message: message ?? i18next.t("This is not a valid PubMed ID.") });
     return true;
   });
 }
@@ -466,10 +497,10 @@ function purlValidator(message) {
       const u = new URL(val);
       const purlHosts = ["purl.org", "purl.oclc.org", "purl.net", "purl.com", "purl.fdlp.gov"];
       if (!["http:", "https:"].includes(u.protocol) || !purlHosts.includes(u.hostname) || !u.pathname) {
-        return createError({ path, message: message ?? i18next.t("Invalid PURL") });
+        return createError({ path, message: message ?? i18next.t("This is not a valid PURL identifier.") });
       }
     } catch {
-      return createError({ path, message: message ?? i18next.t("Invalid PURL") });
+      return createError({ path, message: message ?? i18next.t("This is not a valid PURL identifier.") });
     }
     return true;
   });
@@ -485,9 +516,9 @@ function urnValidator(message) {
     if (typeof val !== "string") return createError({ path, message: message ?? i18next.t("URN must be a string") });
     try {
       const u = new URL(val);
-      if (u.protocol !== "urn:" || u.hostname !== "" || !u.pathname) return createError({ path, message: message ?? i18next.t("Invalid URN") });
+      if (u.protocol !== "urn:" || u.hostname !== "" || !u.pathname) return createError({ path, message: message ?? i18next.t("This is not a valid URN identifier.") });
     } catch {
-      return createError({ path, message: message ?? i18next.t("Invalid URN") });
+      return createError({ path, message: message ?? i18next.t("This is not a valid URN identifier.") });
     }
     return true;
   });
@@ -511,10 +542,10 @@ function urlValidator(message) {
     try {
       const u = new URL(val);
       if (!["http:", "https:"].includes(u.protocol)) {
-        return createError({ path, message: message ?? i18next.t("Must be a valid URL (e.g. https://example.com)") });
+        return createError({ path, message: message ?? i18next.t("This is not a valid URL identifier.") });
       }
     } catch {
-      return createError({ path, message: message ?? i18next.t("Must be a valid URL (e.g. https://example.com)") });
+      return createError({ path, message: message ?? i18next.t("This is not a valid URL identifier.") });
     }
 
     return true;
@@ -550,7 +581,7 @@ function doiValidator(message) {
     if (!doiRegexp.test(val.trim())) {
       return createError({
         path,
-        message: message ?? i18next.t("Must be a valid DOI (e.g. 10.1234/example.12345)"),
+        message: message ?? i18next.t("This is not a valid DOI identifier."),
       });
     }
 

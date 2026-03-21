@@ -15,11 +15,11 @@ import {
 } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
-  buildRecordIdentifierChain,
   getCreatorIdentifierSchemeIdsFromVocab,
   getRecordIdentifierSchemeIdsFromVocab,
   getVocabOptionValues,
   validIdentifierForScheme,
+  validRecordIdentifierForScheme,
 } from "./identifierSchemeValidators";
 import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
 import {
@@ -34,6 +34,7 @@ for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
 }
 
 addMethod(yupString, "validIdentifierForScheme", validIdentifierForScheme);
+addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
 const DEFAULT_TITLE_MAX_LENGTH = 260;
 
@@ -96,14 +97,13 @@ function buildValidationSchema(config = {}) {
     scheme: yupString().required(
       i18next.t("A scheme is required for each identifier")
     ),
-    identifier: buildRecordIdentifierChain(
-      yupString().required(i18next.t("A value is required for each identifier")),
-      recordSchemeIds,
-      yupString
-    ).matches(/(?!\s).+/, {
-      disallowEmptyString: true,
-      message: i18next.t("Identifier cannot be blank"),
-    }),
+    identifier: yupString()
+      .required(i18next.t("A value is required for each identifier"))
+      .validRecordIdentifierForScheme(recordSchemeIds)
+      .matches(/(?!\s).+/, {
+        disallowEmptyString: true,
+        message: i18next.t("Identifier cannot be blank"),
+      }),
   });
 
   const additionalTitleTypeSchema = titleTypeValues.length
@@ -171,14 +171,13 @@ function buildValidationSchema(config = {}) {
             scheme: yupString().required(
               i18next.t("A scheme is required for each identifier")
             ),
-            identifier: buildRecordIdentifierChain(
-              yupString().required(i18next.t("A value is required for each identifier")),
-              recordSchemeIds,
-              yupString
-            ).matches(/(?!\s).+/, {
-              disallowEmptyString: true,
-              message: i18next.t("Identifier cannot be blank"),
-            }),
+            identifier: yupString()
+              .required(i18next.t("A value is required for each identifier"))
+              .validRecordIdentifierForScheme(recordSchemeIds)
+              .matches(/(?!\s).+/, {
+                disallowEmptyString: true,
+                message: i18next.t("Identifier cannot be blank"),
+              }),
             relation_type: yupString(),
             resource_type: yupString(),
           })
