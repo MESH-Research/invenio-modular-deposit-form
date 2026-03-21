@@ -15,11 +15,11 @@ import {
 } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
-  buildCreatorIdentifierChain,
   buildRecordIdentifierChain,
   getCreatorIdentifierSchemeIdsFromVocab,
   getRecordIdentifierSchemeIdsFromVocab,
   getVocabOptionValues,
+  validIdentifierForScheme,
 } from "./identifierSchemeValidators";
 import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
 import {
@@ -32,6 +32,8 @@ addMethod(yupString, "dateInSequence", dateInSequence);
 for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
   addMethod(yupString, schemeId, validatorFn);
 }
+
+addMethod(yupString, "validIdentifierForScheme", validIdentifierForScheme);
 
 const DEFAULT_TITLE_MAX_LENGTH = 260;
 
@@ -81,14 +83,13 @@ function buildValidationSchema(config = {}) {
     scheme: yupString().required(
       i18next.t("A scheme is required for each identifier")
     ),
-    identifier: buildCreatorIdentifierChain(
-      yupString().required(i18next.t("A value is required for each identifier")),
-      creatorSchemeIds,
-      yupString
-    ).matches(/(?!\s).+/, {
-      disallowEmptyString: true,
-      message: i18next.t("Identifier cannot be blank"),
-    }),
+    identifier: yupString()
+      .required(i18next.t("A value is required for each identifier"))
+      .validIdentifierForScheme(creatorSchemeIds)
+      .matches(/(?!\s).+/, {
+        disallowEmptyString: true,
+        message: i18next.t("Identifier cannot be blank"),
+      }),
   });
 
   const recordIdentifiersShape = yupObject().shape({

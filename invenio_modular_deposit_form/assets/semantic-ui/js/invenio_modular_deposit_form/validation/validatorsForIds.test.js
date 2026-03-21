@@ -2,17 +2,19 @@ import { addMethod } from "yup";
 import * as yup from "yup";
 
 import {
-  buildCreatorIdentifierChain,
   buildRecordIdentifierChain,
   CREATOR_SCHEME_IDS,
   RECORD_SCHEME_IDS,
 } from "./identifierSchemeValidators";
+import { validIdentifierForScheme } from "./identifierSchemeValidators";
 import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
 
 // Register all scheme validators from the map (mirrors validator.js)
 for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
   addMethod(yup.string, schemeId, validatorFn);
 }
+
+addMethod(yup.string, "validIdentifierForScheme", validIdentifierForScheme);
 
 describe("validatorsForIds", () => {
   describe("rorValidator", () => {
@@ -239,14 +241,10 @@ describe("validatorsForIds", () => {
     });
   });
 
-  describe("applies the correct validation function for each identifier scheme", () => {
+  describe("applies the correct validation function for each identifier scheme (creator: validIdentifierForScheme)", () => {
     const identifierSchema = yup.object().shape({
       scheme: yup.string().required(),
-      identifier: buildCreatorIdentifierChain(
-        yup.string().required(),
-        CREATOR_SCHEME_IDS,
-        yup.string
-      ),
+      identifier: yup.string().required().validIdentifierForScheme(CREATOR_SCHEME_IDS),
     });
 
     const validPerScheme = {

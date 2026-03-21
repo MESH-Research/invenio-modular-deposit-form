@@ -71,5 +71,29 @@ describe("validator (full form validation) - pids.doi", () => {
       })
     ).resolves.toBeTruthy();
   });
+
+  it("rejects invalid ORCID on creator person_or_org.identifiers (validIdentifierForScheme)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          creators: [
+            {
+              role: "author",
+              person_or_org: {
+                type: "personal",
+                family_name: "Doe",
+                given_name: "John",
+                identifiers: [{ scheme: "orcid", identifier: "not-an-orcid" }],
+              },
+            },
+          ],
+        },
+      })
+    ).rejects.toMatchObject({
+      path: "metadata.creators[0].person_or_org.identifiers[0].identifier",
+    });
+  });
 });
 

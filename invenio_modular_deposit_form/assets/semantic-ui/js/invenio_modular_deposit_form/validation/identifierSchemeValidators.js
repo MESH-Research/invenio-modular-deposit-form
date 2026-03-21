@@ -4,6 +4,7 @@
 // Invenio Modular Deposit Form is free software; you can redistribute and/or
 // modify it under the terms of the MIT License; see LICENSE file for more details.
 
+import { string as yupString } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
@@ -138,7 +139,12 @@ export function buildCreatorIdentifierChain(base, allowedSchemeIds, yupString) {
 
 /**
  * Returns a yup test function for creator identifiers that validates by parent.scheme.
- * Applies the correct validation function from SCHEME_ID_TO_VALIDATOR for the scheme.
+ * Looks up `this.parent.scheme`, builds `yupString().required(...)[scheme](...)`, and runs
+ * validateSync on the identifier value — so any scheme in SCHEME_ID_TO_VALIDATOR is handled
+ * in one place without chaining .when() per scheme.
+ *
+ * Used by {@link validIdentifierForScheme} for
+ * `metadata.creators[].person_or_org.identifiers[].identifier` (schema built in validator.js).
  *
  * @param {string[]} allowedSchemeIds - From getCreatorIdentifierSchemeIdsFromVocab(config)
  * @param {Object} yupString - yup string schema with methods added from SCHEME_ID_TO_VALIDATOR
@@ -165,4 +171,20 @@ export function makeCreatorIdentifierTest(allowedSchemeIds, yupString) {
       return createError({ path, message });
     }
   };
+}
+
+/**
+ * Schema method (same pattern as orcidValidator): returns `this.test(...)` with
+ * {@link makeCreatorIdentifierTest} as the inner callback. Register with
+ * `addMethod(yupString, "validIdentifierForScheme", validIdentifierForScheme)` after
+ * per-scheme validators are attached to `yup.string`.
+ *
+ * @param {string[]} allowedSchemeIds - From getCreatorIdentifierSchemeIdsFromVocab(config)
+ */
+export function validIdentifierForScheme(allowedSchemeIds) {
+  return this.test(
+    "creator-identifier-by-scheme",
+    i18next.t("Invalid identifier for this scheme"),
+    makeCreatorIdentifierTest(allowedSchemeIds, yupString)
+  );
 }
