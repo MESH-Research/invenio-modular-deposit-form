@@ -322,14 +322,10 @@ function buildValidationSchema(config = {}) {
           }),
         })
       ),
-      // Mirrors `VocabularyRelationSchema` (`id` required).
-      resource_type: yupObject()
-        .shape({
-          id: yupString()
-            .required(i18next.t("A resource type is required"))
-            .matches(/(?!\s).+/, i18next.t("Resource type cannot be blank")),
-        })
-        .required(i18next.t("A resource type is required")),
+      // Formik stores the vocabulary id string (see stock `ResourceTypeField` / SelectField).
+      resource_type: yupString()
+        .required(i18next.t("A resource type is required"))
+        .matches(/(?!\s).+/, i18next.t("Resource type cannot be blank")),
       description: yupString(),
       additional_descriptions: yupArray().of(
         yupObject().shape({
