@@ -9,8 +9,6 @@
 
 from flask import Blueprint
 from invenio_i18n import gettext as _
-from invenio_rdm_records.config import RDM_CUSTOM_FIELDS as _RDM_RECORDS_CUSTOM_FIELDS
-from invenio_rdm_records.config import RDM_CUSTOM_FIELDS_UI as _RDM_RECORDS_CUSTOM_FIELDS_UI
 
 from . import config
 from .filters import (
@@ -30,6 +28,28 @@ def create_blueprint(app):
     )
 
     return blueprint
+
+
+def _apply_package_custom_fields_if_still_empty(app):
+    """Apply this package's RDM custom field defaults only when config is still []."""
+    if app.config.get("RDM_CUSTOM_FIELDS") == []:
+        app.config["RDM_CUSTOM_FIELDS"] = config.RDM_CUSTOM_FIELDS
+    if app.config.get("RDM_CUSTOM_FIELDS_UI") == []:
+        app.config["RDM_CUSTOM_FIELDS_UI"] = config.RDM_CUSTOM_FIELDS_UI
+
+
+def finalize_app(app):
+    """Late pass after ``invenio_base.finalize_app`` (all extensions + instance cfg).
+
+    If something left ``RDM_CUSTOM_FIELDS*`` as ``[]``, apply this package's defaults.
+    Non-empty values from ``invenio.cfg`` are left unchanged.
+    """
+    _apply_package_custom_fields_if_still_empty(app)
+
+
+def api_finalize_app(app):
+    """Same hook for the API Flask application."""
+    _apply_package_custom_fields_if_still_empty(app)
 
 
 class InvenioModularDepositForm:
@@ -55,13 +75,9 @@ class InvenioModularDepositForm:
     def init_config(self, app):
         """Initialize configuration.
 
-        ``invenio_rdm_records`` registers ``RDM_CUSTOM_FIELDS`` and
-        ``RDM_CUSTOM_FIELDS_UI`` first (defaults are empty lists). A plain
-        ``setdefault`` here would never apply this package's defaults, so
-        ``load_custom_fields()`` in the deposit view would keep returning empty
-        ``ui`` even in a "vanilla" install. When the app still has the stock
-        empty lists, replace them with our defaults; if the instance overrides
-        them in ``invenio.cfg``, leave those values in place.
+        ``RDM_CUSTOM_FIELDS`` / ``RDM_CUSTOM_FIELDS_UI`` defaults are applied in
+        :func:`finalize_app` so they run after the full config stack; see that
+        function and :func:`_apply_package_custom_fields_if_still_empty`.
         """
         app.config["APP_RDM_DEPOSIT_FORM_TEMPLATE"] = (
             "invenio_modular_deposit_form/deposit.html"
@@ -69,17 +85,5 @@ class InvenioModularDepositForm:
         for k in dir(config):
             if k.startswith("MODULAR_DEPOSIT_FORM_"):
                 app.config.setdefault(k, getattr(config, k))
-            elif k.startswith("RDM_CUSTOM_FIELDS"):
-                value = getattr(config, k)
-                if k == "RDM_CUSTOM_FIELDS" and app.config.get(
-                    "RDM_CUSTOM_FIELDS"
-                ) == _RDM_RECORDS_CUSTOM_FIELDS:
-                    app.config["RDM_CUSTOM_FIELDS"] = value
-                elif k == "RDM_CUSTOM_FIELDS_UI" and app.config.get(
-                    "RDM_CUSTOM_FIELDS_UI"
-                ) == _RDM_RECORDS_CUSTOM_FIELDS_UI:
-                    app.config["RDM_CUSTOM_FIELDS_UI"] = value
-                else:
-                    app.config.setdefault(k, value)
             elif k.startswith("RDM_NAMESPACES_"):
                 app.config.setdefault(k, getattr(config, k))
