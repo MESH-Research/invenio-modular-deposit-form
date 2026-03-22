@@ -8,6 +8,39 @@
 """An InvenioRDM extension that adds a more modular and customizable version of the record deposit form."""
 
 from invenio_i18n import lazy_gettext as _
+from invenio_rdm_records.contrib.codemeta import (
+    CODEMETA_CUSTOM_FIELDS,
+    CODEMETA_NAMESPACE,
+)
+from invenio_rdm_records.contrib.imprint import (
+    IMPRINT_CUSTOM_FIELDS,
+    IMPRINT_NAMESPACE,
+)
+from invenio_rdm_records.contrib.journal import (
+    JOURNAL_CUSTOM_FIELDS,
+    JOURNAL_NAMESPACE,
+)
+from invenio_rdm_records.contrib.meeting import (
+    MEETING_CUSTOM_FIELDS,
+    MEETING_NAMESPACE,
+)
+from invenio_rdm_records.contrib.thesis import (
+    THESIS_CUSTOM_FIELDS,
+    THESIS_CUSTOM_FIELDS_UI,
+    THESIS_NAMESPACE,
+)
+from ..custom_field_ui.codemeta_fields import (
+    CODEMETA_CUSTOM_FIELDS_UI,
+)
+from ..custom_field_ui.imprint_fields import (
+    IMPRINT_CUSTOM_FIELDS_UI,
+)
+from ..custom_field_ui.journal_fields import (
+    JOURNAL_CUSTOM_FIELDS_UI,
+)
+from ..custom_field_ui.meeting_fields import (
+    MEETING_CUSTOM_FIELDS_UI,
+)
 from .default import COMMON_FIELDS_DEFAULT_PAGED
 
 MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = False
@@ -92,3 +125,27 @@ default values.
 MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {}
 
 MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}
+
+RDM_NAMESPACES = {
+    **CODEMETA_NAMESPACE,
+    **JOURNAL_NAMESPACE,
+    **IMPRINT_NAMESPACE,
+    **MEETING_NAMESPACE,
+    **THESIS_NAMESPACE,
+}
+
+RDM_CUSTOM_FIELDS = [
+    *CODEMETA_CUSTOM_FIELDS,
+    *JOURNAL_CUSTOM_FIELDS,
+    *IMPRINT_CUSTOM_FIELDS,
+    *MEETING_CUSTOM_FIELDS,
+    *THESIS_CUSTOM_FIELDS,
+]
+
+RDM_CUSTOM_FIELDS_UI = [
+    CODEMETA_CUSTOM_FIELDS_UI,
+    JOURNAL_CUSTOM_FIELDS_UI,
+    IMPRINT_CUSTOM_FIELDS_UI,
+    MEETING_CUSTOM_FIELDS_UI,
+    THESIS_CUSTOM_FIELDS_UI,
+]

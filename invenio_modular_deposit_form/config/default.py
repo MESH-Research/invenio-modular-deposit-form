@@ -104,7 +104,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
             },
             {
                 "section": "2",
-                "label": "Basic Information",
+                "label": "Basic",
                 "subsections": [
                     {
                         "section": "basic-info",
@@ -158,7 +158,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
             },
             {
                 "section": "3",
-                "label": "Recommended Information",
+                "label": "Recommended",
                 "component": "FormPage",
                 "subsections": [
                     {
@@ -235,10 +235,247 @@ COMMON_FIELDS_DEFAULT_PAGED = [
     },
 ]
 
+COMMON_FIELDS_DEFAULT_SINGLE = [
+    {
+        "component": "FormHeader",
+        "classnames": "default-layout",
+        "subsections": [
+            {"component": "FormStepper", "classnames": "mobile tablet only"},
+        ],
+    },
+    {
+        "component": "FormRightSidebar",
+        "classnames": "default-layout",
+        # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
+        "mobile": 16,
+        "tablet": 16,
+        "computer": 5,
+        "largeScreen": 4,
+        "widescreen": 4,
+        "subsections": [
+            {
+                "section": "form_feedback",
+                "component": "FormFeedbackComponent",
+            },
+            {
+                "section": "submit_actions",
+                "label": "Publish",
+                "component": "SubmissionComponent",
+            },
+            {
+                "section": "access",
+                "label": "Visibility",
+                "component": "AccessRightsComponent",
+            },
+        ],
+    },
+    {
+        "section": "pages",
+        "component": "FormPages",
+        "classnames": "default-layout",
+        "subsections": [
+            {
+                "section": "1",
+                "label": "Files",
+                "component": "FormPage",
+                "subsections": [
+                    {
+                        "section": "files",
+                        "label": "Files",
+                        "component": "FormSection",
+                        "show_heading": True,
+                        "collapsible": True,
+                        "classnames": "basic",
+                        "subsections": [
+                            {
+                                "section": "file_upload",
+                                "label": "Files Upload",
+                                "component": "FileUploadComponent",
+                            },
+                        ],
+                    },
+                    {
+                        "section": "basic-info",
+                        "label": "Basic Information",
+                        "component": "FormSection",
+                        "show_heading": True,
+                        "collapsible": True,
+                        "classnames": "basic",
+                        "subsections": [
+                            {
+                                "section": "doi",
+                                "label": "Digital Object Identifier",
+                                "component": "DoiComponent",
+                            },
+                            {
+                                "section": "resource_type",
+                                "label": "Resource Type",
+                                "component": "ResourceTypeComponent",
+                            },
+                            {
+                                "section": "combined_titles",
+                                "label": "Title",
+                                "component": "TitlesComponent",
+                            },
+                            {
+                                "section": "publication_date",
+                                "label": "Publication Date",
+                                "component": "PublicationDateComponent",
+                            },
+                            {
+                                "section": "creators",
+                                "label": "Creators",
+                                "component": "CreatorsComponent",
+                            },
+                            {
+                                "section": "abstract",
+                                "label": "Description",
+                                "component": "AbstractComponent",
+                            },
+                            {
+                                "section": "licenses",
+                                "label": "Licenses",
+                                "component": "LicensesComponent",
+                            },
+                            {
+                                "section": "copyright",
+                                "label": "Copyright",
+                                "component": "CopyrightsComponent",
+                            },
+                        ],
+                    },
+                    {
+                        "section": "recommended",
+                        "label": "Recommended Information",
+                        "component": "FormSection",
+                        "show_heading": True,
+                        "collapsible": True,
+                        "classnames": "basic",
+                        "subsections": [
+                            {
+                                "section": "contributors",
+                                "label": "Contributors",
+                                "component": "ContributorsComponent",
+                            },
+                            {
+                                "section": "subjects_keywords",
+                                "label": "Subjects",
+                                "component": "SubjectsComponent",
+                            },
+                            {
+                                "section": "language",
+                                "label": "Language",
+                                "component": "LanguagesComponent",
+                            },
+                            {
+                                "section": "additional_dates",
+                                "label": "Dates",
+                                "component": "AdditionalDatesComponent",
+                            },
+                            {
+                                "section": "version",
+                                "label": "Version",
+                                "component": "VersionComponent",
+                            },
+                            {
+                                "section": "publisher",
+                                "label": "Publisher",
+                                "component": "PublisherComponent",
+                            },
+                        ],
+                    },
+                    {
+                        "section": "related",
+                        "label": "Funding and Related",
+                        "component": "FormSection",
+                        "show_heading": True,
+                        "collapsible": True,
+                        "classnames": "basic",
+                        "subsections": [
+                            {
+                                "section": "funding",
+                                "label": "Funding",
+                                "component": "FundingComponent",
+                            },
+                            {
+                                "section": "alternate_identifiers",
+                                "label": "Alternate Identifiers",
+                                "component": "AlternateIdentifiersComponent",
+                            },
+                            {
+                                "section": "related_works",
+                                "label": "Related Works",
+                                "component": "RelatedWorksComponent",
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    },
+]
+
 MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
     "publication": {},
     "publication-annotationcollection": {},
-    "publication-book": {},
+    "publication-book": {
+        "4": [
+            {
+                "section": "publication_details",
+                "show_heading": True,
+                "icon": "file",
+                "label": "Publication Details",
+                "component": "FormSection",
+                "subsections": [
+                    {
+                        "component": "FormRow",
+                        "classnames": "equal width",
+                        "subsections": [
+                            {
+                                "section": "publisher",
+                                "component": "PublisherComponent",
+                            },
+                            {
+                                "section": "location",
+                                "component": "PublicationLocationComponent",
+                            },
+                        ],
+                    },
+                    {
+                        "component": "FormRow",
+                        "classnames": "equal width",
+                        "subsections": [
+                            {
+                                "section": "book_pages",
+                                "component": "TotalPagesComponent",
+                                "classnames": "eight wide",
+                            },
+                            {
+                                "section": "isbn",
+                                "component": "ISBNComponent",
+                                "classnames": "six wide",
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "section": "funding",
+                "label": "Funding",
+                "component": "FundingComponent",
+            },
+            {
+                "section": "alternate_identifiers",
+                "label": "Alternate Identifiers",
+                "component": "AlternateIdentifiersComponent",
+            },
+            {
+                "section": "related_works",
+                "label": "Related Works",
+                "component": "RelatedWorksComponent",
+            },
+        ]
+    },
     "publication-section": {},
     "publication-conferencepaper": {},
     "publication-conferenceproceeding": {},
