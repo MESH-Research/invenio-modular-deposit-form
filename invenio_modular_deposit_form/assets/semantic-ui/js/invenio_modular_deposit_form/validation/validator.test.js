@@ -4,6 +4,10 @@ describe("validator (full form validation) - pids.doi", () => {
   const schema = buildValidationSchema({});
 
   const baseForm = {
+    access: {
+      files: "public",
+      record: "public",
+    },
     custom_fields: {},
     metadata: {
       creators: [
@@ -150,6 +154,30 @@ describe("validator (full form validation) - pids.doi", () => {
         },
       })
     ).resolves.toBeTruthy();
+  });
+
+  it("rejects embargo.active true without a future until (EmbargoSchema)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        access: {
+          ...baseForm.access,
+          embargo: { active: true, until: "2000-01-01" },
+        },
+      })
+    ).rejects.toMatchObject({ path: "access.embargo.until" });
+  });
+
+  it("rejects embargo.active false with until in the future (EmbargoSchema)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        access: {
+          ...baseForm.access,
+          embargo: { active: false, until: "2099-12-31" },
+        },
+      })
+    ).rejects.toMatchObject({ path: "access.embargo.until" });
   });
 });
 

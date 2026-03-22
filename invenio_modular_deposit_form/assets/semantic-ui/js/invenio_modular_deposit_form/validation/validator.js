@@ -25,10 +25,15 @@ import {
 import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
 import {
   dateInSequence,
+  edtfSingleDateValidator,
   edtfValidator,
+  embargoConsistencyTest,
+  isoDateStringValidator,
 } from "./validatorsForDates.js";
 
 addMethod(yupString, "edtf", edtfValidator);
+addMethod(yupString, "edtfSingle", edtfSingleDateValidator);
+addMethod(yupString, "isoDateString", isoDateStringValidator);
 addMethod(yupString, "dateInSequence", dateInSequence);
 for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
   addMethod(yupString, schemeId, validatorFn);
@@ -40,15 +45,21 @@ addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForS
 const DEFAULT_TITLE_MAX_LENGTH = 260;
 
 const accessSchema = yupObject().shape({
-  files: yupString().oneOf(["public", "restricted"]),
-  record: yupString().oneOf(["public", "restricted"]),
+  files: yupString()
+    .oneOf(["public", "restricted"])
+    .required(i18next.t("Missing a files access status.")),
+  record: yupString()
+    .oneOf(["public", "restricted"])
+    .required(i18next.t("Missing a record access status.")),
   status: yupString(),
-  embargo: yupObject().shape({
-    active: yupBoolean(),
-    until: yupString().edtf().dateInSequence(),
-    reason: yupString()
-  })
-})
+  embargo: yupObject()
+    .shape({
+      active: yupBoolean(),
+      until: yupString().isoDateString(),
+      reason: yupString(),
+    })
+    .test("embargo-consistency", embargoConsistencyTest),
+});
 
 // Helper schema for individual PID entries
 // NOTE: We don't make it required in the client-side schema since 
