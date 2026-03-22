@@ -41,7 +41,7 @@ from ..custom_field_ui.journal_fields import (
 from ..custom_field_ui.meeting_fields import (
     MEETING_CUSTOM_FIELDS_UI,
 )
-from .default import COMMON_FIELDS_DEFAULT_PAGED
+from .default import COMMON_FIELDS_DEFAULT_PAGED, FIELDS_BY_TYPE_DEFAULT_PAGED
 
 MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = False
 
