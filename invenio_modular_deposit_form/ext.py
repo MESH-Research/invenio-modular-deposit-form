@@ -9,6 +9,8 @@
 
 from flask import Blueprint
 from invenio_i18n import gettext as _
+from invenio_rdm_records.config import RDM_CUSTOM_FIELDS as _RDM_RECORDS_CUSTOM_FIELDS
+from invenio_rdm_records.config import RDM_CUSTOM_FIELDS_UI as _RDM_RECORDS_CUSTOM_FIELDS_UI
 
 from . import config
 from .filters import (
@@ -51,7 +53,16 @@ class InvenioModularDepositForm:
         app.extensions["invenio-modular-deposit-form"] = self
 
     def init_config(self, app):
-        """Initialize configuration."""
+        """Initialize configuration.
+
+        ``invenio_rdm_records`` registers ``RDM_CUSTOM_FIELDS`` and
+        ``RDM_CUSTOM_FIELDS_UI`` first (defaults are empty lists). A plain
+        ``setdefault`` here would never apply this package's defaults, so
+        ``load_custom_fields()`` in the deposit view would keep returning empty
+        ``ui`` even in a "vanilla" install. When the app still has the stock
+        empty lists, replace them with our defaults; if the instance overrides
+        them in ``invenio.cfg``, leave those values in place.
+        """
         app.config["APP_RDM_DEPOSIT_FORM_TEMPLATE"] = (
             "invenio_modular_deposit_form/deposit.html"
         )
@@ -59,6 +70,16 @@ class InvenioModularDepositForm:
             if k.startswith("MODULAR_DEPOSIT_FORM_"):
                 app.config.setdefault(k, getattr(config, k))
             elif k.startswith("RDM_CUSTOM_FIELDS"):
-                app.config.setdefault(k, getattr(config, k))
+                value = getattr(config, k)
+                if k == "RDM_CUSTOM_FIELDS" and app.config.get(
+                    "RDM_CUSTOM_FIELDS"
+                ) == _RDM_RECORDS_CUSTOM_FIELDS:
+                    app.config["RDM_CUSTOM_FIELDS"] = value
+                elif k == "RDM_CUSTOM_FIELDS_UI" and app.config.get(
+                    "RDM_CUSTOM_FIELDS_UI"
+                ) == _RDM_RECORDS_CUSTOM_FIELDS_UI:
+                    app.config["RDM_CUSTOM_FIELDS_UI"] = value
+                else:
+                    app.config.setdefault(k, value)
             elif k.startswith("RDM_NAMESPACES_"):
                 app.config.setdefault(k, getattr(config, k))
