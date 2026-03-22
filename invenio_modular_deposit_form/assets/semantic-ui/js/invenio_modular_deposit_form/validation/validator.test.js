@@ -22,7 +22,7 @@ describe("validator (full form validation) - pids.doi", () => {
       ],
       publication_date: "2023-01-01",
       title: "Test Title",
-      resource_type: "dataset",
+      resource_type: { id: "dataset" },
     },
   };
 

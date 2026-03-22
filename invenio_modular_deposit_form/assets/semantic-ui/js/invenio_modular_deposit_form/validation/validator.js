@@ -94,7 +94,7 @@ const pidEntrySchema = yupObject().shape({
  * Uses config.max_title_length, config.vocabularies.creators.identifiers.scheme,
  * config.vocabularies.metadata.identifiers.scheme (record identifiers, related,
  * references), config for location identifier schemes, and optional
- * config.vocabularies.dates.type / titles.type for oneOf.
+ * config.vocabularies.metadata.dates.type (and titles.type) for oneOf.
  *
  * @param {Object} config - Deposit config (e.g. from Redux or merge_deposit_config payload)
  * @returns {import("yup").ObjectSchema}
@@ -106,6 +106,9 @@ function buildValidationSchema(config = {}) {
   const locationSchemeIds = getLocationIdentifierSchemeIdsFromVocab(config);
   const titleTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.titles?.type ?? config?.vocabularies?.titles?.type
+  );
+  const dateTypeValues = getVocabOptionValues(
+    config?.vocabularies?.metadata?.dates?.type ?? config?.vocabularies?.dates?.type
   );
 
   const creatorIdentifiersShape = yupObject().shape({
@@ -226,6 +229,13 @@ function buildValidationSchema(config = {}) {
     ? yupString().required(i18next.t("A type is required")).oneOf(titleTypeValues)
     : yupString().required(i18next.t("A type is required"));
 
+  /** Mirrors `DateSchema` (`date` + `type` required); uses same `.edtf()` / `.dateInSequence()` as `publication_date`. */
+  const additionalDateTypeSchema = dateTypeValues.length
+    ? yupString()
+        .required(i18next.t("A type is required for each date"))
+        .oneOf(dateTypeValues)
+    : yupString().required(i18next.t("A type is required for each date"));
+
   return yupObject().shape({
     access: accessSchema, 
     // Backend schema: `pids` is a dict of PID schemes (e.g. `pids: { doi: {...} }`).
@@ -274,6 +284,16 @@ function buildValidationSchema(config = {}) {
           ),
         }),
         references: yupArray().of(referenceEntryShape),
+        dates: yupArray().of(
+          yupObject().shape({
+            date: yupString()
+              .edtf()
+              .dateInSequence()
+              .required(i18next.t("A date is required for each date entry")),
+            type: additionalDateTypeSchema,
+            description: yupString(),
+          })
+        ),
       publisher: yupString(),
       // Publisher is not required in form validation because a default value is set
       // in the form before submission.
@@ -302,7 +322,14 @@ function buildValidationSchema(config = {}) {
           }),
         })
       ),
-      resource_type: yupString().required(i18next.t("A resource type is required")),
+      // Mirrors `VocabularyRelationSchema` (`id` required).
+      resource_type: yupObject()
+        .shape({
+          id: yupString()
+            .required(i18next.t("A resource type is required"))
+            .matches(/(?!\s).+/, i18next.t("Resource type cannot be blank")),
+        })
+        .required(i18next.t("A resource type is required")),
       description: yupString(),
       additional_descriptions: yupArray().of(
         yupObject().shape({
