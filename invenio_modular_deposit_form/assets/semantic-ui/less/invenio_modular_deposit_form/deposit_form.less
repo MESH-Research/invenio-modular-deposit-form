@@ -124,36 +124,51 @@
   }
 
   /* Non-collapsible form sections: match accordion header styling */
-  .invenio-form-section .title {
-    background-color: @primaryColor;
-    color: @primaryTextColor;
+  .invenio-form-section {
+    .title {
+      background-color: @primaryColor;
+      color: @primaryTextColor;
+    }
   }
 
   /* Form section severity: accordion/segment strip and severity badges (stock-equivalent). */
-  .invenio-accordion-field.error,
-  .invenio-form-section.error {
-    border-left: 3px solid @negativeBorderColor;
-    background-color: @negativeBackgroundColor;
-  }
-
-  .invenio-accordion-field.warning,
-  .invenio-form-section.warning {
-    border-left: 3px solid #f2711c;
-    background-color: #fff8e6;
-  }
-
-  .invenio-accordion-field.info,
-  .invenio-form-section.info {
-    border-left: 3px solid #2185d0;
-    background-color: #e8f4fc;
-  }
-
-  .form-section-severity-badges {
-    margin-left: 0.5em;
-
-    .ui.label {
-      margin-left: 0.25em;
+  .invenio-accordion-field,
+  .invenio-form-section {
+    &.error {
+      border-left: 3px solid @negativeBorderColor;
+      background-color: @negativeBackgroundColor;
     }
+
+    &.warning {
+      border-left: 3px solid #f2711c;
+      background-color: #fff8e6;
+    }
+
+    &.info,
+    .invenio-form-section.info {
+      border-left: 3px solid #2185d0;
+      background-color: #e8f4fc;
+    }
+
+    .form-section-severity-badges {
+      margin-left: 0.5em;
+
+      .ui.label {
+        margin-left: 0.25em;
+      }
+    }
+
+    // > .field {
+    // margin-bottom: 2em !important;
+
+    // &:has(> .field-label-class) {
+    //   margin-bottom: 0 !important;
+    // }
+    //
+    // &.title-field {
+    //   margin-bottom: 0 !important;
+    // }
+    // }
   }
 
   #warning-feedback-div,

@@ -70,7 +70,7 @@ const FieldComponentWrapper = ({
       fieldPath={fieldPath}
     >
       <div className={ `invenio-field-wrapper ${fieldPath.replaceAll(".", "-").replaceAll(":", "-")
-      }-field` }>
+      }-field rel-mb-2` }>
       {children &&
         React.cloneElement(children, {
           defaultFieldValue: defaultFieldValue,
