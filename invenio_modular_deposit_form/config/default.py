@@ -23,12 +23,14 @@ To use the non-paged version, use COMMON_FIELD_DEFAULT_UNPAGED instead.
 COMMON_FIELDS_DEFAULT_PAGED = [
     {
         "component": "FormHeader",
+        "classnames": "default-layout",
         "subsections": [
             {"component": "FormStepper", "classnames": "mobile tablet only"},
         ],
     },
     {
         "component": "FormLeftSidebar",
+        "classnames": "default-layout",
         # Sidebar widths: 2 (widescreen), 3 (largeScreen), 3 (computer)
         "computer": 3,
         "largeScreen": 3,
@@ -44,6 +46,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
     },
     {
         "component": "FormRightSidebar",
+        "classnames": "default-layout",
         # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
         "computer": 5,
         "largeScreen": 4,
@@ -67,7 +70,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
     },
     {
         "component": "FormFooter",
-        "classnames": "basic",
+        "classnames": "basic default-layout",
         "subsections": [
             {"component": "FormPageNavigationBar"},
         ],
@@ -75,6 +78,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
     {
         "section": "pages",
         "component": "FormPages",
+        "classnames": "default-layout",
         "subsections": [
             {
                 "section": "1",
@@ -228,3 +232,51 @@ COMMON_FIELDS_DEFAULT_PAGED = [
         ],
     },
 ]
+
+MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
+    "publication": {},
+    "publication-annotationcollection": {},
+    "publication-book": {},
+    "publication-section": {},
+    "publication-conferencepaper": {},
+    "publication-conferenceproceeding": {},
+    "publication-datamanagementplan": {},
+    "publication-journal": {},
+    "publication-article": {},
+    "publication-patent": {},
+    "publication-peerreview": {},
+    "publication-preprint": {},
+    "publication-deliverable": {},
+    "publication-milestone": {},
+    "publication-proposal": {},
+    "publication-report": {},
+    "publication-softwaredocumentation": {},
+    "publication-taxonomictreatment": {},
+    "publication-technicalnote": {},
+    "publication-thesis": {},
+    "publication-workingpaper": {},
+    "publication-datapaper": {},
+    "publication-dissertation": {},
+    "publication-standard": {},
+    "publication-other": {},
+    "poster": {},
+    "presentation": {},
+    "event": {},
+    "dataset": {},
+    "image": {},
+    "image-figure": {},
+    "image-plot": {},
+    "image-drawing": {},
+    "image-diagram": {},
+    "image-photo": {},
+    "image-other": {},
+    "model": {},
+    "video": {},
+    "audio": {},
+    "software": {},
+    "lesson": {},
+    "software-computationalnotebook": {},
+    "other": {},
+    "physicalobject": {},
+    "workflow": {},
+}
