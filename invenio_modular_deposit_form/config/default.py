@@ -48,6 +48,8 @@ COMMON_FIELDS_DEFAULT_PAGED = [
         "component": "FormRightSidebar",
         "classnames": "default-layout",
         # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
+        "mobile": 16,
+        "tablet": 16,
         "computer": 5,
         "largeScreen": 4,
         "widescreen": 4,

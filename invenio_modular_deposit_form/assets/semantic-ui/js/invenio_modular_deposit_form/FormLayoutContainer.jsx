@@ -36,7 +36,7 @@ const FormUIStateContext = createContext();
 
 const SIDEBAR_DEFAULTS_WIDTHS = {
   mobile: 16,
-  tablet: 3,
+  tablet: 16,
   computer: 3,
   largeScreen: 3,
   widescreen: 3,
@@ -69,7 +69,7 @@ function getColumnsConfig(commonFields) {
       16,
     tablet:
       formPagesConfig?.tablet ??
-      Math.max(1, 16 - left("tablet") - right("tablet")),
+      16,
     computer:
       formPagesConfig?.computer ??
       Math.max(1, 16 - left("computer") - right("computer")),
