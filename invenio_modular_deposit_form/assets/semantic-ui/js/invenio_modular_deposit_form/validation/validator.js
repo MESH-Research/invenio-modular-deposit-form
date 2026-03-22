@@ -8,6 +8,7 @@ import {
   addMethod,
   array as yupArray,
   boolean as yupBoolean,
+  lazy as yupLazy,
   mixed,
   object as yupObject,
   string as yupString,
@@ -61,17 +62,30 @@ const accessSchema = yupObject().shape({
     .test("embargo-consistency", embargoConsistencyTest),
 });
 
-// Helper schema for individual PID entries
-// NOTE: We don't make it required in the client-side schema since 
-// a PID may only be reserved and added on submission
+// Per-PID shape: mirrors `invenio_rdm_records.services.schemas.pids.PIDSchema`
+// (`identifier` + `provider` required when a scheme entry exists). `pids` itself
+// may be `{}` or omit keys; only validate when `pids.doi` (etc.) is present.
 const pidEntrySchema = yupObject().shape({
-  identifier: yupString().when("provider", {
-    is: "external",
-    then: (schema) => schema
-      .doi()
-      .required(i18next.t("You must provide a valid DOI if you say that you already have one.")),
-  }),
-  provider: yupString(),
+  provider: yupString().required(
+    i18next.t("A provider is required for each persistent identifier.")
+  ),
+  identifier: yupString()
+    .required(
+      i18next.t("An identifier is required for each persistent identifier.")
+    )
+    .when("provider", {
+      is: "external",
+      then: (schema) =>
+        schema.doi(
+          i18next.t(
+            "You must provide a valid DOI if you say that you already have one."
+          )
+        ),
+      otherwise: (schema) =>
+        schema.matches(/(?!\s).+/, {
+          message: i18next.t("Identifier cannot be blank"),
+        }),
+    }),
   client: yupString(),
 });
 
@@ -215,10 +229,14 @@ function buildValidationSchema(config = {}) {
   return yupObject().shape({
     access: accessSchema, 
     // Backend schema: `pids` is a dict of PID schemes (e.g. `pids: { doi: {...} }`).
-    // Allow empty `{}` while validating `pids.doi.*` when present.
+    // Yup 0.32: `.optional()` on nested objects still validates missing keys; use `lazy`
+    // so we only run `PIDSchema` when `pids.doi` is present (non-null).
     pids: yupObject()
-      .shape({doi: pidEntrySchema})
-      .default({})
+      .shape({
+        doi: yupLazy((value) =>
+          value == null ? mixed().notRequired() : pidEntrySchema
+        ),
+      })
       .notRequired(),
     custom_fields: yupObject().shape({}),
     metadata: yupObject()

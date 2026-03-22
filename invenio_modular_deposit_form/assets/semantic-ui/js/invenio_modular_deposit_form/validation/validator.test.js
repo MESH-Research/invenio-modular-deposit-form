@@ -35,7 +35,7 @@ describe("validator (full form validation) - pids.doi", () => {
     ).resolves.toBeTruthy();
   });
 
-  it("requires pids.doi.identifier when pids.doi.provider is external", async () => {
+  it("requires pids.doi.identifier when pids.doi is present (PIDSchema)", async () => {
     await expect(
       schema.validate({
         ...baseForm,
@@ -46,6 +46,34 @@ describe("validator (full form validation) - pids.doi", () => {
         },
       })
     ).rejects.toMatchObject({ path: "pids.doi.identifier" });
+  });
+
+  it("requires pids.doi.provider when pids.doi is present (PIDSchema)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        pids: {
+          doi: {
+            identifier: "10.1234/abc",
+          },
+        },
+      })
+    ).rejects.toMatchObject({ path: "pids.doi.provider" });
+  });
+
+  it("accepts non-external DOI pid with identifier + provider (PIDSchema)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        pids: {
+          doi: {
+            provider: "datacite",
+            identifier: "10.1234/xyz",
+            client: "test",
+          },
+        },
+      })
+    ).resolves.toBeTruthy();
   });
 
   it("rejects invalid DOI when pids.doi.provider is external", async () => {
