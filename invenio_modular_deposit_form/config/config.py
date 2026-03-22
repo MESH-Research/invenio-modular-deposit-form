@@ -59,7 +59,7 @@ to create a custom layout, override this variable in your instance invenio.cfg
 with your preferred layout.
 """
 
-MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {}
+MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = FIELDS_BY_TYPE_DEFAULT_PAGED
 """Page and field layout overrides for specific resource types. Other presets are included 
 in this package's config/ folder along with the matching 'COMMON_FIELDS' layouts. If you 
 wish to use an alternate preset, or to create a custom set of resource type layout overrides, 

@@ -415,7 +415,7 @@ COMMON_FIELDS_DEFAULT_SINGLE = [
     },
 ]
 
-MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = {
+FIELDS_BY_TYPE_DEFAULT_PAGED = {
     "publication": {},
     "publication-annotationcollection": {},
     "publication-book": {
