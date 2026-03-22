@@ -52,7 +52,13 @@ class InvenioModularDepositForm:
 
     def init_config(self, app):
         """Initialize configuration."""
-        app.config["APP_RDM_DEPOSIT_FORM_TEMPLATE"] = "invenio_modular_deposit_form/deposit.html"
+        app.config["APP_RDM_DEPOSIT_FORM_TEMPLATE"] = (
+            "invenio_modular_deposit_form/deposit.html"
+        )
         for k in dir(config):
             if k.startswith("MODULAR_DEPOSIT_FORM_"):
+                app.config.setdefault(k, getattr(config, k))
+            elif k.startswith("RDM_CUSTOM_FIELDS"):
+                app.config.setdefault(k, getattr(config, k))
+            elif k.startswith("RDM_NAMESPACES_"):
                 app.config.setdefault(k, getattr(config, k))
