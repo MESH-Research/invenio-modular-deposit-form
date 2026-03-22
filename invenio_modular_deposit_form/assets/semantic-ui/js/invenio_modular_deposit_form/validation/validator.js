@@ -16,6 +16,7 @@ import {
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
   getCreatorIdentifierSchemeIdsFromVocab,
+  getLocationIdentifierSchemeIdsFromVocab,
   getRecordIdentifierSchemeIdsFromVocab,
   getVocabOptionValues,
   validIdentifierForScheme,
@@ -66,8 +67,9 @@ const pidEntrySchema = yupObject().shape({
 /**
  * Build the validation schema from deposit config.
  * Uses config.max_title_length, config.vocabularies.creators.identifiers.scheme,
- * config.vocabularies.metadata.identifiers.scheme (record/related identifiers),
- * and optional config.vocabularies.dates.type / titles.type for oneOf.
+ * config.vocabularies.metadata.identifiers.scheme (record identifiers, related,
+ * references), config for location identifier schemes, and optional
+ * config.vocabularies.dates.type / titles.type for oneOf.
  *
  * @param {Object} config - Deposit config (e.g. from Redux or merge_deposit_config payload)
  * @returns {import("yup").ObjectSchema}
@@ -76,6 +78,7 @@ function buildValidationSchema(config = {}) {
   const titleMaxLength = Number(config.max_title_length) || DEFAULT_TITLE_MAX_LENGTH;
   const creatorSchemeIds = getCreatorIdentifierSchemeIdsFromVocab(config);
   const recordSchemeIds = getRecordIdentifierSchemeIdsFromVocab(config);
+  const locationSchemeIds = getLocationIdentifierSchemeIdsFromVocab(config);
   const titleTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.titles?.type ?? config?.vocabularies?.titles?.type
   );
@@ -106,6 +109,94 @@ function buildValidationSchema(config = {}) {
       }),
   });
 
+  const locationIdentifiersShape = yupObject().shape({
+    scheme: yupString().required(
+      i18next.t("A scheme is required for each identifier")
+    ),
+    identifier: yupString()
+      .required(i18next.t("A value is required for each identifier"))
+      .validRecordIdentifierForScheme(locationSchemeIds)
+      .matches(/(?!\s).+/, {
+        disallowEmptyString: true,
+        message: i18next.t("Identifier cannot be blank"),
+      }),
+  });
+
+  /** Mirrors Invenio `ReferenceSchema` (scheme + optional identifier per `RDM_RECORDS_IDENTIFIERS_SCHEMES`). */
+  const referenceEntryShape = yupObject().shape({
+    reference: yupString().required(i18next.t("A reference is required")),
+    scheme: yupString().test(
+      "scheme-required-with-identifier",
+      i18next.t("A scheme is required for each identifier"),
+      function (value) {
+        const ident = this.parent?.identifier;
+        const hasId = ident != null && String(ident).trim() !== "";
+        const hasScheme = value != null && String(value).trim() !== "";
+        if (hasId && !hasScheme) return false;
+        return true;
+      }
+    ),
+    identifier: yupString().when("scheme", {
+      is: (scheme) => scheme != null && String(scheme).trim() !== "",
+      then: (schema) =>
+        schema
+          .required(i18next.t("A value is required for each identifier"))
+          .validRecordIdentifierForScheme(recordSchemeIds)
+          .matches(/(?!\s).+/, {
+            disallowEmptyString: true,
+            message: i18next.t("Identifier cannot be blank"),
+          }),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  });
+
+  const personOrOrgShape = yupObject().shape({
+    type: yupString().required(i18next.t("A type is required")),
+    family_name: yupString()
+      .when("type", {
+        is: "personal",
+        then: (schema) =>
+          schema
+            .matches(/(?!\s).+/, i18next.t("Family name cannot be blank"))
+            .required(i18next.t("A family name is required")),
+      }),
+    given_name: yupString().matches(/(?!\s).+/, {
+      disallowEmptyString: true,
+      message: i18next.t("Given name cannot be spaces only"),
+    }),
+    name: yupString()
+      .when("type", {
+        is: "organizational",
+        then: (schema) =>
+          schema
+            .matches(/(?!\s).+/, i18next.t("Name cannot be blank"))
+            .required(i18next.t("A name is required")),
+      }),
+    identifiers: yupArray().of(creatorIdentifiersShape),
+  });
+
+  const creatorContributorRowShape = yupObject().shape({
+    affiliations: yupArray().of(
+      yupObject()
+        .shape({
+          id: yupString(),
+          name: yupString(),
+        })
+        .test(
+          "id-or-name",
+          i18next.t("An existing id or a free text name must be present."),
+          (val) =>
+            !val ||
+            !!String(val?.id ?? "").trim() ||
+            !!String(val?.name ?? "").trim()
+        )
+    ),
+    person_or_org: personOrOrgShape,
+    role: yupString().required(
+      i18next.t("A role is required for each contributor")
+    ),
+  });
+
   const additionalTitleTypeSchema = titleTypeValues.length
     ? yupString().required(i18next.t("A type is required")).oneOf(titleTypeValues)
     : yupString().required(i18next.t("A type is required"));
@@ -122,49 +213,10 @@ function buildValidationSchema(config = {}) {
     metadata: yupObject()
       .shape({
         creators: yupArray()
-          .of(
-            yupObject().shape({
-              affiliations: yupArray().of(
-                yupObject()
-                  .shape({
-                    id: yupString(),
-                    name: yupString(),
-                  })
-                  .test(
-                    "id-or-name",
-                    i18next.t("An existing id or a free text name must be present."),
-                    (val) => !val || !!String(val?.id ?? "").trim() || !!String(val?.name ?? "").trim()
-                  )
-              ),
-              person_or_org: yupObject().shape({
-                type: yupString().required(i18next.t("A type is required")),
-                family_name: yupString()
-                  .when("type", {
-                    is: "personal",
-                    then: yupString()
-                      .matches(/(?!\s).+/, i18next.t("Family name cannot be blank"))
-                      .required(i18next.t("A family name is required")),
-                  }),
-                given_name: yupString().matches(/(?!\s).+/, {
-                  disallowEmptyString: true,
-                  message: i18next.t("Given name cannot be spaces only"),
-                }),
-                name: yupString()
-                  .when("type", {
-                    is: "organizational",
-                    then: yupString()
-                      .matches(/(?!\s).+/, i18next.t("Name cannot be blank"))
-                      .required(i18next.t("A name is required")),
-                  }),
-                identifiers: yupArray().of(creatorIdentifiersShape),
-              }),
-              role: yupString().required(
-                i18next.t("A role is required for each contributor")
-              ),
-            })
-          )
+          .of(creatorContributorRowShape)
           .min(1, i18next.t("At least one contributor must be listed"))
           .required(i18next.t("At least one contributor must be listed")),
+        contributors: yupArray().of(creatorContributorRowShape),
         identifiers: yupArray().of(recordIdentifiersShape),
         related_identifiers: yupArray().of(
           yupObject().shape({
@@ -182,6 +234,17 @@ function buildValidationSchema(config = {}) {
             resource_type: yupString(),
           })
         ),
+        locations: yupObject().shape({
+          features: yupArray().of(
+            yupObject().shape({
+              geometry: mixed().nullable(),
+              place: yupString(),
+              identifiers: yupArray().of(locationIdentifiersShape),
+              description: yupString(),
+            })
+          ),
+        }),
+        references: yupArray().of(referenceEntryShape),
       publisher: yupString(),
       // Publisher is not required in form validation because a default value is set
       // in the form before submission.

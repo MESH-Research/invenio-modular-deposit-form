@@ -118,13 +118,37 @@ export function getRecordIdentifierSchemeIdsFromVocab(config) {
 }
 
 /**
+ * Default keys of `RDM_RECORDS_LOCATION_SCHEMES` in
+ * `invenio_rdm_records.config` (stock InvenioRDM). Used when location identifier
+ * vocab is missing or empty.
+ */
+export const DEFAULT_LOCATION_SCHEME_IDS = ["wikidata", "geonames"];
+
+/**
+ * Extract scheme id strings for `metadata.locations.features[].identifiers`
+ * (same registry as {@link DEFAULT_LOCATION_SCHEME_IDS}).
+ *
+ * @param {Object} config - Deposit config (e.g. from Redux store)
+ * @returns {string[]} Allowed scheme ids for location identifiers
+ */
+export function getLocationIdentifierSchemeIdsFromVocab(config) {
+  const schemeVocab =
+    config?.vocabularies?.metadata?.locations?.identifiers?.scheme ??
+    config?.vocabularies?.locations?.identifiers?.scheme;
+  if (!Array.isArray(schemeVocab)) return [...DEFAULT_LOCATION_SCHEME_IDS];
+  const ids = schemeVocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
+  return ids.length > 0 ? ids : [...DEFAULT_LOCATION_SCHEME_IDS];
+}
+
+/**
  * Returns a yup test function for record identifiers that validates by parent.scheme.
  * Looks up `this.parent.scheme`, builds `yupString().required(...)[scheme](...)`, and runs
  * validateSync on the identifier value — so any scheme in SCHEME_ID_TO_VALIDATOR is handled
  * in one place without chaining .when() per scheme.
  *
  * Used by {@link validRecordIdentifierForScheme} for
- * `metadata.identifiers[].identifier` and related_identifiers (see validator.js).
+ * `metadata.identifiers`, `related_identifiers`, `references`, and location
+ * identifier rows (see validator.js).
  *
  * @param {string[]} allowedSchemeIds - Allowed schemes only; `parent.scheme` must be in this list.
  *   Callers should pass {@link getRecordIdentifierSchemeIdsFromVocab} (which defaults to
@@ -217,7 +241,8 @@ export function validIdentifierForScheme(allowedSchemeIds) {
  * `addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme)` after
  * per-scheme validators are attached to `yup.string`.
  *
- * @param {string[]} allowedSchemeIds - From getRecordIdentifierSchemeIdsFromVocab(config)
+ * @param {string[]} allowedSchemeIds - From getRecordIdentifierSchemeIdsFromVocab(config) or
+ *   {@link getLocationIdentifierSchemeIdsFromVocab} for location rows.
  */
 export function validRecordIdentifierForScheme(allowedSchemeIds) {
   return this.test(

@@ -95,5 +95,61 @@ describe("validator (full form validation) - pids.doi", () => {
       path: "metadata.creators[0].person_or_org.identifiers[0].identifier",
     });
   });
+
+  it("rejects invalid ORCID on contributor person_or_org.identifiers (validIdentifierForScheme)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          contributors: [
+            {
+              role: "editor",
+              person_or_org: {
+                type: "personal",
+                family_name: "Doe",
+                given_name: "Jane",
+                identifiers: [{ scheme: "orcid", identifier: "not-an-orcid" }],
+              },
+            },
+          ],
+        },
+      })
+    ).rejects.toMatchObject({
+      path: "metadata.contributors[0].person_or_org.identifiers[0].identifier",
+    });
+  });
+
+  it("rejects invalid record identifier on metadata.references when scheme is set", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          references: [
+            {
+              reference: "Some cited work",
+              scheme: "doi",
+              identifier: "not-a-doi",
+            },
+          ],
+        },
+      })
+    ).rejects.toMatchObject({
+      path: "metadata.references[0].identifier",
+    });
+  });
+
+  it("accepts metadata.references with only reference text (no PID)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          references: [{ reference: "Author (2020). Title. Journal." }],
+        },
+      })
+    ).resolves.toBeTruthy();
+  });
 });
 
