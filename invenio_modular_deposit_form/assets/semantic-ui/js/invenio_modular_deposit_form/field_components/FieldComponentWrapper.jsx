@@ -69,6 +69,8 @@ const FieldComponentWrapper = ({
       id={`InvenioAppRdm.Deposit.${componentName}.container`}
       fieldPath={fieldPath}
     >
+      <div className={ `invenio-field-wrapper ${fieldPath.replaceAll(".", "-").replaceAll(":", "-")
+      }-field` }>
       {children &&
         React.cloneElement(children, {
           defaultFieldValue: defaultFieldValue,
@@ -82,6 +84,7 @@ const FieldComponentWrapper = ({
           required: moddedRequired,
           ...cleanedExtraProps,
         })}
+    </div>
     </Overridable>
   );
 };
