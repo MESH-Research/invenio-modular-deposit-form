@@ -2,7 +2,6 @@ export * from "./field_components";
 export * from "./CommunityField";
 export * from "./DatesFieldAlternate";
 export * from "./PIDField";
-export * from "./ResourceTypeSelectorField";
 export * from "./CommunitySelectionModal";
 export * from "./PublishButton";
 export * from "./SelectField";
