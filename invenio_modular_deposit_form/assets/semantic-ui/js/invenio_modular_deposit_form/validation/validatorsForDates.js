@@ -141,7 +141,7 @@ function edtfSingleDateStartUtcMs(value) {
   return Date.UTC(yi, mo - 1, da);
 }
 
-function edtfValidator(message = i18next.t("Invalid EDTF format")) {
+function edtfValidator(message = i18next.t("Date must be formatted like YYYY-MM-DD (ranges like YYYY-MM-DD/YYY-MM-DD)")) {
   return this.test("edtf", message, (value) => {
     if (!value) return true;
     const s = String(value).trim();
@@ -159,7 +159,7 @@ function edtfValidator(message = i18next.t("Invalid EDTF format")) {
  * for each segment, but rejects ranges.
  */
 function edtfSingleDateValidator(
-  message = i18next.t("Invalid EDTF format (single date only, no range)")
+  message = i18next.t("Date must be formatted like YYYY-MM-DD (single date only, no range)")
 ) {
   return this.test("edtf-single", message, (value) => {
     if (value == null || value === "") return true;
