@@ -36,15 +36,14 @@ import {
   PublishButton,
   ReferencesField,
   RelatedWorksField,
-  ResourceTypeField,
   SaveButton,
   SubjectsField,
-  TitlesField,
   UppyUploader,
   VersionField,
 } from "@js/invenio_rdm_records";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
+import { ResourceTypeField, TitlesField } from "../replacement_components/field_components";
 import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
@@ -635,7 +634,7 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Resource type (metadata.resource_type). Uses stock ResourceTypeField (dropdown). Override version uses button-style ResourceTypeSelectorField.
+ * Resource type (metadata.resource_type). Uses modular ResourceTypeField (replacement SelectField). Override version uses button-style ResourceTypeSelectorField.
  * @overridable InvenioAppRdm.Deposit.ResourceTypeField.container (via FieldComponentWrapper; matches v14 stock id)
  */
 const ResourceTypeComponent = ({ ...extraProps }) => {
@@ -901,7 +900,7 @@ const SubmissionComponent = () => {
 };
 
 /**
- * Title (metadata.title). Uses stock TitlesField.
+ * Title (metadata.title). Uses modular TitlesField (replacement TextField; stock AdditionalTitlesField).
  * @overridable InvenioAppRdm.Deposit.TitlesField.container (via FieldComponentWrapper)
  */
 const TitlesComponent = ({ ...extraProps }) => {

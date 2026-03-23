@@ -1,3 +1,4 @@
+export * from "./field_components";
 export * from "./CommunityField";
 export * from "./DatesFieldAlternate";
 export * from "./PIDField";
