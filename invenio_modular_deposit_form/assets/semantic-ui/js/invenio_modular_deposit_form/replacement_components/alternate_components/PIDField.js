@@ -591,7 +591,7 @@ export class PIDFieldAlternate extends Component {
   }
 }
 
-PIDField.propTypes = {
+PIDFieldAlternate.propTypes = {
   btnLabelDiscardPID: PropTypes.string,
   btnLabelGetPID: PropTypes.string,
   canBeManaged: PropTypes.bool,
@@ -608,7 +608,7 @@ PIDField.propTypes = {
   unmanagedHelpText: PropTypes.string,
 };
 
-PIDField.defaultProps = {
+PIDFieldAlternate.defaultProps = {
   btnLabelDiscardPID: "Discard",
   btnLabelGetPID: "Reserve",
   canBeManaged: true,
