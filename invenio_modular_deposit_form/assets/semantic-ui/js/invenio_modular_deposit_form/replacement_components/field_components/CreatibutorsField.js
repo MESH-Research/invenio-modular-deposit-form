@@ -5,6 +5,18 @@
 //
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
+//
+// KCWorks-specific override notes:
+// - This file intentionally overrides only CreatibutorsField behavior while
+//   reusing upstream child components via @js/invenio_rdm_records aliases to
+//   avoid maintaining local copies of modal/item internals.
+// - Error visibility is gated on Formik touched state so metadata.creators
+//   does not show validation errors before interaction (unless an initial error
+//   value hasn't been changed).
+// - The Add trigger marks metadata.creators touched on open to ensure required
+//   empty-array validation appears after interaction, even if modal closes
+//   without saving.
+// - Added creator save path also marks metadata.creators touched.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -54,7 +66,7 @@ class CreatibutorsFieldForm extends Component {
 
   render() {
     const {
-      form: { values, errors, initialErrors, initialValues, touched },
+      form: { values, errors, initialErrors, initialValues, setFieldTouched, touched },
       remove: formikArrayRemove,
       replace: formikArrayReplace,
       move: formikArrayMove,
@@ -147,7 +159,12 @@ class CreatibutorsFieldForm extends Component {
             schema={schema}
             autocompleteNames={autocompleteNames}
             trigger={
-              <Button type="button" icon labelPosition="left" className={className}>
+              <Button type="button" 
+                icon 
+                labelPosition="left" 
+                className={className}
+                onClick={() => setFieldTouched(fieldPath, true, true)}
+              >
                 <Icon name="add" />
                 {addButtonLabel}
               </Button>

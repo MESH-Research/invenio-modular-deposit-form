@@ -9,7 +9,14 @@
 //      - unmanaged/default external state retains `provider: "external"` with
 //        empty identifier so blur/touched validation keeps a stable field path,
 //      - managed DOI reserve/unreserve UI intentionally disabled, with doi.org label.
-//   2) Any future non-widget behavioral divergence should be documented here.
+//   2) `CreatibutorsField.js`:
+//      - explicit replacement for creators/contributors field-level behavior,
+//      - imports upstream modal/item/type and sortOptions by @js alias to avoid
+//        overriding additional child files,
+//      - gates field error display on touched to avoid pre-interaction errors,
+//      - marks metadata.creators touched when opening Add and after save so
+//        required empty-array validation appears after user interaction.
+//   3) Any future non-widget behavioral divergence should be documented here.
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 export { AdditionalTitlesField } from "./AdditionalTitlesField";
 export { CopyrightsField } from "./CopyrightsField";
