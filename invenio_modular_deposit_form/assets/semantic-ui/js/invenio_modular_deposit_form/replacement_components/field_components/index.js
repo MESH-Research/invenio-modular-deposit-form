@@ -20,6 +20,7 @@
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 export { AdditionalTitlesField } from "./AdditionalTitlesField";
 export { CopyrightsField } from "./CopyrightsField";
+export { CreatibutorsField } from "./CreatibutorsField";
 export { DescriptionsField } from "./DescriptionsField";
 export { LanguagesField } from "./LanguagesField";
 export { PIDField } from "./PIDField";
