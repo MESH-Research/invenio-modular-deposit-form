@@ -14,10 +14,10 @@ import _get from "lodash/get";
 import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { DndProvider } from "react-dnd";
-import { CreatibutorsModal } from "./CreatibutorsModal";
-import { CreatibutorsFieldItem } from "./CreatibutorsFieldItem";
-import { CREATIBUTOR_TYPE } from "./type";
-import { sortOptions } from "../../utils";
+import { CreatibutorsModal } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/CreatibutorsModal";
+import { CreatibutorsFieldItem } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/CreatibutorsFieldItem";
+import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
+import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 const creatibutorNameDisplay = (value) => {
@@ -43,14 +43,18 @@ const creatibutorNameDisplay = (value) => {
 
 class CreatibutorsFieldForm extends Component {
   handleOnContributorChange = (selectedCreatibutor) => {
-    const { form: { setFieldTouched }, push: formikArrayPush } = this.props;
+    const {
+      form: { setFieldTouched },
+      push: formikArrayPush,
+      name: fieldPath,
+    } = this.props;
     formikArrayPush(selectedCreatibutor);
     setFieldTouched(fieldPath, true, false);
   };
 
   render() {
     const {
-      form: { values, errors, initialErrors, initialValues },
+      form: { values, errors, initialErrors, initialValues, touched },
       remove: formikArrayRemove,
       replace: formikArrayReplace,
       move: formikArrayMove,
@@ -71,9 +75,10 @@ class CreatibutorsFieldForm extends Component {
     const formikInitialValues = getIn(initialValues, fieldPath, []);
 
     const error = getIn(errors, fieldPath, null);
+    const fieldTouched = getIn(touched, fieldPath, null);
     const initialError = getIn(initialErrors, fieldPath, null);
-    const creatibutorsError =
-      error || (creatibutorsList === formikInitialValues && initialError);
+    const creatibutorsError = (error && fieldTouched) ||
+            (creatibutorsList === formikInitialValues && initialError);
 
     let className = "";
     if (creatibutorsError) {
