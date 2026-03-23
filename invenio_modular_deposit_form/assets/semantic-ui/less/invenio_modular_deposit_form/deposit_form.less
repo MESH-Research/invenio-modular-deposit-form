@@ -169,6 +169,16 @@
     //   margin-bottom: 0 !important;
     // }
     // }
+
+    .invenio-field-wrapper {
+      &.files-field {
+        .ui.horizontal.list > .item:last-child {
+          @media all and (min-width: @largestTabletScreen) and (max-width: @largestSmallMonitor) {
+            margin-left: 0;
+          }
+        }
+      }
+    }
   }
 
   #warning-feedback-div,
