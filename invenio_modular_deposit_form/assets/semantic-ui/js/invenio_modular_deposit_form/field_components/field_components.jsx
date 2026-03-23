@@ -355,6 +355,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
   const { config, record } = store.getState().deposit;
   const files = store.getState().files;
   const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
+  const showMetaOnly = extraProps.showMetadataOnlyToggle
   const useUppy = config.use_uppy ?? false;
   const commonFileUploaderProps = {
     noFiles,
@@ -363,19 +364,13 @@ const FileUploadComponent = ({ ...extraProps }) => {
     decimalSizeDisplay: config.decimal_size_display,
     filesLocked: config.files_locked ?? false,
     allowEmptyFiles: config.allow_empty_files ?? true,
-    showMetadataOnlyToggle: false, // permissions?.can_manage_files
+    showMetadataOnlyToggle: showMetaOnly ?? permissions?.can_manage_files, 
     // v14 only: pass when present so v13 uploaders (no fileModification prop) are unchanged
     ...(config.file_modification != null && { fileModification: config.file_modification }),
   };
 
   return (
     <>
-      {/* <Overridable
-      id="InvenioAppRdm.Deposit.AccordionFieldFiles.container"
-      record={record}
-      config={config}
-      noFiles={noFiles}
-    >*/}
       <FieldComponentWrapper
         componentName="FileUploader"
         fieldPath="files"
@@ -387,7 +382,6 @@ const FileUploadComponent = ({ ...extraProps }) => {
           <FileUploader {...commonFileUploaderProps} />
         )}
       </FieldComponentWrapper>
-      {/*</Overridable> */}
     </>
   );
 };
