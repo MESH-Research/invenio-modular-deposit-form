@@ -15,6 +15,9 @@
 //      touch-aware (aligns with our replacement TextField behavior):
 //      - show error after first blur (Formik touched), OR
 //      - show error immediately when initialErrors applies and value is unchanged.
+//      - when unmanaged/external is selected, initialize and retain
+//        `{ provider: "external", identifier: "" }` so subfield validation
+//        remains anchored on `pids.<type>.identifier` after blur.
 //   2) DOI managed/reserved display is customized for KCWorks:
 //      - reserve/unreserve controls are intentionally disabled in this component,
 //      - existing managed DOI is rendered as a canonical doi.org URL label.
@@ -453,7 +456,7 @@ class PIDFieldCmp extends Component {
 
   onExternalIdentifierChanged = (identifier) => {
     const { form, fieldPath } = this.props;
-    let pid = {
+    const pid = {
       identifier: identifier,
       provider: PROVIDER_EXTERNAL,
     };
@@ -466,10 +469,11 @@ class PIDFieldCmp extends Component {
       }, UPDATE_PID_DEBOUNCE_MS);
       this.debounced();
     } else {
-      this.setState({ isManagedSelected: true });
+      // Keep unmanaged selected and persist provider so validation can target external PID subfields.
+      this.setState({ isManagedSelected: false });
       this.debounced && this.debounced.cancel();
       this.debounced = _debounce(() => {
-        form.setFieldValue("pids", {});
+        form.setFieldValue(fieldPath, pid);
       }, UPDATE_PID_DEBOUNCE_MS);
       this.debounced();
     }
@@ -535,7 +539,10 @@ class PIDFieldCmp extends Component {
               if (userSelectedManaged) {
                 form.setFieldValue("pids", {});
               } else {
-                this.onExternalIdentifierChanged("");
+                form.setFieldValue(fieldPath, {
+                  identifier: "",
+                  provider: PROVIDER_EXTERNAL,
+                });
               }
               this.setState({
                 isManagedSelected: userSelectedManaged,

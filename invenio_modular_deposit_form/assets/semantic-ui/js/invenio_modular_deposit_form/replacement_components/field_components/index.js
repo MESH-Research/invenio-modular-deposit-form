@@ -6,6 +6,8 @@
 //   1) `PIDField.js`:
 //      - new KCWorks replacement (no stock file previously in this folder),
 //      - custom unmanaged DOI/PID error-display timing (touched or initialErrors),
+//      - unmanaged/default external state retains `provider: "external"` with
+//        empty identifier so blur/touched validation keeps a stable field path,
 //      - managed DOI reserve/unreserve UI intentionally disabled, with doi.org label.
 //   2) Any future non-widget behavioral divergence should be documented here.
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
