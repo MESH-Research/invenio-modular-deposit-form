@@ -42,11 +42,7 @@ import {
 } from "@js/invenio_rdm_records";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
-import {
-  LanguagesField,
-  ResourceTypeField,
-  TitlesField,
-} from "../replacement_components/field_components";
+import { LanguagesField, ResourceTypeField, TitlesField } from "../replacement_components/field_components";
 import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
@@ -475,7 +471,7 @@ const FundingComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Languages (metadata.languages). Uses field_components LanguagesField (stock + replacement RemoteSelectField). Override uses modular LanguagesField + state normalization.
+ * Languages (metadata.languages). See `replacement_components/field_components/LanguagesField.js`.
  * @overridable InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper)
  */
 const LanguagesComponent = ({ ...extraProps }) => {
@@ -903,7 +899,7 @@ const SubmissionComponent = () => {
 };
 
 /**
- * Title (metadata.title). Uses modular TitlesField (replacement TextField, SelectField, LanguagesField).
+ * Title (metadata.title). Uses modular TitlesField (see `replacement_components/field_components`).
  * @overridable InvenioAppRdm.Deposit.TitlesField.container (via FieldComponentWrapper)
  */
 const TitlesComponent = ({ ...extraProps }) => {
