@@ -161,7 +161,7 @@ const componentsRegistry = {
   ],
   SizesComponent: [SizesComponent, ["metadata.sizes"]],
   SubjectsComponent: [SubjectsComponent, ["metadata.subjects"]],
-  TitlesComponent: [TitlesComponent, ["metadata.title"]],
+  TitlesComponent: [TitlesComponent, ["metadata.title", "metadata.additional_titles"]],
   TotalPagesComponent: [
     TotalPagesComponent,
     ["custom_fields.imprint:imprint.pages"],
