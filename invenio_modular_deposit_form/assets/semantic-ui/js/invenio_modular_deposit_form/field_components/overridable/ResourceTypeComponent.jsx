@@ -4,7 +4,7 @@
 // Overridable: replaces stock ResourceTypeField with ResourceTypeSelectorField (button-style).
 
 import React from "react";
-import ResourceTypeSelectorField from "../../replacement_components/ResourceTypeSelectorField";
+import ResourceTypeSelectorField from "../../replacement_components/alternate_components/ResourceTypeSelectorField";
 
 /**
  * Resource type (metadata.resource_type). Uses ResourceTypeSelectorField (button-style) instead of stock dropdown.

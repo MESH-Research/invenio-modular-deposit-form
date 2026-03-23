@@ -19,7 +19,7 @@ import { FieldLabel } from "react-invenio-forms";
 import { RemoteSelectField } from "./RemoteSelectField";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
-export const LanguagesField = ({
+const LanguagesField = ({
   classnames = undefined,
   fieldPath,
   label,
@@ -88,3 +88,5 @@ LanguagesField.defaultProps = {
   initialOptions: undefined,
   serializeSuggestions: undefined,
 };
+
+export { LanguagesField as LanguagesFieldAlternate };
