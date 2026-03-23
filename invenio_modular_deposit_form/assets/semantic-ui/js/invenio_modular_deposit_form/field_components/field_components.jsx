@@ -352,7 +352,7 @@ const DoiComponent = ({ ...extraProps }) => {
  */
 const FileUploadComponent = ({ ...extraProps }) => {
   const store = useStore();
-  const { config, record } = store.getState().deposit;
+  const { config, permissions, record } = store.getState().deposit;
   const files = store.getState().files;
   const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
   const showMetaOnly = extraProps.showMetadataOnlyToggle
