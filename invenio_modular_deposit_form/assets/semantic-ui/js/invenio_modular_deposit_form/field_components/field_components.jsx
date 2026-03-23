@@ -27,7 +27,6 @@ import {
   DescriptionsField,
   FileUploader,
   IdentifiersField,
-  LanguagesField,
   LicenseField,
   PIDField,
   PreviewButton,
@@ -43,7 +42,11 @@ import {
 } from "@js/invenio_rdm_records";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
-import { ResourceTypeField, TitlesField } from "../replacement_components/field_components";
+import {
+  LanguagesField,
+  ResourceTypeField,
+  TitlesField,
+} from "../replacement_components/field_components";
 import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
@@ -472,7 +475,7 @@ const FundingComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Languages (metadata.languages). Uses stock LanguagesField. Override version adds state normalization (id/title_l10n).
+ * Languages (metadata.languages). Uses field_components LanguagesField (stock + replacement RemoteSelectField). Override uses modular LanguagesField + state normalization.
  * @overridable InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper)
  */
 const LanguagesComponent = ({ ...extraProps }) => {
@@ -900,7 +903,7 @@ const SubmissionComponent = () => {
 };
 
 /**
- * Title (metadata.title). Uses modular TitlesField (replacement TextField; stock AdditionalTitlesField).
+ * Title (metadata.title). Uses modular TitlesField (replacement TextField, SelectField, LanguagesField).
  * @overridable InvenioAppRdm.Deposit.TitlesField.container (via FieldComponentWrapper)
  */
 const TitlesComponent = ({ ...extraProps }) => {

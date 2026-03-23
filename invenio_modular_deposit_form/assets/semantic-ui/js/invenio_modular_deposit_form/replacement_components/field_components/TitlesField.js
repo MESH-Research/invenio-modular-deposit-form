@@ -6,13 +6,12 @@
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 //
-// Copy of stock TitlesField; TextField from invenio_modular_deposit_form replacement.
-// AdditionalTitlesField remains stock (see import below).
+// Copy of stock TitlesField; TextField and AdditionalTitlesField use replacement widgets.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { AdditionalTitlesField } from "@js/invenio_rdm_records/src/deposit/fields/TitlesField/AdditionalTitlesField";
+import { AdditionalTitlesField } from "./AdditionalTitlesField";
 import { FieldLabel } from "react-invenio-forms";
 import { TextField } from "../TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
