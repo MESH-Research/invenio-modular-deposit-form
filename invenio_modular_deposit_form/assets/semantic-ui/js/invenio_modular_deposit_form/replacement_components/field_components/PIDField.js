@@ -433,7 +433,7 @@ UnmanagedIdentifierCmp.defaultProps = {
  * The field value has the following format:
  * { 'doi': { identifier: '<value>', provider: '<value>', client: '<value>' } }
  */
-class CustomPIDField extends Component {
+class PIDFieldCmp extends Component {
   constructor(props) {
     super(props);
 
@@ -577,7 +577,7 @@ class CustomPIDField extends Component {
   }
 }
 
-CustomPIDField.propTypes = {
+PIDFieldCmp.propTypes = {
   field: PropTypes.object,
   form: PropTypes.object.isRequired,
   btnLabelDiscardPID: PropTypes.string.isRequired,
@@ -596,14 +596,14 @@ CustomPIDField.propTypes = {
   unmanagedHelpText: PropTypes.string,
 };
 
-CustomPIDField.defaultProps = {
+PIDFieldCmp.defaultProps = {
   managedHelpText: null,
   unmanagedHelpText: null,
   field: undefined,
 };
 
 /**
- * Render the PIDField using a custom Formik component
+ * Render the PIDField using a Formik component
  */
 export class PIDField extends Component {
   constructor(props) {
@@ -624,7 +624,7 @@ export class PIDField extends Component {
     const { fieldPath } = this.props;
 
     return (
-      <FastField name={fieldPath} component={CustomPIDField} {...this.props} />
+      <FastField name={fieldPath} component={PIDFieldCmp} {...this.props} />
     );
   }
 }
