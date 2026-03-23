@@ -282,6 +282,10 @@ class FormErrorManager {
    * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_SECTION_ERRORS_FLAGGED, SET_SECTION_ERRORS_ALL)
    */
   updateFormErrorState = (dispatch) => {
+    console.log("Starting error values:");
+    console.log("values:", this.formik.values);
+    console.log("errors:", this.formik.errors);
+    console.log("touched:", this.formik.touched);
     this.syncTouchedForBackendValidationErrors();
 
     const errorFieldSets = this.errorsToFieldSets();
