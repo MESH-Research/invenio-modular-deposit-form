@@ -54,7 +54,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
                 className="continue-button primary"
               >
                 <Icon name="right arrow" />
-                {i18next.t("Continue")}
+                {i18next.t("Next")}
               </Button>
             )}
           </Grid.Column>
