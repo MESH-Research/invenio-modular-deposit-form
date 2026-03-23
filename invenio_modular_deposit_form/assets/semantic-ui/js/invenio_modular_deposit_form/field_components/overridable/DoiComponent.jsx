@@ -5,7 +5,7 @@
 
 import React, { Fragment } from "react";
 import { useStore } from "react-redux";
-import { PIDField } from "../../replacement_components/PIDField";
+import { PIDField } from "../../replacement_components/alternate_components/PIDField";
 
 /**
  * DOI/identifier field(s). Renders one PIDField per scheme in config.pids (e.g. doi). Uses the
