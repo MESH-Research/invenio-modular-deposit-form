@@ -16,7 +16,7 @@ import React from "react";
 import { useFormikContext } from "formik";
 import PropTypes from "prop-types";
 import { FieldLabel } from "react-invenio-forms";
-import { RemoteSelectField } from "./RemoteSelectField";
+import { RemoteSelectField } from "../RemoteSelectField";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 const LanguagesField = ({
