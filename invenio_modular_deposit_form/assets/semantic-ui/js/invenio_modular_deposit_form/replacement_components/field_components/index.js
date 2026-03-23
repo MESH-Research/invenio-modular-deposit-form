@@ -1,4 +1,9 @@
+export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 export { AdditionalTitlesField } from "./AdditionalTitlesField";
+export { CopyrightsField } from "./CopyrightsField";
+export { DescriptionsField } from "./DescriptionsField";
 export { LanguagesField } from "./LanguagesField";
+export { PublisherField } from "./PublisherField";
 export { ResourceTypeField } from "./ResourceTypeField";
 export { TitlesField } from "./TitlesField";
+export { VersionField } from "./VersionField";

@@ -81,7 +81,9 @@ const TextField = ({
             />
             {helpText && helpText !== " " && (
               <div className="helptext label" id={`${fieldPath}.helptext`}>
-                {i18next.t(helpText)}
+                {React.isValidElement(helpText)
+                  ? helpText
+                  : i18next.t(helpText)}
               </div>
             )}
           </Form.Field>

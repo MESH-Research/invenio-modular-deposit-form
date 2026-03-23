@@ -24,26 +24,30 @@ import {
   DatesField,
   DeleteButton,
   DepositStatusBox,
-  DescriptionsField,
   FileUploader,
   IdentifiersField,
   LicenseField,
   PIDField,
   PreviewButton,
   PublicationDateField,
-  PublisherField,
   PublishButton,
   ReferencesField,
   RelatedWorksField,
   SaveButton,
   SubjectsField,
   UppyUploader,
-  VersionField,
 } from "@js/invenio_rdm_records";
 import { FormUIStateContext } from "../FormLayoutContainer";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
-import { LanguagesField, ResourceTypeField, TitlesField } from "../replacement_components/field_components";
-import {CopyrightsField} from "@js/invenio_rdm_records/src/deposit/fields/CopyrightsField/CopyrightsField";
+import {
+  CopyrightsField,
+  DescriptionsField,
+  LanguagesField,
+  PublisherField,
+  ResourceTypeField,
+  TitlesField,
+  VersionField,
+} from "../replacement_components/field_components";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Grid, Card } from "semantic-ui-react";
@@ -52,7 +56,7 @@ import { moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 
 /**
- * Main description/abstract field (metadata.description). Uses stock DescriptionsField.
+ * Main description/abstract field (metadata.description). Replacement DescriptionsField (field_components).
  * @overridable InvenioAppRdm.Deposit.DescriptionsField.container (via FieldComponentWrapper)
  */
 const AbstractComponent = ({ ...extraProps }) => {
@@ -471,7 +475,7 @@ const FundingComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Languages (metadata.languages). See `replacement_components/field_components/LanguagesField.js`.
+ * Languages (metadata.languages). Replacement LanguagesField (field_components).
  * @overridable InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper)
  */
 const LanguagesComponent = ({ ...extraProps }) => {
@@ -560,7 +564,7 @@ const LicensesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Copyright (metadata.copyright). Uses stock CopyrightsField.
+ * Copyright (metadata.copyright). Replacement CopyrightsField (field_components).
  * @overridable InvenioAppRdm.Deposit.CopyrightsField.container (via FieldComponentWrapper)
  */
 const CopyrightsComponent = ({ ...extraProps }) => {
@@ -576,7 +580,7 @@ const CopyrightsComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Publisher (metadata.publisher). Uses stock PublisherField.
+ * Publisher (metadata.publisher). Replacement PublisherField (field_components).
  * @overridable InvenioAppRdm.Deposit.PublisherField.container (via FieldComponentWrapper)
  */
 const PublisherComponent = ({ ...extraProps }) => {
@@ -923,7 +927,7 @@ const TitlesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Version (metadata.version). Uses stock VersionField.
+ * Version (metadata.version). Replacement VersionField (field_components).
  * @overridable InvenioAppRdm.Deposit.VersionField.container (via FieldComponentWrapper)
  */
 const VersionComponent = ({ ...extraProps }) => {

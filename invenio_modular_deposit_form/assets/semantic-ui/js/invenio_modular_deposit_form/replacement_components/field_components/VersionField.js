@@ -1,0 +1,54 @@
+// This file is part of Invenio-RDM-Records
+// Copyright (C) 2020-2023 CERN.
+// Copyright (C) 2020-2022 Northwestern University.
+// Copyright (C) 2021 Graz University of Technology.
+//
+// Invenio-RDM-Records is free software; you can redistribute it and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+
+import { TextField } from "../TextField";
+import { i18next } from "@translations/invenio_rdm_records/i18next";
+
+export class VersionField extends Component {
+  render() {
+    const { fieldPath, label, labelIcon, placeholder } = this.props;
+    const helpText = (
+      <span>
+        {i18next.t(
+          "Mostly relevant for software and dataset uploads. A semantic version string is preferred see"
+        )}
+        <a href="https://semver.org/" target="_blank" rel="noopener noreferrer">
+          {" "}
+          semver.org
+        </a>
+        {i18next.t(", but any version string is accepted.")}
+      </span>
+    );
+
+    return (
+      <TextField
+        fieldPath={fieldPath}
+        helpText={helpText}
+        label={label}
+        icon={labelIcon}
+        placeholder={placeholder}
+      />
+    );
+  }
+}
+
+VersionField.propTypes = {
+  fieldPath: PropTypes.string.isRequired,
+  label: PropTypes.string,
+  labelIcon: PropTypes.string,
+  placeholder: PropTypes.string,
+};
+
+VersionField.defaultProps = {
+  label: i18next.t("Version"),
+  labelIcon: "code branch",
+  placeholder: "",
+};
