@@ -27,7 +27,6 @@ import {
   FileUploader,
   IdentifiersField,
   LicenseField,
-  PIDField,
   PreviewButton,
   PublicationDateField,
   PublishButton,
@@ -38,6 +37,7 @@ import {
   UppyUploader,
 } from "@js/invenio_rdm_records";
 import { FormUIStateContext } from "../FormLayoutContainer";
+import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
 import {
   CopyrightsField,
@@ -322,7 +322,7 @@ const DoiComponent = ({ ...extraProps }) => {
       <Fragment>
       {pids.map((pid) => (
         <Fragment key={pid.scheme}>
-            <PIDField
+            <ReplacementPIDField
               btnLabelDiscardPID={pid.btn_label_discard_pid}
               btnLabelGetPID={pid.btn_label_get_pid}
               canBeManaged={pid.can_be_managed}
