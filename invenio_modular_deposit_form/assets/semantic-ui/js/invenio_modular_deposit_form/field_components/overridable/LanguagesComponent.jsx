@@ -6,7 +6,7 @@
 import React, { useEffect } from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
-import { LanguagesField } from "../../replacement_components/alternate_components/LanguagesField";
+import { LanguagesFieldAlternate } from "../../replacement_components/alternate_components/LanguagesField";
 
 /**
  * Languages (metadata.languages). Uses replacement LanguagesField with state normalization (id/title_l10n).
@@ -89,7 +89,7 @@ const OverrideLanguagesComponent = ({
   };
 
   return (
-    <LanguagesField
+    <LanguagesFieldAlternate
       fieldPath={fieldPath}
       initialOptions={initialOptionsForField}
       placeholder={placeholder ?? i18next.t(
