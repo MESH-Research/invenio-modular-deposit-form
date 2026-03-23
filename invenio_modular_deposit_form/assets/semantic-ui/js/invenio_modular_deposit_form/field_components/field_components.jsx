@@ -641,6 +641,10 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
 const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
   const options = useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
+
+  console.log("form ui state:", useContext(FormUIStateContext));
+  console.log("formik:", useFormikContext());
+
   return (
     <FieldComponentWrapper
       componentName="ResourceTypeField"
