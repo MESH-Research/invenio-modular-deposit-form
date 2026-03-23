@@ -59,11 +59,14 @@ const SelectField = ({
     noQueryMessage,
     defaultFieldValue,
     initialOptions,
-    labelIcon,  // core Invenio prop name that we've renamed to icon
+    labelIcon, // stock: FieldLabel uses icon={labelIcon}; we map to icon when label is a string
     priorityFieldValues,
     extraRequiredFields,
     ...uiProps
   } = otherProps;
+
+  const labelFromProps = label;
+  const useCustomLabelNode = React.isValidElement(labelFromProps);
 
   // TODO: implement extraRequiredFields, priorityFieldValues and defaultFieldValue
    return (
@@ -88,9 +91,17 @@ const SelectField = ({
             {...(!!uiProps.fluid && { fluid: true })}
             className={`invenio-select-field ${classnames ? classnames : ""}`}
           >
-            {showLabel && (
-            <FieldLabel id={`${fieldPath}.label`} htmlFor={fieldPath} icon={icon} label={label} />
-            )}
+            {showLabel &&
+              (useCustomLabelNode ? (
+                labelFromProps
+              ) : (
+                <FieldLabel
+                  id={`${fieldPath}.label`}
+                  htmlFor={fieldPath}
+                  icon={icon ?? labelIcon}
+                  label={labelFromProps}
+                />
+              ))}
             {description && description !== " " && (
               <div className="helptext label top" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
