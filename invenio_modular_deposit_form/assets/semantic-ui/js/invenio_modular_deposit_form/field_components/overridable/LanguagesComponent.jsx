@@ -6,7 +6,7 @@
 import React, { useEffect } from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
-import { LanguagesField } from "../../replacement_components/LanguagesField";
+import { LanguagesField } from "../../replacement_components/alternate_components/LanguagesField";
 
 /**
  * Languages (metadata.languages). Uses replacement LanguagesField with state normalization (id/title_l10n).
