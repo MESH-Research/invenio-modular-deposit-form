@@ -17,8 +17,8 @@ import Overridable from "react-overridable";
 import { Button, Icon, Form, Grid, Header, Message } from "semantic-ui-react";
 import GeoPattern from "geopattern";
 
-import { CommunitySelectionModal } from "./CommunitySelectionModal/CommunitySelectionModal";
-import { getReadableFields } from "../utils";
+import { CommunitySelectionModal } from "../CommunitySelectionModal/CommunitySelectionModal";
+import { getReadableFields } from "../../utils";
 
 export const changeSelectedCommunity = (community) => {
   return async (dispatch) => {

@@ -4,7 +4,7 @@
 // Overridable: replaces stock DatesField with DatesFieldAlternate implementation.
 
 import React from "react";
-import { DatesFieldAlternate } from "../../replacement_components/DatesFieldAlternate";
+import { DatesFieldAlternate } from "../../replacement_components/alternate_components/DatesFieldAlternate";
 
 /**
  * Additional dates field (metadata.dates). Uses DatesFieldAlternate instead of stock DatesField.
