@@ -567,7 +567,7 @@ CustomPIDField.defaultProps = {
 /**
  * Render the PIDField using a custom Formik component
  */
-export class PIDField extends Component {
+export class PIDFieldAlternate extends Component {
   constructor(props) {
     super(props);
 

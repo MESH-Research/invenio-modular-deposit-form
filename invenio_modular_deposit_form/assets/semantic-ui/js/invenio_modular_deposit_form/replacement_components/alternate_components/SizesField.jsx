@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { MultiInput } from "react-invenio-forms";
 
-const SizesField = ({
+const SizesFieldAlternate = ({
   classnames = undefined,
   fieldPath = "metadata.sizes",
   additionLabel,
@@ -38,7 +38,7 @@ const SizesField = ({
   );
 };
 
-SizesField.propTypes = {
+SizesFieldAlternate.propTypes = {
   additionLabel: PropTypes.string,
   classnames: PropTypes.string,
   description: PropTypes.string,
@@ -49,4 +49,4 @@ SizesField.propTypes = {
   required: PropTypes.bool,
 };
 
-export { SizesField };
+export { SizesFieldAlternate };
