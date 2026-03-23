@@ -20,7 +20,6 @@ import { useStore } from "react-redux";
 import {
   AccessRightField,
   CommunityHeader,
-  CreatibutorsField,
   DatesField,
   DeleteButton,
   DepositStatusBox,
@@ -40,6 +39,7 @@ import { FormUIStateContext } from "../FormLayoutContainer";
 import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
 import {
+  CreatibutorsField,
   CopyrightsField,
   DescriptionsField,
   LanguagesField,
