@@ -8,15 +8,14 @@
 //
 // KCWorks-specific override notes:
 // - This file intentionally overrides only CreatibutorsField behavior while
-//   reusing upstream child components via @js/invenio_rdm_records aliases to
-//   avoid maintaining local copies of modal/item internals.
+//   reusing upstream FieldItem/modal internals via aliases except for a local
+//   `creatibutor_components/CreatibutorsModal` fork (onModalClose → touched).
 // - Error visibility is gated on Formik touched state so metadata.creators
 //   does not show validation errors before interaction (unless an initial error
 //   value hasn't been changed).
-// - The Add trigger marks metadata.creators touched on open to ensure required
-//   empty-array validation appears after interaction, even if modal closes
-//   without saving.
-// - Added creator save path also marks metadata.creators touched.
+// - Local modal calls `onModalClose` whenever the modal closes so the array
+//   field is marked touched (e.g. cancel with empty creators).
+// - Added creator save path also marks metadata.creators touched via push handler.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -26,7 +25,7 @@ import _get from "lodash/get";
 import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { DndProvider } from "react-dnd";
-import { CreatibutorsModal } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/CreatibutorsModal";
+import { CreatibutorsModal } from "./creatibutor_components/CreatibutorsModal";
 import { CreatibutorsFieldItem } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/CreatibutorsFieldItem";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
@@ -152,6 +151,7 @@ class CreatibutorsFieldForm extends Component {
           </List>
           <CreatibutorsModal
             onCreatibutorChange={this.handleOnContributorChange}
+            onModalClose={() => setFieldTouched(fieldPath, true, true)}
             action="add"
             addLabel={modal.addLabel}
             editLabel={modal.editLabel}
@@ -159,12 +159,7 @@ class CreatibutorsFieldForm extends Component {
             schema={schema}
             autocompleteNames={autocompleteNames}
             trigger={
-              <Button type="button" 
-                icon 
-                labelPosition="left" 
-                className={className}
-                onClick={() => setFieldTouched(fieldPath, true, true)}
-              >
+              <Button type="button" icon labelPosition="left" className={className}>
                 <Icon name="add" />
                 {addButtonLabel}
               </Button>

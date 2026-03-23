@@ -9,13 +9,12 @@
 //      - unmanaged/default external state retains `provider: "external"` with
 //        empty identifier so blur/touched validation keeps a stable field path,
 //      - managed DOI reserve/unreserve UI intentionally disabled, with doi.org label.
-//   2) `CreatibutorsField.js`:
+//   2) `CreatibutorsField.js` + `creatibutor_components/CreatibutorsModal.js`:
 //      - explicit replacement for creators/contributors field-level behavior,
-//      - imports upstream modal/item/type and sortOptions by @js alias to avoid
-//        overriding additional child files,
-//      - gates field error display on touched to avoid pre-interaction errors,
-//      - marks metadata.creators touched when opening Add and after save so
-//        required empty-array validation appears after user interaction.
+//      - local fork of upstream modal only: `onModalClose` runs in `closeModal()`
+//        so parent can setFieldTouched when modal dismisses (cancel/close/save),
+//      - field item/type/utils still imported from @js/invenio_rdm_records,
+//      - gates field error display on touched to avoid pre-interaction errors.
 //   3) Any future non-widget behavioral divergence should be documented here.
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 export { AdditionalTitlesField } from "./AdditionalTitlesField";
