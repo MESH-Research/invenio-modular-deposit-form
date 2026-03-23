@@ -5,7 +5,7 @@
 
 import React, { Fragment } from "react";
 import { useStore } from "react-redux";
-import { PIDField } from "../../replacement_components/alternate_components/PIDField";
+import { PIDFieldAlternate } from "../../replacement_components/alternate_components/PIDField";
 
 /**
  * DOI/identifier field(s). Renders one PIDField per scheme in config.pids (e.g. doi). Uses the
@@ -54,7 +54,7 @@ const OverrideDoiComponent = ({ ...extraProps }) => {
     <>
       {pids.map((pid) => (
         <Fragment key={pid.scheme}>
-          <PIDField
+          <PIDFieldAlternate
             btnLabelDiscardPID={pid.btn_label_discard_pid}
             btnLabelGetPID={pid.btn_label_get_pid}
             canBeManaged={pid.can_be_managed}
