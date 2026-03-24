@@ -36,6 +36,7 @@ import {
   FILE_UPLOAD_SAVE_DRAFT_FAILED,
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
+import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
 
 const WITH_VALIDATION_TO_PLAIN = {
   [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_PUBLISH_FAILED,
@@ -162,7 +163,7 @@ function getNonValidationErrors(backendErrors) {
   if (_isEmpty(backendErrors)) return undefined;
   return Object.fromEntries(
     Object.entries(backendErrors).filter(
-      ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
+      ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key)
     )
   );
 }

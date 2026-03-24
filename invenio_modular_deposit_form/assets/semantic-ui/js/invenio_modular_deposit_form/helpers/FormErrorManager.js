@@ -1,17 +1,8 @@
 import { get, isEqual } from "lodash";
 import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils";
 import { FORM_UI_ACTION } from "./formUIStateReducer";
+import { RECORD_FIELD_ERROR_ROOTS, SEVERITIES } from "../constants";
 
-const SEVERITIES = ["error", "warning", "info"];
-
-/** Top-level keys that correspond to Formik values / Yup validation on the deposit record. */
-const RECORD_FIELD_ERROR_ROOTS = new Set([
-  "metadata",
-  "access",
-  "pids",
-  "custom_fields",
-  "files",
-]);
 
 /**
  * Global API failures (e.g. 400 CSRF) often return `{ message: "..." }` only. Those keys are not
@@ -24,7 +15,7 @@ const RECORD_FIELD_ERROR_ROOTS = new Set([
 function isRecordFieldErrorPath(path) {
   if (typeof path !== "string" || path.length === 0) return false;
   const root = path.split(".")[0];
-  return RECORD_FIELD_ERROR_ROOTS.has(root);
+  return RECORD_FIELD_ERROR_ROOTS.includes(root);
 }
 
 /**

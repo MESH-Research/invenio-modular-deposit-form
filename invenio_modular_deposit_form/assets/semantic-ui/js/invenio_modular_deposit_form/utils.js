@@ -9,8 +9,7 @@ import { func } from "prop-types";
 import get from "lodash/get";
 import { getIn } from "formik";
 import { readableFieldLabels } from "./readableFieldLabels";
-
-const SEVERITIES = ["error", "warning", "info"];
+import { SEVERITIES } from "./constants";
 
 /**
  * Scroll page to top

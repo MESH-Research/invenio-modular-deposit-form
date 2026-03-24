@@ -13,6 +13,7 @@ import Overridable from "react-overridable";
 import { SubmitButtonModal } from "../../replacement_components/PublishButton/SubmitButton";
 import { FormUIStateContext } from "../../FormLayoutContainer";
 import { DeleteComponent } from "../field_components";
+import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
 
 /**
  * Submission section: save/preview/publish modals, form feedback, delete. Uses SubmitButtonModal and FormUIStateContext
@@ -84,7 +85,7 @@ const OverrideSubmissionComponent = () => {
   if (!_isEmpty(errors)) {
     nonValidationErrors = Object.fromEntries(
       Object.entries(errors).filter(
-        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
+        ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key)
       )
     );
   }

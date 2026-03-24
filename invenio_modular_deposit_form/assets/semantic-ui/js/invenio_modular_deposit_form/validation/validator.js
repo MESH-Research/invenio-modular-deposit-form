@@ -16,6 +16,10 @@ import {
 } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import {
+  DEFAULT_TITLE_MAX_LENGTH,
+  RDM_RECORD_ACCESS_LEVELS,
+} from "../constants";
+import {
   getCreatorIdentifierSchemeIdsFromVocab,
   getLocationIdentifierSchemeIdsFromVocab,
   getRecordIdentifierSchemeIdsFromVocab,
@@ -43,14 +47,12 @@ for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
 addMethod(yupString, "validIdentifierForScheme", validIdentifierForScheme);
 addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
-const DEFAULT_TITLE_MAX_LENGTH = 260;
-
 const accessSchema = yupObject().shape({
   files: yupString()
-    .oneOf(["public", "restricted"])
+    .oneOf(RDM_RECORD_ACCESS_LEVELS)
     .required(i18next.t("Missing a files access status.")),
   record: yupString()
-    .oneOf(["public", "restricted"])
+    .oneOf(RDM_RECORD_ACCESS_LEVELS)
     .required(i18next.t("Missing a record access status.")),
   status: yupString(),
   embargo: yupObject()

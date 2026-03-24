@@ -54,6 +54,7 @@ import { Grid, Card } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
+import { RECORD_FIELD_ERROR_ROOTS } from "../constants";
 
 /**
  * Main description/abstract field (metadata.description). Replacement DescriptionsField (field_components).
@@ -741,7 +742,7 @@ const HorizontalSubmissionComponent = () => {
   if (!_isEmpty(errors)) {
     nonValidationErrors = Object.fromEntries(
       Object.entries(errors).filter(
-        ([key]) => !["metadata", "access", "pids", "custom_fields"].includes(key)
+        ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key)
       )
     );
   }
