@@ -20,8 +20,11 @@
 // the full `{ identifier, provider }` object, not a scalar path.
 //
 // Stock also omits `onBlur` on `Form.Input`; that was fine with `getFieldErrors` (no touch
-// gate). With `getFieldErrorsForDisplay`, we must call Formik’s `field.onBlur` on blur so
-// `touched.pids.<scheme>` is set — otherwise validation errors never become visible after blur.
+// gate). With `getFieldErrorsForDisplay`, we must mark the PID path touched on blur.
+// Do **not** call Formik’s `field.onBlur(e)` here: it does `setFieldTouched(e.target.name)`,
+// and SUI `Form.Input` often leaves `name` off the DOM input, so `e.target.name` is
+// `undefined` and touched is set at the wrong key. Use `form.setFieldTouched(fieldPath)`
+// and set `name={fieldPath}` on the input for parity.
 // Radio-driven touch is documented in `RequiredPIDField` / `OptionalPIDField` and in Sphinx
 // `docs/source/replacement_field_components.md` (section “Formik touched and this fork”).
 
@@ -34,9 +37,7 @@ import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
  * Text input for an unmanaged (external-provider) PID. Local state holds the string;
  * the parent debounces writes to Formik as `{ identifier, provider }`.
  *
- * On blur, calls Formik `field.onBlur` or `form.setFieldTouched(fieldPath)` so
- * `getFieldErrorsForDisplay` can show validation errors after the user leaves the field
- * (stock has no `onBlur`; see file header).
+ * On blur, calls `form.setFieldTouched(fieldPath)` (not `field.onBlur(e)`; see file header).
  */
 export class UnmanagedIdentifierCmp extends Component {
   constructor(props) {
@@ -65,14 +66,9 @@ export class UnmanagedIdentifierCmp extends Component {
     this.setState({ localIdentifier: value }, () => onIdentifierChanged(value));
   };
 
-  /**
-   * @param {import("react").SyntheticEvent} e
-   */
-  onBlur = (e) => {
-    const { field, form, fieldPath } = this.props;
-    if (field?.onBlur) {
-      field.onBlur(e);
-    } else if (form?.setFieldTouched) {
+  onBlur = () => {
+    const { form, fieldPath } = this.props;
+    if (form?.setFieldTouched) {
       form.setFieldTouched(fieldPath, true, false);
     }
   };
@@ -81,10 +77,12 @@ export class UnmanagedIdentifierCmp extends Component {
     const { localIdentifier } = this.state;
     const { field, form, fieldPath, helpText, pidPlaceholder, disabled } = this.props;
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
+    const inputName = field?.name ?? fieldPath;
     return (
       <>
         <Form.Field width={8} error={fieldError}>
           <Form.Input
+            name={inputName}
             onBlur={this.onBlur}
             onChange={(e, { value }) => this.onChange(value)}
             value={localIdentifier}

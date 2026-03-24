@@ -65,29 +65,56 @@ const accessSchema = yupObject().shape({
 // Per-PID shape: mirrors `invenio_rdm_records.services.schemas.pids.PIDSchema`
 // (`identifier` + `provider` required when a scheme entry exists). `pids` itself
 // may be `{}` or omit keys; only validate when `pids.doi` (etc.) is present.
-const pidEntrySchema = yupObject().shape({
-  provider: yupString().required(
-    i18next.t("A provider is required for each persistent identifier.")
-  ),
-  identifier: yupString()
-    .required(
-      i18next.t("An identifier is required for each persistent identifier.")
-    )
-    .when("provider", {
-      is: "external",
-      then: (schema) =>
-        schema.doi(
-          i18next.t(
-            "You must provide a valid DOI if you say that you already have one."
-          )
-        ),
-      otherwise: (schema) =>
-        schema.matches(/(?!\s).+/, {
-          message: i18next.t("Identifier cannot be blank"),
-        }),
-    }),
-  client: yupString(),
-});
+//
+// When `provider === "external"` and `identifier` is null/empty, the DOI field in the form
+// is bound to `pids.doi` (object), not `pids.doi.identifier`. A nested error only on
+// `identifier` would not show where `getFieldErrorsForDisplay(form, "pids.doi")` reads.
+// So we fail a parent-level `.test` on this object with a string message on `pids.doi`,
+// and we do not use `.required()` on `identifier` for the external branch (null is handled
+// by that test; non-empty values are validated with `.doi()`).
+const EXTERNAL_DOI_MESSAGE = i18next.t(
+  "You must provide a valid DOI if you say that you already have one."
+);
+const pidEntrySchema = yupObject()
+  .shape({
+    provider: yupString().required(
+      i18next.t("A provider is required for each persistent identifier.")
+    ),
+    identifier: yupString()
+      .nullable()
+      .when("provider", {
+        is: "external",
+        then: (schema) =>
+          schema.test(
+            "external-doi-format",
+            EXTERNAL_DOI_MESSAGE,
+            function (value) {
+              if (value == null || String(value).trim() === "") {
+                return true;
+              }
+              return yupString().doi(EXTERNAL_DOI_MESSAGE).isValidSync(value);
+            }
+          ),
+        otherwise: (schema) =>
+          schema
+            .required(
+              i18next.t("An identifier is required for each persistent identifier.")
+            )
+            .matches(/(?!\s).+/, {
+              message: i18next.t("Identifier cannot be blank"),
+            }),
+      }),
+    client: yupString(),
+  })
+  .test(
+    "external-identifier-present",
+    EXTERNAL_DOI_MESSAGE,
+    function (value) {
+      if (!value || value.provider !== "external") return true;
+      const id = value.identifier;
+      return id != null && String(id).trim() !== "";
+    }
+  );
 
 /**
  * Build the validation schema from deposit config.

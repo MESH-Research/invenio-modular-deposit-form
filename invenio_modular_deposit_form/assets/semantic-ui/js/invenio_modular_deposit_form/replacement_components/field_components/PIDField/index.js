@@ -14,8 +14,8 @@
 // `replacement_components/field_components/PIDField` tree. The implementation it points
 // to (`./PIDFieldCmp`) is a local copy because sibling files (`RequiredPIDField`,
 // `OptionalPIDField`, `pid_components/*`) are maintained here with deposit-form–specific
-// wiring, touched-aware errors (`getFieldErrorsForDisplay`), and explicit `setFieldTouched`
-// / `field.onBlur` where stock controls are not Formik Fields; see
+// wiring, touched-aware errors (`getFieldErrorsForDisplay`), and explicit
+// `setFieldTouched(fieldPath)` where stock controls are not Formik Fields; see
 // docs/source/replacement_field_components.md (“Formik touched and this fork”).
 
 export { PIDField } from "./PIDFieldCmp";

@@ -35,7 +35,7 @@ describe("validator (full form validation) - pids.doi", () => {
     ).resolves.toBeTruthy();
   });
 
-  it("requires pids.doi.identifier when pids.doi is present (PIDSchema)", async () => {
+  it("sets a string error on pids.doi when provider is external and identifier is missing (PIDSchema)", async () => {
     await expect(
       schema.validate({
         ...baseForm,
@@ -45,7 +45,21 @@ describe("validator (full form validation) - pids.doi", () => {
           },
         },
       })
-    ).rejects.toMatchObject({ path: "pids.doi.identifier" });
+    ).rejects.toMatchObject({ path: "pids.doi" });
+  });
+
+  it("sets a string error on pids.doi when provider is external and identifier is null", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        pids: {
+          doi: {
+            provider: "external",
+            identifier: null,
+          },
+        },
+      })
+    ).rejects.toMatchObject({ path: "pids.doi" });
   });
 
   it("requires pids.doi.provider when pids.doi is present (PIDSchema)", async () => {

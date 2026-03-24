@@ -46,11 +46,11 @@ The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `fiel
 (formik-touched-pidfield)=
 ### Formik `touched` and this fork
 
-`getFieldErrorsForDisplay` shows validation errors when **`form.touched[fieldPath]`** is truthy (among other branches). Stock PID inputs are not plain Formik `<Field>` scalars, so **nothing** was calling `field.onBlur` or `setFieldTouched` for the PID path. This fork wires **`touched`** explicitly:
+`getFieldErrorsForDisplay` shows validation errors when **`form.touched[fieldPath]`** is truthy (among other branches). Stock PID inputs are not plain Formik `<Field>` scalars, so **nothing** was marking the PID path touched. This fork wires **`touched`** explicitly (we use **`form.setFieldTouched(fieldPath)`** on unmanaged blur, not raw **`field.onBlur(e)`**: Formik’s blur handler uses **`e.target.name`**, which Semantic UI **`Form.Input`** often omits, so touch would incorrectly apply to **`undefined`**).
 
 | Interaction | Where |
 |-------------|--------|
-| User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `field.onBlur` or `form.setFieldTouched(fieldPath, true, false)`. |
+| User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, false)`; `Form.Input` gets `name={field.name \|\| fieldPath}` so the DOM matches the field path. |
 | User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `onManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
 | User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `handleManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
 

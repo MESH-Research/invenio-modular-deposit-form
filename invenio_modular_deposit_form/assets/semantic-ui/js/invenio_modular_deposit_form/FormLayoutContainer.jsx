@@ -241,16 +241,6 @@ const FormLayoutContainer = () => {
       id="rdm-deposit-form"
       className="rel-mt-1"
     >
-      <Message warning className="mobile-deposit-warning mobile only">
-        <Message.Header>
-          <Icon name="info circle" />
-          Mobile device support is coming!
-        </Message.Header>
-        <p>
-          We are working to optimize this deposit form for mobile devices. In the
-          meantime, please use a device with a larger screen to deposit your work.
-        </p>
-      </Message>
       <FormUIStateContext.Provider value={contextValue}>
         <Grid>
           <Grid.Row className="deposit-form-title">
@@ -296,6 +286,7 @@ const FormLayoutContainer = () => {
               tablet={mainColumnWidths.tablet}
               largeScreen={mainColumnWidths.largeScreen}
               widescreen={mainColumnWidths.widescreen}
+              classnames="mb-15"
             >
               <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
                 {formPagesCommon.map(({ section, subsections, classnames, ...pageProps }, index) => {
