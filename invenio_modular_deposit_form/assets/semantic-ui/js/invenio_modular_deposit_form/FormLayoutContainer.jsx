@@ -286,7 +286,7 @@ const FormLayoutContainer = () => {
               tablet={mainColumnWidths.tablet}
               largeScreen={mainColumnWidths.largeScreen}
               widescreen={mainColumnWidths.widescreen}
-              classnames="mb-15"
+              className="mb-15"
             >
               <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
                 {formPagesCommon.map(({ section, subsections, classnames, ...pageProps }, index) => {
