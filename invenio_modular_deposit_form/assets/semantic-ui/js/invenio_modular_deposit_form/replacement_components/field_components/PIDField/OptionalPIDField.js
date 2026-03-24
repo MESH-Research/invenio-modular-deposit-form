@@ -22,6 +22,8 @@
 //   column visibility; pass `field` through to identifier components.
 // - `field` added to `render()` destructure so `getFieldErrorsForDisplay` receives Formik’s
 //   `field` from the FastField render props.
+// - When optional DOI radios change, `setFieldTouched(fieldPath)` so errors can show (radios
+//   do not use `field.onBlur`).
 
 import _debounce from "lodash/debounce";
 import _isEmpty from "lodash/isEmpty";
@@ -155,6 +157,7 @@ class OptionalPIDFieldCmp extends Component {
       setNoINeedDOI(false);
     }
     form.setFieldError(fieldPath, false);
+    form.setFieldTouched(fieldPath, true, false);
     this.setState({
       isManagedSelected: userSelectedManaged,
       isNoNeedSelected: userSelectedNoNeed,

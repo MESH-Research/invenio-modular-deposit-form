@@ -43,6 +43,18 @@ Local layout:
 
 The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `field_components.jsx`) so DOI/PID errors do not appear before touch in a way that disagrees with other fields.
 
+### Formik `touched` and this fork
+
+`getFieldErrorsForDisplay` shows validation errors when **`form.touched[fieldPath]`** is truthy (among other branches). Stock PID inputs are not plain Formik `<Field>` scalars, so **nothing** was calling `field.onBlur` or `setFieldTouched` for the PID path. This fork wires **`touched`** explicitly:
+
+| Interaction | Where |
+|-------------|--------|
+| User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `field.onBlur` or `form.setFieldTouched(fieldPath, true, false)`. |
+| User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `onManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
+| User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `handleManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
+
+Without these, `touched` would stay false until some other code path set it, and validation errors gated by touch would not match `TextField` behavior.
+
 ## Upstream changes that could remove these replacements
 
 This section describes **what would need to exist in stock `invenio_rdm_records` (and sometimes `react-invenio-forms`)** so this package could **import field components only from `@js/invenio_rdm_records`** and delete the corresponding files under `replacement_components/field_components/`. It is **not** a commitment to upstream work; it is a design checklist.
@@ -59,6 +71,9 @@ This section describes **what would need to exist in stock `invenio_rdm_records`
 
 1. **`getFieldErrorsForDisplay` (or equivalent) in upstream**  
    Extend `PIDField/components/helpers.js` (or export a sibling) with a function that gates **visible** errors the same way as other fields, or add a **`showErrorWhen`** prop on `PIDField` / identifier components.
+
+1b. **Consistent `touched` for non-`Field` controls**  
+   If upstream ensured **`touched`** for `pids.<scheme>` when users blur the unmanaged input or change managed/unmanaged (and optional-DOI) radios—e.g. by using Formik `Field`/`useField` for those controls or by documenting `setFieldTouched` in the stock handlers—apps would not need a local fork **only** for touch parity.
 
 2. **Resolvable imports from consuming apps**  
    Export PID subcomponents (e.g. `UnmanagedIdentifierCmp`) from the **`@js/invenio_rdm_records`** public API so apps do not need relative paths; and/or export **deposit context** and **action types** from stable entry points (already partly true via deep paths).

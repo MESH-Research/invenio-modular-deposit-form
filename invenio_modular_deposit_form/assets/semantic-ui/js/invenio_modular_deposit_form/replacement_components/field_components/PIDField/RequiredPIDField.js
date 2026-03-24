@@ -23,6 +23,8 @@
 //   before touch. Here `getFieldErrorsForDisplay(form, fieldPath, field)` matches the
 //   visibility rules used by `replacement_components/TextField.js`.
 // - Pass `field` into both identifier components so they can apply the same rule.
+// - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath)` so
+//   `getFieldErrorsForDisplay` can show validation errors (radios do not use `field.onBlur`).
 
 import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
@@ -145,6 +147,7 @@ export class RequiredPIDField extends Component {
                 this.onExternalIdentifierChanged("");
               }
               form.setFieldError(fieldPath, false);
+              form.setFieldTouched(fieldPath, true, false);
               this.setState({
                 isManagedSelected: userSelectedManaged,
               });

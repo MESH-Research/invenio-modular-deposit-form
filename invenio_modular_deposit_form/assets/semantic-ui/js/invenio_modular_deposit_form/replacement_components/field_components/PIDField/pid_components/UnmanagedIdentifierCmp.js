@@ -18,6 +18,10 @@
 // The unmanaged PID string is still held in local state and debounced upstream exactly as
 // in stock; we did not switch this to `TextField` because the value written to Formik is
 // the full `{ identifier, provider }` object, not a scalar path.
+//
+// Stock also omits `onBlur` on `Form.Input`; that was fine with `getFieldErrors` (no touch
+// gate). With `getFieldErrorsForDisplay`, we must call Formik’s `field.onBlur` on blur so
+// `touched.pids.<scheme>` is set — otherwise validation errors never become visible after blur.
 
 import PropTypes from "prop-types";
 import React, { Component } from "react";
@@ -51,6 +55,15 @@ export class UnmanagedIdentifierCmp extends Component {
     this.setState({ localIdentifier: value }, () => onIdentifierChanged(value));
   };
 
+  onBlur = (e) => {
+    const { field, form, fieldPath } = this.props;
+    if (field?.onBlur) {
+      field.onBlur(e);
+    } else if (form?.setFieldTouched) {
+      form.setFieldTouched(fieldPath, true, false);
+    }
+  };
+
   render() {
     const { localIdentifier } = this.state;
     const { field, form, fieldPath, helpText, pidPlaceholder, disabled } = this.props;
@@ -59,6 +72,7 @@ export class UnmanagedIdentifierCmp extends Component {
       <>
         <Form.Field width={8} error={fieldError}>
           <Form.Input
+            onBlur={this.onBlur}
             onChange={(e, { value }) => this.onChange(value)}
             value={localIdentifier}
             placeholder={pidPlaceholder}
