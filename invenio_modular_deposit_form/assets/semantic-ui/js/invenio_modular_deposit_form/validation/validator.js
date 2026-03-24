@@ -138,10 +138,11 @@ function buildValidationSchema(config = {}) {
     config?.vocabularies?.metadata?.dates?.type ?? config?.vocabularies?.dates?.type
   );
 
+  // `scheme` is optional when the identifier string alone matches a supported scheme
+  // (see inferCreatorIdentifierScheme in identifierSchemeValidators); the modal also
+  // merges inferred scheme on save.
   const creatorIdentifiersShape = yupObject().shape({
-    scheme: yupString().required(
-      i18next.t("A scheme is required for each identifier")
-    ),
+    scheme: yupString(),
     identifier: yupString()
       .required(i18next.t("A value is required for each identifier"))
       .validIdentifierForScheme(creatorSchemeIds)

@@ -7,7 +7,11 @@
 import { string as yupString } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
-import { identifierMessagesForScheme, SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
+import {
+  identifierMessagesForScheme,
+  SCHEME_ID_TO_VALIDATOR,
+  schemeIdLabelUppercase,
+} from "./validatorsForIds";
 
 /**
  * Default keys of `RDM_RECORDS_PERSONORG_SCHEMES` in
@@ -141,6 +145,59 @@ export function getLocationIdentifierSchemeIdsFromVocab(config) {
 }
 
 /**
+ * Order for trying schemes when the UI only has a free-text identifier (creatibutor modal).
+ * Matches common ambiguity resolution (ORCID vs other person/org PIDs).
+ */
+const CREATOR_IDENTIFIER_INFERENCE_ORDER = ["orcid", "isni", "ror", "gnd"];
+
+/**
+ * Infer which allowed creator/person-org scheme validates the given string, using the same
+ * per-scheme Yup methods as the deposit form and backend idutils-based checks.
+ *
+ * @param {string|null|undefined} rawValue - User-entered identifier string
+ * @param {string[]} allowedSchemeIds - From {@link getCreatorIdentifierSchemeIdsFromVocab}
+ * @returns {string|null} Scheme id or null if nothing matches
+ */
+export function inferCreatorIdentifierScheme(rawValue, allowedSchemeIds) {
+  const v = rawValue == null ? "" : String(rawValue).trim();
+  if (!v) return null;
+  const allowed = Array.isArray(allowedSchemeIds) ? allowedSchemeIds : [];
+  if (allowed.length === 0) return null;
+
+  const ordered = [
+    ...CREATOR_IDENTIFIER_INFERENCE_ORDER.filter((id) => allowed.includes(id)),
+    ...allowed.filter((id) => !CREATOR_IDENTIFIER_INFERENCE_ORDER.includes(id)),
+  ];
+
+  for (const scheme of ordered) {
+    const validatorFn = SCHEME_ID_TO_VALIDATOR[scheme];
+    if (!validatorFn) continue;
+    const msgs = identifierMessagesForScheme(scheme);
+    try {
+      yupString().required(msgs.required)[scheme](msgs.invalid).validateSync(v);
+      return scheme;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+/**
+ * User-facing message when a non-empty string does not match any allowed creator scheme.
+ *
+ * @param {string[]} allowedSchemeIds
+ * @returns {string}
+ */
+export function unrecognizedCreatorIdentifierMessage(allowedSchemeIds) {
+  const labels = (allowedSchemeIds ?? []).map(schemeIdLabelUppercase).join(", ");
+  return i18next.t(
+    "This identifier is not valid for any supported scheme ({{schemes}}).",
+    { schemes: labels }
+  );
+}
+
+/**
  * Returns a yup test function for record identifiers that validates by parent.scheme.
  * Looks up `this.parent.scheme`, builds `yupString().required(...)[scheme](...)`, and runs
  * validateSync on the identifier value — so any scheme in SCHEME_ID_TO_VALIDATOR is handled
@@ -198,8 +255,20 @@ export function makeRecordIdentifierTest(allowedSchemeIds, yupString) {
 export function makeCreatorIdentifierTest(allowedSchemeIds, yupString) {
   return function (value, context) {
     const { createError, path } = this;
-    const scheme = this.parent?.scheme;
-    if (!scheme) return true;
+    let scheme =
+      this.parent?.scheme != null ? String(this.parent.scheme).trim() : "";
+    if (!scheme) {
+      scheme = inferCreatorIdentifierScheme(value, allowedSchemeIds) ?? "";
+    }
+    if (!scheme) {
+      if (value != null && String(value).trim() !== "") {
+        return createError({
+          path,
+          message: unrecognizedCreatorIdentifierMessage(allowedSchemeIds),
+        });
+      }
+      return true;
+    }
     if (!allowedSchemeIds.includes(scheme)) {
       return createError({ path, message: SCHEME_NOT_ALLOWED_MSG });
     }

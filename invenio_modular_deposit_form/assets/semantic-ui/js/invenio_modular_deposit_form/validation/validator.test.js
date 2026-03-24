@@ -142,6 +142,52 @@ describe("validator (full form validation) - pids.doi", () => {
     });
   });
 
+  it("accepts valid ORCID on creator identifiers when scheme is omitted (inferred)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          creators: [
+            {
+              role: "author",
+              person_or_org: {
+                type: "personal",
+                family_name: "Doe",
+                given_name: "John",
+                identifiers: [{ identifier: "0000-0001-2345-6789" }],
+              },
+            },
+          ],
+        },
+      })
+    ).resolves.toBeTruthy();
+  });
+
+  it("rejects garbage creator identifier when scheme is omitted (cannot infer)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          creators: [
+            {
+              role: "author",
+              person_or_org: {
+                type: "personal",
+                family_name: "Doe",
+                given_name: "John",
+                identifiers: [{ identifier: "not-a-known-pid" }],
+              },
+            },
+          ],
+        },
+      })
+    ).rejects.toMatchObject({
+      path: "metadata.creators[0].person_or_org.identifiers[0].identifier",
+    });
+  });
+
   it("rejects invalid ORCID on contributor person_or_org.identifiers (validIdentifierForScheme)", async () => {
     await expect(
       schema.validate({
