@@ -10,6 +10,7 @@ import {
   boolean as yupBoolean,
   lazy as yupLazy,
   mixed,
+  number as yupNumber,
   object as yupObject,
   string as yupString,
   date as yupDate,
@@ -288,6 +289,18 @@ function buildValidationSchema(config = {}) {
     : yupString().required(i18next.t("A type is required for each date"));
 
   return yupObject().shape({
+    files: yupObject().shape({
+      enabled: yupBoolean().test("files-enabled-check", i18next.t("Add uploaded files or choose 'Metadata-only record'"), function (value) {
+            if ((this.parent.count === 0 || !this.parent.count) && value === true) {
+              return false;
+            } else {
+              return true;
+            }
+          }),
+      count: yupNumber().notRequired(),
+      total_bytes: yupNumber().notRequired(),
+
+    }),
     access: accessSchema, 
     // Backend schema: `pids` is a dict of PID schemes (e.g. `pids: { doi: {...} }`).
     // Yup 0.32: `.optional()` on nested objects still validates missing keys; use `lazy`

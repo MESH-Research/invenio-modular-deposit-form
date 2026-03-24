@@ -16,6 +16,7 @@ import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
+import { FeedbackLabel } from "react-invenio-forms";
 import { useStore } from "react-redux";
 import {
   AccessRightField,
@@ -350,6 +351,8 @@ const DoiComponent = ({ ...extraProps }) => {
 
 /**
  * File upload section (files). Uses stock FileUploader or UppyUploader.
+ * Root `FeedbackLabel` for `files` is rendered here (not inside FileUploader) so messages
+ * come only from Formik `errors` / `initialErrors`, i.e. the shared validation schema + server merge.
  * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
  */
 const FileUploadComponent = ({ ...extraProps }) => {
@@ -384,6 +387,9 @@ const FileUploadComponent = ({ ...extraProps }) => {
           <FileUploader {...commonFileUploaderProps} />
         )}
       </FieldComponentWrapper>
+      <div className="rel-mt-1" role="alert">
+        <FeedbackLabel fieldPath="files" pointing="below" />
+      </div>
     </>
   );
 };
