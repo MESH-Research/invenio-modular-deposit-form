@@ -28,20 +28,64 @@
 // `form.setFieldTouched(fieldPath)` on blur (not `field.onBlur(e)`; see that file);
 // `RequiredPIDField` / `OptionalPIDField` call `setFieldTouched(fieldPath)` when radios change.
 // Documented in docs/source/replacement_field_components.md.
+//
+// Nested Yup errors: validation often attaches messages at `pids.doi.identifier`, while the
+// FastField name is `pids.doi`. `pickDisplayableError` collapses parent path + known child
+// keys (`identifier`, `provider`, …) into one string for SUI `error=`.
 
 import { getIn } from "formik";
 import { areDeeplyEqual } from "../../../../utils";
 
+/** Leaf keys we merge when `errors[fieldPath]` is missing or is a nested object (PID shape). */
+const PID_ERROR_LEAF_KEYS = ["identifier", "provider", "client"];
+
 /**
- * Raw combined error (stock `getFieldErrors` behavior).
+ * Resolve a string message for display at `fieldPath`, including Yup/Formik leaf paths such as
+ * `pids.doi.identifier` when the bound field is `pids.doi`.
+ *
+ * @param {object|null|undefined} formErrors `form.errors` or `form.initialErrors`
+ * @param {string} fieldPath e.g. `pids.doi`
+ * @returns {string|null|undefined}
+ */
+export function pickDisplayableError(formErrors, fieldPath) {
+  if (!formErrors) {
+    return null;
+  }
+  const direct = getIn(formErrors, fieldPath, null);
+  if (typeof direct === "string") {
+    return direct;
+  }
+  if (direct && typeof direct === "object" && !Array.isArray(direct)) {
+    for (const key of PID_ERROR_LEAF_KEYS) {
+      const v = direct[key];
+      if (typeof v === "string") {
+        return v;
+      }
+    }
+  }
+  for (const leaf of PID_ERROR_LEAF_KEYS) {
+    const v = getIn(formErrors, `${fieldPath}.${leaf}`, null);
+    if (typeof v === "string") {
+      return v;
+    }
+  }
+  return null;
+}
+
+/**
+ * Combined error string for `fieldPath`, including nested PID leaves (`identifier`, …).
+ * Stock helpers only used `getIn` at `fieldPath`; we merge leaf messages like
+ * `getFieldErrorsForDisplay` so callers that still use this name see invalid-DOI text.
+ *
  * @param {object} form Formik form bag
  * @param {string} fieldPath
- * @returns {string|object|null|undefined}
+ * @returns {string|null|undefined}
  */
 export function getFieldErrors(form, fieldPath) {
   return (
-    getIn(form.errors, fieldPath, null) ||
-    getIn(form.initialErrors, fieldPath, null)
+    pickDisplayableError(form.errors, fieldPath) ||
+    pickDisplayableError(form.initialErrors, fieldPath) ||
+    null
   );
 }
 
@@ -58,9 +102,13 @@ export function getFieldErrors(form, fieldPath) {
  * @returns {string|object|null|undefined} Error to pass to SUI, or null/undefined to hide
  */
 export function getFieldErrorsForDisplay(form, fieldPath, field) {
-  const err = getIn(form.errors, fieldPath, null);
-  const initialErr = getIn(form.initialErrors, fieldPath, null);
-  const touched = getIn(form.touched, fieldPath, false);
+  const err = pickDisplayableError(form.errors, fieldPath);
+  const initialErr = pickDisplayableError(form.initialErrors, fieldPath);
+  const touched =
+    getIn(form.touched, fieldPath, false) ||
+    PID_ERROR_LEAF_KEYS.some((leaf) =>
+      getIn(form.touched, `${fieldPath}.${leaf}`, false)
+    );
   const initialValue = getIn(form.initialValues, fieldPath);
   const value = field?.value;
 
