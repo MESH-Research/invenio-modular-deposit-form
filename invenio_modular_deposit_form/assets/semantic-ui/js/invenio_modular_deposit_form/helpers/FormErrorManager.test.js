@@ -1,6 +1,9 @@
 import { FormErrorManager } from "./FormErrorManager";
 import { FORM_UI_ACTION } from "./formUIStateReducer";
-import { mockFormikContext } from '@custom-test-utils/formik_test_utils';
+import {
+  mockFormikContext,
+  mockSetFieldError,
+} from "@custom-test-utils/formik_test_utils";
 
 const formPages = [
   {
@@ -275,7 +278,12 @@ const formikFromStartingState = {
 const mockDispatch = jest.fn();
 
 const mockStore = {
-  getState: () => ({ deposit: { actionState: null } }),
+  getState: () => ({
+    deposit: {
+      actionState: null,
+      config: { formSectionFields },
+    },
+  }),
 };
 
 describe("FormErrorManager", () => {
@@ -284,13 +292,13 @@ describe("FormErrorManager", () => {
   });
 
   it("should instantiate a FormErrorManager instance", () => {
-    expect(new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore)).toBeInstanceOf(
+    expect(new FormErrorManager(formikFromStartingState, mockStore)).toBeInstanceOf(
       FormErrorManager
     );
   });
 
   it("should update the form error state with backend errors and section error state", () => {
-    const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
+    const formErrorManager = new FormErrorManager(formikFromStartingState, mockStore);
     formErrorManager.updateFormErrorState(mockDispatch);
     expect(mockFormikContext.setFieldError).toHaveBeenCalledTimes(2);
     expect(mockFormikContext.setFieldError).toHaveBeenCalledWith(
@@ -326,7 +334,7 @@ describe("FormErrorManager", () => {
 
   describe("constructor", () => {
     it("should initialize the form error manager", () => {
-      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formikFromStartingState, mockStore);
       expect(formErrorManager).toBeInstanceOf(FormErrorManager);
     });
   });
@@ -339,7 +347,7 @@ describe("FormErrorManager", () => {
   // error is only in initial errors and untouched and unchanged (flag: ai_usage)
   describe("errorsToFieldSets", () => {
     it("should return the correct error pages", () => {
-      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formikFromStartingState, mockStore);
       const fieldSets = formErrorManager.errorsToFieldSets();
       expect(fieldSets).toEqual({
         errorFields: ["metadata.title", "metadata.resource_type"],
@@ -355,7 +363,7 @@ describe("FormErrorManager", () => {
 
   describe("addBackendErrors", () => {
     it("should add unchanged backend errors to the form error state and update touched state if backend error field is unchanged and untouched", () => {
-      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formikFromStartingState, mockStore);
       formErrorManager.addBackendErrors(
         ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"]
       );
@@ -371,7 +379,7 @@ describe("FormErrorManager", () => {
 
   describe("getSectionErrorState", () => {
     it("should return the correct section error list", () => {
-      const formErrorManager = new FormErrorManager(formPageFields, formSectionFields, formikFromStartingState, mockStore);
+      const formErrorManager = new FormErrorManager(formikFromStartingState, mockStore);
       const fieldState = formErrorManager.errorsToFieldSets();
       const sectionErrorsFlagged = formErrorManager.getSectionErrorState(
         fieldState.touchedErrorFields,
@@ -382,6 +390,34 @@ describe("FormErrorManager", () => {
         { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
         { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
       ]);
+    });
+  });
+
+  describe("global API errors (e.g. CSRF)", () => {
+    it("does not treat bare initialErrors.message as a form field path (avoids setFieldError loop)", () => {
+      const formik = {
+        ...mockFormikContext,
+        errors: {},
+        touched: {},
+        initialErrors: {
+          message: "CSRF cookie not set.",
+          status: 400,
+        },
+        initialValues: { metadata: { title: "T" } },
+        values: { metadata: { title: "T" } },
+      };
+      const store = {
+        getState: () => ({
+          deposit: {
+            actionState: "DRAFT_SAVE_FAILED",
+            config: { formSectionFields: [] },
+          },
+        }),
+      };
+      const dispatch = jest.fn();
+      new FormErrorManager(formik, store).updateFormErrorState(dispatch);
+      expect(mockSetFieldError).not.toHaveBeenCalledWith("message", expect.anything());
+      expect(mockSetFieldError).not.toHaveBeenCalledWith("status", expect.anything());
     });
   });
 });

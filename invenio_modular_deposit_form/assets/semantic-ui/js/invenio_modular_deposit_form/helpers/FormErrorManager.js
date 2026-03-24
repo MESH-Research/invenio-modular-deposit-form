@@ -4,6 +4,29 @@ import { FORM_UI_ACTION } from "./formUIStateReducer";
 
 const SEVERITIES = ["error", "warning", "info"];
 
+/** Top-level keys that correspond to Formik values / Yup validation on the deposit record. */
+const RECORD_FIELD_ERROR_ROOTS = new Set([
+  "metadata",
+  "access",
+  "pids",
+  "custom_fields",
+  "files",
+]);
+
+/**
+ * Global API failures (e.g. 400 CSRF) often return `{ message: "..." }` only. Those keys are not
+ * form field paths — if we treat them like field errors, Yup clears them on the next validation
+ * pass and {@link FormErrorManager} re-applies them from `initialErrors`, causing an update loop.
+ *
+ * @param {string} path - Dot-joined path from {@link flattenKeysDotJoined}
+ * @returns {boolean}
+ */
+function isRecordFieldErrorPath(path) {
+  if (typeof path !== "string" || path.length === 0) return false;
+  const root = path.split(".")[0];
+  return RECORD_FIELD_ERROR_ROOTS.has(root);
+}
+
 /**
  * Resolve severity for a field path from the errors object at that path.
  * Error values may be a string (legacy) or an object { message, severity?, description? }.
@@ -90,7 +113,9 @@ class FormErrorManager {
       actionState && String(actionState).includes("VALIDATION_ERRORS");
     if (!hasBackendValidationErrors) return;
     const { errors, touched, setFieldTouched } = this.formik;
-    const errorFields = errors ? flattenKeysDotJoined(errors) : [];
+    const errorFields = errors
+      ? flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath)
+      : [];
     if (errorFields.length === 0) return;
     errorFields.forEach((field) => {
       if (!get(touched, field) && !getTouchedParent(touched, field)) {
@@ -119,12 +144,14 @@ class FormErrorManager {
    */
   errorsToFieldSets = () => {
     const { errors, touched, initialErrors, initialValues, values } = this.formik;
-    const errorFields = flattenKeysDotJoined(errors);
+    const errorFields = flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath);
     const touchedFields = flattenKeysDotJoined(touched);
     const touchedErrorFields = errorFields?.filter(
       (item) => touchedFields.includes(item) || getTouchedParent(touched, item)
     );
-    const initialErrorFields = flattenKeysDotJoined(initialErrors);
+    const initialErrorFields = flattenKeysDotJoined(initialErrors).filter(
+      isRecordFieldErrorPath
+    );
     const initialErrorFieldsUntouched = initialErrorFields?.filter(
       (item) => !touchedFields.includes(item)
     );
