@@ -1,0 +1,84 @@
+# Replacement field components
+
+This page lists the modules **re-exported** from `replacement_components/field_components/index.js`. Each is a **local** copy or fork of a field component that exists in **`invenio_rdm_records`** (or closely related packages), maintained so the modular deposit form can use **shared widgets** (`TextField`, `RemoteSelectField`, …) and **consistent error visibility** (notably “touched” rules) without patching `node_modules`.
+
+For how these plug into layout/registry, see [Built-in field widget components](field_components.md).
+
+```{warning}
+Draft sections may evolve as upstream InvenioRDM changes. When in doubt, read the file header in each source module.
+```
+
+## Enumeration (matches `field_components/index.js`)
+
+The barrel file path is:
+
+`invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/replacement_components/field_components/index.js`
+
+| Export | Typical upstream analogue | Role of this replacement |
+|--------|---------------------------|---------------------------|
+| `AdditionalDescriptionsField` | `AdditionalDescriptionsField` in `invenio_rdm_records` | Stock copy; swaps in local replacement widgets (`TextField` / related) where the stock file used default form controls. |
+| `AdditionalTitlesField` | `AdditionalTitlesField` | Same pattern: additional titles UI with local widgets. |
+| `CopyrightsField` | `CopyrightsField` | Stock copy; uses `replacement_components/TextField.js` for the copyright string field. |
+| `CreatibutorsField` | `CreatibutorsField` | Fork: uses a **local** `CreatibutorsModal` so `onModalClose` runs whenever the modal closes (cancel/close/save), allowing `setFieldTouched`; item/type/utils still imported from `@js/invenio_rdm_records`. |
+| `DescriptionsField` | `DescriptionsField` | Stock copy; uses local rich/text widgets where configured. |
+| `LanguagesField` | `LanguagesField` | Stock copy; uses local `RemoteSelectField` from this package instead of the stock select import. |
+| `PIDField` | `deposit/fields/Identifiers/PIDField` | **Larger fork** (see below): touched-aware errors via `pid_components/fieldErrorsForDisplay.js`, local identifier components, `@js` deep imports for paths that do not resolve from this repo. |
+| `PublisherField` | `PublisherField` | Stock copy; local replacement widgets. |
+| `ResourceTypeField` | `ResourceTypeField` | Stock copy; may use local vocabulary/select widgets. |
+| `TitlesField` | `TitlesField` | Stock copy; `TextField` + `AdditionalTitlesField` from replacements. |
+| `VersionField` | `VersionField` | Stock copy; local widgets. |
+
+## `PIDField` (detailed)
+
+Upstream layout (for comparison):
+
+`invenio_rdm_records/.../src/deposit/fields/Identifiers/PIDField/`
+
+Local layout:
+
+- **`index.js`**, **`PIDFieldCmp.js`**, **`RequiredPIDField.js`**, **`OptionalPIDField.js`** at the folder root (same roles as upstream).
+- **`pid_components/`** — not a full mirror of upstream `components/*`. It holds:
+  - **`fieldErrorsForDisplay.js`** — adds `getFieldErrorsForDisplay` (aligned with `replacement_components/TextField.js`); stock only has `getFieldErrors`.
+  - **`UnmanagedIdentifierCmp.js`**, **`ManagedIdentifierCmp.js`** — identifier UIs with the new error helper and, for managed, `@js` imports for deposit API/state/buttons.
+
+The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `field_components.jsx`) so DOI/PID errors do not appear before touch in a way that disagrees with other fields.
+
+## Upstream changes that could remove these replacements
+
+This section describes **what would need to exist in stock `invenio_rdm_records` (and sometimes `react-invenio-forms`)** so this package could **import field components only from `@js/invenio_rdm_records`** and delete the corresponding files under `replacement_components/field_components/`. It is **not** a commitment to upstream work; it is a design checklist.
+
+### Shared / cross-cutting
+
+1. **Pluggable text/select/inputs**  
+   If upstream field components accepted **render props** or **injected component types** for “text input”, “select”, and “remote select” (instead of hard-coding `react-invenio-forms` / Semantic defaults), instances could pass **`TextField`** / **`RemoteSelectField`** from this package **without** copying whole field files.
+
+2. **Error visibility**  
+   If upstream standardized on Formik **`meta`** (or a small helper like `fieldErrorsForDisplay`) **everywhere**, including **PID** and **creators/contributors**, with the same “touched / initialError” policy as the rest of the form, the modular package would not need forks **only** to match `TextField` behavior.
+
+### `PIDField` specifically
+
+1. **`getFieldErrorsForDisplay` (or equivalent) in upstream**  
+   Extend `PIDField/components/helpers.js` (or export a sibling) with a function that gates **visible** errors the same way as other fields, or add a **`showErrorWhen`** prop on `PIDField` / identifier components.
+
+2. **Resolvable imports from consuming apps**  
+   Export PID subcomponents (e.g. `UnmanagedIdentifierCmp`) from the **`@js/invenio_rdm_records`** public API so apps do not need relative paths; and/or export **deposit context** and **action types** from stable entry points (already partly true via deep paths).
+
+3. **Optional composition**  
+   Allow passing **custom** `ManagedIdentifierCmp` / `UnmanagedIdentifierCmp` as props so a host app can inject behavior without replacing the whole tree.
+
+### `CreatibutorsField` / modal
+
+1. **Lifecycle hooks on stock `CreatibutorsModal`**  
+   An optional **`onModalClose`** (or `onDismiss`) callback invoked for **every** close path would let the parent call `setFieldTouched` without forking the modal.
+
+### `CreatibutorsField`-level error display
+
+If upstream **`CreatibutorsField`** (or `FeedbackLabel` usage) respected the same touched rules as `TextField`, the local field-level wrapper for “general creatibutors error” might be unnecessary.
+
+### “Simple” widget-swap fields (`TitlesField`, `CopyrightsField`, …)
+
+If **`TextField`** (or equivalent) were **injected** per field via **theme** or **props** on stock `TitlesField`, `CopyrightsField`, etc., the **only** change in a downstream app would be configuration—**no** file copy. Today those replacements exist because stock files **import** specific components directly.
+
+### Operational note
+
+Even if upstream implements the above, **version alignment** matters: this package pins a specific `invenio-rdm-records` release. Removals here should be **one field at a time** behind a compatibility check.

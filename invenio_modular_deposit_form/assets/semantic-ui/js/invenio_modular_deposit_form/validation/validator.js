@@ -203,7 +203,28 @@ function buildValidationSchema(config = {}) {
     identifiers: yupArray().of(creatorIdentifiersShape),
   });
 
-  const creatorContributorRowShape = yupObject().shape({
+  const creatorRowShape = yupObject().shape({
+    affiliations: yupArray().of(
+      yupObject()
+        .shape({
+          id: yupString(),
+          name: yupString(),
+        })
+        .test(
+          "id-or-name",
+          i18next.t("An existing id or a free text name must be present."),
+          (val) =>
+            !val ||
+            !!String(val?.id ?? "").trim() ||
+            !!String(val?.name ?? "").trim()
+        )
+    ),
+    person_or_org: personOrOrgShape,
+    // Creators: role optional in UI (matches stock CreatibutorsModal for schema "creators").
+    role: yupString(),
+  });
+
+  const contributorRowShape = yupObject().shape({
     affiliations: yupArray().of(
       yupObject()
         .shape({
@@ -252,10 +273,10 @@ function buildValidationSchema(config = {}) {
     metadata: yupObject()
       .shape({
         creators: yupArray()
-          .of(creatorContributorRowShape)
-          .min(1, i18next.t("At least one contributor must be listed"))
-          .required(i18next.t("At least one contributor must be listed")),
-        contributors: yupArray().of(creatorContributorRowShape),
+          .of(creatorRowShape)
+          .min(1, i18next.t("At least one creator must be listed"))
+          .required(i18next.t("At least one creator must be listed")),
+        contributors: yupArray().of(contributorRowShape),
         identifiers: yupArray().of(recordIdentifiersShape),
         related_identifiers: yupArray().of(
           yupObject().shape({

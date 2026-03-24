@@ -311,11 +311,8 @@ const ShareDraftButtonComponent = () => {
  */
 const DoiComponent = ({ ...extraProps }) => {
   const store = useStore();
-  const pids = Array.isArray(store.getState().deposit.config?.pids)
-    ? store.getState().deposit.config.pids
-    : [];
-  const record = store.getState().deposit.record;
-  console.log("Render DOI");
+  const { config, record } = store.getState().deposit;
+  const pids = Array.isArray(config?.pids) ? config.pids : [];
 
   return (
     <Overridable id="InvenioAppRdm.Deposit.PIDField.container">
@@ -327,6 +324,8 @@ const DoiComponent = ({ ...extraProps }) => {
               btnLabelGetPID={pid.btn_label_get_pid}
               canBeManaged={pid.can_be_managed}
               canBeUnmanaged={pid.can_be_unmanaged}
+              doiDefaultSelection={pid.default_selected ?? {}}
+              optionalDOItransitions={pid.optional_doi_transitions ?? {}}
               fieldPath={`pids.${pid.scheme}`}
               fieldLabel={pid.field_label}
               isEditingPublishedRecord={
@@ -337,7 +336,7 @@ const DoiComponent = ({ ...extraProps }) => {
               pidPlaceholder={pid.pid_placeholder}
               pidType={pid.scheme}
               record={record ?? {}}
-              required
+              required={config?.is_doi_required ?? true}
               unmanagedHelpText={pid.unmanaged_help_text}
               {...extraProps}
             />

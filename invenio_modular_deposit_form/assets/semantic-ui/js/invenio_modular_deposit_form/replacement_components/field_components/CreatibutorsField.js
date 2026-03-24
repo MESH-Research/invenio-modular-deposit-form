@@ -89,7 +89,7 @@ class CreatibutorsFieldForm extends Component {
     const fieldTouched = getIn(touched, fieldPath, null);
     const initialError = getIn(initialErrors, fieldPath, null);
     const creatibutorsError = (error && fieldTouched) ||
-            (creatibutorsList === formikInitialValues && initialError);
+            (creatibutorsList === formikInitialValues && initialError) ? error : undefined;
 
     let className = "";
     if (creatibutorsError) {

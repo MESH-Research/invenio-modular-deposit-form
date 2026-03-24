@@ -1,5 +1,9 @@
 # Built-in field widget components
 
+```{seealso}
+For the **local replacement forks** of upstream `invenio_rdm_records` field components (`PIDField`, `TitlesField`, …), see [Replacement field components](replacement_field_components.md).
+```
+
 ```{warning}
 The documentation from this point on is in rough draft form and is currently being edited. Check back shortly for updates.
 ```

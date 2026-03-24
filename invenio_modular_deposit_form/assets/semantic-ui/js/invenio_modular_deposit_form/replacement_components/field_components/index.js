@@ -1,21 +1,39 @@
-// Replacement field-components package summary:
-// - Default pattern: these files mirror stock invenio-rdm-records field components
-//   and only swap low-level widget imports to local replacement widgets from the
-//   parent `replacement_components` folder (mainly `TextField` / `SelectField`).
-// - Itemized exceptions:
-//   1) `PIDField.js`:
-//      - new KCWorks replacement (no stock file previously in this folder),
-//      - custom unmanaged DOI/PID error-display timing (touched or initialErrors),
-//      - unmanaged/default external state retains `provider: "external"` with
-//        empty identifier so blur/touched validation keeps a stable field path,
-//      - managed DOI reserve/unreserve UI intentionally disabled, with doi.org label.
-//   2) `CreatibutorsField.js` + `creatibutor_components/CreatibutorsModal.js`:
-//      - explicit replacement for creators/contributors field-level behavior,
-//      - local fork of upstream modal only: `onModalClose` runs in `closeModal()`
-//        so parent can setFieldTouched when modal dismisses (cancel/close/save),
-//      - field item/type/utils still imported from @js/invenio_rdm_records,
-//      - gates field error display on touched to avoid pre-interaction errors.
-//   3) Any future non-widget behavioral divergence should be documented here.
+// Replacement field-components (re-exports below)
+// =================================================
+// These modules mirror `invenio_rdm_records` deposit field components but adapt them for
+// Invenio Modular Deposit Form: local widgets (`replacement_components/TextField`, etc.),
+// touched-aware errors, or import paths that only resolve inside this bundle.
+//
+// Full enumeration, per-field notes, and “what upstream could change” live in the Sphinx doc:
+//   docs/source/replacement_field_components.md
+//
+// Default pattern (most files in this folder)
+// -------------------------------------------
+// Copy of the stock field file with the same class/API; only imports change so basic
+// controls use `../TextField`, `../RemoteSelectField`, or other replacements from
+// `replacement_components/` instead of `react-invenio-forms` defaults where applicable.
+//
+// Exceptions (larger forks — summary only; see doc + file headers)
+// -----------------------------------------------------------------
+// PIDField/
+//   Fork of upstream `deposit/fields/Identifiers/PIDField` (layout: `PIDFieldCmp`,
+//   `RequiredPIDField`, `OptionalPIDField` at folder root; `pid_components/` for local
+//   identifier UIs + `fieldErrorsForDisplay`). Stock uses `getFieldErrors` (show as soon
+//   as validation fails); here `getFieldErrorsForDisplay` aligns visible errors with
+//   `replacement_components/TextField.js` (touch / initial-error rules). Leaf widgets that
+//   are unchanged are deep-imported from `@js/invenio_rdm_records/...`; deposit API/state
+//   imports use `@js` because relative paths from upstream (`../../../../api/...`) do not
+//   resolve from this package. Eliminating this fork would require upstream to expose a
+//   pluggable error-visibility strategy (or the same helper) on PIDField / helpers.
+//
+// CreatibutorsField.js + creatibutor_components/CreatibutorsModal.js
+//   Local modal fork: `onModalClose` in `closeModal()` so the parent can `setFieldTouched`
+//   when the modal closes (any path). CreatibutorsFieldItem/type/utils still from `@js`.
+//   Upstream could add an optional `onModalClose` (or equivalent) on stock modal to avoid
+//   forking the modal file.
+//
+// Any new non–import-only divergence must be summarized in this header and in
+// docs/source/replacement_field_components.md.
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 export { AdditionalTitlesField } from "./AdditionalTitlesField";
 export { CopyrightsField } from "./CopyrightsField";

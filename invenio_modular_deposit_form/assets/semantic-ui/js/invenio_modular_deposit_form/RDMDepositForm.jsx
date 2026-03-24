@@ -66,6 +66,11 @@ export const RDMDepositForm = ({
 
           creators: {
             ...config.vocabularies.creators,
+            // Backend forms_config often only sends `contributors.role`; stock UIs use the
+            // same creatibutor role vocab for both — fall back so the modal Role select works.
+            role:
+              config.vocabularies.creators?.role ??
+              config.vocabularies.contributors?.role,
             type: [
               { text: i18next.t("Person"), value: "personal" },
               { text: i18next.t("Organization"), value: "organizational" },
