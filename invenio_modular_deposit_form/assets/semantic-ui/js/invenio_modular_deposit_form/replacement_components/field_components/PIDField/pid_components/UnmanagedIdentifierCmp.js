@@ -23,8 +23,9 @@
 // gate). With `getFieldErrorsForDisplay`, we must mark the PID path touched on blur.
 // Do **not** call Formik’s `field.onBlur(e)` here: it does `setFieldTouched(e.target.name)`,
 // and SUI `Form.Input` often leaves `name` off the DOM input, so `e.target.name` is
-// `undefined` and touched is set at the wrong key. Use `form.setFieldTouched(fieldPath)`
-// and set `name={fieldPath}` on the input for parity.
+// `undefined` and touched is set at the wrong key. Use `form.setFieldTouched(fieldPath,
+// true, true)` on blur so the path is touched **and** Yup runs; set `name={fieldPath}` on
+// the input. Radio changes already trigger validation via `setFieldValue` + `validateOnChange`.
 // Radio-driven touch is documented in `RequiredPIDField` / `OptionalPIDField` and in Sphinx
 // `docs/source/replacement_field_components.md` (section “Formik touched and this fork”).
 
@@ -37,7 +38,8 @@ import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
  * Text input for an unmanaged (external-provider) PID. Local state holds the string;
  * the parent debounces writes to Formik as `{ identifier, provider }`.
  *
- * On blur, calls `form.setFieldTouched(fieldPath)` (not `field.onBlur(e)`; see file header).
+ * On blur, calls `form.setFieldTouched(fieldPath, true, true)` to touch and validate (not
+ * `field.onBlur(e)`; see file header).
  */
 export class UnmanagedIdentifierCmp extends Component {
   constructor(props) {
@@ -69,7 +71,7 @@ export class UnmanagedIdentifierCmp extends Component {
   onBlur = () => {
     const { form, fieldPath } = this.props;
     if (form?.setFieldTouched) {
-      form.setFieldTouched(fieldPath, true, false);
+      form.setFieldTouched(fieldPath, true, true);
     }
   };
 

@@ -50,7 +50,7 @@ The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `fiel
 
 | Interaction | Where |
 |-------------|--------|
-| User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, false)`; `Form.Input` gets `name={field.name \|\| fieldPath}` so the DOM matches the field path. |
+| User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, true)` (touch + run validation; radios rely on `setFieldValue` + `validateOnChange`). `Form.Input` gets `name={field.name \|\| fieldPath}`. |
 | User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `onManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
 | User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `handleManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
 
