@@ -22,6 +22,12 @@
 //
 // Call sites: local `UnmanagedIdentifierCmp`, `ManagedIdentifierCmp`, and the
 // Required/Optional PID field label rows.
+//
+// Preconditions: for the “validation error + touched” branch to ever apply, callers must
+// ensure `form.touched[fieldPath]` becomes true — e.g. `UnmanagedIdentifierCmp` calls
+// `field.onBlur` on blur; `RequiredPIDField` / `OptionalPIDField` call
+// `setFieldTouched(fieldPath)` when managed/unmanaged or optional-DOI radios change.
+// Documented in docs/source/replacement_field_components.md.
 
 import { getIn } from "formik";
 import { areDeeplyEqual } from "../../../../utils";
@@ -41,9 +47,15 @@ export function getFieldErrors(form, fieldPath) {
 
 /**
  * Error value for SUI `error=` only when it should show (touched / initialError branch).
+ *
+ * Matches the visibility policy in `replacement_components/TextField.js`: show validation
+ * errors when `form.touched[fieldPath]` is set (and there is a current error), or when the
+ * value still matches the initial value and there is an initial error.
+ *
  * @param {object} form
  * @param {string} fieldPath
- * @param {{ value?: unknown }|undefined} field Formik `field` from FastField
+ * @param {{ value?: unknown, onBlur?: function }|undefined} field Formik `field` from FastField
+ * @returns {string|object|null|undefined} Error to pass to SUI, or null/undefined to hide
  */
 export function getFieldErrorsForDisplay(form, fieldPath, field) {
   const err = getIn(form.errors, fieldPath, null);

@@ -20,11 +20,16 @@
 //   `RequiredPIDField`, `OptionalPIDField` at folder root; `pid_components/` for local
 //   identifier UIs + `fieldErrorsForDisplay`). Stock uses `getFieldErrors` (show as soon
 //   as validation fails); here `getFieldErrorsForDisplay` aligns visible errors with
-//   `replacement_components/TextField.js` (touch / initial-error rules). Leaf widgets that
-//   are unchanged are deep-imported from `@js/invenio_rdm_records/...`; deposit API/state
-//   imports use `@js` because relative paths from upstream (`../../../../api/...`) do not
-//   resolve from this package. Eliminating this fork would require upstream to expose a
-//   pluggable error-visibility strategy (or the same helper) on PIDField / helpers.
+//   `replacement_components/TextField.js` (touch / initial-error rules). Because PID inputs
+//   are not plain Formik Field scalars, this fork sets `form.touched[fieldPath]` on
+//   unmanaged-input blur (`UnmanagedIdentifierCmp`) and when managed/unmanaged or optional
+//   DOI radios change (`RequiredPIDField` / `OptionalPIDField`); see Sphinx
+//   docs/source/replacement_field_components.md § “Formik touched and this fork”.
+//   Leaf widgets that are unchanged are deep-imported from `@js/invenio_rdm_records/...`;
+//   deposit API/state imports use `@js` because relative paths from upstream
+//   (`../../../../api/...`) do not resolve from this package. Eliminating this fork would
+//   require upstream to expose a pluggable error-visibility strategy (or the same helper)
+//   on PIDField / helpers, plus equivalent touched wiring for radios and unmanaged input.
 //
 // CreatibutorsField.js + creatibutor_components/CreatibutorsModal.js
 //   Local modal fork: `onModalClose` in `closeModal()` so the parent can `setFieldTouched`

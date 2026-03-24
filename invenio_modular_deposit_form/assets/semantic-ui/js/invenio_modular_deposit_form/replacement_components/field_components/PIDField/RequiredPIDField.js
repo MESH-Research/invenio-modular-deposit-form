@@ -39,6 +39,12 @@ import { getFieldErrorsForDisplay } from "./pid_components/fieldErrorsForDisplay
 const PROVIDER_EXTERNAL = "external";
 const UPDATE_PID_DEBOUNCE_MS = 200;
 
+/**
+ * Required PID (e.g. DOI) field: managed vs unmanaged UI from stock, with
+ * `getFieldErrorsForDisplay` on the label row and identifier components.
+ * Calls `setFieldTouched(fieldPath)` when the managed/unmanaged radios change so touch
+ * gating matches `TextField` (radios are not Formik Field inputs).
+ */
 export class RequiredPIDField extends Component {
   constructor(props) {
     super(props);

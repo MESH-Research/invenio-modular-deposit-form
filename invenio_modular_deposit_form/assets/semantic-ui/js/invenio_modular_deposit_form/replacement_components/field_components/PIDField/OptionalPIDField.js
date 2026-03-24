@@ -41,6 +41,11 @@ import { getFieldErrorsForDisplay } from "./pid_components/fieldErrorsForDisplay
 const PROVIDER_EXTERNAL = "external";
 const UPDATE_PID_DEBOUNCE_MS = 200;
 
+/**
+ * Optional PID field with optional-DOI radios (`OptionalDOIoptions`), managed/unmanaged
+ * branches, and `getFieldErrorsForDisplay`. Calls `setFieldTouched(fieldPath)` when those
+ * radios change so touch gating matches `TextField`.
+ */
 class OptionalPIDFieldCmp extends Component {
   constructor(props) {
     super(props);

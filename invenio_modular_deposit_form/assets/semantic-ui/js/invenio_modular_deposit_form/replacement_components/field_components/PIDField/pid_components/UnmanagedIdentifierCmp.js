@@ -22,12 +22,22 @@
 // Stock also omits `onBlur` on `Form.Input`; that was fine with `getFieldErrors` (no touch
 // gate). With `getFieldErrorsForDisplay`, we must call Formik’s `field.onBlur` on blur so
 // `touched.pids.<scheme>` is set — otherwise validation errors never become visible after blur.
+// Radio-driven touch is documented in `RequiredPIDField` / `OptionalPIDField` and in Sphinx
+// `docs/source/replacement_field_components.md` (section “Formik touched and this fork”).
 
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { Form } from "semantic-ui-react";
 import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
 
+/**
+ * Text input for an unmanaged (external-provider) PID. Local state holds the string;
+ * the parent debounces writes to Formik as `{ identifier, provider }`.
+ *
+ * On blur, calls Formik `field.onBlur` or `form.setFieldTouched(fieldPath)` so
+ * `getFieldErrorsForDisplay` can show validation errors after the user leaves the field
+ * (stock has no `onBlur`; see file header).
+ */
 export class UnmanagedIdentifierCmp extends Component {
   constructor(props) {
     super(props);
@@ -55,6 +65,9 @@ export class UnmanagedIdentifierCmp extends Component {
     this.setState({ localIdentifier: value }, () => onIdentifierChanged(value));
   };
 
+  /**
+   * @param {import("react").SyntheticEvent} e
+   */
   onBlur = (e) => {
     const { field, form, fieldPath } = this.props;
     if (field?.onBlur) {

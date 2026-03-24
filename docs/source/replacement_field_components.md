@@ -43,6 +43,7 @@ Local layout:
 
 The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `field_components.jsx`) so DOI/PID errors do not appear before touch in a way that disagrees with other fields.
 
+(formik-touched-pidfield)=
 ### Formik `touched` and this fork
 
 `getFieldErrorsForDisplay` shows validation errors when **`form.touched[fieldPath]`** is truthy (among other branches). Stock PID inputs are not plain Formik `<Field>` scalars, so **nothing** was calling `field.onBlur` or `setFieldTouched` for the PID path. This fork wires **`touched`** explicitly:
@@ -72,13 +73,13 @@ This section describes **what would need to exist in stock `invenio_rdm_records`
 1. **`getFieldErrorsForDisplay` (or equivalent) in upstream**  
    Extend `PIDField/components/helpers.js` (or export a sibling) with a function that gates **visible** errors the same way as other fields, or add a **`showErrorWhen`** prop on `PIDField` / identifier components.
 
-1b. **Consistent `touched` for non-`Field` controls**  
+2. **Consistent `touched` for non-`Field` controls**  
    If upstream ensured **`touched`** for `pids.<scheme>` when users blur the unmanaged input or change managed/unmanaged (and optional-DOI) radios—e.g. by using Formik `Field`/`useField` for those controls or by documenting `setFieldTouched` in the stock handlers—apps would not need a local fork **only** for touch parity.
 
-2. **Resolvable imports from consuming apps**  
+3. **Resolvable imports from consuming apps**  
    Export PID subcomponents (e.g. `UnmanagedIdentifierCmp`) from the **`@js/invenio_rdm_records`** public API so apps do not need relative paths; and/or export **deposit context** and **action types** from stable entry points (already partly true via deep paths).
 
-3. **Optional composition**  
+4. **Optional composition**  
    Allow passing **custom** `ManagedIdentifierCmp` / `UnmanagedIdentifierCmp` as props so a host app can inject behavior without replacing the whole tree.
 
 ### `CreatibutorsField` / modal
