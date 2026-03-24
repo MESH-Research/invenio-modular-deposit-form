@@ -220,6 +220,7 @@ const FormLayoutContainer = () => {
     previousFormPage: navigation.previousFormPage,
     nextFormPage: navigation.nextFormPage,
     pageTargetInViewport,
+    storageDataPresent,
   };
 
   return (

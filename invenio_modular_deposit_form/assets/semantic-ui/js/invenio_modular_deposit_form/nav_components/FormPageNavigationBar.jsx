@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Button, Grid, Icon, Segment } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
+import { Trans } from "react-i18next";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../FormLayoutContainer";
 
@@ -14,6 +15,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
     previousFormPage,
     nextFormPage,
     handleFormPageChange,
+    storageDataPresent,
   } = useContext(FormUIStateContext) ?? {};
   return (
     <div
@@ -39,9 +41,12 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
             )}
           </Grid.Column>
           <Grid.Column className="nav-bar-message" width={10} textAlign="center">
-            Your current form values are backed up automatically{" "}
-            <i>in this browser</i>.<br />
-            Save a persistent draft to the cloud on the "Save & Publish" tab.
+            {!!storageDataPresent &&
+            <Trans 
+              defaults="Backed up temporarily <0>in this browser</0>." 
+              components={[<i/>]} 
+              />
+            }
           </Grid.Column>
           <Grid.Column width={3} textAlign="right">
             {!!nextFormPage && (
