@@ -22,7 +22,8 @@ const TextField = ({
   width,
   ...extraProps
 }) => {
-  const FormikField = optimized ? FastField : Field;
+  const FormikField = Field;
+  // FIXME: reimplement FastField with custom shouldComponentUpdate to register prop changes? (FormikField = optimized ? FastField : Field;)
   // FIXME: Implement the extraRequiredFields, priorityFieldValues and defaultFieldValues props
   const {
     customFieldsUI,
@@ -38,18 +39,18 @@ const TextField = ({
         form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
-
-        const showError = (!!meta.error && !!meta.touched ||
-                !!error ||
-                (field.value === meta.initialValue) && !!meta.initialError
-              ) ? true : false;
-
+        const showError =
+          (!!meta.error && !!meta.touched) ||
+          !!error ||
+          (field.value === meta.initialValue && !!meta.initialError)
+            ? true
+            : false;
 
         return (
           <Form.Field
             required={!!required}
             error={showError}
-            className={`invenio-text-input-field ${classnames ? classnames : ""} ${label?.length<1 ? "no-label" : ""}`}
+            className={`invenio-text-input-field ${classnames ? classnames : ""} ${label?.length < 1 ? "no-label" : ""}`}
             fluid={fluid.toString()}
             width={width}
           >
@@ -81,9 +82,7 @@ const TextField = ({
             />
             {helpText && helpText !== " " && (
               <div className="helptext label" id={`${fieldPath}.helptext`}>
-                {React.isValidElement(helpText)
-                  ? helpText
-                  : i18next.t(helpText)}
+                {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
               </div>
             )}
           </Form.Field>
