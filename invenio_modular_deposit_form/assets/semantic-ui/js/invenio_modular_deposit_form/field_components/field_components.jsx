@@ -57,6 +57,7 @@ import Overridable from "react-overridable";
 import { moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { RECORD_FIELD_ERROR_ROOTS } from "../constants";
+import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
 
 /**
  * Main description/abstract field (metadata.description). Replacement DescriptionsField (field_components).
@@ -359,11 +360,24 @@ const DoiComponent = ({ ...extraProps }) => {
  */
 const FileUploadComponent = ({ ...extraProps }) => {
   const store = useStore();
+  const { formUIState } = useContext(FormUIStateContext) ?? {};
   const { config, permissions, record } = store.getState().deposit;
   const files = store.getState().files;
   const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
   const showMetaOnly = extraProps.showMetadataOnlyToggle
   const useUppy = config.use_uppy ?? false;
+
+  // Get flagged error state centrally for tooltip display/styles
+  const sectionErrorsByKey = getSectionErrorsBySectionKey(formUIState ?? {});
+  const sectionKey = `${formUIState?.currentFormPage ?? ""}\0${extraProps?.section ?? ""}`;
+  const sectionErrors = sectionErrorsByKey?.[sectionKey];
+  const fileErrorPaths = sectionErrors?.error_fields ?? [];
+  const hasFileError = fileErrorPaths.some(
+    (path) =>
+      path === "files" ||
+      path.startsWith("files.")
+  );
+
   const commonFileUploaderProps = {
     noFiles,
     isDraftRecord: !record.is_published,
@@ -379,6 +393,14 @@ const FileUploadComponent = ({ ...extraProps }) => {
   return (
     <>
       <SyncFilesCountFromRedux />
+      {hasFileError &&
+      <div
+        className={`field rel-mt-1${hasFileError ? " error" : ""}`}
+        role="alert"
+      >
+        <FeedbackLabel fieldPath="files.enabled" pointing="below" />
+        <FeedbackLabel fieldPath="files" pointing="below" />
+      </div> }
       <FieldComponentWrapper
         componentName="FileUploader"
         fieldPath="files"
@@ -390,10 +412,6 @@ const FileUploadComponent = ({ ...extraProps }) => {
           <FileUploader {...commonFileUploaderProps} />
         )}
       </FieldComponentWrapper>
-      <div className="rel-mt-1" role="alert">
-        <FeedbackLabel fieldPath="files.enabled" pointing="below" />
-        <FeedbackLabel fieldPath="files" pointing="below" />
-      </div>
     </>
   );
 };
