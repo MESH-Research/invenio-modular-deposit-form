@@ -289,7 +289,7 @@ const FormLayoutContainer = () => {
             id="confirm-page-change"
             className="confirm-page-change"
             open={navigation.confirmingPageChange}
-            header={i18next.t("Hmmm...")}
+            closeIcon
             content={
               <Modal.Content image>
                 <Icon name="question circle outline" size="huge" />

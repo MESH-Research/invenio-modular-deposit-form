@@ -437,12 +437,17 @@ FIELDS_BY_TYPE_DEFAULT_PAGED = {
                 "subsections": [
                     {
                         "component": "FormRow",
-                        "classnames": "equal width",
                         "subsections": [
                             {
                                 "section": "publisher",
-                                "component": "PublisherComponent",
+                                "component": "BookTitleComponent",
                             },
+                        ],
+                    },
+                    {
+                        "component": "FormRow",
+                        "classnames": "equal width",
+                        "subsections": [
                             {
                                 "section": "location",
                                 "component": "PublicationLocationComponent",

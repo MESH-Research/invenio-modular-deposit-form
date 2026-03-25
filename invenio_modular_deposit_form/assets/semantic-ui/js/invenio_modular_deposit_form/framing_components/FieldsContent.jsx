@@ -5,20 +5,20 @@ import { Form } from "semantic-ui-react";
 import { FormSection } from "./FormSection";
 
 const FormRow = ({ subsections, classnames, ...props }) => {
-  const componentsRegistry =
-    useStore().getState().deposit?.config?.componentsRegistry ?? {};
+  const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
   return (
     <Overridable
       id="InvenioModularDepositForm.FormRow.container"
       classnames={classnames}
       subsections={subsections}
     >
-      <Form.Group className={classnames ? classnames : null}>
+      <Form.Group className={`${classnames ? classnames : ""} invenio-group-field`}>
         {subsections.map(({ section, component, ...innerProps }, index) => {
           const MyField = componentsRegistry[component][0];
           return (
             <MyField
               key={index}
+              isRowField={true}
               {...{
                 section,
                 component,
@@ -34,13 +34,7 @@ const FormRow = ({ subsections, classnames, ...props }) => {
   );
 };
 
-const FieldsContent = ({
-  section,
-  component,
-  wrapped,
-  index,
-  ...props
-}) => {
+const FieldsContent = ({ section, component, wrapped, index, ...props }) => {
   const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
   const MyField = componentsRegistry[component][0];
 

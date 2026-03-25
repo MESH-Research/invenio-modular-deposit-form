@@ -14,6 +14,7 @@ const FieldComponentWrapper = ({
   helpText,
   placeholder,
   required,
+  isRowField,
   ...extraProps
 }) => {
   const {
@@ -26,14 +27,11 @@ const FieldComponentWrapper = ({
     priorityFieldValues,
     extraRequiredFields,
   } = useCurrentFieldMods();
-  const moddedIcon =
-    iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
+  const moddedIcon = iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
   // Upstream invenio-rdm-records contrib uses labelIcon; custom field widgets expect icon
   const effectiveIcon = moddedIcon ?? labelIcon;
   const moddedLabel =
-    labelMods && labelMods.hasOwnProperty(fieldPath)
-      ? labelMods[fieldPath]
-      : label;
+    labelMods && labelMods.hasOwnProperty(fieldPath) ? labelMods[fieldPath] : label;
   const moddedDescription =
     descriptionMods && descriptionMods.hasOwnProperty(fieldPath)
       ? descriptionMods[fieldPath]
@@ -43,9 +41,7 @@ const FieldComponentWrapper = ({
       ? placeholderMods[fieldPath]
       : placeholder;
   const moddedHelpText =
-    helpTextMods && helpTextMods.hasOwnProperty(fieldPath)
-      ? helpTextMods[fieldPath]
-      : helpText;
+    helpTextMods && helpTextMods.hasOwnProperty(fieldPath) ? helpTextMods[fieldPath] : helpText;
   const moddedRequired =
     extraRequiredFields && extraRequiredFields.hasOwnProperty(fieldPath)
       ? extraRequiredFields[fieldPath]
@@ -60,31 +56,28 @@ const FieldComponentWrapper = ({
       : null;
   // Remove undefined values from extraProps
   const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
-  // const {
-  //   ...filteredExtraProps
-  // } = cleanedExtraProps
 
   return (
-    <Overridable
-      id={`InvenioAppRdm.Deposit.${componentName}.container`}
-      fieldPath={fieldPath}
-    >
-      <div className={ `invenio-field-wrapper ${fieldPath.replaceAll(".", "-").replaceAll(":", "-")
-      }-field rel-mb-2` }>
-      {children &&
-        React.cloneElement(children, {
-          defaultFieldValue: defaultFieldValue,
-          description: moddedDescription,
-          fieldPath: fieldPath,
-          helpText: moddedHelpText,
-          label: moddedLabel,
-          icon: effectiveIcon,
-          placeholder: moddedPlaceholder,
-          priorityFieldValues: priorityFieldValueSet,
-          required: moddedRequired,
-          ...cleanedExtraProps,
-        })}
-    </div>
+    <Overridable id={`InvenioAppRdm.Deposit.${componentName}.container`} fieldPath={fieldPath}>
+      <div
+        className={`invenio-field-wrapper ${fieldPath
+          .replaceAll(".", "-")
+          .replaceAll(":", "-")}-field rel-mb-2 ${isRowField ? "field" : ""}`}
+      >
+        {children &&
+          React.cloneElement(children, {
+            defaultFieldValue: defaultFieldValue,
+            description: moddedDescription,
+            fieldPath: fieldPath,
+            helpText: moddedHelpText,
+            label: moddedLabel,
+            icon: effectiveIcon,
+            placeholder: moddedPlaceholder,
+            priorityFieldValues: priorityFieldValueSet,
+            required: moddedRequired,
+            ...cleanedExtraProps,
+          })}
+      </div>
     </Overridable>
   );
 };
