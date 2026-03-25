@@ -134,6 +134,7 @@ export const RDMDepositForm = ({
         preselectedCommunity={preselectedCommunity}
         files={files}
         permissions={permissions}
+        errors={record.errors}
         validationSchema={validationSchema}
       >
         <FormLayoutContainer />

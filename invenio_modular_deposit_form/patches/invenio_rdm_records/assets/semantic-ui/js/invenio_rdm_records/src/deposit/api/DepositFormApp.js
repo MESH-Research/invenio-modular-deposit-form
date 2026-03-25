@@ -79,6 +79,10 @@ export class DepositFormApp extends Component {
       recordSerializer: recordSerializer,
     };
 
+    if (props.errors && props.errors.length > 0) {
+      appConfig.errors = recordSerializer.deserializeErrors(props.errors);
+    }
+
     this.store = configureStore(appConfig);
 
     const progressNotifier = new RDMUploadProgressNotifier(this.store.dispatch);
@@ -103,6 +107,14 @@ export class DepositFormApp extends Component {
 DepositFormApp.propTypes = {
   config: PropTypes.object.isRequired,
   record: PropTypes.object.isRequired,
+  errors: PropTypes.arrayOf(
+    PropTypes.shape({
+      field: PropTypes.string.isRequired,
+      messages: PropTypes.arrayOf(PropTypes.string).isRequired,
+      description: PropTypes.string,
+      severity: PropTypes.string,
+    })
+  ),
   preselectedCommunity: PropTypes.object,
   files: PropTypes.object,
   permissions: PropTypes.object,
@@ -120,6 +132,7 @@ DepositFormApp.defaultProps = {
   preselectedCommunity: undefined,
   permissions: undefined,
   apiClient: undefined,
+  errors: undefined,
   fileApiClient: undefined,
   draftsService: undefined,
   filesService: undefined,
