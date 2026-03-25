@@ -11,7 +11,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useContext, useEffect } from "react";
+import React, { Fragment, useContext, useEffect, useRef } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -52,7 +52,7 @@ import {
 } from "../replacement_components/field_components";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
-import { Grid, Card } from "semantic-ui-react";
+import { Card, Form, Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { getTouchedParent, moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
@@ -346,7 +346,21 @@ const DoiComponent = ({ ...extraProps }) => {
  */
 const FileUploadComponent = ({ ...extraProps }) => {
   const store = useStore();
-  const { touched, setFieldTouched } = useFormikContext();
+  const { touched, setFieldTouched, values, validateField } = useFormikContext();
+  const filesEnabled = values?.files?.enabled;
+  const prevFilesEnabledRef = useRef(undefined);
+
+  // Stock FileUploaderToolbar calls setFieldValue twice in one handler; the second
+  // validateOnChange run merges from stale state and can re-apply a files error.
+  // After commit, values are correct — re-validate the `files` branch when enabled toggles.
+  useEffect(() => {
+    const prev = prevFilesEnabledRef.current;
+    prevFilesEnabledRef.current = filesEnabled;
+    if (prev !== undefined && prev !== filesEnabled) {
+      void validateField("files");
+    }
+  }, [filesEnabled, validateField]);
+
   const { formUIState } = useContext(FormUIStateContext) ?? {};
   const { config, permissions, record } = store.getState().deposit;
   const files = store.getState().files;
@@ -386,11 +400,15 @@ const FileUploadComponent = ({ ...extraProps }) => {
   };
 
   const fileFieldLabel = extraProps.label ?? i18next.t("File upload");
-  const fileFieldIcon = extraProps.icon ?? extraProps.labelIcon;
+  const fileFieldIcon = extraProps.icon ?? extraProps.labelIcon ?? "file";
 
   return (
     <>
-      <FieldLabel htmlFor="files" icon={fileFieldIcon} label={fileFieldLabel} />
+      {extraProps.show_heading && (
+        <Form.Field>
+          <FieldLabel htmlFor="files" icon={fileFieldIcon} label={fileFieldLabel} />
+        </Form.Field>
+      )}
       <SyncFilesCountFromRedux />
       {fileErrorPaths.length > 0 && (
         <div className="field rel-mt-1 error" role="alert">

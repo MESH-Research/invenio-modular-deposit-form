@@ -97,6 +97,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                                 "section": "file_upload",
                                 "label": "Files Upload",
                                 "component": "FileUploadComponent",
+                                "show_heading": True,
                             },
                         ],
                     }
@@ -291,6 +292,7 @@ COMMON_FIELDS_DEFAULT_SINGLE = [
                                 "section": "file_upload",
                                 "label": "Files Upload",
                                 "component": "FileUploadComponent",
+                                "show_heading": True,
                             },
                         ],
                     },

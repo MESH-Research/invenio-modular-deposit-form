@@ -84,6 +84,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                         "section": "file_upload",
                         "label": "Files Upload",
                         "component": "FileUploadComponent",
+                        "show_heading": True,
                     },
                 ],
             },

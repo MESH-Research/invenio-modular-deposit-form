@@ -35,6 +35,7 @@ const SubsectionsRenderer = ({ subsections = [], className, id, isFormPagesRegio
                 wrapped={wrapped}
                 index={i}
                 {...innerProps}
+                show_heading={innerProps.show_heading ?? props.show_heading}
               />
             ))}
           </FormSection>
