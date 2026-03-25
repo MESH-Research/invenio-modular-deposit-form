@@ -11,7 +11,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useContext } from "react";
+import React, { Fragment, useContext, useEffect } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -54,7 +54,7 @@ import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Grid, Card } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { moveToArrayStart } from "../utils";
+import { getTouchedParent, moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { RECORD_FIELD_ERROR_ROOTS } from "../constants";
 import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
@@ -133,11 +133,7 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
 
   return (
-    <FieldComponentWrapper
-      componentName="DateField"
-      {...extraProps}
-      fieldPath="metadata.dates"
-    >
+    <FieldComponentWrapper componentName="DateField" {...extraProps} fieldPath="metadata.dates">
       <DatesField
         fieldPath="metadata.dates"
         options={vocabularies.metadata.dates}
@@ -282,11 +278,7 @@ const DeleteComponent = ({ ...extraProps }) => {
   return (
     <>
       {permissions?.can_delete_draft ? (
-        <FieldComponentWrapper
-          componentName="CardDeleteButton"
-          fieldPath={""}
-          {...extraProps}
-        >
+        <FieldComponentWrapper componentName="CardDeleteButton" fieldPath={""} {...extraProps}>
           <DeleteButton fluid size="large" className="centered warning" />
         </FieldComponentWrapper>
       ) : null}
@@ -321,8 +313,8 @@ const DoiComponent = ({ ...extraProps }) => {
   return (
     <Overridable id="InvenioAppRdm.Deposit.PIDField.container">
       <Fragment>
-      {pids.map((pid) => (
-        <Fragment key={pid.scheme}>
+        {pids.map((pid) => (
+          <Fragment key={pid.scheme}>
             <ReplacementPIDField
               btnLabelDiscardPID={pid.btn_label_discard_pid}
               btnLabelGetPID={pid.btn_label_get_pid}
@@ -332,9 +324,7 @@ const DoiComponent = ({ ...extraProps }) => {
               optionalDOItransitions={pid.optional_doi_transitions ?? {}}
               fieldPath={`pids.${pid.scheme}`}
               fieldLabel={pid.field_label}
-              isEditingPublishedRecord={
-                record?.is_published === true
-              }
+              isEditingPublishedRecord={record?.is_published === true}
               managedHelpText={pid.managed_help_text}
               pidLabel={pid.pid_label}
               pidPlaceholder={pid.pid_placeholder}
@@ -360,11 +350,12 @@ const DoiComponent = ({ ...extraProps }) => {
  */
 const FileUploadComponent = ({ ...extraProps }) => {
   const store = useStore();
+  const { touched, setFieldTouched } = useFormikContext();
   const { formUIState } = useContext(FormUIStateContext) ?? {};
   const { config, permissions, record } = store.getState().deposit;
   const files = store.getState().files;
   const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
-  const showMetaOnly = extraProps.showMetadataOnlyToggle
+  const showMetaOnly = extraProps.showMetadataOnlyToggle;
   const useUppy = config.use_uppy ?? false;
 
   // Get flagged error state centrally for tooltip display/styles
@@ -372,11 +363,20 @@ const FileUploadComponent = ({ ...extraProps }) => {
   const sectionKey = `${formUIState?.currentFormPage ?? ""}\0${extraProps?.section ?? ""}`;
   const sectionErrors = sectionErrorsByKey?.[sectionKey];
   const fileErrorPaths = sectionErrors?.error_fields ?? [];
-  const hasFileError = fileErrorPaths.some(
-    (path) =>
-      path === "files" ||
-      path.startsWith("files.")
-  );
+  const hasFileError = fileErrorPaths.some((path) => path === "files" || path.startsWith("files."));
+
+  // Manually set child paths touched when necessary to trigger FeedbackLabel display
+  // (which depends on exact field match, not just parent field).
+  useEffect(() => {
+    const flaggedFilePaths = fileErrorPaths.filter(
+      (path) => path === "files" || path.startsWith("files.")
+    );
+    flaggedFilePaths.forEach((path) => {
+      if (_get(touched, path) !== true && getTouchedParent(touched, path)) {
+        setFieldTouched(path, true, false);
+      }
+    });
+  }, [fileErrorPaths, setFieldTouched, touched]);
 
   const commonFileUploaderProps = {
     noFiles,
@@ -385,7 +385,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
     decimalSizeDisplay: config.decimal_size_display,
     filesLocked: config.files_locked ?? false,
     allowEmptyFiles: config.allow_empty_files ?? true,
-    showMetadataOnlyToggle: showMetaOnly ?? permissions?.can_manage_files, 
+    showMetadataOnlyToggle: showMetaOnly ?? permissions?.can_manage_files,
     // v14 only: pass when present so v13 uploaders (no fileModification prop) are unchanged
     ...(config.file_modification != null && { fileModification: config.file_modification }),
   };
@@ -393,19 +393,13 @@ const FileUploadComponent = ({ ...extraProps }) => {
   return (
     <>
       <SyncFilesCountFromRedux />
-      {hasFileError &&
-      <div
-        className={`field rel-mt-1${hasFileError ? " error" : ""}`}
-        role="alert"
-      >
-        <FeedbackLabel fieldPath="files.enabled" pointing="below" />
-        <FeedbackLabel fieldPath="files" pointing="below" />
-      </div> }
-      <FieldComponentWrapper
-        componentName="FileUploader"
-        fieldPath="files"
-        {...extraProps}
-      >
+      {hasFileError && (
+        <div className={`field rel-mt-1${hasFileError ? " error" : ""}`} role="alert">
+          <FeedbackLabel fieldPath="files.enabled" pointing="below" />
+          <FeedbackLabel fieldPath="files" pointing="below" />
+        </div>
+      )}
+      <FieldComponentWrapper componentName="FileUploader" fieldPath="files" {...extraProps}>
         {useUppy ? (
           <UppyUploader {...commonFileUploaderProps} />
         ) : (
@@ -508,14 +502,18 @@ const FundingComponent = ({ ...extraProps }) => {
  */
 const LanguagesComponent = ({ ...extraProps }) => {
   const { values } = useFormikContext();
-  const recordOptions = useStore().getState().deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
-  const formOptions =
-    values?.metadata?.languages?.filter((lang) => lang !== null) || [];
+  const recordOptions =
+    useStore()
+      .getState()
+      .deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
+  const formOptions = values?.metadata?.languages?.filter((lang) => lang !== null) || [];
 
   let initialOptions;
-  if (typeof formOptions?.[0] === "string" &&
-      formOptions.length === recordOptions.length &&
-      formOptions.every((formValue, index) => formValue === recordOptions[index]?.id)) {
+  if (
+    typeof formOptions?.[0] === "string" &&
+    formOptions.length === recordOptions.length &&
+    formOptions.every((formValue, index) => formValue === recordOptions[index]?.id)
+  ) {
     initialOptions = recordOptions;
   } else {
     initialOptions = formOptions;
@@ -535,9 +533,7 @@ const LanguagesComponent = ({ ...extraProps }) => {
       <LanguagesField
         fieldPath="metadata.languages"
         initialOptions={stockInitialOptions}
-        placeholder={i18next.t(
-          'Type to search for a language (press "enter" to select)'
-        )}
+        placeholder={i18next.t('Type to search for a language (press "enter" to select)')}
         serializeSuggestions={(suggestions) =>
           suggestions.map((item) => ({
             text: item.title_l10n,
@@ -559,11 +555,7 @@ const LanguagesComponent = ({ ...extraProps }) => {
  */
 const LicensesComponent = ({ ...extraProps }) => {
   return (
-    <FieldComponentWrapper
-      componentName="LicenseField"
-      {...extraProps}
-      fieldPath="metadata.rights"
-    >
+    <FieldComponentWrapper componentName="LicenseField" {...extraProps} fieldPath="metadata.rights">
       <LicenseField
         fieldPath="metadata.rights"
         searchConfig={{
@@ -670,22 +662,15 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
  */
 const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
-  const options = useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
+  const options =
+    useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
 
   console.log("form ui state:", useContext(FormUIStateContext));
   console.log("formik:", useFormikContext());
 
   return (
-    <FieldComponentWrapper
-      componentName="ResourceTypeField"
-      {...extraProps}
-      fieldPath={fieldPath}
-    >
-      <ResourceTypeField
-        fieldPath={fieldPath}
-        options={options}
-        required={true}
-      />
+    <FieldComponentWrapper componentName="ResourceTypeField" {...extraProps} fieldPath={fieldPath}>
+      <ResourceTypeField fieldPath={fieldPath} options={options} required={true} />
     </FieldComponentWrapper>
   );
 };
@@ -699,12 +684,9 @@ const SubjectsComponent = ({ ...extraProps }) => {
   const record = useStore().getState().deposit.record;
 
   let myLimitToOptions = [...vocabularies.metadata.subjects.limit_to];
-  myLimitToOptions.reverse();
-  myLimitToOptions = moveToArrayStart(
-    myLimitToOptions,
-    ["FAST-topical", "all"],
-    "value"
-  );
+  // FIXME: KCWorks-specific logic we need to override
+  // myLimitToOptions.reverse();
+  // myLimitToOptions = moveToArrayStart(myLimitToOptions, ["FAST-topical", "all"], "value");
   return (
     <FieldComponentWrapper
       componentName="SubjectsField"
@@ -731,12 +713,8 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * @overridable InvenioAppRdm.Deposit.FormFeedback.container
  */
 const FormFeedbackComponent = () => {
-
   return (
-    <Overridable
-      id="InvenioAppRdm.Deposit.FormFeedback.container"
-      fieldPath="message"
-    >
+    <Overridable id="InvenioAppRdm.Deposit.FormFeedback.container" fieldPath="message">
       <ModularFormFeedback fieldPath="message" />
     </Overridable>
   );
@@ -762,16 +740,13 @@ const HorizontalSubmissionComponent = () => {
   const { errors: clientErrors } = useFormikContext();
   const store = useStore();
 
-  const { actionState, config, errors, record, permissions } =
-    store.getState().deposit;
+  const { actionState, config, errors, record, permissions } = store.getState().deposit;
 
   // errors not related to validation, following a different format {status:.., message:..}
   let nonValidationErrors;
   if (!_isEmpty(errors)) {
     nonValidationErrors = Object.fromEntries(
-      Object.entries(errors).filter(
-        ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key)
-      )
+      Object.entries(errors).filter(([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key))
     );
   }
 
@@ -794,9 +769,7 @@ const HorizontalSubmissionComponent = () => {
       <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
         <Grid.Row>
           <Grid.Column computer="8" tablet="6">
-            {(actionState ||
-              !_isEmpty(clientErrors) ||
-              !_isEmpty(nonValidationErrors)) && (
+            {(actionState || !_isEmpty(clientErrors) || !_isEmpty(nonValidationErrors)) && (
               <Overridable
                 id="InvenioAppRdm.Deposit.FormFeedback.container"
                 labels={config.custom_fields.error_labels}
@@ -829,27 +802,20 @@ const HorizontalSubmissionComponent = () => {
             />
             {/* RecordDeletionComponent (v14): import from v14_components.jsx, register in instance, add to layout */}
           </Grid.Column>
-          <Grid.Column
-            tablet="10"
-            computer="8"
-            id="save-button-description"
-            className="helptext"
-          >
+          <Grid.Column tablet="10" computer="8" id="save-button-description" className="helptext">
             <p>
               <b>Draft deposits</b> can be edited
-              {permissions?.can_delete_draft && ", deleted,"} and the files can be added
-              or changed.
+              {permissions?.can_delete_draft && ", deleted,"} and the files can be added or changed.
             </p>
             <p>
-              <b>Published deposits</b> can still be edited, but you will no longer be
-              able to {permissions?.can_delete_draft && "delete the deposit or "}change
-              the attached files. To add or change files for a published deposit you
-              must create a new version of the record.
+              <b>Published deposits</b> can still be edited, but you will no longer be able to{" "}
+              {permissions?.can_delete_draft && "delete the deposit or "}change the attached files.
+              To add or change files for a published deposit you must create a new version of the
+              record.
             </p>
             <p>
-              Deposits can only be <b>deleted while they are drafts</b>. Once you
-              publish your deposit, you can only restrict access and/or create a new
-              version.
+              Deposits can only be <b>deleted while they are drafts</b>. Once you publish your
+              deposit, you can only restrict access and/or create a new version.
             </p>
           </Grid.Column>
         </Grid.Row>
@@ -884,19 +850,11 @@ const SubmissionComponent = () => {
           </Card.Content>
           <Card.Content>
             <Grid relaxed>
-              <Grid.Column
-                computer={8}
-                mobile={16}
-                className="pb-0 left-btn-col"
-              >
+              <Grid.Column computer={8} mobile={16} className="pb-0 left-btn-col">
                 <SaveButton fluid />
               </Grid.Column>
 
-              <Grid.Column
-                computer={8}
-                mobile={16}
-                className="pb-0 right-btn-col"
-              >
+              <Grid.Column computer={8} mobile={16} className="pb-0 right-btn-col">
                 <PreviewButton fluid />
               </Grid.Column>
 
