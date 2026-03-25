@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from "react";
-import { useStore } from "react-redux";
 import { Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
@@ -13,11 +12,8 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * a severity class (has-error, has-warning, has-info).
  */
 const FormSidebarPageMenu = ({ classnames, ...props }) => {
-  const store = useStore();
-  const formPages = store.getState().deposit?.config?.common_fields?.find(
-    (item) => item.component === "FormPages"
-  )?.subsections ?? [];
   const ctx = useContext(FormUIStateContext);
+  const formPages = ctx?.formUIState?.visibleFormPages ?? [];
   const formUIState = ctx?.formUIState ?? {};
   const pageCounts = useMemo(
     () => getPageFlaggedErrorCounts(formUIState),

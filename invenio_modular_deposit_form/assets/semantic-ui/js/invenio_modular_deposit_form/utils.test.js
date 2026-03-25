@@ -18,6 +18,7 @@ import {
   getErrorParent,
   getReadableFields,
   getTouchedParent,
+  getVisibleFormPages,
   isNearViewportBottom,
   mergeNestedObjects,
   moveToArrayStart,
@@ -133,6 +134,44 @@ describe('findPageIdContainingComponent', () => {
     expect(findPageIdContainingComponent(null, 'X')).toBe(null);
     expect(findPageIdContainingComponent([], 'X')).toBe(null);
     expect(findPageIdContainingComponent([{ section: 'p' }], '')).toBe(null);
+  });
+});
+
+describe('getVisibleFormPages', () => {
+  const formPages = [
+    {
+      section: 'page-a',
+      label: 'A',
+      subsections: [{ section: 's1', component: 'TitlesComponent' }],
+    },
+    { section: 'page-b', label: 'B', subsections: [] },
+    { section: 'page-c', label: 'C', subsections: [] },
+  ];
+
+  test('drops pages with empty merged subsections', () => {
+    const visible = getVisibleFormPages(formPages, {}, {});
+    expect(visible.map((p) => p.section)).toEqual(['page-a']);
+  });
+
+  test('includes page when type override adds subsections to empty common page', () => {
+    const typeFields = {
+      'page-b': [{ section: 'x', component: 'AbstractComponent' }],
+    };
+    const visible = getVisibleFormPages(formPages, typeFields, {});
+    expect(visible.map((p) => p.section)).toEqual(['page-a', 'page-b']);
+  });
+
+  test('respects same_as for empty common page', () => {
+    const fieldsByType = {
+      template: {
+        'page-c': [{ section: 'y', component: 'TitlesComponent' }],
+      },
+    };
+    const typeFields = {
+      'page-c': [{ same_as: 'template' }],
+    };
+    const visible = getVisibleFormPages(formPages, typeFields, fieldsByType);
+    expect(visible.map((p) => p.section)).toEqual(['page-a', 'page-c']);
   });
 });
 

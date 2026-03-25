@@ -1,17 +1,47 @@
-import { useEffect, useMemo, useState } from "react";
-import { useStore } from "react-redux";
+// This file is part of Invenio Modular Deposit Form
+// Copyright (C) 2023-2026 MESH Research
+//
+// Invenio Modular Deposit Form is free software;
+// you can redistribute them and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReducer";
 
 /**
- * Custom hook for managing form page navigation state and history
- * @param {Object} formUIState - Full form UI state object (currentFormPage, sectionErrorsFlagged, sectionErrorsAll, currentFormPageFields)
- * @param {Function} dispatch - Form UI reducer dispatch
- * @param {Object} confirmModalRef - Ref for the confirmation modal
- * @param {Function} focusFirstElement - Function to focus the first element on a page
- * @param {boolean} recoveryAsked - Whether recovery has been asked
- * @param {Object} formik - Formik context (uses setFieldTouched)
- * @param {string|null} fileUploadPageId - Page id containing FileUploadComponent (for focus workaround)
- * @returns {Object} Navigation state and handlers
+ * Multi-page deposit form: keeps `currentFormPage` (form UI useReducer), the address bar `?page=`
+ * query, and the browser history list in sync. Uses only **visible** pages (`formUIState.visibleFormPages`),
+ * i.e. the same subset the stepper/sidebar show after merging common layout + resource type.
+ *
+ * **What this hook does**
+ *
+ * - **Next / previous** — Exposes `nextFormPage` and `previousFormPage` as adjacent visible page ids
+ *   (or null) for footer nav; ordering follows `visibleFormPages`.
+ * - **User-initiated page change** — `handleFormPageChange` marks all fields on the current page
+ *   touched, then either opens the confirm modal (if the current page still has validation errors
+ *   per `sectionErrorsAll`) or dispatches `SET_CURRENT_FORM_PAGE` and updates the URL via
+ *   `history.pushState` so Back/Forward can move between steps.
+ * - **URL on load / popstate** — `handleFormPageParam` reads `?page=`, supports `first` / `last`
+ *   aliases, and dispatches `SET_CURRENT_FORM_PAGE` when the slug is valid; a `popstate` listener
+ *   reapplies that when the user uses the browser back button.
+ * - **First paint after visible pages exist** — When `visibleFormPages` was initially empty (e.g.
+ *   before `useCurrentResourceTypeFields` runs), then becomes non-empty, one effect runs
+ *   `handleFormPageParam` + `pushState` exactly once so the URL matches the visible set.
+ * - **Stale current page** — If `currentFormPage` is not in `visibleFormPages` anymore (e.g. resource
+ *   type hid a placeholder step), an effect moves to the first visible page and uses
+ *   `history.replaceState` so the correction does not add an extra history entry.
+ * - **Modal helpers** — `handlePageChangeCancel` / `handlePageChangeConfirm` complete or abort the
+ *   “leave page with errors?” flow; `confirmingPageChange` drives the `Confirm` in FormLayoutContainer.
+ *
+ * @param {Object} formUIState - Form UI reducer state (`currentFormPage`, `visibleFormPages`, `sectionErrorsAll`, `currentFormPageFields`, …)
+ * @param {Function} dispatch - Dispatch for form UI state only (`FORM_UI_ACTION` / `formUIStateReducer`)
+ * @param {Object} confirmModalRef - Ref passed to the confirm modal’s cancel button for focus
+ * @param {Function} focusFirstElement - Focus helper when cancelling a guarded page change
+ * @param {boolean} recoveryAsked - Passed through to `focusFirstElement` (recovery modal gating)
+ * @param {Object} formik - Formik context (`setFieldTouched` on leave-page)
+ * @param {string|null} fileUploadPageId - Page id containing `FileUploadComponent` (focus workaround for `focusFirstElement`)
+ * @returns {Object} `confirmingPageChange`, `nextFormPage`, `previousFormPage`, `handleFormPageChange`,
+ *   `handlePageChangeCancel`, `handlePageChangeConfirm`
  */
 const useFormPageNavigation = (
   formUIState,
@@ -22,21 +52,17 @@ const useFormPageNavigation = (
   formik,
   fileUploadPageId
 ) => {
-  const store = useStore();
-  const formPages = store.getState().deposit?.config?.common_fields?.find(
-    (item) => item.component === "FormPages"
-  )?.subsections ?? [];
+  const visibleFormPages = formUIState?.visibleFormPages ?? [];
+  const visibleFormPagesRef = useRef(visibleFormPages);
+  visibleFormPagesRef.current = visibleFormPages;
 
-  const pagesWithErrors = useMemo(
-    () => getPagesWithErrors(formUIState ?? {}),
-    [formUIState]
-  );
+  const pagesWithErrors = useMemo(() => getPagesWithErrors(formUIState ?? {}), [formUIState]);
   const { currentFormPage, currentFormPageFields } = formUIState ?? {};
   const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
 
-  const formPageSlugs = formPages.map(({ section }) => section);
-  const pageNums = formPages.map(({ section }) => section);
+  const formPageSlugs = visibleFormPages.map(({ section }) => section);
+  const pageNums = visibleFormPages.map(({ section }) => section);
   const currentPageIndex = pageNums.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
   const previousPageIndex = currentPageIndex - 1;
@@ -61,28 +87,27 @@ const useFormPageNavigation = (
   }
 
   function handleFormPageParam() {
+    const slugs = visibleFormPagesRef.current.map(({ section }) => section);
     const urlParams = new URLSearchParams(window.location.search);
     let urlFormPage = urlParams.get("page");
 
     // Support aliases for first/last page to avoid hard-coding page ids
     if (urlFormPage === "first") {
-      urlFormPage = formPageSlugs[0] ?? null;
+      urlFormPage = slugs[0] ?? null;
     } else if (urlFormPage === "last") {
-      urlFormPage = formPageSlugs[formPageSlugs.length - 1] ?? null;
+      urlFormPage = slugs[slugs.length - 1] ?? null;
     }
 
-    if (!!urlFormPage && formPageSlugs.includes(urlFormPage)) {
+    if (!!urlFormPage && slugs.includes(urlFormPage)) {
       dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload: urlFormPage });
     } else {
-      // Default to first page slug if available
-      urlFormPage = formPageSlugs[0] ?? null;
+      // Default to first visible page slug if available
+      urlFormPage = slugs[0] ?? null;
     }
     return urlFormPage;
   }
 
   useEffect(() => {
-    const startingParam = handleFormPageParam();
-    setFormPageInHistory(startingParam);
     window.addEventListener("popstate", handleFormPageParam);
     return () => {
       window.removeEventListener("popstate", handleFormPageParam);
@@ -91,6 +116,38 @@ const useFormPageNavigation = (
       }
     };
   }, []);
+
+  const urlSyncedWithVisiblePages = useRef(false);
+  useEffect(() => {
+    if (!visibleFormPages.length) {
+      urlSyncedWithVisiblePages.current = false;
+      return;
+    }
+    if (!urlSyncedWithVisiblePages.current) {
+      urlSyncedWithVisiblePages.current = true;
+      const startingParam = handleFormPageParam();
+      setFormPageInHistory(startingParam);
+    }
+  }, [visibleFormPages]);
+
+  /**
+   * If `currentFormPage` is not in `visibleFormPages` (e.g. resource type hid that placeholder page),
+   * switch to the first visible page and rewrite `?page=` with replaceState (no extra history entry).
+   */
+  useEffect(() => {
+    if (!visibleFormPages.length) return;
+    if (visibleFormPages.some((p) => p.section === currentFormPage)) return;
+    const first = visibleFormPages[0].section;
+    dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload: first });
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has("page")) {
+      urlParams.append("page", first);
+    } else {
+      urlParams.set("page", first);
+    }
+    const newURL = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+    window.history.replaceState("fake-route", document.title, newURL);
+  }, [visibleFormPages, currentFormPage, dispatch]);
 
   function handlePageChangeCancel() {
     setConfirmingPageChange(false);

@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from "react";
-import { useStore } from "react-redux";
 import { Button, Label, Step } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
@@ -13,11 +12,8 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * accepts classnames and other props from subsection config.
  */
 const FormStepper = ({ classnames, ...props }) => {
-  const store = useStore();
-  const formPages = store.getState().deposit?.config?.common_fields?.find(
-    (item) => item.component === "FormPages"
-  )?.subsections ?? [];
   const ctx = useContext(FormUIStateContext);
+  const formPages = ctx?.formUIState?.visibleFormPages ?? [];
   const formUIState = ctx?.formUIState ?? {};
   const pageCounts = useMemo(
     () => getPageFlaggedErrorCounts(formUIState),
@@ -34,12 +30,12 @@ const FormStepper = ({ classnames, ...props }) => {
         fluid={true}
         size="small"
       >
-        {formPages.map(({ section, label }, index) => {
+        {formPages.map(({ section, label }) => {
           const counts = pageCounts[section];
           const severityClass = counts?.severity ? `has-${counts.severity}` : "";
           return (
             <Step
-              key={index}
+              key={section}
               as={Button}
               active={currentFormPage === section}
               link

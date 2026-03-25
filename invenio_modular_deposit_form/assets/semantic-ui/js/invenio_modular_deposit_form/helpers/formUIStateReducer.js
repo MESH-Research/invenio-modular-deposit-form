@@ -9,6 +9,8 @@
  * - currentFormPageFields: resolved Formik field paths per page for current type { [pageId]: string[] }.
  * - currentResourceType: current resource type id.
  * - currentTypeFields: layout config for the current resource type { [pageId]: subsectionConfig[] }.
+ * - visibleFormPages: pages with non-empty merged subsections for the active layout. Same shape as the
+ *     array of FormPage component definitions in MODULAR_DEPOSIT_FORM_COMMON_FIELDS.
  * - sectionErrorsFlagged: flat list of section entries for "flagged" errors only (touched + initial-to-flag).
  *   Used by stepper, sidebar, section headers. Same shape as sectionErrorsAll.
  * - sectionErrorsAll: flat list of section entries for any error (client + initial/unchanged).
@@ -23,6 +25,7 @@ const FORM_UI_ACTION = {
   SET_SECTION_ERRORS_ALL: "SET_SECTION_ERRORS_ALL",
   SET_CURRENT_RESOURCE_TYPE: "SET_CURRENT_RESOURCE_TYPE",
   SET_CURRENT_TYPE_FIELDS: "SET_CURRENT_TYPE_FIELDS",
+  SET_VISIBLE_FORM_PAGES: "SET_VISIBLE_FORM_PAGES",
   SET_CURRENT_FORM_PAGE_FIELDS: "SET_CURRENT_FORM_PAGE_FIELDS",
 };
 
@@ -31,32 +34,34 @@ const defaultState = {
   currentFormPageFields: {},
   currentResourceType: "",
   currentTypeFields: {},
+  visibleFormPages: [],
   sectionErrorsFlagged: [],
   sectionErrorsAll: [],
 };
 
 /**
  * Build initial form UI state from form pages config and resource type config.
- * Sets currentFormPage to the first page's section id and currentTypeFields from fieldsByType.
+ * visibleFormPages stays empty until useCurrentResourceTypeFields dispatches SET_VISIBLE_FORM_PAGES.
+ * currentFormPage is the first configured page id (provisional until visibility sync effects run).
  *
  * @param {Array} formPages - form pages from deposit config (common_fields FormPages subsections)
  * @param {string} defaultResourceType - initial resource type id
  * @param {Object} fieldsByType - resource type id -> { [pageId]: subsectionConfig[] }
  * @returns {Object} initial state for formUIStateReducer
  */
-function getInitialFormUIState(formPages, defaultResourceType, fieldsByType) {
-  const firstSection = formPages[0]?.section ?? "";
+function getInitialFormUIState(formPages = [], defaultResourceType, fieldsByType = {}) {
   return {
     ...defaultState,
-    currentFormPage: firstSection,
+    currentFormPage: formPages[0]?.section ?? "",
     currentResourceType: defaultResourceType ?? "",
-    currentTypeFields: fieldsByType?.[defaultResourceType] ?? {},
+    currentTypeFields: fieldsByType[defaultResourceType] ?? {},
   };
 }
 
 /**
  * Reducer for form UI state. Handles: SET_CURRENT_FORM_PAGE, SET_SECTION_ERRORS_FLAGGED,
- * SET_SECTION_ERRORS_ALL, SET_CURRENT_RESOURCE_TYPE, SET_CURRENT_TYPE_FIELDS, SET_CURRENT_FORM_PAGE_FIELDS.
+ * SET_SECTION_ERRORS_ALL, SET_CURRENT_RESOURCE_TYPE, SET_CURRENT_TYPE_FIELDS, SET_VISIBLE_FORM_PAGES,
+ * SET_CURRENT_FORM_PAGE_FIELDS.
  */
 function formUIStateReducer(state, action) {
   switch (action.type) {
@@ -69,7 +74,9 @@ function formUIStateReducer(state, action) {
     case FORM_UI_ACTION.SET_CURRENT_RESOURCE_TYPE:
       return { ...state, currentResourceType: action.payload };
     case FORM_UI_ACTION.SET_CURRENT_TYPE_FIELDS:
-      return { ...state, currentTypeFields: action.payload };
+      return { ...state, currentTypeFields: action.payload ?? {} };
+    case FORM_UI_ACTION.SET_VISIBLE_FORM_PAGES:
+      return { ...state, visibleFormPages: action.payload ?? [] };
     case FORM_UI_ACTION.SET_CURRENT_FORM_PAGE_FIELDS:
       return { ...state, currentFormPageFields: action.payload };
     default:
@@ -131,13 +138,7 @@ function getPageFlaggedErrorCounts(formUIState) {
     const rec = out[page];
     const total = rec.errors + rec.warnings + rec.info;
     rec.severity =
-      total === 0
-        ? null
-        : rec.errors > 0
-          ? "error"
-          : rec.warnings > 0
-            ? "warning"
-            : "info";
+      total === 0 ? null : rec.errors > 0 ? "error" : rec.warnings > 0 ? "warning" : "info";
   }
   return out;
 }
@@ -217,4 +218,4 @@ export {
   getPagesWithErrors,
   getPagesWithFlaggedErrors,
   getPageFlaggedErrorCounts,
-}
+};

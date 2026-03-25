@@ -108,6 +108,12 @@ Each item in `subsections` is a **page** of the form with component value `"Form
 
 If multiple pages are provided, include **FormStepper** in the FormHeader region and optionally **FormPageNavigationBar** in the FormFooter and **FormSidebarPageMenu** in the FormLeftSidebar. The `label` attributes of each page dictionary are used in the stepper and sidebar menu.
 
+#### Optional pages and resource types
+
+The set of page ids is fixed in **common** `FormPages` `subsections`, but you can reserve pages that only some resource types need by giving those pages **`subsections: []`** in the common layout (each page must still be a `FormPage` entry with a stable `section` id and `label` for when it appears).
+
+For the **currently selected** resource type, the form merges common subsections with that type’s layout in `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` (`fields_by_type` in the deposit config API). **FormStepper**, **FormSidebarPageMenu**, footer **FormPageNavigationBar** (next/back), and the main page area only include pages whose **merged** subsection list is non-empty—after applying overrides and `same_as` references the same way as the main form body. Types with no override for a placeholder page therefore do not show that step; types that define subsections for that page id show it and use the common `label` in navigation unless overridden.
+
 ### Page layout components
 
 Each member of a page's `subsections` list is a top-level subdivision of that page. Three kinds of section components are provided: `FormSection`, `FormRow`, or a single field component.

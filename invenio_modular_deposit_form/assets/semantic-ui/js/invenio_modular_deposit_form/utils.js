@@ -99,6 +99,44 @@ function findPageIdContainingComponent(formPages, componentName) {
   return null;
 }
 
+/**
+ * Resolved subsections for one form page after applying resource-type layout overrides
+ * (`currentTypeFields` / `same_as`), matching {@link FormLayoutContainer}.
+ *
+ * @param {Object} page - Form page config (section, subsections, …)
+ * @param {Object} currentTypeFields - fields_by_type entry for active type
+ * @param {Object} fieldsByType - full fields_by_type map
+ * @returns {Array}
+ */
+function resolveFormPageSubsections(page, currentTypeFields, fieldsByType) {
+  const section = page?.section;
+  let actualSubsections = page?.subsections;
+  if (currentTypeFields && section && currentTypeFields[section]) {
+    actualSubsections = currentTypeFields[section];
+    const sameAs = actualSubsections?.[0]?.same_as;
+    if (sameAs) {
+      actualSubsections = fieldsByType[sameAs]?.[section];
+    }
+  }
+  return Array.isArray(actualSubsections) ? actualSubsections : [];
+}
+
+/**
+ * Pages that have at least one subsection after merging common layout with the given type layout.
+ * Empty placeholder pages (common + override) are omitted so the stepper and sidebar stay in sync
+ * with what is actually shown.
+ *
+ * @param {Array} formPages - FormPages subsection array from common_fields
+ * @param {Object} currentTypeFields - Active resource type layout slice
+ * @param {Object} fieldsByType - Full fields_by_type map (for same_as)
+ * @returns {Array<Object>} Filtered copy of page configs (same references as input items)
+ */
+function getVisibleFormPages(formPages, currentTypeFields, fieldsByType) {
+  return formPages.filter(
+    (p) => resolveFormPageSubsections(p, currentTypeFields, fieldsByType).length > 0
+  );
+}
+
 function getTouchedParent(touched, fieldPath) {
   // Leaf explicitly touched (same as stock’s first iteration when i === length).
   if (getIn(touched, fieldPath) === true) {
@@ -434,9 +472,11 @@ export {
   getReadableFields,
   getSeverityAtPath,
   getTouchedParent,
+  getVisibleFormPages,
   isNearViewportBottom,
   mergeNestedObjects,
   moveToArrayStart,
   pushToArrayEnd,
+  resolveFormPageSubsections,
   scrollTop,
 };
