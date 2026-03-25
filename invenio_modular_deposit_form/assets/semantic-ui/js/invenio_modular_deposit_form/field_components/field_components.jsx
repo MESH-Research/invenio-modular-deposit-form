@@ -57,7 +57,6 @@ import Overridable from "react-overridable";
 import { getTouchedParent, moveToArrayStart } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 import { RECORD_FIELD_ERROR_ROOTS } from "../constants";
-import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
 
 /**
  * Main description/abstract field (metadata.description). Replacement DescriptionsField (field_components).
@@ -343,8 +342,6 @@ const DoiComponent = ({ ...extraProps }) => {
 
 /**
  * File upload section (files). Uses stock FileUploader or UppyUploader.
- * `FeedbackLabel` for `files` with `hasSubfields` (not inside FileUploader) so nested messages
- * e.g. on `files.enabled` resolve from Formik `errors` / `initialErrors`.
  * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
  */
 const FileUploadComponent = ({ ...extraProps }) => {
@@ -357,20 +354,19 @@ const FileUploadComponent = ({ ...extraProps }) => {
   const showMetaOnly = extraProps.showMetadataOnlyToggle;
   const useUppy = config.use_uppy ?? false;
 
-  // Get flagged error state centrally for tooltip display/styles
-  const sectionErrorsByKey = getSectionErrorsBySectionKey(formUIState ?? {});
-  const sectionKey = `${formUIState?.currentFormPage ?? ""}\0${extraProps?.section ?? ""}`;
-  const sectionErrors = sectionErrorsByKey?.[sectionKey];
-  const fileErrorPaths = sectionErrors?.error_fields ?? [];
-  const hasFileError = fileErrorPaths.some((path) => path === "files" || path.startsWith("files."));
+  // Find error state to manually display error tooltip.
+  const pageId = formUIState?.currentFormPage ?? "";
+  const flagged = formUIState?.sectionErrorsFlagged ?? [];
+  const isFilesFieldPath = (p) => p === "files" || p.startsWith("files.");
+  const sectionErrors = flagged.find(
+    (e) => e.page === pageId && (e?.error_fields ?? []).some(isFilesFieldPath)
+  );
+  const fileErrorPaths = (sectionErrors?.error_fields ?? []).filter(isFilesFieldPath);
 
   // Manually set child paths touched when necessary to trigger FeedbackLabel display
   // (which depends on exact field match, not just parent field).
   useEffect(() => {
-    const flaggedFilePaths = fileErrorPaths.filter(
-      (path) => path === "files" || path.startsWith("files.")
-    );
-    flaggedFilePaths.forEach((path) => {
+    fileErrorPaths.forEach((path) => {
       if (_get(touched, path) !== true && getTouchedParent(touched, path)) {
         setFieldTouched(path, true, false);
       }
@@ -392,8 +388,8 @@ const FileUploadComponent = ({ ...extraProps }) => {
   return (
     <>
       <SyncFilesCountFromRedux />
-      {hasFileError && (
-        <div className={`field rel-mt-1${hasFileError ? " error" : ""}`} role="alert">
+      {fileErrorPaths.length > 0 && (
+        <div className="field rel-mt-1 error" role="alert">
           <FeedbackLabel fieldPath="files" pointing="below" hasSubfields />
         </div>
       )}
