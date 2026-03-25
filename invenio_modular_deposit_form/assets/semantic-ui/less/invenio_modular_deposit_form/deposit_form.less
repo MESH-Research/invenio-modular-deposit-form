@@ -172,17 +172,12 @@
       }
     }
 
-    // > .field {
-    // margin-bottom: 2em !important;
-
-    // &:has(> .field-label-class) {
-    //   margin-bottom: 0 !important;
-    // }
-    //
-    // &.title-field {
-    //   margin-bottom: 0 !important;
-    // }
-    // }
+    & > .invenio-field-wrapper:last-child,
+    & > .invenio-group-field:last-child {
+      .field {
+        margin-bottom: 0.5em !important;
+      }
+    }
 
     .invenio-field-wrapper {
       &.files-field {
@@ -237,6 +232,8 @@
     }
 
     .fields.invenio-group-field {
+      margin-bottom: 0;
+
       .invenio-text-input-field {
         label.helptext {
           margin-top: 0;

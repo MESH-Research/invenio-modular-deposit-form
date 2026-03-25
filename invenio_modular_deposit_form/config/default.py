@@ -437,10 +437,13 @@ FIELDS_BY_TYPE_DEFAULT_PAGED = {
                 "subsections": [
                     {
                         "component": "FormRow",
+                        "classnames": "equal width",
                         "subsections": [
                             {
-                                "section": "publisher",
+                                "section": "book_title",
                                 "component": "BookTitleComponent",
+                                "label": "Book Title",
+                                "icon": "book",
                             },
                         ],
                     },
@@ -461,12 +464,10 @@ FIELDS_BY_TYPE_DEFAULT_PAGED = {
                             {
                                 "section": "book_pages",
                                 "component": "TotalPagesComponent",
-                                "classnames": "eight wide",
                             },
                             {
                                 "section": "isbn",
                                 "component": "ISBNComponent",
-                                "classnames": "six wide",
                             },
                         ],
                     },
