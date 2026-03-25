@@ -16,6 +16,11 @@
 @negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
 
 #rdm-deposit-form {
+  /* Error tooltips */
+  .ui[class*="pointing above"].label {
+    margin-bottom: 0.5em;
+  }
+
   /* Sticky footer */
   .sticky-footer-fixed {
     position: fixed;
@@ -85,9 +90,11 @@
         border-color: #2185d0;
       }
     }
-
     .upload-form-stepper-badges {
-      margin-left: 0.5em;
+      position: absolute;
+      top: 4em;
+      width: 100%;
+      left: 0;
 
       .ui.label {
         margin-left: 0.25em;
