@@ -37,6 +37,10 @@
   // }
 
   .upload-form-pager {
+    .upload-form-stepper-step .title {
+      line-height: 1.25em;
+    }
+
     /* Stepper severity: error, warning, info. Badges replace exclamation icon. */
     .upload-form-stepper-step.has-error {
       color: @errorColor;
@@ -103,31 +107,35 @@
   }
 
   .deposit-form-sidebar-menu {
-    /* Sidebar menu severity: error, warning, info. Badges replace exclamation icon. */
-    .item.has-error {
-      border-left: 3px solid @negativeBorderColor;
-      background-color: @negativeBackgroundColor;
-    }
+    .item {
+      line-height: 1.25em;
 
-    .item.has-warning {
-      border-left: 3px solid #f2711c;
-      background-color: #fff8e6;
-    }
+      /* Sidebar menu severity: error, warning, info. Badges replace exclamation icon. */
+      &.has-error {
+        border-left: 3px solid @negativeBorderColor;
+        background-color: @negativeBackgroundColor;
+      }
 
-    .item.has-info {
-      border-left: 3px solid #2185d0;
-      background-color: #e8f4fc;
-    }
+      &.has-warning {
+        border-left: 3px solid #f2711c;
+        background-color: #fff8e6;
+      }
 
-    .deposit-form-sidebar-menu-badges {
-      position: absolute;
-      left: -5em;
+      &.has-info {
+        border-left: 3px solid #2185d0;
+        background-color: #e8f4fc;
+      }
 
-      .ui.label {
-        margin-left: 0.25em;
-        position: relative;
-        top: -0.15em;
-        min-width: 5.5em;
+      .deposit-form-sidebar-menu-badges {
+        position: absolute;
+        left: -5em;
+
+        .ui.label {
+          margin-left: 0.25em;
+          position: relative;
+          top: -0.15em;
+          min-width: 5.5em;
+        }
       }
     }
   }
