@@ -52,10 +52,10 @@ const FieldsContent = ({
       show_heading={props.show_heading}
       classnames={props.classnames}
     >
-      <MyField key={index} {...props} />
+      <MyField key={index} section={section} {...props} />
     </FormSection>
   ) : (
-    <MyField key={index} {...props} />
+    <MyField key={index} section={section} {...props} />
   );
 };
 

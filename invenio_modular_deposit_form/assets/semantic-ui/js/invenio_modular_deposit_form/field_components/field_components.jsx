@@ -343,9 +343,8 @@ const DoiComponent = ({ ...extraProps }) => {
 
 /**
  * File upload section (files). Uses stock FileUploader or UppyUploader.
- * `FeedbackLabel` for `files` / `files.enabled` is rendered here (not inside FileUploader) so messages
- * come from Formik `errors` / `initialErrors` (schema + server merge). Nested errors on `files.enabled`
- * require a label for that path, not only `files`.
+ * `FeedbackLabel` for `files` with `hasSubfields` (not inside FileUploader) so nested messages
+ * e.g. on `files.enabled` resolve from Formik `errors` / `initialErrors`.
  * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
  */
 const FileUploadComponent = ({ ...extraProps }) => {
@@ -395,8 +394,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
       <SyncFilesCountFromRedux />
       {hasFileError && (
         <div className={`field rel-mt-1${hasFileError ? " error" : ""}`} role="alert">
-          <FeedbackLabel fieldPath="files.enabled" pointing="below" />
-          <FeedbackLabel fieldPath="files" pointing="below" />
+          <FeedbackLabel fieldPath="files" pointing="below" hasSubfields />
         </div>
       )}
       <FieldComponentWrapper componentName="FileUploader" fieldPath="files" {...extraProps}>
