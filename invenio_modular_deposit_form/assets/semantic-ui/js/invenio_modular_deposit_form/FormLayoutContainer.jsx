@@ -214,7 +214,7 @@ const FormLayoutContainer = () => {
               ["draft", "draft_with_review"].includes(record?.status) ? "Draft " : "Published "
             }Work`)}
                 </h1>
-                {!!selectedCommunityLabel && (
+                {!!selectedCommunityLabel && !config?.show_community_banner_at_top && (
                   <h2 className="ui header preselected-community-header">
                     for {selectedCommunityLabel}
                   </h2>
