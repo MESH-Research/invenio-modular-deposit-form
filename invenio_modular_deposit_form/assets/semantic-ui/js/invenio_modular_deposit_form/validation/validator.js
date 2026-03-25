@@ -290,7 +290,7 @@ function buildValidationSchema(config = {}) {
 
   return yupObject().shape({
     files: yupObject().shape({
-      enabled: yupBoolean().test("files-enabled-check", i18next.t("Add uploaded files or choose 'Metadata-only record'"), function (value) {
+      enabled: yupBoolean().test("files-enabled-check", i18next.t("Missing uploaded files. To disable files for this record please mark it as metadata-only."), function (value) {
             if ((this.parent.count === 0 || !this.parent.count) && value === true) {
               return false;
             } else {

@@ -100,17 +100,23 @@ function findPageIdContainingComponent(formPages, componentName) {
 }
 
 function getTouchedParent(touched, fieldPath) {
+  // Leaf explicitly touched (same as stock’s first iteration when i === length).
+  if (getIn(touched, fieldPath) === true) {
+    return true;
+  }
   const fieldParts = fieldPath.split(".");
-  let touchedAncestor = false;
-
-  for (let i = fieldParts.length; i > 1; i--) {
-    let currentPath = fieldParts.slice(0, i).join(".");
+  if (fieldParts.length < 2) {
+    return false;
+  }
+  // Any strict prefix path touched as boolean (e.g. `files` for `files.enabled`).
+  // The old loop used i === length first, so for two-segment paths it never checked `files` alone.
+  for (let i = fieldParts.length - 1; i >= 1; i--) {
+    const currentPath = fieldParts.slice(0, i).join(".");
     if (getIn(touched, currentPath) === true) {
-      touchedAncestor = true;
-      break;
+      return true;
     }
   }
-  return touchedAncestor;
+  return false;
 }
 
 function getErrorParent(errors, fieldPath) {

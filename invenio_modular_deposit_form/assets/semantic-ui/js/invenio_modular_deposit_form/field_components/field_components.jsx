@@ -37,6 +37,7 @@ import {
   UppyUploader,
 } from "@js/invenio_rdm_records";
 import { FormUIStateContext } from "../FormLayoutContainer";
+import { SyncFilesCountFromRedux } from "../helpers/SyncFilesCountFromRedux";
 import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
 import {
@@ -351,8 +352,9 @@ const DoiComponent = ({ ...extraProps }) => {
 
 /**
  * File upload section (files). Uses stock FileUploader or UppyUploader.
- * Root `FeedbackLabel` for `files` is rendered here (not inside FileUploader) so messages
- * come only from Formik `errors` / `initialErrors`, i.e. the shared validation schema + server merge.
+ * `FeedbackLabel` for `files` / `files.enabled` is rendered here (not inside FileUploader) so messages
+ * come from Formik `errors` / `initialErrors` (schema + server merge). Nested errors on `files.enabled`
+ * require a label for that path, not only `files`.
  * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
  */
 const FileUploadComponent = ({ ...extraProps }) => {
@@ -376,6 +378,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
 
   return (
     <>
+      <SyncFilesCountFromRedux />
       <FieldComponentWrapper
         componentName="FileUploader"
         fieldPath="files"
@@ -388,6 +391,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
         )}
       </FieldComponentWrapper>
       <div className="rel-mt-1" role="alert">
+        <FeedbackLabel fieldPath="files.enabled" pointing="below" />
         <FeedbackLabel fieldPath="files" pointing="below" />
       </div>
     </>

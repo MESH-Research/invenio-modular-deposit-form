@@ -172,6 +172,11 @@ describe('getTouchedParent', () => {
     const touched = { metadata: { creators: true } };
     expect(getTouchedParent(touched, 'metadata.creators.0.name')).toBe(true);
   });
+
+  test('returns true when root `files` is touched but not `files.enabled` (nested error path)', () => {
+    const touched = { files: true };
+    expect(getTouchedParent(touched, 'files.enabled')).toBe(true);
+  });
 });
 
 describe('getErrorParent', () => {
