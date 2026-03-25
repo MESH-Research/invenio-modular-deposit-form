@@ -105,7 +105,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
             },
             {
                 "section": "2",
-                "label": "Basic",
+                "label": "Basic Information",
                 "subsections": [
                     {
                         "section": "basic-info",
@@ -164,7 +164,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
                 "subsections": [
                     {
                         "section": "recommended",
-                        "label": "Recommended Information",
+                        "label": "Recommended",
                         "component": "FormSection",
                         "classnames": "basic",
                         "subsections": [
@@ -204,6 +204,12 @@ COMMON_FIELDS_DEFAULT_PAGED = [
             },
             {
                 "section": "4",
+                "label": "Additional",
+                "component": "FormPage",
+                "subsections": [],
+            },
+            {
+                "section": "5",
                 "label": "Funding and Related",
                 "component": "FormPage",
                 "subsections": [
@@ -460,21 +466,6 @@ FIELDS_BY_TYPE_DEFAULT_PAGED = {
                         ],
                     },
                 ],
-            },
-            {
-                "section": "funding",
-                "label": "Funding",
-                "component": "FundingComponent",
-            },
-            {
-                "section": "alternate_identifiers",
-                "label": "Alternate Identifiers",
-                "component": "AlternateIdentifiersComponent",
-            },
-            {
-                "section": "related_works",
-                "label": "Related Works",
-                "component": "RelatedWorksComponent",
             },
         ]
     },
