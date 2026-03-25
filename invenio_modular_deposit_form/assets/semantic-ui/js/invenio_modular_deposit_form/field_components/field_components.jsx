@@ -16,7 +16,7 @@ import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
-import { FeedbackLabel } from "react-invenio-forms";
+import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
 import { useStore } from "react-redux";
 import {
   AccessRightField,
@@ -385,8 +385,12 @@ const FileUploadComponent = ({ ...extraProps }) => {
     ...(config.file_modification != null && { fileModification: config.file_modification }),
   };
 
+  const fileFieldLabel = extraProps.label ?? i18next.t("File upload");
+  const fileFieldIcon = extraProps.icon ?? extraProps.labelIcon;
+
   return (
     <>
+      <FieldLabel htmlFor="files" icon={fileFieldIcon} label={fileFieldLabel} />
       <SyncFilesCountFromRedux />
       {fileErrorPaths.length > 0 && (
         <div className="field rel-mt-1 error" role="alert">
