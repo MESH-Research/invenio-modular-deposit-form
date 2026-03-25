@@ -511,9 +511,57 @@ FIELDS_BY_TYPE_DEFAULT_PAGED = {
     "model": {},
     "video": {},
     "audio": {},
-    "software": {},
+    "software": {
+        "4": [
+            {
+                "section": "image_details",
+                "component": "FormSection",
+                "label": "Software Details",
+                "icon": "group",
+                "show_heading": True,
+                "subsections": [
+                    {
+                        "component": "FormRow",
+                        "subsections": [
+                            {
+                                "section": "code_repository",
+                                "component": "CodeRepositoryComponent",
+                                "icon": "github",
+                            },
+                        ],
+                        "classnames": "equal width",
+                    },
+                    {
+                        "component": "FormRow",
+                        "subsections": [
+                            {
+                                "section": "development_status",
+                                "component": "CodeDevelopmentStatusComponent",
+                                "icon": "heartbeat",
+                                "placeholder": "",
+                            },
+                        ],
+                        "classnames": "equal width",
+                    },
+                    {
+                        "component": "FormRow",
+                        "subsections": [
+                            {
+                                "section": "programming_language",
+                                "component": "CodeProgrammingLanguageComponent",
+                                "icon": "code",
+                                "label": "Programming languages",
+                                "placeholder": "e.g., Python, JavaScript, R",
+                            },
+                        ],
+                        "classnames": "equal width",
+                    },
+                ],
+            },
+        ]
+    },
     "lesson": {},
-    "software-computationalnotebook": {},
+    "software-computationalnotebook": {"4": [{"same_as": "software"}]},
     "other": {},
     "physicalobject": {},
     "workflow": {},
