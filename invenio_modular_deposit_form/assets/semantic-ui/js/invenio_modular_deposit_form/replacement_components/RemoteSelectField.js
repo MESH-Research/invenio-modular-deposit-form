@@ -8,6 +8,12 @@
 // Invenio-Modular-Deposit-Form and React-Invenio-Deposit are free software;
 // you can redistribute them and/or modify them under the terms of the MIT License;
 // see the LICENSE file for more details.
+//
+// Differences from stock react-invenio-forms RemoteSelectField:
+// - Uses local replacement SelectField import.
+// - Preserves className/classnames passthrough for local styling hooks.
+// - Syncs selected suggestions to formik.values.ui.<fieldPath> on add/change so
+//   initialSuggestions can rehydrate readable labels on remount/recovery.
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
@@ -226,7 +232,9 @@ class RemoteSelectField extends Component {
       return { compProps, uiProps };
     };
 
-    const initial = props.initialSuggestions ? props.serializeSuggestions(props.initialSuggestions) : [];
+    const initial = props.initialSuggestions
+      ? props.serializeSuggestions(props.initialSuggestions)
+      : [];
     this.state = {
       isFetching: false,
       suggestions: initial,
@@ -272,6 +280,8 @@ class RemoteSelectField extends Component {
             if (compProps.onValueChange) {
               compProps.onValueChange({ event, data, formikProps }, selectedSuggestions);
             }
+            // to preserve readable labels for hydration on remount
+            formikProps.form.setFieldValue(`ui.${compProps.fieldPath}`, selectedSuggestions);
           });
         }}
         onChange={({ event, data, formikProps }) => {
@@ -281,6 +291,8 @@ class RemoteSelectField extends Component {
             } else {
               formikProps.form.setFieldValue(compProps.fieldPath, data.value);
             }
+            // to preserve readable labels for hydration on remount
+            formikProps.form.setFieldValue(`ui.${compProps.fieldPath}`, selectedSuggestions);
           });
         }}
         loading={isFetching}

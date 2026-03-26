@@ -8,6 +8,8 @@ export * from "./Input";
 // Top-level core replacement widgets:
 // - SelectField / Dropdown / AutocompleteDropdown / TextField / TextArea
 // - RemoteSelectField / MultiInput
+// - RemoteSelectField keeps ui.<fieldPath> selected label cache in sync on
+//   add/change for initialSuggestions rehydration across remount/recovery.
 export * from "./SelectField";
 export * from "./Dropdown";
 export * from "./AutocompleteDropdown";
