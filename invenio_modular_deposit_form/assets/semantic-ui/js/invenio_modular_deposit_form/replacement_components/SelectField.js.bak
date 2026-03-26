@@ -24,7 +24,7 @@ const SelectField = ({
   noResultsMessage = "No results found.",
   required = false,
   selectOnBlur = false,
-  showLabel= true,
+  showLabel = true,
   width = undefined,
   ...otherProps
 }) => {
@@ -69,19 +69,17 @@ const SelectField = ({
   const useCustomLabelNode = React.isValidElement(labelFromProps);
 
   // TODO: implement extraRequiredFields, priorityFieldValues and defaultFieldValue
-   return (
+  return (
     <FormikField name={fieldPath} fieldPath={fieldPath} as="select" {...uiProps}>
-      {({
-        field, // { name, value, onChange, onBlur }
-        form: { touched, errors, handleBlur, values, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, initialValues, initialErrors, etc.
-        meta,
-      }) => {
+      {({ field, form: { touched, errors, handleBlur, values, setFieldValue }, meta }) => {
         const _defaultValue = defaultValue || (multiple ? [] : "");
-        const formikProps = { field, form: {touched, errors, values, setFieldValue}, meta };
-        const showError = (!!meta.error && !!meta.touched ||
-                !!error ||
-                (field.value === meta.initialValue) && !!meta.initialError
-              ) ? true : false;
+        const formikProps = { field, form: { touched, errors, values, setFieldValue }, meta };
+        const showError =
+          (!!meta.error && !!meta.touched) ||
+          !!error ||
+          (field.value === meta.initialValue && !!meta.initialError)
+            ? true
+            : false;
 
         return (
           <Form.Field
@@ -110,7 +108,7 @@ const SelectField = ({
             <Dropdown
               id={fieldPath}
               {...((!!description || !!helpText) && {
-                "aria-describedby": `${fieldPath}.helptext`
+                "aria-describedby": `${fieldPath}.helptext`,
               })}
               aria-labelledby={`${fieldPath}.label`}
               fluid
@@ -123,15 +121,15 @@ const SelectField = ({
               // {...field}
               onBlur={handleBlur}
               onChange={(event, data) => {
-                if (onChange!==undefined) {
-                  onChange({event, data, formikProps});
+                if (onChange !== undefined) {
+                  onChange({ event, data, formikProps });
                 } else {
                   setFieldValue(fieldPath, data.value);
                 }
               }}
               onAddItem={(event, data) => {
                 if (onAddItem) {
-                  onAddItem({event, data, formikProps});
+                  onAddItem({ event, data, formikProps });
                 }
               }}
               options={options}
