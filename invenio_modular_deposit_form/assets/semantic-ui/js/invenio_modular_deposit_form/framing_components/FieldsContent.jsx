@@ -4,7 +4,7 @@ import { useStore } from "react-redux";
 import { Form } from "semantic-ui-react";
 import { FormSection } from "./FormSection";
 
-const FormRow = ({ subsections, classnames, ...props }) => {
+const FormRow = ({ subsections, component, classnames, ...props }) => {
   const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
   return (
     <Overridable
