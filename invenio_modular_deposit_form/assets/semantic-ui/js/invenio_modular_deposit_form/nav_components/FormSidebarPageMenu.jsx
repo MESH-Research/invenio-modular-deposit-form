@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { Header, Label, Menu } from "semantic-ui-react";
+import { Button, Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../FormLayoutContainer";
@@ -10,6 +10,9 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * Vertically stacked sidebar menu for stepping through form pages.
  * Menu items show severity-aware badges (error/warning/info counts) and
  * a severity class (has-error, has-warning, has-info).
+ *
+ * Items render as native buttons (Menu.Item as={Button}, type="button") so they
+ * participate in the normal tab order, like FormStepper steps.
  */
 const FormSidebarPageMenu = ({ classnames, ...props }) => {
   const ctx = useContext(FormUIStateContext);
@@ -40,10 +43,14 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
             return (
               <Menu.Item
                 key={section}
+                as={Button}
+                type="button"
+                formNoValidate
                 name={section}
                 active={currentFormPage === section}
                 className={severityClass}
-                onClick={(e, data) => handleFormPageChange(e, { value: data.name })}
+                aria-current={currentFormPage === section ? "page" : undefined}
+                onClick={(e) => handleFormPageChange(e, { value: section })}
               >
                 {hasBadges && (
                   <span className="deposit-form-sidebar-menu-badges">
