@@ -37,28 +37,31 @@ const FormSection = ({
   const warningCount = (sectionErrors?.warning_fields ?? []).length;
   const infoCount = (sectionErrors?.info_fields ?? []).length;
   const hasAny = errorCount > 0 || warningCount > 0 || infoCount > 0;
-  const severityClass = errorCount > 0 ? "error" : warningCount > 0 ? "warning" : infoCount > 0 ? "info" : "";
+  const severityClass =
+    errorCount > 0 ? "error" : warningCount > 0 ? "warning" : infoCount > 0 ? "info" : "";
 
-  const severityBadges =
-    hasAny && (
-      <span className="form-section-severity-badges">
-        {errorCount > 0 && (
-          <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
-            {errorCount} {getSeverityLabel("error")}{errorCount !== 1 ? "s" : ""}
-          </Label>
-        )}
-        {warningCount > 0 && (
-          <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
-            {warningCount} {getSeverityLabel("warning")}{warningCount !== 1 ? "s" : ""}
-          </Label>
-        )}
-        {infoCount > 0 && (
-          <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
-            {infoCount} {getSeverityLabel("info")}{infoCount !== 1 ? "s" : ""}
-          </Label>
-        )}
-      </span>
-    );
+  const severityBadges = hasAny && (
+    <span className="form-section-severity-badges">
+      {errorCount > 0 && (
+        <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
+          {errorCount} {getSeverityLabel("error")}
+          {errorCount !== 1 ? "s" : ""}
+        </Label>
+      )}
+      {warningCount > 0 && (
+        <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
+          {warningCount} {getSeverityLabel("warning")}
+          {warningCount !== 1 ? "s" : ""}
+        </Label>
+      )}
+      {infoCount > 0 && (
+        <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
+          {infoCount} {getSeverityLabel("info")}
+          {infoCount !== 1 ? "s" : ""}
+        </Label>
+      )}
+    </span>
+  );
 
   const sectionElementId = getFormSectionElementId(sectionName);
   const content = collapsible ? (
@@ -111,7 +114,7 @@ const FormSection = ({
         .join(" ")}
     >
       {show_heading && (
-        <legend className="field-label-class title invenio-field-label">
+        <legend className="field-label-class title invenio-field-label rel-mb-1">
           {!!icon && <Icon name={icon} />} {label}
           {severityBadges}
         </legend>
@@ -143,4 +146,3 @@ const FormSection = ({
 };
 
 export { FormSection };
-
