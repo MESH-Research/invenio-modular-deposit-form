@@ -12,6 +12,8 @@ but expose separate UI entries for each subfield so you can use the
 single-field components in the modular form layout.
 """
 
+from invenio_i18n import lazy_gettext as _
+
 THESIS_CUSTOM_FIELDS_UI = {
     "section": _("Thesis"),
     "fields": [

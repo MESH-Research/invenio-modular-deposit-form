@@ -56,7 +56,7 @@ IMPRINT_CUSTOM_FIELDS_UI = {
             "props": {
                 "label": _("Pages"),
                 "placeholder": "",
-                "description": _(""),
+                "description": "",
                 "icon": "copy",
             },
         },

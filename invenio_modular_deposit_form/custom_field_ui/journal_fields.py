@@ -24,9 +24,9 @@ JOURNAL_CUSTOM_FIELDS_UI = {
             "props": {
                 "label": _("Journal Title"),
                 "placeholder": "",
-                # "description": _(
-                #     "Title of the journal on which the article was published"
-                # ),
+                "description": _(
+                    "Title of the journal in which the article was published"
+                ),
             },
         },
         {

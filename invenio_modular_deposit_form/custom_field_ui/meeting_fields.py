@@ -11,8 +11,8 @@ These helpers mirror the default invenio-rdm-records meeting custom field,
 but expose separate UI entries for each subfield so you can use the
 single-field components (MeetingTitleComponent, MeetingAcronymComponent,
 MeetingDatesComponent, MeetingPlaceComponent, MeetingURLComponent,
-MeetingIdentifiersComponent, MeetingSessionComponent, MeetingSessionPartComponent) in the modular form
-layout.
+MeetingIdentifiersComponent, MeetingSessionComponent,
+MeetingSessionPartComponent) in the modular form layout.
 """
 
 from invenio_i18n import lazy_gettext as _
