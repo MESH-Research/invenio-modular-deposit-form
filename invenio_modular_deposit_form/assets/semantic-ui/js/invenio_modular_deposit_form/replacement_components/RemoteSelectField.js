@@ -281,7 +281,13 @@ class RemoteSelectField extends Component {
               compProps.onValueChange({ event, data, formikProps }, selectedSuggestions);
             }
             // to preserve readable labels for hydration on remount
-            formikProps.form.setFieldValue(`ui.${compProps.fieldPath}`, selectedSuggestions);
+            formikProps.form.setFieldValue(
+              `ui.${compProps.fieldPath}`,
+              selectedSuggestions.map((o) => ({
+                id: o.value,
+                title_l10n: o.text,
+              }))
+            );
           });
         }}
         onChange={({ event, data, formikProps }) => {
@@ -292,7 +298,13 @@ class RemoteSelectField extends Component {
               formikProps.form.setFieldValue(compProps.fieldPath, data.value);
             }
             // to preserve readable labels for hydration on remount
-            formikProps.form.setFieldValue(`ui.${compProps.fieldPath}`, selectedSuggestions);
+            formikProps.form.setFieldValue(
+              `ui.${compProps.fieldPath}`,
+              selectedSuggestions.map((o) => ({
+                id: o.value,
+                title_l10n: o.text,
+              }))
+            );
           });
         }}
         loading={isFetching}
