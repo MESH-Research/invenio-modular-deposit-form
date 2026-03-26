@@ -41,6 +41,7 @@ class DropdownComponent extends Component {
       disabled,
       optimized,
       allowAdditions,
+      ...dropdownProps
     } = this.props;
 
     const helpText = helpTextProp ?? description;
@@ -62,6 +63,7 @@ class DropdownComponent extends Component {
         helpText={helpText}
         optimized={optimized}
         allowAdditions={allowAdditions}
+        {...dropdownProps}
       />
     );
   }
