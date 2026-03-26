@@ -19,7 +19,7 @@ import { urlValidator } from "./validatorsForIds";
 
 addMethod(yupString, "isURL", urlValidator);
 
-customFieldsSchema = yupObject.shape({
+const customFieldsSchema = yupObject.shape({
   "code:codeRepository": yupString().isURL().notRequired(),
   "code:programmingLanguage": yupArray()
     .of(
