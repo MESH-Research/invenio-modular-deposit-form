@@ -16,10 +16,7 @@ import {
   date as yupDate,
 } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import {
-  DEFAULT_TITLE_MAX_LENGTH,
-  RDM_RECORD_ACCESS_LEVELS,
-} from "../constants";
+import { DEFAULT_TITLE_MAX_LENGTH, RDM_RECORD_ACCESS_LEVELS } from "../constants";
 import {
   getCreatorIdentifierSchemeIdsFromVocab,
   getLocationIdentifierSchemeIdsFromVocab,
@@ -28,7 +25,7 @@ import {
   validIdentifierForScheme,
   validRecordIdentifierForScheme,
 } from "./identifierSchemeValidators";
-import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
+import { SCHEME_ID_TO_VALIDATOR, urlValidator } from "./validatorsForIds";
 import {
   dateInSequence,
   edtfSingleDateValidator,
@@ -36,6 +33,7 @@ import {
   embargoConsistencyTest,
   isoDateStringValidator,
 } from "./validatorsForDates.js";
+import { customFieldsSchema } from "./customFieldsSchema.js";
 
 addMethod(yupString, "edtf", edtfValidator);
 addMethod(yupString, "edtfSingle", edtfSingleDateValidator);
@@ -88,36 +86,26 @@ const pidEntrySchema = yupObject()
       .when("provider", {
         is: "external",
         then: (schema) =>
-          schema.test(
-            "external-doi-format",
-            EXTERNAL_DOI_MESSAGE,
-            function (value) {
-              if (value == null || String(value).trim() === "") {
-                return true;
-              }
-              return yupString().doi(EXTERNAL_DOI_MESSAGE).isValidSync(value);
+          schema.test("external-doi-format", EXTERNAL_DOI_MESSAGE, function (value) {
+            if (value == null || String(value).trim() === "") {
+              return true;
             }
-          ),
+            return yupString().doi(EXTERNAL_DOI_MESSAGE).isValidSync(value);
+          }),
         otherwise: (schema) =>
           schema
-            .required(
-              i18next.t("An identifier is required for each persistent identifier.")
-            )
+            .required(i18next.t("An identifier is required for each persistent identifier."))
             .matches(/(?!\s).+/, {
               message: i18next.t("Identifier cannot be blank"),
             }),
       }),
     client: yupString(),
   })
-  .test(
-    "external-identifier-present",
-    EXTERNAL_DOI_MESSAGE,
-    function (value) {
-      if (!value || value.provider !== "external") return true;
-      const id = value.identifier;
-      return id != null && String(id).trim() !== "";
-    }
-  );
+  .test("external-identifier-present", EXTERNAL_DOI_MESSAGE, function (value) {
+    if (!value || value.provider !== "external") return true;
+    const id = value.identifier;
+    return id != null && String(id).trim() !== "";
+  });
 
 /**
  * Build the validation schema from deposit config.
@@ -156,9 +144,7 @@ function buildValidationSchema(config = {}) {
   });
 
   const recordIdentifiersShape = yupObject().shape({
-    scheme: yupString().required(
-      i18next.t("A scheme is required for each identifier")
-    ),
+    scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
     identifier: yupString()
       .required(i18next.t("A value is required for each identifier"))
       .validRecordIdentifierForScheme(recordSchemeIds)
@@ -169,9 +155,7 @@ function buildValidationSchema(config = {}) {
   });
 
   const locationIdentifiersShape = yupObject().shape({
-    scheme: yupString().required(
-      i18next.t("A scheme is required for each identifier")
-    ),
+    scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
     identifier: yupString()
       .required(i18next.t("A value is required for each identifier"))
       .validRecordIdentifierForScheme(locationSchemeIds)
@@ -211,26 +195,24 @@ function buildValidationSchema(config = {}) {
 
   const personOrOrgShape = yupObject().shape({
     type: yupString().required(i18next.t("A type is required")),
-    family_name: yupString()
-      .when("type", {
-        is: "personal",
-        then: (schema) =>
-          schema
-            .matches(/(?!\s).+/, i18next.t("Family name cannot be blank"))
-            .required(i18next.t("A family name is required")),
-      }),
+    family_name: yupString().when("type", {
+      is: "personal",
+      then: (schema) =>
+        schema
+          .matches(/(?!\s).+/, i18next.t("Family name cannot be blank"))
+          .required(i18next.t("A family name is required")),
+    }),
     given_name: yupString().matches(/(?!\s).+/, {
       disallowEmptyString: true,
       message: i18next.t("Given name cannot be spaces only"),
     }),
-    name: yupString()
-      .when("type", {
-        is: "organizational",
-        then: (schema) =>
-          schema
-            .matches(/(?!\s).+/, i18next.t("Name cannot be blank"))
-            .required(i18next.t("A name is required")),
-      }),
+    name: yupString().when("type", {
+      is: "organizational",
+      then: (schema) =>
+        schema
+          .matches(/(?!\s).+/, i18next.t("Name cannot be blank"))
+          .required(i18next.t("A name is required")),
+    }),
     identifiers: yupArray().of(creatorIdentifiersShape),
   });
 
@@ -244,10 +226,7 @@ function buildValidationSchema(config = {}) {
         .test(
           "id-or-name",
           i18next.t("An existing id or a free text name must be present."),
-          (val) =>
-            !val ||
-            !!String(val?.id ?? "").trim() ||
-            !!String(val?.name ?? "").trim()
+          (val) => !val || !!String(val?.id ?? "").trim() || !!String(val?.name ?? "").trim()
         )
     ),
     person_or_org: personOrOrgShape,
@@ -265,16 +244,11 @@ function buildValidationSchema(config = {}) {
         .test(
           "id-or-name",
           i18next.t("An existing id or a free text name must be present."),
-          (val) =>
-            !val ||
-            !!String(val?.id ?? "").trim() ||
-            !!String(val?.name ?? "").trim()
+          (val) => !val || !!String(val?.id ?? "").trim() || !!String(val?.name ?? "").trim()
         )
     ),
     person_or_org: personOrOrgShape,
-    role: yupString().required(
-      i18next.t("A role is required for each contributor")
-    ),
+    role: yupString().required(i18next.t("A role is required for each contributor")),
   });
 
   const additionalTitleTypeSchema = titleTypeValues.length
@@ -283,36 +257,37 @@ function buildValidationSchema(config = {}) {
 
   /** Mirrors `DateSchema` (`date` + `type` required); uses same `.edtf()` / `.dateInSequence()` as `publication_date`. */
   const additionalDateTypeSchema = dateTypeValues.length
-    ? yupString()
-        .required(i18next.t("A type is required for each date"))
-        .oneOf(dateTypeValues)
+    ? yupString().required(i18next.t("A type is required for each date")).oneOf(dateTypeValues)
     : yupString().required(i18next.t("A type is required for each date"));
 
   return yupObject().shape({
     files: yupObject().shape({
-      enabled: yupBoolean().test("files-enabled-check", i18next.t("Missing uploaded files. To disable files for this record please mark it as metadata-only."), function (value) {
-            if ((this.parent.count === 0 || !this.parent.count) && value === true) {
-              return false;
-            } else {
-              return true;
-            }
-          }),
+      enabled: yupBoolean().test(
+        "files-enabled-check",
+        i18next.t(
+          "Missing uploaded files. To disable files for this record please mark it as metadata-only."
+        ),
+        function (value) {
+          if ((this.parent.count === 0 || !this.parent.count) && value === true) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      ),
       count: yupNumber().notRequired(),
       total_bytes: yupNumber().notRequired(),
-
     }),
-    access: accessSchema, 
+    access: accessSchema,
     // Backend schema: `pids` is a dict of PID schemes (e.g. `pids: { doi: {...} }`).
     // Yup 0.32: `.optional()` on nested objects still validates missing keys; use `lazy`
     // so we only run `PIDSchema` when `pids.doi` is present (non-null).
     pids: yupObject()
       .shape({
-        doi: yupLazy((value) =>
-          value == null ? mixed().notRequired() : pidEntrySchema
-        ),
+        doi: yupLazy((value) => (value == null ? mixed().notRequired() : pidEntrySchema)),
       })
       .notRequired(),
-    custom_fields: yupObject().shape({}),
+    custom_fields: customFieldsSchema,
     metadata: yupObject()
       .shape({
         creators: yupArray()
@@ -323,9 +298,7 @@ function buildValidationSchema(config = {}) {
         identifiers: yupArray().of(recordIdentifiersShape),
         related_identifiers: yupArray().of(
           yupObject().shape({
-            scheme: yupString().required(
-              i18next.t("A scheme is required for each identifier")
-            ),
+            scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
             identifier: yupString()
               .required(i18next.t("A value is required for each identifier"))
               .validRecordIdentifierForScheme(recordSchemeIds)
@@ -358,57 +331,71 @@ function buildValidationSchema(config = {}) {
             description: yupString(),
           })
         ),
-      publisher: yupString(),
-      // Publisher is not required in form validation because a default value is set
-      // in the form before submission.
-      publication_date: yupString()
+        publisher: yupString(),
+        // Publisher is not required in form validation because a default value is set
+        // in the form before submission.
+        publication_date: yupString()
           .edtf()
           .dateInSequence()
           .required(i18next.t("A publication date is required")),
-      title: yupString()
-        .matches(/(?!\s).+/, i18next.t("Title cannot be blank"))
-        .min(1, i18next.t("Title must be at least 1 character"))
-        .max(titleMaxLength, i18next.t("Title must be at most {{count}} characters", { count: titleMaxLength }))
-        .required(i18next.t("A title is required")),
-      additional_titles: yupArray().of(
-        yupObject().shape({
-          title: yupString()
-            .matches(/(?!\s).+/, i18next.t("Title cannot be blank"))
-            .min(1, i18next.t("Title must be at least 1 character"))
-            .max(titleMaxLength, i18next.t("Title must be at most {{count}} characters", { count: titleMaxLength }))
-            .required(i18next.t("A title is required")),
-          type: additionalTitleTypeSchema,
-          lang: mixed().test("lang-format", i18next.t("Invalid language format"), function (value) {
-            if (!value) return true;
-            if (typeof value === 'string') return true;
-            if (typeof value === 'object' && value.id && value.title_l10n) return true;
-            return false;
-          }),
-        })
-      ),
-      // Formik stores the vocabulary id string (see stock `ResourceTypeField` / SelectField).
-      resource_type: yupString()
-        .required(i18next.t("A resource type is required"))
-        .matches(/(?!\s).+/, i18next.t("Resource type cannot be blank")),
-      description: yupString(),
-      additional_descriptions: yupArray().of(
-        yupObject().shape({
-          description: yupString()
-            .matches(/(?!\s).+/, i18next.t("Description cannot be blank"))
-            .required(i18next.t("Provide a description or remove this item")),
-          type: yupString().required(
-            i18next.t("A type is required for each additional description")
-          ),
-          lang: mixed().test("lang-format", i18next.t("Invalid language format"), function (value) {
-            if (!value) return true;
-            if (typeof value === 'string') return true;
-            if (typeof value === 'object' && value.id && value.title_l10n) return true;
-            return false;
-          }),
-        })
-      ),
-    })
-    .required(i18next.t("Some metadata is required")),
+        title: yupString()
+          .matches(/(?!\s).+/, i18next.t("Title cannot be blank"))
+          .min(1, i18next.t("Title must be at least 1 character"))
+          .max(
+            titleMaxLength,
+            i18next.t("Title must be at most {{count}} characters", { count: titleMaxLength })
+          )
+          .required(i18next.t("A title is required")),
+        additional_titles: yupArray().of(
+          yupObject().shape({
+            title: yupString()
+              .matches(/(?!\s).+/, i18next.t("Title cannot be blank"))
+              .min(1, i18next.t("Title must be at least 1 character"))
+              .max(
+                titleMaxLength,
+                i18next.t("Title must be at most {{count}} characters", { count: titleMaxLength })
+              )
+              .required(i18next.t("A title is required")),
+            type: additionalTitleTypeSchema,
+            lang: mixed().test(
+              "lang-format",
+              i18next.t("Invalid language format"),
+              function (value) {
+                if (!value) return true;
+                if (typeof value === "string") return true;
+                if (typeof value === "object" && value.id && value.title_l10n) return true;
+                return false;
+              }
+            ),
+          })
+        ),
+        // Formik stores the vocabulary id string (see stock `ResourceTypeField` / SelectField).
+        resource_type: yupString()
+          .required(i18next.t("A resource type is required"))
+          .matches(/(?!\s).+/, i18next.t("Resource type cannot be blank")),
+        description: yupString(),
+        additional_descriptions: yupArray().of(
+          yupObject().shape({
+            description: yupString()
+              .matches(/(?!\s).+/, i18next.t("Description cannot be blank"))
+              .required(i18next.t("Provide a description or remove this item")),
+            type: yupString().required(
+              i18next.t("A type is required for each additional description")
+            ),
+            lang: mixed().test(
+              "lang-format",
+              i18next.t("Invalid language format"),
+              function (value) {
+                if (!value) return true;
+                if (typeof value === "string") return true;
+                if (typeof value === "object" && value.id && value.title_l10n) return true;
+                return false;
+              }
+            ),
+          })
+        ),
+      })
+      .required(i18next.t("Some metadata is required")),
   });
 }
 
