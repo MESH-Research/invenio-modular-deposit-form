@@ -38,6 +38,7 @@ import {
   JournalVolumeComponent,
   MeetingAcronymComponent,
   MeetingDatesComponent,
+  MeetingIdentifiersComponent,
   MeetingPlaceComponent,
   MeetingSessionComponent,
   MeetingSessionPartComponent,
@@ -144,6 +145,10 @@ const componentsRegistry = {
   MeetingURLComponent: [
     MeetingURLComponent,
     ["custom_fields.meeting:meeting.url"],
+  ],
+  MeetingIdentifiersComponent: [
+    MeetingIdentifiersComponent,
+    ["custom_fields.meeting:meeting.identifiers"],
   ],
   PublisherComponent: [PublisherComponent, ["metadata.publisher"]],
   PublicationLocationComponent: [

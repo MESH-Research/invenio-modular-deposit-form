@@ -19,7 +19,7 @@ IMPRINT_CUSTOM_FIELDS_UI = {
     "fields": [
         {
             "field": "imprint:imprint.title",
-            "ui_widget": "ImprintTitleField",
+            "ui_widget": "Input",  # "ImprintTitleField",
             "template": "imprint.html",
             "props": {
                 "label": _("Book title"),
@@ -31,7 +31,7 @@ IMPRINT_CUSTOM_FIELDS_UI = {
         },
         {
             "field": "imprint:imprint.place",
-            "ui_widget": "ImprintPlaceField",
+            "ui_widget": "Input",  # "ImprintPlaceField",
             "template": "imprint.html",
             "props": {
                 "label": _("Place"),
@@ -41,7 +41,7 @@ IMPRINT_CUSTOM_FIELDS_UI = {
         },
         {
             "field": "imprint:imprint.isbn",
-            "ui_widget": "ImprintISBNField",
+            "ui_widget": "Input",  # "ImprintISBNField",
             "template": "imprint.html",
             "props": {
                 "label": _("ISBN"),
@@ -52,7 +52,7 @@ IMPRINT_CUSTOM_FIELDS_UI = {
         {
             "field": "imprint:imprint.pages",
             "ui_widget": "ImprintPagesField",
-            "template": "imprint.html",
+            "template": "Input",  # "imprint.html",
             "props": {
                 "label": _("Pages"),
                 "placeholder": "",
@@ -62,4 +62,3 @@ IMPRINT_CUSTOM_FIELDS_UI = {
         },
     ],
 }
-

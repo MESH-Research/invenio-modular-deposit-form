@@ -166,6 +166,16 @@ const MeetingURLComponent = ({ ...extraProps }) => (
   />
 );
 
+const MeetingIdentifiersComponent = ({ ...extraProps }) => (
+  <CustomField
+    fieldName="meeting:meeting.identifiers"
+    idString="MeetingIdentifiersField"
+    icon="barcode"
+    description={""}
+    {...extraProps}
+  />
+);
+
 const SectionPagesComponent = ({ ...extraProps }) => (
   <CustomField
     fieldName="journal:journal.pages"
@@ -276,6 +286,7 @@ export {
   MeetingSessionPartComponent,
   MeetingTitleComponent,
   MeetingURLComponent,
+  MeetingIdentifiersComponent,
   PublicationLocationComponent,
   SectionPagesComponent,
   ThesisDateDefendedComponent,

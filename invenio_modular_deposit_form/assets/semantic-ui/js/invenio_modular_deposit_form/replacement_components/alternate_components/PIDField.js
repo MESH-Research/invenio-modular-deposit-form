@@ -42,10 +42,7 @@ const DISCARD_PID_STARTED = "DISCARD_PID_STARTED";
 const RESERVE_PID_STARTED = "RESERVE_PID_STARTED";
 
 const getFieldErrors = (form, fieldPath) => {
-  return (
-    getIn(form.errors, fieldPath, null) ||
-    getIn(form.initialErrors, fieldPath, null)
-  );
+  return getIn(form.errors, fieldPath, null) || getIn(form.initialErrors, fieldPath, null);
 };
 
 /**
@@ -229,10 +226,7 @@ class ManagedIdentifierComponent extends Component {
       <ReservePIDBtn
         disabled={disabled || hasIdentifier}
         label={btnLabelGetPID}
-        loading={
-          actionState === RESERVE_PID_STARTED &&
-          actionStateExtra.pidType === pidType
-        }
+        loading={actionState === RESERVE_PID_STARTED && actionStateExtra.pidType === pidType}
         handleReservePID={this.handleReservePID}
       />
     );
@@ -242,10 +236,7 @@ class ManagedIdentifierComponent extends Component {
         disabled={disabled}
         label={btnLabelDiscardPID}
         handleDiscardPID={this.handleDiscardPID}
-        loading={
-          actionState === DISCARD_PID_STARTED &&
-          actionStateExtra.pidType === pidType
-        }
+        loading={actionState === DISCARD_PID_STARTED && actionStateExtra.pidType === pidType}
         pidType={pidType}
       />
     );
@@ -310,10 +301,7 @@ const mapStateToProps = (state) => ({
   actionStateExtra: state.deposit.actionStateExtra,
 });
 
-const ManagedIdentifierCmp = connect(
-  mapStateToProps,
-  null
-)(ManagedIdentifierComponent);
+const ManagedIdentifierCmp = connect(mapStateToProps, null)(ManagedIdentifierComponent);
 
 /**
  * Render identifier field to allow user to input
@@ -482,11 +470,7 @@ class CustomPIDField extends Component {
     return (
       <>
         <Form.Field required={false} error={fieldError}>
-          <FieldLabel
-            htmlFor={fieldPath}
-            icon={icon || pidIcon}
-            label={fieldLabel}
-          />
+          <FieldLabel htmlFor={fieldPath} icon={icon || pidIcon} label={fieldLabel} />
         </Form.Field>
 
         {this.canBeManagedAndUnmanaged && managedIdentifier === "" && (
@@ -585,9 +569,7 @@ export class PIDFieldAlternate extends Component {
   render() {
     const { fieldPath } = this.props;
 
-    return (
-      <FastField name={fieldPath} component={CustomPIDField} {...this.props} />
-    );
+    return <FastField name={fieldPath} component={CustomPIDField} {...this.props} />;
   }
 }
 

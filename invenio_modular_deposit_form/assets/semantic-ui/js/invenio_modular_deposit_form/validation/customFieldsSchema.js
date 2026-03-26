@@ -4,43 +4,72 @@
 // Invenio Modular Deposit Form is free software; you can redistribute and/or
 // modify it under the terms of the MIT License; see LICENSE file for more details.
 
-import {
-  addMethod,
-  array as yupArray,
-  boolean as yupBoolean,
-  lazy as yupLazy,
-  mixed,
-  number as yupNumber,
-  object as yupObject,
-  string as yupString,
-  date as yupDate,
-} from "yup";
-import { isbnValidator, urlValidator } from "./validatorsForIds";
+import { addMethod, array as yupArray, object as yupObject, string as yupString } from "yup";
+import { isbnValidator, issnValidator, urlValidator } from "./validatorsForIds";
+import { edtfSingleDateValidator } from "./validatorsForDates.js";
+import { validRecordIdentifierForScheme } from "./identifierSchemeValidators.js";
 
 addMethod(yupString, "isURL", urlValidator);
 addMethod(yupString, "isbn", isbnValidator);
-
-// Imprint shapes mirror invenio_rdm_records.contrib.imprint.custom_fields.ImprintCF
-// (SanitizedUnicode subfields; ISBN validated when non-empty).
-const imprintNestedShape = {
-  title: yupString().notRequired(),
-  isbn: yupString().isbn().notRequired(),
-  pages: yupString().notRequired(),
-  place: yupString().notRequired(),
-  edition: yupString().notRequired(),
-};
+addMethod(yupString, "issn", issnValidator);
+addMethod(yupString, "edtfSingle", edtfSingleDateValidator);
+addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
 const customFieldsSchema = yupObject().shape({
   "code:codeRepository": yupString().isURL().notRequired(),
   "code:programmingLanguage": yupArray().of(yupString()).notRequired(),
   "code:developmentStatus": yupString().notRequired(),
-  // Single-field imprint widgets (IMPRINT_CUSTOM_FIELDS_UI in imprint_fields.py)
-  "imprint:imprint.title": yupString().notRequired(),
-  "imprint:imprint.place": yupString().notRequired(),
-  "imprint:imprint.isbn": yupString().isbn().notRequired(),
-  "imprint:imprint.pages": yupString().notRequired(),
-  // Stock nested imprint object (IMPRINT_CUSTOM_FIELDS_UI single-block Imprint widget)
-  "imprint:imprint": yupObject().shape(imprintNestedShape).notRequired(),
+  "imprint:imprint": yupObject()
+    .shape({
+      title: yupString().notRequired(),
+      place: yupString().notRequired(),
+      isbn: yupString().isbn().notRequired(),
+      pages: yupString().notRequired(),
+    })
+    .notRequired(),
+  "journal:journal": yupObject()
+    .shape({
+      title: yupString().notRequired(),
+      volume: yupString().notRequired(),
+      issue: yupString().notRequired(),
+      pages: yupString().issn().notRequired(),
+      issn: yupString().notRequired(),
+    })
+    .notRequired(),
+  "thesis:thesis": yupObject()
+    .shape({
+      university: yupString().notRequired(),
+      department: yupString().notRequired(),
+      type: yupString().notRequired(),
+      date_submitted: yupString().edtfSingle().notRequired(),
+      date_defended: yupString().edtfSingle().notRequired(),
+    })
+    .notRequired(),
+  "meeting:meeting": yupObject()
+    .shape({
+      title: yupString().notRequired(),
+      acronym: yupString().notRequired(),
+      dates: yupString().notRequired(),
+      place: yupString().notRequired(),
+      url: yupString().isURL().notRequired(),
+      session: yupString().notRequired(),
+      session_part: yupString().notRequired(),
+      identifiers: yupArray()
+        .of(
+          yupObject().shape({
+            scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
+            identifier: yupString()
+              .required(i18next.t("A value is required for each identifier"))
+              .validRecordIdentifierForScheme(recordSchemeIds)
+              .matches(/(?!\s).+/, {
+                disallowEmptyString: true,
+                message: i18next.t("Identifier cannot be blank"),
+              }),
+          })
+        )
+        .notRequired(),
+    })
+    .notRequired(),
 });
 
 export { customFieldsSchema };

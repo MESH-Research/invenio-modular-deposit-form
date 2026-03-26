@@ -19,7 +19,7 @@ JOURNAL_CUSTOM_FIELDS_UI = {
     "fields": [
         {
             "field": "journal:journal.title",
-            "ui_widget": "JournalTitleField",
+            "ui_widget": "Input",  # "JournalTitleField",
             "template": "journal.html",
             "props": {
                 "label": _("Journal Title"),
@@ -31,7 +31,7 @@ JOURNAL_CUSTOM_FIELDS_UI = {
         },
         {
             "field": "journal:journal.volume",
-            "ui_widget": "JournalVolumeField",
+            "ui_widget": "Input",  # "JournalVolumeField",
             "template": "journal.html",
             "props": {
                 "label": _("Volume"),
@@ -41,7 +41,7 @@ JOURNAL_CUSTOM_FIELDS_UI = {
         },
         {
             "field": "journal:journal.issue",
-            "ui_widget": "JournalIssueField",
+            "ui_widget": "Input",  # "JournalIssueField",
             "template": "journal.html",
             "props": {
                 "label": _("Issue"),
@@ -51,7 +51,7 @@ JOURNAL_CUSTOM_FIELDS_UI = {
         },
         {
             "field": "journal:journal.pages",
-            "ui_widget": "JournalPagesField",
+            "ui_widget": "Input",  # "JournalPagesField",
             "template": "journal.html",
             "props": {
                 "label": _("Pages"),
@@ -61,7 +61,7 @@ JOURNAL_CUSTOM_FIELDS_UI = {
         },
         {
             "field": "journal:journal.issn",
-            "ui_widget": "JournalISSNField",
+            "ui_widget": "Input",  # "JournalISSNField",
             "template": "journal.html",
             "props": {
                 "label": _("ISSN"),
@@ -71,4 +71,3 @@ JOURNAL_CUSTOM_FIELDS_UI = {
         },
     ],
 }
-

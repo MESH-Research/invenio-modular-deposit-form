@@ -4,13 +4,14 @@
 # Invenio Modular Deposit Form is free software; you can redistribute it
 # and/or modify it under the terms of the MIT License; see LICENSE file for
 # more details.
+
 """UI configuration for meeting (conference) custom fields (single-field widgets).
 
 These helpers mirror the default invenio-rdm-records meeting custom field,
 but expose separate UI entries for each subfield so you can use the
 single-field components (MeetingTitleComponent, MeetingAcronymComponent,
 MeetingDatesComponent, MeetingPlaceComponent, MeetingURLComponent,
-MeetingSessionComponent, MeetingSessionPartComponent) in the modular form
+MeetingIdentifiersComponent, MeetingSessionComponent, MeetingSessionPartComponent) in the modular form
 layout.
 """
 
@@ -92,6 +93,13 @@ MEETING_CUSTOM_FIELDS_UI = {
                 "description": "",
             },
         },
+        {
+            "field": "meeting:meeting.identifiers",
+            "ui_widget": "MeetingIdentifiersField",
+            "template": "meeting.html",
+            "props": {
+                "label": _("Meeting identifiers"),
+            },
+        },
     ],
 }
-
