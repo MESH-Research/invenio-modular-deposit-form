@@ -33,7 +33,7 @@ import {
   embargoConsistencyTest,
   isoDateStringValidator,
 } from "./validatorsForDates.js";
-import { customFieldsSchema } from "./customFieldsSchema.js";
+import { buildCustomFieldsSchema } from "./customFieldsSchema.js";
 
 addMethod(yupString, "edtf", edtfValidator);
 addMethod(yupString, "edtfSingle", edtfSingleDateValidator);
@@ -287,7 +287,7 @@ function buildValidationSchema(config = {}) {
         doi: yupLazy((value) => (value == null ? mixed().notRequired() : pidEntrySchema)),
       })
       .notRequired(),
-    custom_fields: customFieldsSchema,
+    custom_fields: buildCustomFieldsSchema(recordSchemeIds),
     metadata: yupObject()
       .shape({
         creators: yupArray()
