@@ -33,7 +33,7 @@ def create_blueprint(app):
 def _apply_package_custom_fields_if_still_empty(app):
     """Apply this package's RDM custom field defaults only when config is still []."""
     if app.config.get("RDM_NAMESPACES") == []:
-        app.config["RDM_NAMESPACES"] = config.RDM_CUSTOM_FIELDS
+        app.config["RDM_NAMESPACES"] = config.RDM_NAMESPACES
     if app.config.get("RDM_CUSTOM_FIELDS") == []:
         app.config["RDM_CUSTOM_FIELDS"] = config.RDM_CUSTOM_FIELDS
     if app.config.get("RDM_CUSTOM_FIELDS_UI") == []:
