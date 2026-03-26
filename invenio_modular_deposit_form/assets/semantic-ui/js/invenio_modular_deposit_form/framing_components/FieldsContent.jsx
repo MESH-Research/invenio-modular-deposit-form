@@ -21,7 +21,6 @@ const FormRow = ({ subsections, component, classnames, ...props }) => {
               isRowField={true}
               {...{
                 section,
-                component,
                 index,
                 ...props,
                 ...innerProps,
