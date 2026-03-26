@@ -51,7 +51,8 @@ def finalize_app(app):
 
 def api_finalize_app(app):
     """Same hook for the API Flask application."""
-    _apply_package_custom_fields_if_still_empty(app)
+    # _apply_package_custom_fields_if_still_empty(app)
+    pass
 
 
 class InvenioModularDepositForm:
