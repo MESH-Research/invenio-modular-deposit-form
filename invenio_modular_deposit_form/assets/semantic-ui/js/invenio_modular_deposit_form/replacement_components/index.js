@@ -2,8 +2,8 @@ export * from "./alternate_components";
 export * from "./field_components";
 export * from "./CommunitySelectionModal";
 export * from "./PublishButton";
-// Top-level custom-field widget shims (stock ui_widget names):
-// - Input -> local TextField
+// Top-level custom-field widget shims/adapters (stock ui_widget names):
+// - Input -> stock-like adapter over local TextField
 export * from "./Input";
 // Top-level core replacement widgets:
 // - SelectField / Dropdown / AutocompleteDropdown / TextField / TextArea

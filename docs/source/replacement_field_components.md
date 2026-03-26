@@ -10,9 +10,9 @@ Draft sections may evolve as upstream InvenioRDM changes. When in doubt, read th
 
 ## Top-level widget shims
 
-In addition to `field_components/*`, the top-level `replacement_components/index.js` exports shim widgets for stock custom-field `ui_widget` names:
+In addition to `field_components/*`, the top-level `replacement_components/index.js` exports shim/adapter widgets for stock custom-field `ui_widget` names:
 
-- `Input` -> local `TextField`
+- `Input` -> stock-like adapter over local `TextField`
 
 These are used by the custom-field widget loader fallback (`@js/invenio_modular_deposit_form`) so stock widget names can resolve to touched-aware local replacements without changing backend `ui_widget` names.
 
@@ -26,7 +26,7 @@ The same top-level barrel also exports core replacement widgets directly:
 - `RemoteSelectField`
 - `MultiInput`
 
-For both `Dropdown` and `AutocompleteDropdown`, the local replacements intentionally mirror stock prop mapping/defaults and pass through additional props to the underlying replacement field component (`SelectField` / `RemoteSelectField`).
+For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements intentionally mirror stock prop mapping/defaults while delegating rendering to local replacement fields (`TextField`, `SelectField`, `RemoteSelectField`). `Dropdown` and `AutocompleteDropdown` also pass through additional props to their underlying replacement field component.
 
 ## Enumeration (matches `field_components/index.js`)
 
