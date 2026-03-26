@@ -33,6 +33,8 @@ CODEMETA_CUSTOM_FIELDS_UI = {
                 "icon": "code",
                 "description": "Repository's programming language.",
                 "placeholder": "Python ...",
+                "autocompleteFrom": "/api/vocabularies/code:programmingLanguages",
+                "autocompleteFromAcceptHeader": "application/vnd.inveniordm.v1+json",
                 "search": True,
                 "multiple": True,
                 "clearable": True,
