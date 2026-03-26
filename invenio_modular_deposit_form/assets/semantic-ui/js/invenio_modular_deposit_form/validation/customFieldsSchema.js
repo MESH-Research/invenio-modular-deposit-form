@@ -22,12 +22,7 @@ addMethod(yupString, "isURL", urlValidator);
 const customFieldsSchema = yupObject().shape({
   "code:codeRepository": yupString().isURL().notRequired(),
   "code:programmingLanguage": yupArray().of(yupString()).notRequired(),
-  "code:developmentStatus": yupArray()
-    .of(
-      yupObject().shape({
-        id: yupString().required(),
-      })
-    )
+  "code:developmentStatus": yupString().notRequired(),
 });
 
 export { customFieldsSchema };
