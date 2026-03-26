@@ -1,6 +1,7 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["babel>2.8", "setuptools>=61", "wheel"]
+# setuptools>=82 removed pkg_resources; pin until callers use importlib only.
+requires = ["babel>2.8", "setuptools>=61,<82", "wheel"]
 
 [project]
 name = "invenio-modular-deposit-form"
@@ -20,7 +21,12 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-dependencies = ["invenio-app-rdm<14"]
+dependencies = [
+  "invenio-app-rdm[opensearch2]<14",
+  # Match parent kcworks-next uv.lock (invenio-records-resources needs >=0.12; 0.10 lacks EDTFLevel2DateString).
+  "marshmallow-utils>=0.12",
+  "setuptools>=61,<82",
+]
 
 optional-dependencies.docs = [
   "furo>=2023",
