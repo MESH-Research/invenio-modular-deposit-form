@@ -1,5 +1,9 @@
 # Built-in field widget components
 
+```{seealso}
+For the **local replacement forks** of upstream `invenio_rdm_records` field components (`PIDField`, `TitlesField`, …), see [Replacement field components](replacement_field_components.md).
+```
+
 ```{warning}
 The documentation from this point on is in rough draft form and is currently being edited. Check back shortly for updates.
 ```
@@ -108,3 +112,5 @@ Defined in `field_components/custom_field_components.jsx`. They use the **Custom
 ## Gotchas
 
 - By default the imprint:imprint.pages field is used for *total pages* in a publication, while the journal:journal.pages field is used for *page numbers in a larger work*. So the BookSectionPages component uses the journal:journal.pages field. If this does not match your InvenioRDM schema, you may override this component.
+
+- **PID / DOI (`DoiComponent` → replacement `PIDField`)** — Visible validation errors follow the same **touched** rules as `TextField`. The replacement fork sets Formik **`touched`** on unmanaged-input blur and when managed/unmanaged (or optional DOI) radios change; see {ref}`formik-touched-pidfield`.

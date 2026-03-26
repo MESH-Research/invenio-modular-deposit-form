@@ -202,6 +202,7 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -267,6 +268,10 @@
 <li><p><strong>validationSchema</strong> — A <code class="docutils literal notranslate"><span class="pre">yup</span></code> schema. If provided, it will be passed to the Formik form validation handler via the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> property, which will handle validation and update the form’s <code class="docutils literal notranslate"><span class="pre">errors</span></code> object as necessary.</p></li>
 <li><p><strong>validate</strong> — A custom validation function that will be passed to the Formik form <code class="docutils literal notranslate"><span class="pre">validate</span></code> property.</p></li>
 </ul>
+</section>
+<section id="error-visibility-vs-formik-errors">
+<h2>Error visibility vs. Formik <code class="docutils literal notranslate"><span class="pre">errors</span></code><a class="headerlink" href="#error-visibility-vs-formik-errors" title="Link to this heading">¶</a></h2>
+<p>Yup / <code class="docutils literal notranslate"><span class="pre">validate</span></code> populate Formik <strong><code class="docutils literal notranslate"><span class="pre">errors</span></code></strong>, but some replacement field widgets only <strong>surface</strong> those errors in the UI when Formik <strong><code class="docutils literal notranslate"><span class="pre">touched</span></code></strong> is set for the path (aligned with <code class="docutils literal notranslate"><span class="pre">TextField</span></code>). The replacement <strong>PIDField</strong> fork sets <strong><code class="docutils literal notranslate"><span class="pre">touched</span></code></strong> on unmanaged-input blur and when managed/unmanaged or optional-DOI radios change; see <a class="reference internal" href="replacement_field_components.html#formik-touched-pidfield"><span class="std std-ref">Formik touched and this fork</span></a>. If you customize those components, preserve that wiring or inline errors may not appear when expected.</p>
 </section>
 </section>
 
@@ -336,6 +341,7 @@
 <li><a class="reference internal" href="#enabling-client-side-validation">Enabling client-side validation</a></li>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li><a class="reference internal" href="#configuring-the-validator">Configuring the validator</a></li>
+<li><a class="reference internal" href="#error-visibility-vs-formik-errors">Error visibility vs. Formik <code class="docutils literal notranslate"><span class="pre">errors</span></code></a></li>
 </ul>
 </li>
 </ul>

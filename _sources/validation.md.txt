@@ -18,3 +18,7 @@ The `validator.js` file may export one or both of:
 
 - **validationSchema** — A `yup` schema. If provided, it will be passed to the Formik form validation handler via the `validationSchema` property, which will handle validation and update the form's `errors` object as necessary.
 - **validate** — A custom validation function that will be passed to the Formik form `validate` property.
+
+## Error visibility vs. Formik `errors`
+
+Yup / `validate` populate Formik **`errors`**, but some replacement field widgets only **surface** those errors in the UI when Formik **`touched`** is set for the path (aligned with `TextField`). The replacement **PIDField** fork sets **`touched`** on unmanaged-input blur and when managed/unmanaged or optional-DOI radios change; see {ref}`formik-touched-pidfield`. If you customize those components, preserve that wiring or inline errors may not appear when expected.
