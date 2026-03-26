@@ -11,255 +11,327 @@
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
-import _uniqBy from "lodash/uniqBy";
+import _isEqual from "lodash/isEqual";
 import PropTypes from "prop-types";
 import queryString from "query-string";
-import React, { useState, useEffect } from "react";
+import React, { Component } from "react";
 import { Message } from "semantic-ui-react";
+import { createOption, mergeOptions } from "react-invenio-forms";
 import { SelectField } from "./SelectField";
 
 const DEFAULT_SUGGESTION_SIZE = 20;
-
-const serializeSuggestionsDefault = (suggestions) =>
+const serializeSuggestions = (suggestions) =>
   suggestions.map((item) => ({
     text: item.title,
     value: item.id,
     key: item.id,
   }));
 
-const RemoteSelectField = ({
-  classnames = undefined,
-  clearable = true,
-  debounceTime = 500,
-  fieldPath,
-  initialSuggestions = [],
-  isFocused = false,
-  loadingMessage = "Loading...",
-  multiple = true,
-  noQueryMessage = "Search...",
-  noResultsMessage = "No results found.",
-  onValueChange = undefined,
-  preSearchChange = (x) => x,
-  search = true,
-  serializeAddedValue = undefined,
-  serializeSuggestions = undefined,
-  suggestionAPIUrl,
-  suggestionAPIQueryParams = {},
-  suggestionAPIHeaders = {},
-  suggestionsErrorMessage = "Something went wrong...",
-  ...uiProps
-}) => {
-  const serializeSuggestionsFunc = serializeSuggestions || serializeSuggestionsDefault;
-  const _initialSuggestions = initialSuggestions
-    ? serializeSuggestionsFunc(initialSuggestions)
-    : [];
-  const [isFetching, setIsFetching] = useState(false);
-  const [suggestions, setSuggestions] = useState(_initialSuggestions);
-  const [selectedSuggestions, setSelectedSuggestions] = useState(_initialSuggestions);
-  const [error, setError] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(null);
-  const [open, setOpen] = useState(false);
-
-  const onSelectValue = (event, { options, value }, callbackFunc) => {
-    // Handle multiple and single selection differently
-    // Handle either string values or object values for single selection
-    let newSelectedSuggestions;
-    if (!!multiple) {
-      newSelectedSuggestions = options.filter((item) => value.includes(item.value));
-    } else {
-      newSelectedSuggestions = typeof value === "string"
-        ? options.filter((item) => value === item.value)
-        : [value];
-    }
-    setSelectedSuggestions(newSelectedSuggestions);
-    setSearchQuery(null);
-    setError(false);
-    setOpen(!!multiple);
-    callbackFunc(newSelectedSuggestions); // TODO: check if this fires too soon
+function withCancel(promise) {
+  let canceled = false;
+  return {
+    promise: new Promise((resolve, reject) => {
+      promise.then(
+        (value) => (canceled ? reject(new Error("canceled")) : resolve(value)),
+        (error) => (canceled ? reject(new Error("canceled")) : reject(error))
+      );
+    }),
+    cancel: () => {
+      canceled = true;
+    },
   };
+}
 
-  const handleAddition = (e, { value }, callbackFunc) => {
-    const selectedSuggestion = serializeAddedValue
-      ? serializeAddedValue(value)
-      : { text: value, value, key: value, name: value };
+class RemoteSelectField extends Component {
+  constructor(props) {
+    super(props);
 
-    const newSelectedSuggestions = [...selectedSuggestions, selectedSuggestion];
-    const prevSuggestions = suggestions;
-    setSelectedSuggestions(newSelectedSuggestions);
-    setSuggestions(_uniqBy([...prevSuggestions, ...newSelectedSuggestions], "value"));
-    callbackFunc(newSelectedSuggestions); // TODO: check if this fires too soon
-  };
-
-  const onSearchChange = _debounce(async (e, { searchQuery }) => {
-    const query = preSearchChange(searchQuery);
-    setIsFetching(true);
-    setSearchQuery(query);
-    try {
-      const suggestions = await fetchSuggestions(query);
-
-      const serializedSuggestions = serializeSuggestionsFunc(suggestions);
-      const prevSuggestions = selectedSuggestions;
-      setSuggestions(_uniqBy([...prevSuggestions, ...serializedSuggestions], "value"));
-      setIsFetching(false);
-      setError(false);
-      setOpen(true);
-    } catch (e) {
-      console.error(e);
-      setError(true);
-      setIsFetching(false);
-    }
-    // eslint-disable-next-line react/destructuring-assignment
-  }, debounceTime);
-
-  const fetchSuggestions = async (searchQuery) => {
-    try {
-      const response = await axios.get(suggestionAPIUrl, {
-        params: {
-          suggest: searchQuery,
-          size: DEFAULT_SUGGESTION_SIZE,
-          ...suggestionAPIQueryParams,
+    this.onSelectValue = async (event, { options, value }, callbackFunc) => {
+      const { multiple } = this.props;
+      const newSelectedSuggestions = options.filter((item) =>
+        multiple ? value.includes(item.value) : item.value === value
+      );
+      this.setState(
+        {
+          selectedSuggestions: newSelectedSuggestions,
+          searchQuery: null,
+          error: false,
+          open: !!multiple,
         },
-        headers: suggestionAPIHeaders,
-        // There is a bug in axios that prevents brackets from being encoded,
-        // remove the paramsSerializer when fixed.
-        // https://github.com/axios/axios/issues/3316
-        paramsSerializer: (params) =>
-          queryString.stringify(params, { arrayFormat: "repeat" }),
-      });
-      return response?.data?.hits?.hits;
-    } catch (e) {
-      console.error(e);
-    }
-  };
+        () => callbackFunc(newSelectedSuggestions)
+      );
+      await this.searchIfNoSuggestions(newSelectedSuggestions);
+    };
 
-  const getNoResultsMessage = () => {
-    if (isFetching) {
-      return loadingMessage;
-    }
-    if (error) {
-      return <Message negative size="mini" content={suggestionsErrorMessage} />;
-    }
-    if (!searchQuery) {
-      return noQueryMessage;
-    }
-    return noResultsMessage;
-  };
+    this.handleAddition = async (e, { value }, callbackFunc) => {
+      const { serializeAddedValue } = this.props;
+      const { selectedSuggestions } = this.state;
 
-  const onClose = () => {
-    setOpen(false);
-  };
+      const selectedSuggestion = serializeAddedValue
+        ? serializeAddedValue(value)
+        : { ...createOption(value), name: value };
 
-  const onBlur = () => {
-    const prevSuggestions = selectedSuggestions;
-    setOpen(false);
-    setError(false);
-    setSearchQuery(null);
-    setSuggestions(prevSuggestions);
-  };
+      const newSelectedSuggestions = [...selectedSuggestions, selectedSuggestion];
+      this.setState(
+        (prevState) => ({
+          selectedSuggestions: newSelectedSuggestions,
+          suggestions: mergeOptions(prevState.suggestions, newSelectedSuggestions),
+          searchQuery: null,
+        }),
+        () => callbackFunc(newSelectedSuggestions)
+      );
+      await this.searchIfNoSuggestions(newSelectedSuggestions);
+    };
 
-  const onFocus = () => {
-    setOpen(true);
-  };
+    this.onSearchChange = _debounce(async (e, { searchQuery }) => {
+      this.cancellableAction && this.cancellableAction.cancel();
+      await this.executeSearch(searchQuery);
+    }, this.props.debounceTime);
 
-  // const compProps = {
-  //   fieldPath,
-  //   suggestionAPIUrl,
-  //   suggestionAPIQueryParams,
-  //   suggestionAPIHeaders,
-  //   serializeSuggestions: serializeSuggestionsFunc,
-  //   serializeAddedValue,
-  //   debounceTime,
-  //   noResultsMessage,
-  //   loadingMessage,
-  //   suggestionsErrorMessage,
-  //   noQueryMessage,
-  //   initialSuggestions,
-  //   preSearchChange,
-  //   onValueChange,
-  //   search,
-  //   isFocused,
-  // };
+    this.executeSearch = async (searchQuery) => {
+      const { preSearchChange, serializeSuggestions } = this.props;
+      const query = preSearchChange(searchQuery);
+      const { searchQuery: prevSearchQuery } = this.state;
+      if (prevSearchQuery === query) return;
 
-  return (
-    <SelectField
-      {...uiProps}
-      // additionLabel
-      allowAdditions={error ? false : uiProps.allowAdditions}
-      classnames={
-        classnames
-          ? "invenio-remote-select-field" + classnames
-          : "invenio-remote-select-field"
+      this.setState({ isFetching: true, searchQuery: query });
+      try {
+        const suggestions = await this.fetchSuggestions(query);
+        const serializedSuggestions = serializeSuggestions(suggestions);
+        this.setState((prevState) => ({
+          suggestions: mergeOptions(prevState.selectedSuggestions, serializedSuggestions),
+          isFetching: false,
+          error: false,
+          open: true,
+        }));
+      } catch (e) {
+        console.error(e);
+        this.setState({ error: true, isFetching: false });
       }
-      fieldPath={fieldPath}
-      options={suggestions}
-      noResultsMessage={getNoResultsMessage()}
-      search={search}
-      searchInput={{
-        id: fieldPath,
-        autoFocus: isFocused,
-      }}
-      lazyLoad
-      open={open}
-      onClose={onClose}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      onSearchChange={onSearchChange}
-      onAddItem={({ event, data, formikProps }) => {
-        handleAddition(event, data, (selectedSuggestions) => {
-          if (onValueChange) {
-            onValueChange({ event, data, formikProps }, selectedSuggestions);
-          }
-        });
-      }}
-      onChange={({ event, data, formikProps }) => {
-        onSelectValue(event, data, (selectedSuggestions) => {
-          if (onValueChange) {
-            onValueChange({ event, data, formikProps }, selectedSuggestions);
-          } else {
-            formikProps.form.setFieldValue(fieldPath, data.value);
-          }
-        });
-      }}
-      loading={isFetching}
-      description={uiProps.description}
-      clearable={clearable}
-      helpText={uiProps.helpText}
-      label={uiProps.label}
-      multiple={multiple}
-      noQueryMessage={noQueryMessage}
-      placeholder={uiProps.placeholder}
-      required={uiProps.required}
-      value={
-        !!multiple
-          ? selectedSuggestions.map((item) => item.value)
-          : selectedSuggestions[0]?.value
+    };
+
+    this.searchIfNoSuggestions = async (newSelectedSuggestions) => {
+      const { suggestions } = this.state;
+      if (_isEqual(newSelectedSuggestions, suggestions)) {
+        await this.executeSearch("");
       }
-    />
-  );
+    };
+
+    this.fetchSuggestions = async (searchQuery) => {
+      const {
+        suggestionAPIUrl,
+        suggestionAPIQueryParams,
+        suggestionAPIHeaders,
+        searchQueryParamName,
+      } = this.props;
+
+      this.cancellableAction = withCancel(
+        axios.get(suggestionAPIUrl, {
+          params: {
+            [searchQueryParamName]: searchQuery,
+            size: DEFAULT_SUGGESTION_SIZE,
+            ...suggestionAPIQueryParams,
+          },
+          headers: suggestionAPIHeaders,
+          // There is a bug in axios that prevents brackets from being encoded,
+          // remove the paramsSerializer when fixed.
+          // https://github.com/axios/axios/issues/3316
+          paramsSerializer: (params) => queryString.stringify(params, { arrayFormat: "repeat" }),
+        })
+      );
+      try {
+        const response = await this.cancellableAction.promise;
+        return response?.data?.hits?.hits;
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    this.getNoResultsMessage = () => {
+      const { loadingMessage, suggestionsErrorMessage, noQueryMessage, noResultsMessage } =
+        this.props;
+      const { isFetching, error, searchQuery } = this.state;
+      if (isFetching) return loadingMessage;
+      if (error) {
+        return <Message negative size="mini" content={suggestionsErrorMessage} />;
+      }
+      if (!searchQuery) return noQueryMessage;
+      return noResultsMessage;
+    };
+
+    this.onClose = () => {
+      this.setState({ open: false });
+    };
+
+    this.onBlur = () => {
+      const { searchOnFocus } = this.props;
+      this.setState((prevState) => ({
+        open: false,
+        error: false,
+        searchQuery: searchOnFocus ? prevState.searchQuery : null,
+        suggestions: searchOnFocus ? prevState.suggestions : prevState.selectedSuggestions,
+      }));
+    };
+
+    this.onFocus = async () => {
+      this.setState({ open: true });
+      const { searchOnFocus } = this.props;
+      if (searchOnFocus) {
+        const { searchQuery } = this.state;
+        await this.executeSearch(searchQuery || "");
+      }
+    };
+
+    this.getProps = () => {
+      const {
+        fieldPath,
+        suggestionAPIUrl,
+        suggestionAPIQueryParams,
+        serializeSuggestions,
+        serializeAddedValue,
+        suggestionAPIHeaders,
+        debounceTime,
+        searchQueryParamName,
+        noResultsMessage,
+        loadingMessage,
+        suggestionsErrorMessage,
+        noQueryMessage,
+        initialSuggestions,
+        preSearchChange,
+        onValueChange,
+        search,
+        isFocused,
+        ...uiProps
+      } = this.props;
+
+      const compProps = {
+        fieldPath,
+        suggestionAPIUrl,
+        suggestionAPIQueryParams,
+        suggestionAPIHeaders,
+        serializeSuggestions,
+        serializeAddedValue,
+        debounceTime,
+        searchQueryParamName,
+        noResultsMessage,
+        loadingMessage,
+        suggestionsErrorMessage,
+        noQueryMessage,
+        initialSuggestions,
+        preSearchChange,
+        onValueChange,
+        search,
+        isFocused,
+      };
+      return { compProps, uiProps };
+    };
+
+    const initial = props.initialSuggestions ? props.serializeSuggestions(props.initialSuggestions) : [];
+    this.state = {
+      isFetching: false,
+      suggestions: initial,
+      selectedSuggestions: initial,
+      error: false,
+      searchQuery: null,
+      open: false,
+    };
+  }
+
+  componentWillUnmount() {
+    this.cancellableAction && this.cancellableAction.cancel();
+  }
+
+  render() {
+    const { compProps, uiProps } = this.getProps();
+    const { error, suggestions, open, isFetching } = this.state;
+
+    const classNameParts = ["invenio-remote-select-field", uiProps.className, uiProps.classnames]
+      .filter(Boolean)
+      .join(" ");
+
+    return (
+      <SelectField
+        {...uiProps}
+        allowAdditions={error ? false : uiProps.allowAdditions}
+        fieldPath={compProps.fieldPath}
+        options={suggestions}
+        noResultsMessage={this.getNoResultsMessage()}
+        search={compProps.search}
+        searchInput={{
+          id: compProps.fieldPath,
+          autoFocus: compProps.isFocused,
+        }}
+        lazyLoad
+        open={open}
+        onClose={this.onClose}
+        onFocus={this.onFocus}
+        onBlur={this.onBlur}
+        onSearchChange={this.onSearchChange}
+        onAddItem={({ event, data, formikProps }) => {
+          this.handleAddition(event, data, (selectedSuggestions) => {
+            if (compProps.onValueChange) {
+              compProps.onValueChange({ event, data, formikProps }, selectedSuggestions);
+            }
+          });
+        }}
+        onChange={({ event, data, formikProps }) => {
+          this.onSelectValue(event, data, (selectedSuggestions) => {
+            if (compProps.onValueChange) {
+              compProps.onValueChange({ event, data, formikProps }, selectedSuggestions);
+            } else {
+              formikProps.form.setFieldValue(compProps.fieldPath, data.value);
+            }
+          });
+        }}
+        loading={isFetching}
+        className={classNameParts}
+      />
+    );
+  }
+}
+
+RemoteSelectField.defaultProps = {
+  debounceTime: 500,
+  suggestionAPIQueryParams: {},
+  suggestionAPIHeaders: {},
+  serializeSuggestions: serializeSuggestions,
+  searchQueryParamName: "suggest",
+  suggestionsErrorMessage: "Something went wrong...",
+  noQueryMessage: "Search...",
+  noResultsMessage: "No results found.",
+  loadingMessage: "Loading...",
+  preSearchChange: (x) => x,
+  search: true,
+  multiple: false,
+  serializeAddedValue: undefined,
+  initialSuggestions: [],
+  onValueChange: undefined,
+  isFocused: false,
+  searchOnFocus: false,
 };
 
 RemoteSelectField.propTypes = {
-  classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   suggestionAPIUrl: PropTypes.string.isRequired,
   suggestionAPIQueryParams: PropTypes.object,
-  suggestionAPIHeaders: PropTypes.object,
   serializeSuggestions: PropTypes.func,
   serializeAddedValue: PropTypes.func,
-  initialSuggestions: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.object),
-    PropTypes.object,
-  ]),
+  suggestionAPIHeaders: PropTypes.object,
   debounceTime: PropTypes.number,
+  searchQueryParamName: PropTypes.string,
   noResultsMessage: PropTypes.string,
   loadingMessage: PropTypes.string,
   suggestionsErrorMessage: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   noQueryMessage: PropTypes.string,
-  preSearchChange: PropTypes.func, // Takes a string and returns a string
-  onValueChange: PropTypes.func, // Takes the SUI hanf and updated selectedSuggestions
+  initialSuggestions: PropTypes.arrayOf(PropTypes.object),
+  preSearchChange: PropTypes.func,
+  onValueChange: PropTypes.func,
   search: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-  multiple: PropTypes.bool,
   isFocused: PropTypes.bool,
+  className: PropTypes.string,
+  classnames: PropTypes.string,
+  searchOnFocus: PropTypes.bool,
+  multiple: PropTypes.bool,
 };
 
 export { RemoteSelectField };
