@@ -16,228 +16,254 @@ from invenio_modular_deposit_form.config.default import COMMON_FIELDS_DEFAULT_PA
 MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_DEFAULT_PAGED
 ````
 
+For the same multi-page body without a left sidebar and with a **top stepper on all
+viewport sizes** (not only mobile/tablet), use
+:data:`COMMON_FIELDS_DEFAULT_PAGED_TOP_STEPPER`.
+
 To use the non-paged version, use COMMON_FIELD_DEFAULT_UNPAGED instead.
 """
 
+_PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
+    "component": "FormHeader",
+    "classnames": "default-layout",
+    "subsections": [
+        {"component": "FormStepper", "classnames": "mobile tablet only"},
+    ],
+}
+
+_PAGED_FORM_HEADER_STEPPER_TOP = {
+    "component": "FormHeader",
+    "classnames": "default-layout",
+    "subsections": [{"component": "FormStepper"}],
+}
+
+_PAGED_FORM_LEFT_SIDEBAR = {
+    "component": "FormLeftSidebar",
+    "classnames": "default-layout",
+    # Sidebar widths: 2 (widescreen), 3 (largeScreen), 3 (computer)
+    "computer": 3,
+    "largeScreen": 3,
+    "widescreen": 2,
+    "subsections": [
+        {
+            "component": "FormSidebarPageMenu",
+            "classnames": "computer widescreen large-monitor only",
+        },
+    ],
+}
+
+_PAGED_FORM_RIGHT_SIDEBAR = {
+    "component": "FormRightSidebar",
+    "classnames": "default-layout",
+    # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
+    "mobile": 16,
+    "tablet": 16,
+    "computer": 5,
+    "largeScreen": 4,
+    "widescreen": 4,
+    "subsections": [
+        {
+            "section": "form_feedback",
+            "component": "FormFeedbackComponent",
+        },
+        {
+            "section": "submit_actions",
+            "label": "Publish",
+            "component": "SubmissionComponent",
+        },
+        {
+            "section": "access",
+            "label": "Visibility",
+            "component": "AccessRightsComponent",
+        },
+    ],
+}
+
+_PAGED_FORM_FOOTER = {
+    "component": "FormFooter",
+    "classnames": "basic default-layout",
+    "subsections": [
+        {"component": "FormPageNavigationBar"},
+    ],
+}
+
+_PAGED_FORM_PAGES = {
+    "section": "pages",
+    "component": "FormPages",
+    "classnames": "default-layout",
+    "subsections": [
+        {
+            "section": "1",
+            "label": "Files",
+            "component": "FormPage",
+            "subsections": [
+                {
+                    "section": "files",
+                    "label": "Files",
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "file_upload",
+                            "label": "Files Upload",
+                            "component": "FileUploadComponent",
+                            "show_heading": True,
+                        },
+                    ],
+                }
+            ],
+        },
+        {
+            "section": "2",
+            "label": "Basic Information",
+            "subsections": [
+                {
+                    "section": "basic-info",
+                    "label": "Basic Information",
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "doi",
+                            "label": "Digital Object Identifier",
+                            "component": "DoiComponent",
+                        },
+                        {
+                            "section": "resource_type",
+                            "label": "Resource Type",
+                            "component": "ResourceTypeComponent",
+                        },
+                        {
+                            "section": "combined_titles",
+                            "label": "Title",
+                            "component": "TitlesComponent",
+                        },
+                        {
+                            "section": "publication_date",
+                            "label": "Publication Date",
+                            "component": "PublicationDateComponent",
+                        },
+                        {
+                            "section": "creators",
+                            "label": "Creators",
+                            "component": "CreatorsComponent",
+                        },
+                        {
+                            "section": "abstract",
+                            "label": "Description",
+                            "component": "AbstractComponent",
+                        },
+                        {
+                            "section": "licenses",
+                            "label": "Licenses",
+                            "component": "LicensesComponent",
+                        },
+                        {
+                            "section": "copyright",
+                            "label": "Copyright",
+                            "component": "CopyrightsComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "section": "3",
+            "label": "Recommended",
+            "component": "FormPage",
+            "subsections": [
+                {
+                    "section": "recommended",
+                    "label": "Recommended",
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "contributors",
+                            "label": "Contributors",
+                            "component": "ContributorsComponent",
+                        },
+                        {
+                            "section": "subjects_keywords",
+                            "label": "Subjects",
+                            "component": "SubjectsComponent",
+                        },
+                        {
+                            "section": "language",
+                            "label": "Language",
+                            "component": "LanguagesComponent",
+                        },
+                        {
+                            "section": "additional_dates",
+                            "label": "Dates",
+                            "component": "AdditionalDatesComponent",
+                        },
+                        {
+                            "section": "version",
+                            "label": "Version",
+                            "component": "VersionComponent",
+                        },
+                        {
+                            "section": "publisher",
+                            "label": "Publisher",
+                            "component": "PublisherComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "section": "4",
+            "label": "Additional",
+            "component": "FormPage",
+            "subsections": [],
+        },
+        {
+            "section": "5",
+            "label": "Funding and Related",
+            "component": "FormPage",
+            "subsections": [
+                {
+                    "section": "related",
+                    "label": "Funding and Related",
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "funding",
+                            "label": "Funding",
+                            "component": "FundingComponent",
+                        },
+                        {
+                            "section": "alternate_identifiers",
+                            "label": "Alternate Identifiers",
+                            "component": "AlternateIdentifiersComponent",
+                        },
+                        {
+                            "section": "related_works",
+                            "label": "Related Works",
+                            "component": "RelatedWorksComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
 COMMON_FIELDS_DEFAULT_PAGED = [
-    {
-        "component": "FormHeader",
-        "classnames": "default-layout",
-        "subsections": [
-            {"component": "FormStepper", "classnames": "mobile tablet only"},
-        ],
-    },
-    {
-        "component": "FormLeftSidebar",
-        "classnames": "default-layout",
-        # Sidebar widths: 2 (widescreen), 3 (largeScreen), 3 (computer)
-        "computer": 3,
-        "largeScreen": 3,
-        "widescreen": 2,
-        "subsections": [
-            # "large-monitor" class matches largeScreen sidebar width prop
-            {
-                "component": "FormSidebarPageMenu",
-                "classnames": "computer widescreen large-monitor only",
-            },
-        ],
-    },
-    {
-        "component": "FormRightSidebar",
-        "classnames": "default-layout",
-        # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
-        "mobile": 16,
-        "tablet": 16,
-        "computer": 5,
-        "largeScreen": 4,
-        "widescreen": 4,
-        "subsections": [
-            {
-                "section": "form_feedback",
-                "component": "FormFeedbackComponent",
-            },
-            {
-                "section": "submit_actions",
-                "label": "Publish",
-                "component": "SubmissionComponent",
-            },
-            {
-                "section": "access",
-                "label": "Visibility",
-                "component": "AccessRightsComponent",
-            },
-        ],
-    },
-    {
-        "component": "FormFooter",
-        "classnames": "basic default-layout",
-        "subsections": [
-            {"component": "FormPageNavigationBar"},
-        ],
-    },
-    {
-        "section": "pages",
-        "component": "FormPages",
-        "classnames": "default-layout",
-        "subsections": [
-            {
-                "section": "1",
-                "label": "Files",
-                "component": "FormPage",
-                "subsections": [
-                    {
-                        "section": "files",
-                        "label": "Files",
-                        "component": "FormSection",
-                        "classnames": "basic",
-                        "subsections": [
-                            {
-                                "section": "file_upload",
-                                "label": "Files Upload",
-                                "component": "FileUploadComponent",
-                                "show_heading": True,
-                            },
-                        ],
-                    }
-                ],
-            },
-            {
-                "section": "2",
-                "label": "Basic Information",
-                "subsections": [
-                    {
-                        "section": "basic-info",
-                        "label": "Basic Information",
-                        "component": "FormSection",
-                        "classnames": "basic",
-                        "subsections": [
-                            {
-                                "section": "doi",
-                                "label": "Digital Object Identifier",
-                                "component": "DoiComponent",
-                            },
-                            {
-                                "section": "resource_type",
-                                "label": "Resource Type",
-                                "component": "ResourceTypeComponent",
-                            },
-                            {
-                                "section": "combined_titles",
-                                "label": "Title",
-                                "component": "TitlesComponent",
-                            },
-                            {
-                                "section": "publication_date",
-                                "label": "Publication Date",
-                                "component": "PublicationDateComponent",
-                            },
-                            {
-                                "section": "creators",
-                                "label": "Creators",
-                                "component": "CreatorsComponent",
-                            },
-                            {
-                                "section": "abstract",
-                                "label": "Description",
-                                "component": "AbstractComponent",
-                            },
-                            {
-                                "section": "licenses",
-                                "label": "Licenses",
-                                "component": "LicensesComponent",
-                            },
-                            {
-                                "section": "copyright",
-                                "label": "Copyright",
-                                "component": "CopyrightsComponent",
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                "section": "3",
-                "label": "Recommended",
-                "component": "FormPage",
-                "subsections": [
-                    {
-                        "section": "recommended",
-                        "label": "Recommended",
-                        "component": "FormSection",
-                        "classnames": "basic",
-                        "subsections": [
-                            {
-                                "section": "contributors",
-                                "label": "Contributors",
-                                "component": "ContributorsComponent",
-                            },
-                            {
-                                "section": "subjects_keywords",
-                                "label": "Subjects",
-                                "component": "SubjectsComponent",
-                            },
-                            {
-                                "section": "language",
-                                "label": "Language",
-                                "component": "LanguagesComponent",
-                            },
-                            {
-                                "section": "additional_dates",
-                                "label": "Dates",
-                                "component": "AdditionalDatesComponent",
-                            },
-                            {
-                                "section": "version",
-                                "label": "Version",
-                                "component": "VersionComponent",
-                            },
-                            {
-                                "section": "publisher",
-                                "label": "Publisher",
-                                "component": "PublisherComponent",
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                "section": "4",
-                "label": "Additional",
-                "component": "FormPage",
-                "subsections": [],
-            },
-            {
-                "section": "5",
-                "label": "Funding and Related",
-                "component": "FormPage",
-                "subsections": [
-                    {
-                        "section": "related",
-                        "label": "Funding and Related",
-                        "component": "FormSection",
-                        "classnames": "basic",
-                        "subsections": [
-                            {
-                                "section": "funding",
-                                "label": "Funding",
-                                "component": "FundingComponent",
-                            },
-                            {
-                                "section": "alternate_identifiers",
-                                "label": "Alternate Identifiers",
-                                "component": "AlternateIdentifiersComponent",
-                            },
-                            {
-                                "section": "related_works",
-                                "label": "Related Works",
-                                "component": "RelatedWorksComponent",
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
-    },
+    _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET,
+    _PAGED_FORM_LEFT_SIDEBAR,
+    _PAGED_FORM_RIGHT_SIDEBAR,
+    _PAGED_FORM_FOOTER,
+    _PAGED_FORM_PAGES,
+]
+
+COMMON_FIELDS_DEFAULT_PAGED_TOP_STEPPER = [
+    _PAGED_FORM_HEADER_STEPPER_TOP,
+    _PAGED_FORM_RIGHT_SIDEBAR,
+    _PAGED_FORM_FOOTER,
+    _PAGED_FORM_PAGES,
 ]
 
 COMMON_FIELDS_DEFAULT_SINGLE = [
