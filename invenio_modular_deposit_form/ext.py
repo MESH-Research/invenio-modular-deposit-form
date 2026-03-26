@@ -30,13 +30,14 @@ def create_blueprint(app):
     return blueprint
 
 
-# def _apply_package_custom_fields_if_still_empty(app):
-#     """Apply this package's RDM custom field defaults only when config is still []."""
-#     if app.config.get("RDM_CUSTOM_FIELDS") == []:
-#         app.config["RDM_CUSTOM_FIELDS"] = config.RDM_CUSTOM_FIELDS
-#     if app.config.get("RDM_CUSTOM_FIELDS_UI") == []:
-#         app.config["RDM_CUSTOM_FIELDS_UI"] = config.RDM_CUSTOM_FIELDS_UI
-#
+def _apply_package_custom_fields_if_still_empty(app):
+    """Apply this package's RDM custom field defaults only when config is still []."""
+    if app.config.get("RDM_NAMESPACES") == []:
+        app.config["RDM_NAMESPACES"] = config.RDM_CUSTOM_FIELDS
+    if app.config.get("RDM_CUSTOM_FIELDS") == []:
+        app.config["RDM_CUSTOM_FIELDS"] = config.RDM_CUSTOM_FIELDS
+    if app.config.get("RDM_CUSTOM_FIELDS_UI") == []:
+        app.config["RDM_CUSTOM_FIELDS_UI"] = config.RDM_CUSTOM_FIELDS_UI
 
 
 def finalize_app(app):
@@ -45,14 +46,12 @@ def finalize_app(app):
     If something left ``RDM_CUSTOM_FIELDS*`` as ``[]``, apply this package's defaults.
     Non-empty values from ``invenio.cfg`` are left unchanged.
     """
-    # _apply_package_custom_fields_if_still_empty(app)
-    pass
+    _apply_package_custom_fields_if_still_empty(app)
 
 
 def api_finalize_app(app):
     """Same hook for the API Flask application."""
-    # _apply_package_custom_fields_if_still_empty(app)
-    pass
+    _apply_package_custom_fields_if_still_empty(app)
 
 
 class InvenioModularDepositForm:
