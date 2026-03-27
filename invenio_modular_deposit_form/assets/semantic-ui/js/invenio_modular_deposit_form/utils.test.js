@@ -11,6 +11,7 @@ jest.mock('./readableFieldLabels.js', () => ({
 
 import {
   areDeeplyEqual,
+  collectLeafFieldPathsUnderRoot,
   filterNestedObject,
   findPageIdContainingComponent,
   flattenKeysDotJoined,
@@ -428,5 +429,28 @@ describe('focusFirstElement', () => {
 
     expect(focus0).not.toHaveBeenCalled();
     expect(focus1).toHaveBeenCalled();
+  });
+});
+
+describe('collectLeafFieldPathsUnderRoot', () => {
+  test('returns leaf paths for array of objects', () => {
+    const value = [{ title: '', type: 'other', lang: 'en' }];
+    expect(collectLeafFieldPathsUnderRoot('metadata.additional_titles', value)).toEqual([
+      'metadata.additional_titles.0.title',
+      'metadata.additional_titles.0.type',
+      'metadata.additional_titles.0.lang',
+    ]);
+  });
+
+  test('empty array returns no paths', () => {
+    expect(collectLeafFieldPathsUnderRoot('metadata.additional_titles', [])).toEqual([]);
+  });
+
+  test('primitive returns single path', () => {
+    expect(collectLeafFieldPathsUnderRoot('metadata.title', 'x')).toEqual(['metadata.title']);
+  });
+
+  test('null returns no paths', () => {
+    expect(collectLeafFieldPathsUnderRoot('metadata.foo', null)).toEqual([]);
   });
 });

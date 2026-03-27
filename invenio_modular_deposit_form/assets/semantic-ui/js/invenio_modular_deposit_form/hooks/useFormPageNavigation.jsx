@@ -6,7 +6,9 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { getIn } from "formik";
 import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReducer";
+import { collectLeafFieldPathsUnderRoot } from "../utils";
 
 /**
  * Multi-page deposit form: keeps `currentFormPage` (form UI useReducer), the address bar `?page=`
@@ -18,9 +20,11 @@ import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReduce
  * - **Next / previous** — Exposes `nextFormPage` and `previousFormPage` as adjacent visible page ids
  *   (or null) for footer nav; ordering follows `visibleFormPages`.
  * - **User-initiated page change** — `handleFormPageChange` marks all fields on the current page
- *   touched, then either opens the confirm modal (if the current page still has validation errors
- *   per `sectionErrorsAll`) or dispatches `SET_CURRENT_FORM_PAGE` and updates the URL via
- *   `history.pushState` so Back/Forward can move between steps.
+ *   touched. If `sectionErrorsFlagged` lists error paths for this page (`error_fields`) under a
+ *   page field, descendant leaf paths are touched too (so inputs that gate on leaf `meta.touched`
+ *   show errors after navigate-away). Then either opens the confirm modal (if the current page
+ *   still has validation errors per `sectionErrorsAll`) or dispatches `SET_CURRENT_FORM_PAGE`
+ *   and updates the URL via `history.pushState` so Back/Forward can move between steps.
  * - **URL on load / popstate** — `handleFormPageParam` reads `?page=`, supports `first` / `last`
  *   aliases, and dispatches `SET_CURRENT_FORM_PAGE` when the slug is valid; a `popstate` listener
  *   reapplies that when the user uses the browser back button.
@@ -164,8 +168,26 @@ const useFormPageNavigation = (
   }
 
   function handleFormPageChange(event, { value }) {
-    for (const field of currentFormPageFields[currentFormPage] || []) {
+    const pageFields = currentFormPageFields[currentFormPage] || [];
+    const flaggedForPage = (formUIState?.sectionErrorsFlagged ?? []).filter(
+      (e) => e.page === currentFormPage
+    );
+    const errorFieldsForPage = [
+      ...new Set(flaggedForPage.flatMap((e) => e.error_fields ?? [])),
+    ];
+
+    for (const field of pageFields) {
       formik.setFieldTouched(field);
+      const hasFlaggedErrorUnderField = errorFieldsForPage.some(
+        (p) => p === field || p.startsWith(`${field}.`)
+      );
+      if (hasFlaggedErrorUnderField) {
+        const subValue = getIn(formik.values, field);
+        const leaves = collectLeafFieldPathsUnderRoot(field, subValue);
+        for (const leaf of leaves) {
+          formik.setFieldTouched(leaf, true, false);
+        }
+      }
     }
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
       setConfirmingPageChange(true);

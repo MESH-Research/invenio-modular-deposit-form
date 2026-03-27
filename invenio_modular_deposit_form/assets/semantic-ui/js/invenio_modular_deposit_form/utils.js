@@ -458,8 +458,45 @@ function getFormSectionElementId(sectionId) {
   return sectionId ? `deposit-form-section-${sectionId}` : null;
 }
 
+/**
+ * Dot-paths for Formik leaf values under `rootPath` for the given subtree `value`
+ * (`get(values, rootPath)` / `getIn(values, rootPath)`).
+ * Used to call `setFieldTouched` on descendants when a page-level root is touched but
+ * widgets key off leaf `meta.touched` (e.g. array rows). Arrays recurse by index; plain
+ * objects recurse by key; primitives return `[rootPath]`. Empty arrays/objects and
+ * null/undefined yield no paths (parent touch is enough).
+ *
+ * @param {string} rootPath - Formik path (no trailing dot)
+ * @param {*} value - Value at rootPath
+ * @returns {string[]}
+ */
+function collectLeafFieldPathsUnderRoot(rootPath, value) {
+  if (value === null || value === undefined) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return [];
+    }
+    return value.flatMap((item, i) =>
+      collectLeafFieldPathsUnderRoot(`${rootPath}.${i}`, item)
+    );
+  }
+  if (typeof value === "object") {
+    const keys = Object.keys(value);
+    if (keys.length === 0) {
+      return [];
+    }
+    return keys.flatMap((k) =>
+      collectLeafFieldPathsUnderRoot(`${rootPath}.${k}`, value[k])
+    );
+  }
+  return [rootPath];
+}
+
 export {
   areDeeplyEqual,
+  collectLeafFieldPathsUnderRoot,
   fieldMatches,
   findPageIdContainingComponent,
   filterNestedObject,
