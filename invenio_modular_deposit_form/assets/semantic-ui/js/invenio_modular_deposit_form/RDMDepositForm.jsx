@@ -18,7 +18,7 @@ import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { componentsRegistry } from "./componentsRegistry";
 import { buildFormSections } from "./buildFormStructure";
 import { FormLayoutContainer } from "./FormLayoutContainer";
-import { FormUIStateManager } from "./FromUIStateManager";
+import { FormUIStateManager } from "./FormUIStateManager";
 
 // Validator module: resolved via webpack alias @js/invenio_modular_deposit_form_validator
 // (package default or entry-point override). Contract: module exports a single value
