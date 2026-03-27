@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Confirm, Container, Icon, Grid, Modal, Transition } from "semantic-ui-react";
@@ -13,8 +13,7 @@ import { RecoveryModal } from "./framing_components/RecoveryModal";
 import { focusFirstElement } from "./utils";
 import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 import { SIDEBAR_DEFAULTS_WIDTHS } from "./constants";
-
-const FormUIStateContext = createContext();
+import { FormUIStateContext } from "./FormUIStateManager.jsx";
 
 /* Get sidebar configs and calculate form column visibility and widths.
  * @param {object} commonFields
