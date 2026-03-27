@@ -11,7 +11,6 @@ import { areDeeplyEqual, focusFirstElement } from "../utils";
  * @returns {Object} recoveryAsked, confirmModalRef, recoveredStorageValues, storageDataPresent
  */
 function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUploadPageId) {
-
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const confirmModalRef = useRef();
   const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
@@ -32,6 +31,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
         `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`,
         JSON.stringify(values)
       );
+      setStorageDataPresent(true);
     }
   }, [values]);
 
@@ -72,12 +72,16 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
       doSetInitialValues();
       setRecoveredStorageValues(null);
     }
-    window.localStorage.removeItem(
-      `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`
-    );
+    window.localStorage.removeItem(`rdmDepositFormValues.${currentUserprofile.id}.${values.id}`);
   };
 
-  return { handleStorageData, storageDataPresent, recoveryAsked, confirmModalRef, handleRecoveryAsked };
+  return {
+    handleStorageData,
+    storageDataPresent,
+    recoveryAsked,
+    confirmModalRef,
+    handleRecoveryAsked,
+  };
 }
 
 export { useLocalStorageRecovery };
