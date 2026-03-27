@@ -23,8 +23,9 @@
 //   before touch. Here `getFieldErrorsForDisplay(form, fieldPath, field)` matches the
 //   visibility rules used by `replacement_components/TextField.js`.
 // - Pass `field` into both identifier components so they can apply the same rule.
-// - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath, true, true)`
-//   so touch and Yup run (radios do not use `field.onBlur`).
+// - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath, false, false)` so
+//   the PID is not touched and validation is not run for that call (`getFieldErrorsForDisplay` stays
+//   quiet until blur / identifier change).
 // - **Mount:** if there is no identifier yet, align Formik value with deposit
 //   `default_selected` (`doiDefaultSelection` prop): `"yes"` →
 //   `{ provider: "external", identifier: "" }`; `"no"` → `{}` when the value still has
@@ -46,8 +47,8 @@ const UPDATE_PID_DEBOUNCE_MS = 200;
 /**
  * Required PID (e.g. DOI) field: managed vs unmanaged UI from stock, with
  * `getFieldErrorsForDisplay` on the label row and identifier components.
- * Calls `setFieldTouched(fieldPath, true, true)` when the managed/unmanaged radios change so touch
- * gating matches `TextField` (radios are not Formik Field inputs). Mount-time seeding from
+ * Calls `setFieldTouched(fieldPath, false, false)` on managed/unmanaged radio change (see file header).
+ * Mount-time seeding from
  * `doiDefaultSelection` when the identifier is empty — see file header.
  */
 export class RequiredPIDField extends Component {
@@ -184,7 +185,7 @@ export class RequiredPIDField extends Component {
                 this.onExternalIdentifierChanged("");
               }
               form.setFieldError(fieldPath, false);
-              form.setFieldTouched(fieldPath, true, true);
+              form.setFieldTouched(fieldPath, false, false);
               this.setState({
                 isManagedSelected: userSelectedManaged,
               });

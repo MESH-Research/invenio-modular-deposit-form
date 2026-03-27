@@ -136,7 +136,10 @@ class FormErrorManager {
   errorsToFieldSets = () => {
     const { errors, touched, initialErrors, initialValues, values } = this.formik;
     const errorFields = flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath);
-    const touchedFields = flattenKeysDotJoined(touched);
+    // Formik may set a leaf to `false` (explicitly untouched); do not count those paths as touched.
+    const touchedFields = flattenKeysDotJoined(touched, {
+      includeLeaf: (value) => value !== false,
+    });
     const touchedErrorFields = errorFields?.filter(
       (item) => touchedFields.includes(item) || getTouchedParent(touched, item)
     );

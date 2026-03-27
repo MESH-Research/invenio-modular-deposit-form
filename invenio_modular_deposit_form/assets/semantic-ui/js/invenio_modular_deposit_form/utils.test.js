@@ -195,6 +195,23 @@ describe('flattenKeysDotJoined', () => {
     const obj = { a: [1, 2] };
     expect(flattenKeysDotJoined(obj)).toEqual(['a']);
   });
+
+  test('includeLeaf can omit paths whose leaf value is false (Formik touched)', () => {
+    const touched = { pids: { doi: false, oai: true } };
+    expect(flattenKeysDotJoined(touched)).toEqual(['pids.doi', 'pids.oai']);
+    expect(
+      flattenKeysDotJoined(touched, { includeLeaf: (v) => v !== false })
+    ).toEqual(['pids.oai']);
+  });
+
+  test('includeLeaf receives full dot path', () => {
+    expect(
+      flattenKeysDotJoined(
+        { a: { b: 1, c: 2 } },
+        { includeLeaf: (_value, path) => path.endsWith('b') }
+      )
+    ).toEqual(['a.b']);
+  });
 });
 
 describe('getTouchedParent', () => {

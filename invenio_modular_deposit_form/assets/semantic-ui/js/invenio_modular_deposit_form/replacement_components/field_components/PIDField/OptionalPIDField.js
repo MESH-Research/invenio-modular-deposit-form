@@ -22,8 +22,8 @@
 //   column visibility; pass `field` through to identifier components.
 // - `field` added to `render()` destructure so `getFieldErrorsForDisplay` receives Formik’s
 //   `field` from the FastField render props.
-// - When optional DOI radios change, `setFieldTouched(fieldPath, true, true)` so touch and
-//   Yup run (radios do not use `field.onBlur`).
+// - When optional DOI radios change, `setFieldTouched(fieldPath, false, false)` — same as
+//   `RequiredPIDField` (see there).
 // - **No mount-time PID seed** (unlike `RequiredPIDField`): seeding `{ provider: "external",
 //   identifier: "" }` would make Yup validate an empty optional DOI. See
 //   `replacement_field_components.md` (PIDField).
@@ -49,8 +49,8 @@ const UPDATE_PID_DEBOUNCE_MS = 200;
 
 /**
  * Optional PID field with optional-DOI radios (`OptionalDOIoptions`), managed/unmanaged
- * branches, and `getFieldErrorsForDisplay`. Calls `setFieldTouched(fieldPath, true, true)` when those
- * radios change so touch gating matches `TextField`. No mount-time PID seed — see file header.
+ * branches, and `getFieldErrorsForDisplay`. Radio: `setFieldTouched(fieldPath, false, false)`; see header.
+ * No mount-time PID seed.
  */
 class OptionalPIDFieldCmp extends Component {
   constructor(props) {
@@ -169,7 +169,7 @@ class OptionalPIDFieldCmp extends Component {
       setNoINeedDOI(false);
     }
     form.setFieldError(fieldPath, false);
-    form.setFieldTouched(fieldPath, true, true);
+    form.setFieldTouched(fieldPath, false, false);
     this.setState({
       isManagedSelected: userSelectedManaged,
       isNoNeedSelected: userSelectedNoNeed,

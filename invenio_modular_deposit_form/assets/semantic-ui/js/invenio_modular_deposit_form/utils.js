@@ -42,25 +42,42 @@ function pushToArrayEnd(startingArray, targetValue, keyLabel) {
   return newArray;
 }
 
-function flattenKeysDotJoined(val) {
-  const keysArray = Object.keys(val);
-  let newArray = [];
-  for (let i = 0; i < keysArray.length; i++) {
-    const myValue = val[keysArray[i]];
-    if (
-      typeof myValue === "object" &&
-      !Array.isArray(myValue) &&
-      myValue !== null
-    ) {
-      const childKeys = flattenKeysDotJoined(val[keysArray[i]]).map(
-        (k) => `${keysArray[i]}.${k}`
-      );
-      newArray = newArray.concat(childKeys);
-    } else {
-      newArray.push(keysArray[i]);
+/**
+ * List leaf paths in dot notation (e.g. `metadata.title`, `pids.doi`).
+ *
+ * @param {Record<string, unknown>} val
+ * @param {{ includeLeaf?: (value: unknown, path: string) => boolean }} [options] If omitted,
+ *   every leaf path is included (legacy behavior). Use `includeLeaf` to drop paths —
+ *   e.g. for Formik `touched`, pass `(v) => v !== false` so explicit `false` leaves are not
+ *   treated as touched when flattening.
+ */
+function flattenKeysDotJoined(val, options) {
+  const includeLeaf = options?.includeLeaf;
+
+  function flatten(obj, prefix) {
+    if (obj == null || typeof obj !== "object" || Array.isArray(obj)) {
+      return [];
     }
+    const keysArray = Object.keys(obj);
+    let newArray = [];
+    for (let i = 0; i < keysArray.length; i++) {
+      const key = keysArray[i];
+      const myValue = obj[key];
+      const path = prefix === "" ? key : `${prefix}.${key}`;
+      if (
+        typeof myValue === "object" &&
+        !Array.isArray(myValue) &&
+        myValue !== null
+      ) {
+        newArray = newArray.concat(flatten(myValue, path));
+      } else if (includeLeaf === undefined || includeLeaf(myValue, path)) {
+        newArray.push(path);
+      }
+    }
+    return newArray;
   }
-  return newArray;
+
+  return flatten(val, "");
 }
 
 function flattenWrappers(page) {

@@ -74,10 +74,10 @@ The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `fiel
 |-------------|--------|
 | **Mount**, empty identifier, per **`doiDefaultSelection`** (`default_selected`) | **`RequiredPIDField.js` only** — seed `{ provider: "external", identifier: "" }` for `"yes"`, or `{}` for `"no"` when clearing a non-empty stale value. **`OptionalPIDField`** does not seed (optional DOI must not validate an empty field). |
 | User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, true)` (touch + run validation; radios rely on `setFieldValue` + `validateOnChange`). `Form.Input` gets `name={field.name \|\| fieldPath}`. |
-| User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `onManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, true)`. |
-| User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `handleManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, true)`. |
+| User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `setFieldTouched(fieldPath, false, false)` (mark untouched; do not validate on that call). |
+| User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — same `false`, `false` on radio. |
 
-Without these, `touched` would stay false until some other code path set it, and validation errors gated by touch would not match `TextField` behavior.
+Blur/input paths set `touched` so `getFieldErrorsForDisplay` can show errors after the user interacts. Radio toggles set **`touched` to `false`** and **`shouldValidate`** to **`false`** on that `setFieldTouched` call, so switching branches does not immediately validate or show errors for an empty PID.
 
 (formik-pid-initial-provider)=
 ### Initial `pids.<scheme>` shape vs `default_selected`

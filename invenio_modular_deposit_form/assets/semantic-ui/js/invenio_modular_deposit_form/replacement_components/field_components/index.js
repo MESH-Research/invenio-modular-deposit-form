@@ -21,9 +21,9 @@
 //   identifier UIs + `fieldErrorsForDisplay`). Stock uses `getFieldErrors` (show as soon
 //   as validation fails); here `getFieldErrorsForDisplay` aligns visible errors with
 //   `replacement_components/TextField.js` (touch / initial-error rules). Because PID inputs
-//   are not plain Formik Field scalars, this fork sets `form.touched[fieldPath]` on
-//   unmanaged-input blur (`UnmanagedIdentifierCmp`) and when managed/unmanaged or optional
-//   DOI radios change (`RequiredPIDField` / `OptionalPIDField`); see Sphinx
+//   are not plain Formik Field scalars, this fork sets `touched` on unmanaged-input blur
+//   (`UnmanagedIdentifierCmp`, true); radio changes use `setFieldTouched(fieldPath, false, false)`
+//   (`RequiredPIDField` / `OptionalPIDField`); see Sphinx
 //   docs/source/replacement_field_components.md § “Formik touched and this fork”.
 //   **Initial `provider` (required PID only):** `RequiredPIDField` on mount, if there is no
 //   identifier yet, seeds `pids.<scheme>` from `doiDefaultSelection` (`default_selected`).

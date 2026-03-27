@@ -26,7 +26,7 @@
 // Preconditions: for the “validation error + touched” branch to ever apply, callers must
 // ensure `form.touched[fieldPath]` becomes true — e.g. `UnmanagedIdentifierCmp` calls
 // `form.setFieldTouched(fieldPath)` on blur (not `field.onBlur(e)`; see that file);
-// `RequiredPIDField` / `OptionalPIDField` call `setFieldTouched(fieldPath, true, true)` when radios change.
+// `RequiredPIDField` / `OptionalPIDField` call `setFieldTouched(fieldPath, false, false)` on radio change.
 // Documented in docs/source/replacement_field_components.md.
 //
 // Nested Yup errors: validation often attaches messages at `pids.doi.identifier`, while the
