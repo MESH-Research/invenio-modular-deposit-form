@@ -1,3 +1,9 @@
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2025, MESH Research
+//
+// invenio-modular-deposit-form is free software; you can redistribute and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import React, { useContext } from "react";
 import { Button, Grid, Icon, Segment } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -44,7 +50,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
             {!!storageDataPresent && (
               <span className="nav-bar-message-text">
                 <Trans
-                  defaults="Backed up temporarily <0>in this browser</0>."
+                  defaults="Form values backed up temporarily <0>in this browser</0>."
                   components={[<i />]}
                 />
               </span>

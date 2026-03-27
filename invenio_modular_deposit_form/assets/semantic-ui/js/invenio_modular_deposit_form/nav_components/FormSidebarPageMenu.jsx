@@ -1,3 +1,9 @@
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2025, MESH Research
+//
+// invenio-modular-deposit-form is free software; you can redistribute and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import React, { useContext, useMemo } from "react";
 import { Button, Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
