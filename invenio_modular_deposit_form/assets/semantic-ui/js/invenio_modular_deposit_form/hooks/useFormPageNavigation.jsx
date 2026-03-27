@@ -169,15 +169,17 @@ const useFormPageNavigation = (
   }
 
   function handleFormPageChange(event, { value }) {
-    const pageFields = currentFormPageFields[currentFormPage] || [];
-    // Use sectionErrorsAll (via getPagesWithErrors), not sectionErrorsFlagged: untouched client
-    // errors (e.g. new empty array row) appear in All for the nav guard but not in Flagged until
-    // a parent path is already touched — Flagged-only would skip leaf expansion on first leave.
-    const errorFieldsForPage = pagesWithErrors[currentFormPage] ?? [];
+    const originPageFields = currentFormPageFields[currentFormPage] || [];
+    const destPageFields = currentFormPage[value] || [];
 
-    for (const field of pageFields) {
+    const errorFieldsForOriginPage = pagesWithErrors[currentFormPage] ?? [];
+    const errorFieldsForDestPage = pagesWithErrors[value] ?? [];
+
+    // Ensure origin page fields are touched before we leave.
+    // Include any subfields if the field has an error.
+    for (const field of originPageFields) {
       formik.setFieldTouched(field);
-      const hasPageErrorUnderField = errorFieldsForPage.some(
+      const hasPageErrorUnderField = errorFieldsForOriginPage.some(
         (p) => p === field || p.startsWith(`${field}.`)
       );
       if (hasPageErrorUnderField) {
@@ -188,6 +190,20 @@ const useFormPageNavigation = (
         }
       }
     }
+
+    // Ensure target page fields are *untouched* unless they have errors.
+    // (To avoid problem of new empty array field items in touched field
+    // being flagged immediately as errors.)
+    for (const field of destPageFields) {
+      const hasPageErrorUnderField = errorFieldsForDestPage.some(
+        (p) => p === field || p.startsWith(`${field}.`)
+      );
+      if (!hasPageErrorUnderField) {
+        formik.setFieldTouched(field, false);
+      }
+    }
+
+    // Open confirm modal if origin page has errors, otherwise navigate.
     if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
       setConfirmingPageChange(true);
       setDestFormPage(value);
