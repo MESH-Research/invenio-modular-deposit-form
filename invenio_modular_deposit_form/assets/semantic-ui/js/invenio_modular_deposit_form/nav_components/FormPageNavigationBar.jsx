@@ -25,44 +25,46 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
     >
       <Segment>
         <Grid className="deposit-form-nav-bar">
-          <Grid.Column width={3} textAlign="left">
-            {!!previousFormPage && (
-              <Button
-                type="button"
-                onClick={handleFormPageChange}
-                value={previousFormPage}
-                icon
-                labelPosition="left"
-                className="back-button"
-              >
-                <Icon name="left arrow" />
-                {i18next.t("Back")}
-              </Button>
-            )}
-          </Grid.Column>
-          <Grid.Column className="nav-bar-message" width={10} textAlign="center">
-            {!!storageDataPresent &&
-            <Trans 
-              defaults="Backed up temporarily <0>in this browser</0>." 
-              components={[<i/>]} 
-              />
-            }
-          </Grid.Column>
-          <Grid.Column width={3} textAlign="right">
-            {!!nextFormPage && (
-              <Button
-                type="button"
-                onClick={handleFormPageChange}
-                value={nextFormPage}
-                icon
-                labelPosition="right"
-                className="continue-button primary"
-              >
-                <Icon name="right arrow" />
-                {i18next.t("Next")}
-              </Button>
-            )}
-          </Grid.Column>
+          <Grid.Row verticalAlign="middle">
+            <Grid.Column width={3} textAlign="left">
+              {!!previousFormPage && (
+                <Button
+                  type="button"
+                  onClick={handleFormPageChange}
+                  value={previousFormPage}
+                  icon
+                  labelPosition="left"
+                  className="back-button"
+                >
+                  <Icon name="left arrow" />
+                  {i18next.t("Back")}
+                </Button>
+              )}
+            </Grid.Column>
+            <Grid.Column className="nav-bar-message" width={10} textAlign="center">
+              {!!storageDataPresent && (
+                <Trans
+                  defaults="Backed up temporarily <0>in this browser</0>."
+                  components={[<i />]}
+                />
+              )}
+            </Grid.Column>
+            <Grid.Column width={3} textAlign="right">
+              {!!nextFormPage && (
+                <Button
+                  type="button"
+                  onClick={handleFormPageChange}
+                  value={nextFormPage}
+                  icon
+                  labelPosition="right"
+                  className="continue-button primary"
+                >
+                  <Icon name="right arrow" />
+                  {i18next.t("Next")}
+                </Button>
+              )}
+            </Grid.Column>
+          </Grid.Row>
         </Grid>
       </Segment>
     </div>

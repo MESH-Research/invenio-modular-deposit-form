@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { Header, Label, Menu } from "semantic-ui-react";
+import { Button, Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../FormLayoutContainer";
@@ -11,9 +11,8 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * Menu items show severity-aware badges (error/warning/info counts) and
  * a severity class (has-error, has-warning, has-info).
  *
- * Items render as native <button> (Menu.Item as="button") so they stay in tab
- * order like FormStepper, without the .ui.button flex centering that as={Button}
- * would add.
+ * Items use Menu.Item as={Button} (type="button") for semantics and tab order;
+ * deposit_form.less overrides default centered content on fluid buttons.
  */
 const FormSidebarPageMenu = ({ classnames, ...props }) => {
   const ctx = useContext(FormUIStateContext);
@@ -44,7 +43,7 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
             return (
               <Menu.Item
                 key={section}
-                as="button"
+                as={Button}
                 type="button"
                 formNoValidate
                 name={section}
