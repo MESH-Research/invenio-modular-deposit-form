@@ -42,10 +42,12 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
           </Grid.Column>
           <Grid.Column className="nav-bar-message" width={10} textAlign="center">
             {!!storageDataPresent && (
-              <Trans
-                defaults="Backed up temporarily <0>in this browser</0>."
-                components={[<i />]}
-              />
+              <span className="nav-bar-message-text">
+                <Trans
+                  defaults="Backed up temporarily <0>in this browser</0>."
+                  components={[<i />]}
+                />
+              </span>
             )}
           </Grid.Column>
           <Grid.Column width={3} textAlign="right">
