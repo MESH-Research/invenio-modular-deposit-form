@@ -26,9 +26,9 @@ from invenio_rdm_records.contrib.meeting import (
 )
 from invenio_rdm_records.contrib.thesis import (
     THESIS_CUSTOM_FIELDS,
-    THESIS_CUSTOM_FIELDS_UI,
     THESIS_NAMESPACE,
 )
+
 from ..custom_field_ui.codemeta_fields import (
     CODEMETA_CUSTOM_FIELDS_UI,
 )
@@ -40,6 +40,9 @@ from ..custom_field_ui.journal_fields import (
 )
 from ..custom_field_ui.meeting_fields import (
     MEETING_CUSTOM_FIELDS_UI,
+)
+from ..custom_field_ui.thesis_fields import (
+    THESIS_CUSTOM_FIELDS_UI,
 )
 from .default import COMMON_FIELDS_DEFAULT_PAGED, FIELDS_BY_TYPE_DEFAULT_PAGED
 
