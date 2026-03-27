@@ -36,6 +36,15 @@
   /* In normal flow when the footer scroll target is in view. */
   // }
 
+  /*
+   * Footer page nav: direct Grid.Columns use inline-block + vertical-align top.
+   * Center the backup message on the cross-axis vs Back/Next buttons (avoid Grid.Row
+   * verticalAlign="middle", which applies flex rules that hid the middle column in practice).
+   */
+  .deposit-form-nav-bar.ui.grid > .column.nav-bar-message {
+    vertical-align: middle;
+  }
+
   .upload-form-pager {
     .upload-form-stepper-step .title {
       line-height: 1.25em;
@@ -244,10 +253,6 @@
           }
         }
       }
-    }
-
-    .invenio-form-row {
-      margin-bottom: 0;
     }
 
     .fields.invenio-group-field {
