@@ -37,6 +37,13 @@
 //   Upstream could add an optional `onModalClose` (or equivalent) on stock modal to avoid
 //   forking the modal file.
 //
+// IdentifiersField.js
+//   Fork of upstream `deposit/fields/Identifiers/IdentifiersField.js`. Row wrapper is bare
+//   `<GroupField>` like stock (baseline — no `fieldPath` / `optimized` on the group). Other
+//   divergences: local `TextField` / `SelectField` from `replacement_components/`; `emptyIdentifier`
+//   from `@js/invenio_rdm_records/.../Identifiers/initialValues`; optional `icon` as alias
+//   for `labelIcon` (`FieldComponentWrapper`). Layout/markup otherwise matches upstream.
+//
 // Any new non–import-only divergence must be summarized in this header and in
 // docs/source/replacement_field_components.md.
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
@@ -44,6 +51,7 @@ export { AdditionalTitlesField } from "./AdditionalTitlesField";
 export { CopyrightsField } from "./CopyrightsField";
 export { CreatibutorsField } from "./CreatibutorsField";
 export { DescriptionsField } from "./DescriptionsField";
+export { IdentifiersField } from "./IdentifiersField";
 export { LanguagesField } from "./LanguagesField";
 export { PIDField } from "./PIDField";
 export { PublisherField } from "./PublisherField";

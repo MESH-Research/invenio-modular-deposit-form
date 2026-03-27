@@ -25,7 +25,6 @@ import {
   DeleteButton,
   DepositStatusBox,
   FileUploader,
-  IdentifiersField,
   LicenseField,
   PreviewButton,
   PublicationDateField,
@@ -44,6 +43,7 @@ import {
   CreatibutorsField,
   CopyrightsField,
   DescriptionsField,
+  IdentifiersField,
   LanguagesField,
   PublisherField,
   ResourceTypeField,
@@ -143,7 +143,8 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Alternate identifiers / URLs (metadata.identifiers). Uses stock IdentifiersField.
+ * Alternate identifiers / URLs (metadata.identifiers). Replacement IdentifiersField
+ * (`replacement_components`; bare `GroupField` like stock — see fork header).
  * @overridable InvenioAppRdm.Deposit.IdentifiersField.container (via FieldComponentWrapper)
  */
 const AlternateIdentifiersComponent = ({ ...extraProps }) => {

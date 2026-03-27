@@ -5,7 +5,7 @@
 // modify it under the terms of the MIT License; see LICENSE file for more details.
 
 /**
- * Wrapper around stock IdentifiersField bound to meeting custom field identifiers.
+ * Wrapper around modular replacement IdentifiersField for meeting identifiers.
  * Use with custom_fields.ui entry field `meeting:meeting.identifiers` and
  * ui_widget `MeetingIdentifiersField`, or pass an explicit fieldPath.
  */
@@ -13,7 +13,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useStore } from "react-redux";
-import { IdentifiersField } from "@js/invenio_rdm_records";
+import { IdentifiersField } from "@js/invenio_modular_deposit_form/replacement_components/field_components";
 
 const DEFAULT_FIELD_PATH = "custom_fields.meeting:meeting.identifiers";
 
