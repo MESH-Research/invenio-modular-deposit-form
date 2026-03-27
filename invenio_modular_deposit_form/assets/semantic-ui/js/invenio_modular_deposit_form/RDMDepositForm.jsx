@@ -18,6 +18,7 @@ import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { componentsRegistry } from "./componentsRegistry";
 import { buildFormSections } from "./buildFormStructure";
 import { FormLayoutContainer } from "./FormLayoutContainer";
+import { FormUIStateManager } from "./FromUIStateManager";
 
 // Validator module: resolved via webpack alias @js/invenio_modular_deposit_form_validator
 // (package default or entry-point override). Contract: module exports a single value
@@ -25,8 +26,6 @@ import { FormLayoutContainer } from "./FormLayoutContainer";
 // otherwise it is the schema itself. Schema only — no separate validate function.
 const validatorModule = require(`@js/invenio_modular_deposit_form_validator`);
 const validatorExport = validatorModule?.default ?? validatorModule;
-
-
 
 /*
 RDMDepositForm is the main component that we override to customize the deposit form. Vocabulary handling matches stock invenio-app-rdm: we read config.vocabularies and build an enriched vocabularies object (creator/contributor type options). Config (including enriched vocabularies and componentsRegistry) is passed to DepositFormApp and stored in Redux; FormLayoutContainer reads them from the store.
@@ -134,17 +133,19 @@ export const RDMDepositForm = ({
   }, [config]);
 
   return (
-      <DepositFormApp
-        config={configForStore}
-        record={record}
-        preselectedCommunity={preselectedCommunity}
-        files={files}
-        permissions={permissions}
-        errors={record.errors}
-        validationSchema={validationSchema}
-      >
+    <DepositFormApp
+      config={configForStore}
+      record={record}
+      preselectedCommunity={preselectedCommunity}
+      files={files}
+      permissions={permissions}
+      errors={record.errors}
+      validationSchema={validationSchema}
+    >
+      <FormUIStateManager>
         <FormLayoutContainer />
-      </DepositFormApp>
+      </FormUIStateManager>
+    </DepositFormApp>
   );
 };
 

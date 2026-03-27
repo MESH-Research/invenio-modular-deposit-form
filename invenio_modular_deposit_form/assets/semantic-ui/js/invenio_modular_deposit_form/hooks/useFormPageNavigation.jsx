@@ -66,7 +66,6 @@ const useFormPageNavigation = (
   const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
 
-  const formPageSlugs = visibleFormPages.map(({ section }) => section);
   const pageNums = visibleFormPages.map(({ section }) => section);
   const currentPageIndex = pageNums.indexOf(currentFormPage);
   const nextPageIndex = currentPageIndex + 1;
@@ -168,7 +167,7 @@ const useFormPageNavigation = (
     });
   }
 
-  function handleFormPageChange(event, { value }) {
+  function handleFormPageChange(_, { value }) {
     const originPageFields = currentFormPageFields[currentFormPage] || [];
     const destPageFields = currentFormPage[value] || [];
 
@@ -199,7 +198,7 @@ const useFormPageNavigation = (
         (p) => p === field || p.startsWith(`${field}.`)
       );
       if (!hasPageErrorUnderField) {
-        formik.setFieldTouched(field, false);
+        formik.setFieldTouched(field, false, false);
       }
     }
 

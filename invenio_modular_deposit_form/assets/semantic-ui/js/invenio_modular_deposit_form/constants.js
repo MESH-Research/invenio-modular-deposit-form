@@ -27,10 +27,18 @@ const RDM_RECORD_ACCESS_LEVELS = Object.freeze(["public", "restricted"]);
 /** Default `metadata.title` max length when `config.max_title_length` is unset (matches typical RDM default). */
 const DEFAULT_TITLE_MAX_LENGTH = 260;
 
+const SIDEBAR_DEFAULTS_WIDTHS = {
+  mobile: 16,
+  tablet: 16,
+  computer: 3,
+  largeScreen: 3,
+  widescreen: 3,
+};
+
 export {
   DEFAULT_TITLE_MAX_LENGTH,
   RECORD_FIELD_ERROR_ROOTS,
   RDM_RECORD_ACCESS_LEVELS,
   SEVERITIES,
+  SIDEBAR_DEFAULTS_WIDTHS,
 };
-
