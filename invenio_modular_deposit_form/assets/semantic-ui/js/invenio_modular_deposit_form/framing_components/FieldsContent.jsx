@@ -12,7 +12,9 @@ const FormRow = ({ subsections, component, classnames, ...props }) => {
       classnames={classnames}
       subsections={subsections}
     >
-      <Form.Group className={`${classnames ? classnames : ""} invenio-group-field`}>
+      <Form.Group
+        className={`${classnames ? classnames : ""} invenio-group-field invenio-form-row mb-0`}
+      >
         {subsections.map(({ section, component, ...innerProps }, index) => {
           const MyField = componentsRegistry[component][0];
           return (
