@@ -20,10 +20,11 @@ import { collectLeafFieldPathsUnderRoot } from "../utils";
  * - **Next / previous** — Exposes `nextFormPage` and `previousFormPage` as adjacent visible page ids
  *   (or null) for footer nav; ordering follows `visibleFormPages`.
  * - **User-initiated page change** — `handleFormPageChange` marks all fields on the current page
- *   touched. If `sectionErrorsFlagged` lists error paths for this page (`error_fields`) under a
- *   page field, descendant leaf paths are touched too (so inputs that gate on leaf `meta.touched`
- *   show errors after navigate-away). Then either opens the confirm modal (if the current page
- *   still has validation errors per `sectionErrorsAll`) or dispatches `SET_CURRENT_FORM_PAGE`
+ *   touched. If `sectionErrorsAll` lists any path for this page (same set as the nav guard via
+ *   `getPagesWithErrors`) under a page registry field, descendant leaf paths are touched too — including
+ *   client validation on untouched fields (Flagged-only lists would miss those until something else
+ *   touched a parent). Then either opens the confirm modal (if the current page still has errors
+ *   per `sectionErrorsAll`) or dispatches `SET_CURRENT_FORM_PAGE`
  *   and updates the URL via `history.pushState` so Back/Forward can move between steps.
  * - **URL on load / popstate** — `handleFormPageParam` reads `?page=`, supports `first` / `last`
  *   aliases, and dispatches `SET_CURRENT_FORM_PAGE` when the slug is valid; a `popstate` listener
@@ -169,19 +170,17 @@ const useFormPageNavigation = (
 
   function handleFormPageChange(event, { value }) {
     const pageFields = currentFormPageFields[currentFormPage] || [];
-    const flaggedForPage = (formUIState?.sectionErrorsFlagged ?? []).filter(
-      (e) => e.page === currentFormPage
-    );
-    const errorFieldsForPage = [
-      ...new Set(flaggedForPage.flatMap((e) => e.error_fields ?? [])),
-    ];
+    // Use sectionErrorsAll (via getPagesWithErrors), not sectionErrorsFlagged: untouched client
+    // errors (e.g. new empty array row) appear in All for the nav guard but not in Flagged until
+    // a parent path is already touched — Flagged-only would skip leaf expansion on first leave.
+    const errorFieldsForPage = pagesWithErrors[currentFormPage] ?? [];
 
     for (const field of pageFields) {
       formik.setFieldTouched(field);
-      const hasFlaggedErrorUnderField = errorFieldsForPage.some(
+      const hasPageErrorUnderField = errorFieldsForPage.some(
         (p) => p === field || p.startsWith(`${field}.`)
       );
-      if (hasFlaggedErrorUnderField) {
+      if (hasPageErrorUnderField) {
         const subValue = getIn(formik.values, field);
         const leaves = collectLeafFieldPathsUnderRoot(field, subValue);
         for (const leaf of leaves) {
