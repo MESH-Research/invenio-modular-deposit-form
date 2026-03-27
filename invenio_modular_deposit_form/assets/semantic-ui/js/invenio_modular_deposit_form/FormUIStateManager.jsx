@@ -119,4 +119,4 @@ const FormUIStateManager = ({ children }) => {
   return <FormUIStateContext.Provider value={contextValue}>{children}</FormUIStateContext.Provider>;
 };
 
-export { FormUIStateManager };
+export { FormUIStateManager, FormUIStateContext };
