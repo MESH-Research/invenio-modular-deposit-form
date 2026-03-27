@@ -72,11 +72,21 @@ The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `fiel
 
 | Interaction | Where |
 |-------------|--------|
+| **Mount**, empty identifier, per **`doiDefaultSelection`** (`default_selected`) | **`RequiredPIDField.js` only** — seed `{ provider: "external", identifier: "" }` for `"yes"`, or `{}` for `"no"` when clearing a non-empty stale value. **`OptionalPIDField`** does not seed (optional DOI must not validate an empty field). |
 | User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, true)` (touch + run validation; radios rely on `setFieldValue` + `validateOnChange`). `Form.Input` gets `name={field.name \|\| fieldPath}`. |
-| User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `onManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
-| User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `handleManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, false)`. |
+| User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `onManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, true)`. |
+| User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `handleManagedUnmanagedChange` calls `form.setFieldTouched(fieldPath, true, true)`. |
 
 Without these, `touched` would stay false until some other code path set it, and validation errors gated by touch would not match `TextField` behavior.
+
+(formik-pid-initial-provider)=
+### Initial `pids.<scheme>` shape vs `default_selected`
+
+Deposit config exposes per-scheme UI default as **`default_selected`** (`"yes"` / `"no"` / `"not_needed"` for optional DOI), passed to `PIDField` as **`doiDefaultSelection`**. The UI derives managed vs unmanaged from that plus the current identifier, but until the user types or toggles radios, Formik may still hold `{}` or a value **without** `provider: "external"` on the unmanaged branch.
+
+**`RequiredPIDField`** runs **`componentDidMount`**: if the identifier is empty, **`doiDefaultSelection === "yes"`** sets **`{ provider: "external", identifier: "" }`** when `provider` is missing or not `"external"`; **`doiDefaultSelection === "no"`** sets **`{}`** if the value object still has keys (clear stale shape). **`OptionalPIDField`** does **not** do this: seeding external would make Yup treat the field as an external DOI branch and can flag an empty identifier even when optional DOI should not require one. **`not_needed`** is unchanged (no external seed from this block). This keeps required-PID Yup and the unmanaged input aligned with the visible default without relying on backend-only defaults.
+
+**`OptionalPIDField`** also avoids setting **`provider: "external"`** when the user switches radios to the unmanaged branch: it clears **`pids`** (same as managed / not-needed), and **`provider: "external"`** is written only when the user types in the unmanaged identifier input (`onExternalIdentifierChanged`).
 
 ## Upstream changes that could remove these replacements
 

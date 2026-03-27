@@ -23,8 +23,12 @@
 //   before touch. Here `getFieldErrorsForDisplay(form, fieldPath, field)` matches the
 //   visibility rules used by `replacement_components/TextField.js`.
 // - Pass `field` into both identifier components so they can apply the same rule.
-// - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath)` so
-//   `getFieldErrorsForDisplay` can show validation errors (radios do not use `field.onBlur`).
+// - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath, true, true)`
+//   so touch and Yup run (radios do not use `field.onBlur`).
+// - **Mount:** if there is no identifier yet, align Formik value with deposit
+//   `default_selected` (`doiDefaultSelection` prop): `"yes"` →
+//   `{ provider: "external", identifier: "" }`; `"no"` → `{}` when the value still has
+//   keys (stale shape). See `replacement_field_components.md` (PIDField).
 
 import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
@@ -42,8 +46,9 @@ const UPDATE_PID_DEBOUNCE_MS = 200;
 /**
  * Required PID (e.g. DOI) field: managed vs unmanaged UI from stock, with
  * `getFieldErrorsForDisplay` on the label row and identifier components.
- * Calls `setFieldTouched(fieldPath)` when the managed/unmanaged radios change so touch
- * gating matches `TextField` (radios are not Formik Field inputs).
+ * Calls `setFieldTouched(fieldPath, true, true)` when the managed/unmanaged radios change so touch
+ * gating matches `TextField` (radios are not Formik Field inputs). Mount-time seeding from
+ * `doiDefaultSelection` when the identifier is empty — see file header.
  */
 export class RequiredPIDField extends Component {
   constructor(props) {
@@ -61,6 +66,32 @@ export class RequiredPIDField extends Component {
     this.state = {
       isManagedSelected: isManagedSelected,
     };
+  }
+
+  /**
+   * Align `pids.<scheme>` with the configured default when there is no identifier yet:
+   * unmanaged default (`default_selected` "yes") → `{ provider: "external", identifier: "" }`;
+   * managed default ("no") → `{}` so no stray `external` provider without user action.
+   */
+  componentDidMount() {
+    const { doiDefaultSelection, field, fieldPath, form } = this.props;
+    const value = field?.value;
+    const id = String(value?.identifier ?? "").trim();
+    if (id !== "") {
+      return;
+    }
+    if (doiDefaultSelection === "yes") {
+      if (!value?.provider || value.provider !== PROVIDER_EXTERNAL) {
+        form.setFieldValue(fieldPath, {
+          provider: PROVIDER_EXTERNAL,
+          identifier: "",
+        });
+      }
+      return;
+    }
+    if (doiDefaultSelection === "no" && value && Object.keys(value).length > 0) {
+      form.setFieldValue(fieldPath, {});
+    }
   }
 
   onExternalIdentifierChanged = (identifier) => {
@@ -153,7 +184,7 @@ export class RequiredPIDField extends Component {
                 this.onExternalIdentifierChanged("");
               }
               form.setFieldError(fieldPath, false);
-              form.setFieldTouched(fieldPath, true, false);
+              form.setFieldTouched(fieldPath, true, true);
               this.setState({
                 isManagedSelected: userSelectedManaged,
               });

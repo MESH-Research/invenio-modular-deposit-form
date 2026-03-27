@@ -22,8 +22,14 @@
 //   column visibility; pass `field` through to identifier components.
 // - `field` added to `render()` destructure so `getFieldErrorsForDisplay` receives Formik’s
 //   `field` from the FastField render props.
-// - When optional DOI radios change, `setFieldTouched(fieldPath)` so errors can show (radios
-//   do not use `field.onBlur`).
+// - When optional DOI radios change, `setFieldTouched(fieldPath, true, true)` so touch and
+//   Yup run (radios do not use `field.onBlur`).
+// - **No mount-time PID seed** (unlike `RequiredPIDField`): seeding `{ provider: "external",
+//   identifier: "" }` would make Yup validate an empty optional DOI. See
+//   `replacement_field_components.md` (PIDField).
+// - **Unmanaged toggle:** does not call `onExternalIdentifierChanged` (that sets
+//   `provider: "external"`). Clears `pids` like managed / “not needed”; external is set
+//   only when the user types in `UnmanagedIdentifierCmp`.
 
 import _debounce from "lodash/debounce";
 import _isEmpty from "lodash/isEmpty";
@@ -43,8 +49,8 @@ const UPDATE_PID_DEBOUNCE_MS = 200;
 
 /**
  * Optional PID field with optional-DOI radios (`OptionalDOIoptions`), managed/unmanaged
- * branches, and `getFieldErrorsForDisplay`. Calls `setFieldTouched(fieldPath)` when those
- * radios change so touch gating matches `TextField`.
+ * branches, and `getFieldErrorsForDisplay`. Calls `setFieldTouched(fieldPath, true, true)` when those
+ * radios change so touch gating matches `TextField`. No mount-time PID seed — see file header.
  */
 class OptionalPIDFieldCmp extends Component {
   constructor(props) {
@@ -158,11 +164,12 @@ class OptionalPIDFieldCmp extends Component {
       form.setFieldValue("pids", {});
       setNoINeedDOI(false);
     } else {
-      this.onExternalIdentifierChanged("");
+      // Unmanaged: clear without `provider: "external"` — that would validate empty optional DOI.
+      form.setFieldValue("pids", {});
       setNoINeedDOI(false);
     }
     form.setFieldError(fieldPath, false);
-    form.setFieldTouched(fieldPath, true, false);
+    form.setFieldTouched(fieldPath, true, true);
     this.setState({
       isManagedSelected: userSelectedManaged,
       isNoNeedSelected: userSelectedNoNeed,
