@@ -349,13 +349,13 @@ function buildValidationSchema(config = {}) {
         additional_titles: yupArray().of(
           yupObject().shape({
             title: yupString()
-              .matches(/(?!\s).+/, i18next.t("Title cannot be blank"))
+              .matches(/(?!\s).+/, i18next.t("Enter a title or remove this row"))
               .min(1, i18next.t("Title must be at least 1 character"))
               .max(
                 titleMaxLength,
                 i18next.t("Title must be at most {{count}} characters", { count: titleMaxLength })
               )
-              .required(i18next.t("A title is required")),
+              .required(i18next.t("Enter a title or remove this row")),
             type: additionalTitleTypeSchema,
             lang: mixed().test(
               "lang-format",
@@ -377,7 +377,7 @@ function buildValidationSchema(config = {}) {
         additional_descriptions: yupArray().of(
           yupObject().shape({
             description: yupString()
-              .matches(/(?!\s).+/, i18next.t("Description cannot be blank"))
+              .matches(/(?!\s).+/, i18next.t("Provide a description or remove this item"))
               .required(i18next.t("Provide a description or remove this item")),
             type: yupString().required(
               i18next.t("A type is required for each additional description")
