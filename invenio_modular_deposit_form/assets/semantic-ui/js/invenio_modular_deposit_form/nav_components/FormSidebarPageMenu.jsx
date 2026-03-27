@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { Button, Header, Label, Menu } from "semantic-ui-react";
+import { Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { FormUIStateContext } from "../FormLayoutContainer";
@@ -11,8 +11,9 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * Menu items show severity-aware badges (error/warning/info counts) and
  * a severity class (has-error, has-warning, has-info).
  *
- * Items render as native buttons (Menu.Item as={Button}, type="button") so they
- * participate in the normal tab order, like FormStepper steps.
+ * Items render as native <button> (Menu.Item as="button") so they stay in tab
+ * order like FormStepper, without the .ui.button flex centering that as={Button}
+ * would add.
  */
 const FormSidebarPageMenu = ({ classnames, ...props }) => {
   const ctx = useContext(FormUIStateContext);
@@ -43,12 +44,12 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
             return (
               <Menu.Item
                 key={section}
-                as={Button}
+                as="button"
                 type="button"
                 formNoValidate
                 name={section}
                 active={currentFormPage === section}
-                className={severityClass}
+                className={[severityClass, "fluid"].filter(Boolean).join(" ")}
                 aria-current={currentFormPage === section ? "page" : undefined}
                 onClick={(e) => handleFormPageChange(e, { value: section })}
               >

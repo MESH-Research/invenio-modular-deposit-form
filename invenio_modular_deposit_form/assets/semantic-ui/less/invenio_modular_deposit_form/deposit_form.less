@@ -110,6 +110,13 @@
     .item {
       line-height: 1.25em;
 
+      /* Layer on top of Semantic `.item.fluid` (width from theme); force start alignment if flex. */
+      &.fluid {
+        display: flex;
+        justify-content: flex-start;
+        text-align: left;
+      }
+
       /* Sidebar menu severity: error, warning, info. Badges replace exclamation icon. */
       &.has-error {
         border-left: 3px solid @negativeBorderColor;
