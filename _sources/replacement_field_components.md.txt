@@ -30,6 +30,10 @@ For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements inte
 
 In addition, local `RemoteSelectField` now synchronizes selected suggestions to `formik.values.ui.<fieldPath>` on add/change. This keeps the UI label cache aligned with selected IDs so `initialSuggestions` can rehydrate readable labels after remount/recovery without changing the canonical submitted value shape.
 
+## `FieldComponentWrapper` and `labelIcon`
+
+Built-in section components wrap their default field widget in **`FieldComponentWrapper`**, which merges layout config (`label_modifications`, **`icon_modifications`** in deposit config, etc.) and passes props to the inner widget via `React.cloneElement`. The wrapper passes the field label icon as **`labelIcon`** (aligned with `invenio_rdm_records` field components such as `AccessRightField`). Legacy props **`icon`** on the wrapper or on merged custom-field props are still folded into the computed `labelIcon` so existing `custom_fields.ui` / YAML using `icon` continues to work. Replacement **`TextField`**, **`TextArea`**, and **`MultiInput`** take **`labelIcon` only** for that label icon (adapters such as **`Input`** / **`Dropdown`** may still accept stock **`icon`** and map it to `FieldLabel`).
+
 ## Enumeration (matches `field_components/index.js`)
 
 The barrel file path is:
@@ -42,10 +46,13 @@ The barrel file path is:
 | `AdditionalTitlesField` | `AdditionalTitlesField` | Same pattern: additional titles UI with local widgets. |
 | `CopyrightsField` | `CopyrightsField` | Stock copy; uses `replacement_components/TextField.js` for the copyright string field. |
 | `CreatibutorsField` | `CreatibutorsField` | Fork: uses a **local** `CreatibutorsModal` so `onModalClose` runs whenever the modal closes (cancel/close/save), allowing `setFieldTouched`; item/type/utils still imported from `@js/invenio_rdm_records`. |
+| `DatesField` | `deposit/fields/DatesField/DatesField` | Fork: same layout and `InvenioRdmRecords.DatesField.*` Overridable ids as stock; local `TextField` / `SelectField`; `emptyDate` from `@js/.../DatesField/initialValues`; `sortOptions` from `@js/.../deposit/utils`. |
 | `DescriptionsField` | `DescriptionsField` | Stock copy; uses local rich/text widgets where configured. |
+| `IdentifiersField` | `deposit/fields/Identifiers/IdentifiersField` | Fork: row wrapper is bare `<GroupField>` like stock; local `TextField` / `SelectField`; `emptyIdentifier` from `@js/.../Identifiers/initialValues`. |
 | `LanguagesField` | `LanguagesField` | Stock copy; uses local `RemoteSelectField` from this package instead of the stock select import. |
 | `PIDField` | `deposit/fields/Identifiers/PIDField` | **Larger fork** (see below): touched-aware errors via `pid_components/fieldErrorsForDisplay.js`, local identifier components, `@js` deep imports for paths that do not resolve from this repo. |
 | `PublisherField` | `PublisherField` | Stock copy; local replacement widgets. |
+| `RelatedWorksField` | `deposit/fields/RelatedWorksField/RelatedWorksField` | Fork: same layout as stock; local `TextField` / `SelectField`; row `ResourceTypeField` from this folder (replacement `SelectField`); `emptyRelatedWork` from `@js/.../RelatedWorksField/initialValues`. |
 | `ResourceTypeField` | `ResourceTypeField` | Stock copy; may use local vocabulary/select widgets. |
 | `TitlesField` | `TitlesField` | Stock copy; `TextField` + `AdditionalTitlesField` from replacements. |
 | `VersionField` | `VersionField` | Stock copy; local widgets. |
@@ -123,9 +130,9 @@ This section describes **what would need to exist in stock `invenio_rdm_records`
 
 If upstream **`CreatibutorsField`** (or `FeedbackLabel` usage) respected the same touched rules as `TextField`, the local field-level wrapper for “general creatibutors error” might be unnecessary.
 
-### “Simple” widget-swap fields (`TitlesField`, `CopyrightsField`, …)
+### “Simple” widget-swap fields (`TitlesField`, `CopyrightsField`, `DatesField`, `IdentifiersField`, `RelatedWorksField`, …)
 
-If **`TextField`** (or equivalent) were **injected** per field via **theme** or **props** on stock `TitlesField`, `CopyrightsField`, etc., the **only** change in a downstream app would be configuration—**no** file copy. Today those replacements exist because stock files **import** specific components directly.
+If **`TextField`** / **`SelectField`** (or equivalent) were **injected** per field via **theme** or **props** on stock `TitlesField`, `CopyrightsField`, `DatesField`, `IdentifiersField`, `RelatedWorksField`, etc., the **only** change in a downstream app would be configuration—**no** file copy. Today those replacements exist because stock files **import** specific components directly.
 
 ### Operational note
 
