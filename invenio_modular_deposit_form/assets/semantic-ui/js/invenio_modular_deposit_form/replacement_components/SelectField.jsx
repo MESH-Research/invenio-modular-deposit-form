@@ -13,6 +13,9 @@
 // - Imports `FeedbackLabel`, `mergeOptions`, `ensureSelectedValuesInOptions`, and
 //   `createOption` from `react-invenio-forms` main entry (published package has no
 //   `react-invenio-forms/utils` subpath; helpers live on the root export).
+// - Stock destructures nonexistent `form.meta`; we use `form.touched` so messages from
+//   `form.errors` show only after the field is touched (prop `error` and initial-error
+//   while value unchanged stay as in stock).
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -46,11 +49,11 @@ export class SelectField extends Component {
     }
   }
 
-  renderError = (meta, initialValue, initialErrors, value, errors) => {
+  renderError = (isTouched, initialValue, initialErrors, value, errors) => {
     const { error, fieldPath } = this.props;
     const computedError =
       error ||
-      getIn(errors, fieldPath, null) ||
+      (isTouched && getIn(errors, fieldPath, null)) ||
       // We check if initialValue changed to display the initialError,
       // otherwise it would be displayed despite updating the field
       (initialValue === value && getIn(initialErrors, fieldPath, null));
@@ -63,7 +66,7 @@ export class SelectField extends Component {
 
   renderFormField = (formikProps) => {
     const {
-      form: { values, setFieldValue, handleBlur, errors, initialErrors, initialValues, meta },
+      form: { values, setFieldValue, handleBlur, errors, initialErrors, initialValues, touched },
       ...cmpProps
     } = formikProps;
     const {
@@ -91,6 +94,7 @@ export class SelectField extends Component {
     }
 
     const initialValue = getIn(initialValues, fieldPath, _defaultValue);
+    const isTouched = !!getIn(touched, fieldPath);
     const { options: stateOptions } = this.state;
 
     // Use state options if available (includes user-added options), otherwise use props
@@ -104,7 +108,7 @@ export class SelectField extends Component {
         className={`invenio-select-field ${classnames ?? ""}`}
         search
         selection
-        error={this.renderError(meta, initialValue, initialErrors, value, errors)}
+        error={this.renderError(isTouched, initialValue, initialErrors, value, errors)}
         label={{ children: label }}
         name={fieldPath}
         disabled={disabled}
