@@ -11,7 +11,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useContext, useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useRef } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -35,7 +35,7 @@ import {
   SubjectsField,
   UppyUploader,
 } from "@js/invenio_rdm_records";
-import { FormUIStateContext } from "../FormLayoutContainer";
+import { useFormUIState } from "../FormUIStateManager.jsx";
 import { SyncFilesCountFromRedux } from "../helpers/SyncFilesCountFromRedux";
 import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
@@ -362,7 +362,7 @@ const FileUploadComponent = ({ ...extraProps }) => {
     }
   }, [filesEnabled, validateField]);
 
-  const { formUIState } = useContext(FormUIStateContext) ?? {};
+  const { formUIState } = useFormUIState();
   const { config, permissions, record } = store.getState().deposit;
   const files = store.getState().files;
   const noFiles = Object.keys(files?.entries ?? {}).length === 0 && record?.is_published;
@@ -515,31 +515,29 @@ const FundingComponent = ({ ...extraProps }) => {
 
 /**
  * Languages (metadata.languages). Replacement LanguagesField (field_components).
+ * Formik stores codes in metadata.languages (strings); RemoteSelectField mirrors { id, title_l10n } to ui.metadata.languages.
  * @overridable InvenioAppRdm.Deposit.LanguagesField.container (via FieldComponentWrapper)
  */
 const LanguagesComponent = ({ ...extraProps }) => {
   const { values } = useFormikContext();
-  const recordOptions =
+  const depositRecordUiLanguages =
     useStore()
       .getState()
       .deposit.record?.ui?.languages?.filter((lang) => lang !== null) || [];
-  const formOptions = values?.metadata?.languages?.filter((lang) => lang !== null) || [];
+  const formikUiLanguages =
+    _get(values, "ui.metadata.languages", [])?.filter((lang) => lang !== null) || [];
+  /** RemoteSelectField mirrors selected labels to ui.<fieldPath>; prefer that over Redux record UI. */
+  const uiSourceOptions =
+    formikUiLanguages.length > 0 ? formikUiLanguages : depositRecordUiLanguages;
 
-  let initialOptions;
-  if (
-    typeof formOptions?.[0] === "string" &&
-    formOptions.length === recordOptions.length &&
-    formOptions.every((formValue, index) => formValue === recordOptions[index]?.id)
-  ) {
-    initialOptions = recordOptions;
-  } else {
-    initialOptions = formOptions;
-  }
-  const stockInitialOptions = initialOptions?.map((opt) =>
-    typeof opt === "object" && opt !== null && "id" in opt
-      ? { key: opt.id, value: opt.id, text: opt.title_l10n ?? opt.id }
-      : { key: opt, value: opt, text: opt }
-  );
+  const languageCodes =
+    values?.metadata?.languages?.filter((lang) => lang !== null && typeof lang === "string") ||
+    [];
+
+  const initialOptions = languageCodes.map((code) => {
+    const hit = uiSourceOptions.find((o) => o.id === code);
+    return hit ?? { id: code, title_l10n: code };
+  });
 
   return (
     <FieldComponentWrapper
@@ -549,7 +547,7 @@ const LanguagesComponent = ({ ...extraProps }) => {
     >
       <LanguagesField
         fieldPath="metadata.languages"
-        initialOptions={stockInitialOptions}
+        initialOptions={initialOptions}
         placeholder={i18next.t('Type to search for a language (press "enter" to select)')}
         serializeSuggestions={(suggestions) =>
           suggestions.map((item) => ({
@@ -681,9 +679,10 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
   const options =
     useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
-
-  console.log("form ui state:", useContext(FormUIStateContext));
-  console.log("formik:", useFormikContext());
+  const formUIStateForDebug = useFormUIState();
+  const formikForDebug = useFormikContext();
+  console.log("form ui state:", formUIStateForDebug);
+  console.log("formik:", formikForDebug);
 
   return (
     <FieldComponentWrapper componentName="ResourceTypeField" {...extraProps} fieldPath={fieldPath}>
