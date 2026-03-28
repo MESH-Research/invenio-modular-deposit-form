@@ -3,7 +3,6 @@ import { flattenKeysDotJoined, getErrorParent, getTouchedParent } from "../utils
 import { FORM_UI_ACTION } from "./formUIStateReducer";
 import { RECORD_FIELD_ERROR_ROOTS, SEVERITIES } from "../constants";
 
-
 /**
  * Global API failures (e.g. 400 CSRF) often return `{ message: "..." }` only. Those keys are not
  * form field paths — if we treat them like field errors, Yup clears them on the next validation
@@ -66,15 +65,15 @@ function fieldPathToSection(formSectionFields, fieldPath) {
  * `getTouchedParent(..., true)` for the third arg (parent touch does not cross a numeric
  * array index, so a touched array root does not flag every row’s errors).
  *
- * Fields must be touched to display formik errors. This presents challenges when 
- * merging server-side and client-side validation errors. 
- * 
- * - This class will set the touched state appropriately for backend errors that haven't actually been touched yet 
+ * Fields must be touched to display formik errors. This presents challenges when
+ * merging server-side and client-side validation errors.
+ *
+ * - This class will set the touched state appropriately for backend errors that haven't actually been touched yet
  *   but should be displayed. (i.e. the initial value that caused the error has not changed)
- * 
+ *
  * - On form submission all fields are automatically untouched again, so error flagging on the form
- *   (which is based on the touched state) would be briefly lost after submission and only regained 
- *   when the field is touched again. To avoid this, we need to set all fields with errors in the formik 
+ *   (which is based on the touched state) would be briefly lost after submission and only regained
+ *   when the field is touched again. To avoid this, we need to set all fields with errors in the formik
  *   error state to `touched` after the form is submitted. This is handled by
  *   syncTouchedForBackendValidationErrors().
  *
@@ -108,9 +107,7 @@ class FormErrorManager {
       actionState && String(actionState).includes("VALIDATION_ERRORS");
     if (!hasBackendValidationErrors) return;
     const { errors, touched, setFieldTouched } = this.formik;
-    const errorFields = errors
-      ? flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath)
-      : [];
+    const errorFields = errors ? flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath) : [];
     if (errorFields.length === 0) return;
     errorFields.forEach((field) => {
       if (!get(touched, field) && !getTouchedParent(touched, field)) {
@@ -145,12 +142,9 @@ class FormErrorManager {
       includeLeaf: (value) => value !== false,
     });
     const touchedErrorFields = errorFields?.filter(
-      (item) =>
-        touchedFields.includes(item) || getTouchedParent(touched, item, true)
+      (item) => touchedFields.includes(item) || getTouchedParent(touched, item, true)
     );
-    const initialErrorFields = flattenKeysDotJoined(initialErrors).filter(
-      isRecordFieldErrorPath
-    );
+    const initialErrorFields = flattenKeysDotJoined(initialErrors).filter(isRecordFieldErrorPath);
     const initialErrorFieldsUntouched = initialErrorFields?.filter(
       (item) => !touchedFields.includes(item)
     );
@@ -166,7 +160,13 @@ class FormErrorManager {
     // have to account for possibility that frontend and backend error paths
     // are at different levels of specificity
     const initialErrorFieldsToFlag = [
-      ...new Set(initialErrorFields.filter(field => !initialErrorFieldsUnflagged.includes(field) && !(errorFields.includes(field) || getErrorParent(errors, field)))),
+      ...new Set(
+        initialErrorFields.filter(
+          (field) =>
+            !initialErrorFieldsUnflagged.includes(field) &&
+            !(errorFields.includes(field) || getErrorParent(errors, field))
+        )
+      ),
     ];
     return {
       errorFields,
@@ -315,15 +315,18 @@ class FormErrorManager {
     this.syncTouchedForBackendValidationErrors();
 
     const errorFieldSets = this.errorsToFieldSets();
+    console.log("errorFieldSets", errorFieldSets);
     this.addBackendErrors(errorFieldSets.initialErrorFieldsToFlag);
 
     const sectionErrorsFlagged = this.getSectionErrorState(
       errorFieldSets.touchedErrorFields,
-      errorFieldSets.initialErrorFieldsToFlag,
+      errorFieldSets.initialErrorFieldsToFlag
     );
+    console.log("sectionErrorsFlagged", sectionErrorsFlagged);
+    console.log("sectionErrorsAll", sectionErrorsAll);
     const sectionErrorsAll = this.getSectionErrorStateAll(
       errorFieldSets.errorFields,
-      errorFieldSets.initialErrorFieldsUnchanged,
+      errorFieldSets.initialErrorFieldsUnchanged
     );
     dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED, payload: sectionErrorsFlagged });
     dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_ALL, payload: sectionErrorsAll });
