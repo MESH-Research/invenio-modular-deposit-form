@@ -1,5 +1,5 @@
 import { get, isEqual } from "lodash";
-import { flattenKeysDotJoined, getTouchedParent, getErrorParent } from "../utils";
+import { flattenKeysDotJoined, getErrorParent, getTouchedParent } from "../utils";
 import { FORM_UI_ACTION } from "./formUIStateReducer";
 import { RECORD_FIELD_ERROR_ROOTS, SEVERITIES } from "../constants";
 
@@ -61,6 +61,10 @@ function fieldPathToSection(formSectionFields, fieldPath) {
  *
  * NOTE: fields marked if error + touched or if initial error + value unchanged
  *       (initial errors should become errors when touched and not fixed)
+ *
+ * For aggregate "flagged" client errors, a touched **ancestor** counts via
+ * `getTouchedParent(..., true)` for the third arg (parent touch does not cross a numeric
+ * array index, so a touched array root does not flag every row’s errors).
  *
  * Fields must be touched to display formik errors. This presents challenges when 
  * merging server-side and client-side validation errors. 
@@ -141,7 +145,8 @@ class FormErrorManager {
       includeLeaf: (value) => value !== false,
     });
     const touchedErrorFields = errorFields?.filter(
-      (item) => touchedFields.includes(item) || getTouchedParent(touched, item)
+      (item) =>
+        touchedFields.includes(item) || getTouchedParent(touched, item, true)
     );
     const initialErrorFields = flattenKeysDotJoined(initialErrors).filter(
       isRecordFieldErrorPath
@@ -303,10 +308,6 @@ class FormErrorManager {
    * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_SECTION_ERRORS_FLAGGED, SET_SECTION_ERRORS_ALL)
    */
   updateFormErrorState = (dispatch) => {
-    console.log("Starting error values:");
-    console.log("values:", this.formik.values);
-    console.log("errors:", this.formik.errors);
-    console.log("touched:", this.formik.touched);
     this.syncTouchedForBackendValidationErrors();
 
     const errorFieldSets = this.errorsToFieldSets();

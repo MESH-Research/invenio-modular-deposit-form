@@ -154,7 +154,22 @@ function getVisibleFormPages(formPages, currentTypeFields, fieldsByType) {
   );
 }
 
-function getTouchedParent(touched, fieldPath) {
+/** Dot-path segment that is a non-negative integer array index (Formik/Yup style). */
+const ARRAY_INDEX_PATH_SEGMENT = /^\d+$/;
+
+/**
+ * Whether any strict prefix of `fieldPath` is touched as `true` in Formik `touched`.
+ *
+ * @param {Object} touched - Formik `touched`
+ * @param {string} fieldPath - Dot-joined path (same as Formik field names)
+ * @param {boolean} [ignoreArrayFields=false] - If true, a touched prefix does not count when
+ *   the **next** segment toward `fieldPath` is a numeric index (so `metadata.identifiers`
+ *   does not imply touch for `metadata.identifiers.0.x`); `files` + `files.enabled` still
+ *   works. A touched ancestor **above** the array (e.g. `metadata` only) can still match for
+ *   `metadata.creators.0.name`.
+ * @returns {boolean}
+ */
+function getTouchedParent(touched, fieldPath, ignoreArrayFields = false) {
   // Leaf explicitly touched (same as stock’s first iteration when i === length).
   if (getIn(touched, fieldPath) === true) {
     return true;
@@ -168,6 +183,9 @@ function getTouchedParent(touched, fieldPath) {
   for (let i = fieldParts.length - 1; i >= 1; i--) {
     const currentPath = fieldParts.slice(0, i).join(".");
     if (getIn(touched, currentPath) === true) {
+      if (ignoreArrayFields && ARRAY_INDEX_PATH_SEGMENT.test(fieldParts[i])) {
+        continue;
+      }
       return true;
     }
   }

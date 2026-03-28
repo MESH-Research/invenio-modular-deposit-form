@@ -234,6 +234,30 @@ describe('getTouchedParent', () => {
     const touched = { files: true };
     expect(getTouchedParent(touched, 'files.enabled')).toBe(true);
   });
+
+  describe('ignoreArrayFields', () => {
+    test('matches default getTouchedParent when next segment is not a numeric index', () => {
+      const touched = { files: true };
+      expect(getTouchedParent(touched, 'files.enabled', true)).toBe(true);
+      const touched2 = { metadata: { title: true } };
+      expect(getTouchedParent(touched2, 'metadata.title', true)).toBe(true);
+    });
+
+    test('returns false when only the array root is touched but path is under an index', () => {
+      const touched = { metadata: { identifiers: true } };
+      expect(getTouchedParent(touched, 'metadata.identifiers.0.scheme', true)).toBe(false);
+    });
+
+    test('returns true when the row path itself is touched', () => {
+      const touched = { metadata: { identifiers: { 0: { scheme: true } } } };
+      expect(getTouchedParent(touched, 'metadata.identifiers.0.scheme', true)).toBe(true);
+    });
+
+    test('returns true when grandparent above array is touched (documented limitation)', () => {
+      const touched = { metadata: true };
+      expect(getTouchedParent(touched, 'metadata.creators.0.name', true)).toBe(true);
+    });
+  });
 });
 
 describe('getErrorParent', () => {
