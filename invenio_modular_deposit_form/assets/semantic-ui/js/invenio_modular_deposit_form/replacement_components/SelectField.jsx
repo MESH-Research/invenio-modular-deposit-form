@@ -16,6 +16,8 @@
 // - Stock destructures nonexistent `form.meta`; we use `form.touched` so messages from
 //   `form.errors` show only after the field is touched (prop `error` and initial-error
 //   while value unchanged stay as in stock).
+// - Stock does not set formik field touched on blur, because the event target doesn't
+//   carry the formField on id or name. So we have to manually set touched on blur.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -113,7 +115,10 @@ export class SelectField extends Component {
         name={fieldPath}
         disabled={disabled}
         required={required}
-        onBlur={handleBlur}
+        onBlur={() => {
+          handleBlur();
+          setFieldTouched(fieldPath, true, false);
+        }}
         onChange={(event, data) => {
           if (onChange) {
             onChange({ event, data, formikProps });
