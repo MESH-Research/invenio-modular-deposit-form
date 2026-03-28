@@ -19,7 +19,7 @@ const SizesField = ({
   label = i18next.t("Sizes"),
   description = i18next.t("Please provide the size of the resource."),
   placeholder = i18next.t("e.g., 32 x 24 cm or 1.5 GB (press 'enter' to add)"),
-  icon = "crop",
+  labelIcon = "crop",
   required,
   ...uiProps
 }) => {
@@ -30,7 +30,7 @@ const SizesField = ({
         additionLabel,
         classnames,
         description,
-        icon,
+        labelIcon,
         label,
         placeholder,
         required,
@@ -45,7 +45,7 @@ SizesField.propTypes = {
   classnames: PropTypes.string,
   description: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   required: PropTypes.bool,

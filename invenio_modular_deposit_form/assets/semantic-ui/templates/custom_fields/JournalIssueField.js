@@ -18,7 +18,7 @@ export class JournalIssueField extends Component {
     const {
       fieldPath, // injected by the custom field loader via the `field` config property
       issue,
-      icon,
+      labelIcon,
       label,
       placeholder,
       description,
@@ -30,7 +30,7 @@ export class JournalIssueField extends Component {
             fieldPath={`${fieldPath}`}
             label={label}
             placeholder={placeholder}
-            icon={icon}
+            labelIcon={labelIcon}
             {...extraProps}
         />
         {description && (
@@ -44,14 +44,13 @@ export class JournalIssueField extends Component {
 JournalIssueField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   issue: PropTypes.object.isRequired,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   description: PropTypes.string
 };
 
 JournalIssueField.defaultProps = {
-  icon: undefined,
   label: undefined,
   placeholder: undefined,
   description: undefined,

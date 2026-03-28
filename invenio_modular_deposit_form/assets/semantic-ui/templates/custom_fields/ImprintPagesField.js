@@ -18,7 +18,7 @@ export class ImprintPagesField extends Component {
       title,
       pages,
       label,
-      icon,
+      labelIcon,
       placeholder,
       description,
       helpText,
@@ -28,7 +28,7 @@ export class ImprintPagesField extends Component {
           fieldPath={fieldPath}
           label={label}
           placeholder={placeholder}
-          icon={icon}
+          labelIcon={labelIcon}
           description={description}
           helpText={helpText}
       />
@@ -39,14 +39,14 @@ export class ImprintPagesField extends Component {
 ImprintPagesField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   pages: PropTypes.object,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   description: PropTypes.string
 };
 
 ImprintPagesField.defaultProps = {
-  icon: "file outline",
+  labelIcon: "file outline",
   label: undefined,
   placeholder: undefined,
   description: undefined,

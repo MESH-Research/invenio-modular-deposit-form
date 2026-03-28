@@ -15,7 +15,7 @@ const BookTitleComponent = ({ ...extraProps }) => (
     idString="ImprintTitleField"
     description={""}
     label={"Book title"}
-    icon={"book"}
+    labelIcon="book"
     {...extraProps}
   />
 );
@@ -51,7 +51,7 @@ const ISBNComponent = ({ ...extraProps }) => (
   <CustomField
     fieldName="imprint:imprint.isbn"
     idString="ImprintISBNField"
-    icon="barcode"
+    labelIcon="barcode"
     placeholder="e.g. 0-06-251587-X"
     description={""}
     {...extraProps}
@@ -63,7 +63,7 @@ const JournalTitleComponent = ({ ...extraProps }) => (
     fieldName="journal:journal.title"
     idString="JournalTitleField"
     label="Journal title"
-    icon=""
+    labelIcon=""
     description=""
     {...extraProps}
   />
@@ -74,7 +74,7 @@ const JournalISSNComponent = ({ ...extraProps }) => (
     fieldName="journal:journal.issn"
     idString="JournalISSNField"
     label="ISSN"
-    icon="barcode"
+    labelIcon="barcode"
     description=""
     placeholder="e.g. 1234-5678"
     {...extraProps}
@@ -87,7 +87,7 @@ const JournalVolumeComponent = ({ ...extraProps }) => (
     idString="JournalVolumeField"
     label={i18next.t("Volume")}
     description=""
-    icon="zip"
+    labelIcon="zip"
     {...extraProps}
   />
 );
@@ -98,7 +98,7 @@ const JournalIssueComponent = ({ ...extraProps }) => (
     idString="JournalIssueField"
     label={i18next.t("Issue")}
     description=""
-    icon="book"
+    labelIcon="book"
     {...extraProps}
   />
 );
@@ -170,7 +170,7 @@ const MeetingIdentifiersComponent = ({ ...extraProps }) => (
   <CustomField
     fieldName="meeting:meeting.identifiers"
     idString="MeetingIdentifiersField"
-    icon="barcode"
+    labelIcon="barcode"
     description={""}
     {...extraProps}
   />
@@ -182,7 +182,7 @@ const SectionPagesComponent = ({ ...extraProps }) => (
     idString="JournalPagesField"
     description={""}
     label="Section pages"
-    icon="file outline"
+    labelIcon="file outline"
     placeholder="e.g. 123-145"
     {...extraProps}
   />
@@ -193,7 +193,7 @@ const PublicationLocationComponent = ({ ...extraProps }) => (
     fieldName="imprint:imprint.place"
     idString="ImprintPlaceField"
     label={"Place of Publication"}
-    icon={"map marker alternate"}
+    labelIcon="map marker alternate"
     description={""}
     placeholder={"e.g. Lagos, Nigeria"}
     {...extraProps}
@@ -206,7 +206,7 @@ const TotalPagesComponent = ({ ...extraProps }) => (
     idString="ImprintPagesField"
     description={""}
     label={i18next.t("Total book pages")}
-    icon="file outline"
+    labelIcon="file outline"
     {...extraProps}
   />
 );
@@ -216,7 +216,7 @@ const UniversityComponent = ({ ...extraProps }) => (
     fieldName="thesis:thesis.university"
     idString="ThesisUniversityField"
     label={i18next.t("Awarding university")}
-    icon="university"
+    labelIcon="university"
     description=""
     {...extraProps}
   />
@@ -227,7 +227,7 @@ const ThesisDepartmentComponent = ({ ...extraProps }) => (
     fieldName="thesis:thesis.department"
     idString="ThesisDepartmentField"
     label={i18next.t("Awarding department")}
-    icon="building"
+    labelIcon="building"
     description=""
     {...extraProps}
   />
@@ -238,7 +238,7 @@ const ThesisTypeComponent = ({ ...extraProps }) => (
     fieldName="thesis:thesis.type"
     idString="ThesisTypeField"
     label={i18next.t("Thesis type")}
-    icon="graduation cap"
+    labelIcon="graduation cap"
     placeholder="e.g. PhD"
     description={i18next.t(
       "The type of thesis (e.g. Masters, PhD, Engineers, Bachelors)"
@@ -252,7 +252,7 @@ const ThesisDateSubmittedComponent = ({ ...extraProps }) => (
     fieldName="thesis:thesis.date_submitted"
     idString="ThesisDateSubmittedField"
     label={i18next.t("Submission date")}
-    icon="calendar"
+    labelIcon="calendar"
     description={i18next.t("Submission date in YYYY-MM-DD format.")}
     {...extraProps}
   />
@@ -263,7 +263,7 @@ const ThesisDateDefendedComponent = ({ ...extraProps }) => (
     fieldName="thesis:thesis.date_defended"
     idString="ThesisDateDefendedField"
     label={i18next.t("Defense date")}
-    icon="calendar"
+    labelIcon="calendar"
     description={i18next.t("Defense date in YYYY-MM-DD format.")}
     {...extraProps}
   />

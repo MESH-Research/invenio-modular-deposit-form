@@ -23,7 +23,7 @@ export class PublisherField extends Component {
           "The publisher is used to formulate the citation, so consider the prominence of the role."
         )}
         label={label}
-        icon={labelIcon}
+        labelIcon={labelIcon}
         placeholder={placeholder}
       />
     );

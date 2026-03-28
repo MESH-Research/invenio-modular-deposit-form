@@ -18,7 +18,7 @@ const JournalPagesField = ({
   issue,
   pages,
   issn,
-  icon,
+  labelIcon,
   label,
   placeholder,
   description,
@@ -30,7 +30,7 @@ const JournalPagesField = ({
         fieldPath={`${fieldPath}`}
         label={label}
         placeholder={placeholder}
-        icon={icon}
+        labelIcon={labelIcon}
         {...extraProps}
       />
       {description && <label className="helptext mb-0">{description}</label>}
@@ -41,7 +41,7 @@ const JournalPagesField = ({
 JournalPagesField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   pages: PropTypes.object,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   description: PropTypes.string,

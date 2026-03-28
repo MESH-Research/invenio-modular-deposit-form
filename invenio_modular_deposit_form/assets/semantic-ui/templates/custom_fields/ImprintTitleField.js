@@ -20,7 +20,7 @@ class ImprintTitleField extends Component {
       description,
       placeholder,
       helpText,
-      icon,
+      labelIcon,
       classnames,
     } = this.props;
 
@@ -32,6 +32,7 @@ class ImprintTitleField extends Component {
         classnames={classnames}
         description={description}
         helpText={helpText}
+        labelIcon={labelIcon}
       />
     );
   }
@@ -40,12 +41,11 @@ class ImprintTitleField extends Component {
 ImprintTitleField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   title: PropTypes.object.isRequired,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
 };
 
 ImprintTitleField.defaultProps = {
-  icon: undefined,
   label: undefined,
 };
 

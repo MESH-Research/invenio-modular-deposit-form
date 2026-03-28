@@ -19,7 +19,7 @@ export class CopyrightsField extends Component {
       <TextField
         fieldPath={fieldPath}
         label={label}
-        icon="copyright outline"
+        labelIcon="copyright outline"
         required={required}
         helpText={i18next.t(
           "A copyright statement describing the ownership of the uploaded resource."

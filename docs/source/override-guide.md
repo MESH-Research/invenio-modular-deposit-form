@@ -38,7 +38,7 @@
 overriddenComponents["InvenioAppRdm.Deposit.DateField.container"] = OverrideAdditionalDatesComponent;
 ```
 
-**Props your override receives:** When you override a slot, react-overridable passes your component the **same props the default child would get**: the props that were on the default child (from FieldComponentWrapper’s `React.cloneElement` or the parent wrapper). So you receive `fieldPath`, `label`, `description`, `helpText`, `required`, and any section-specific props (e.g. `options`, `recordUI` for titles) without re-implementing the wrapper or reading from the store for those. You do **not** need to wrap your override in FieldComponentWrapper again.
+**Props your override receives:** When you override a slot, react-overridable passes your component the **same props the default child would get**: the props that were on the default child (from FieldComponentWrapper’s `React.cloneElement` or the parent wrapper). So you receive `fieldPath`, `label`, `labelIcon`, `description`, `helpText`, `required`, and any section-specific props (e.g. `options`, `recordUI` for titles) without re-implementing the wrapper or reading from the store for those. You do **not** need to wrap your override in FieldComponentWrapper again.
 
 ---
 

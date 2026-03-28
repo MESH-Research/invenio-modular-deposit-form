@@ -46,8 +46,16 @@
 //   Fork of upstream `deposit/fields/Identifiers/IdentifiersField.js`. Row wrapper is bare
 //   `<GroupField>` like stock (baseline — no `fieldPath` / `optimized` on the group). Other
 //   divergences: local `TextField` / `SelectField` from `replacement_components/`; `emptyIdentifier`
-//   from `@js/invenio_rdm_records/.../Identifiers/initialValues`; optional `icon` as alias
-//   for `labelIcon` (`FieldComponentWrapper`). Layout/markup otherwise matches upstream.
+//   from `@js/invenio_rdm_records/.../Identifiers/initialValues`. Layout/markup otherwise matches
+//   upstream. `labelIcon` is supplied by `FieldComponentWrapper` like stock.
+//
+// DatesField.js
+//   Fork of upstream `deposit/fields/DatesField/DatesField.js`. Local `TextField` / `SelectField`;
+//   `emptyDate` from `@js/.../DatesField/initialValues`. Overridable ids unchanged.
+//
+// RelatedWorksField.js
+//   Fork of upstream `deposit/fields/RelatedWorksField/RelatedWorksField.js`. Local `TextField` /
+//   `SelectField`; row `ResourceTypeField` from this folder; `emptyRelatedWork` from `@js/...`.
 //
 // Any new non–import-only divergence must be summarized in this header and in
 // docs/source/replacement_field_components.md.
@@ -55,11 +63,13 @@ export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 export { AdditionalTitlesField } from "./AdditionalTitlesField";
 export { CopyrightsField } from "./CopyrightsField";
 export { CreatibutorsField } from "./CreatibutorsField";
+export { DatesField } from "./DatesField";
 export { DescriptionsField } from "./DescriptionsField";
 export { IdentifiersField } from "./IdentifiersField";
 export { LanguagesField } from "./LanguagesField";
 export { PIDField } from "./PIDField";
 export { PublisherField } from "./PublisherField";
+export { RelatedWorksField } from "./RelatedWorksField";
 export { ResourceTypeField } from "./ResourceTypeField";
 export { TitlesField } from "./TitlesField";
 export { VersionField } from "./VersionField";

@@ -61,7 +61,7 @@ It is also possible to include any custom fields in any location in your layout.
 
 The stock InvenioRDM deposit form uses a static layout in which required props and configuration are passed directly from the `DepositFormApp` into each field component. To insert these field components into a flexible layout layer, the extension uses an outer wrapper component for each field that retrieves and fetches the props the field would normally receive from its parent (the record, list options, rich text editor settings, etc.).
 
-In addition, the field component is wrapped in an inner `FieldComponentWrapper` higher-order component. This retrieves any configured properties for the form field UI (label, icon, placeholder, etc.), modified as necessary for the currently selected resource_type, so that field widgets can adapt to the resource_type on the fly without page reloads.
+In addition, the field component is wrapped in an inner `FieldComponentWrapper` higher-order component. This retrieves any configured properties for the form field UI (label, **labelIcon** for the field label icon, placeholder, etc.), modified as necessary for the currently selected resource_type, so that field widgets can adapt to the resource_type on the fly without page reloads.
 
 ```{figure} _static/modular-deposit-form-widgets.jpg
 :alt: How form fields are inserted

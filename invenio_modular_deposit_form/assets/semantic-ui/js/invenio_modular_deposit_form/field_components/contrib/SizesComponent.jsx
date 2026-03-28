@@ -20,14 +20,14 @@ import { FieldComponentWrapper } from "../FieldComponentWrapper";
  * @example Override via ReactOverridable (parent app)
  * Overridable id: `InvenioAppRdm.Deposit.SizeField.container`
  * The wrapper is provided by FieldComponentWrapper; override that id to customize the inner content.
- * Props: fieldPath="metadata.sizes", icon="crop", label (i18n "Dimensions"); inner SizesField gets label="Size".
+ * Props: fieldPath="metadata.sizes", labelIcon="crop", label (i18n "Dimensions"); inner SizesField gets label="Size".
  */
 const SizesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="SizeField"
       fieldPath="metadata.sizes"
-      icon={"crop"}
+      labelIcon="crop"
       label={i18next.t("Dimensions")}
       {...extraProps}
     >

@@ -14,7 +14,7 @@ function MultiInput({
   fieldPath,
   helpText = undefined,
   label,
-  icon = undefined,
+  labelIcon,
   noQueryMessage,
   required = false,
   ...uiProps
@@ -30,7 +30,7 @@ function MultiInput({
 
   return (
     <>
-      <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
+      <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
       {description && description !== " " && <label className="helptext label top">{i18next.t(description)}</label>}
       <SelectField
         additionLabel={additionLabel}
@@ -74,7 +74,7 @@ MultiInput.propTypes = {
   placeholder: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   additionLabel: PropTypes.string,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   required: PropTypes.bool,
 };
 

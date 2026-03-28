@@ -13,9 +13,6 @@
 // - `TextField` / `SelectField`: from `replacement_components/` (not `react-invenio-forms`).
 // - `emptyIdentifier`: imported from `@js/invenio_rdm_records/.../Identifiers/initialValues`
 //   (bundle path; same object as upstream `./initialValues`).
-// - `icon` prop: accepted as alias for `labelIcon` so `FieldComponentWrapper`’s `icon`
-//   reaches `FieldLabel`.
-
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { ArrayField, FieldLabel, GroupField } from "react-invenio-forms";
@@ -33,12 +30,10 @@ export class IdentifiersField extends Component {
       fieldPath,
       label,
       labelIcon,
-      icon,
       required,
       schemeOptions,
       showEmptyValue,
     } = this.props;
-    const effectiveLabelIcon = labelIcon ?? icon;
 
     return (
       <ArrayField
@@ -48,7 +43,7 @@ export class IdentifiersField extends Component {
         label={
           <FieldLabel
             htmlFor={fieldPath}
-            icon={effectiveLabelIcon}
+            icon={labelIcon}
             label={label}
           />
         }
@@ -105,7 +100,6 @@ IdentifiersField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
   labelIcon: PropTypes.string,
-  icon: PropTypes.string,
   required: PropTypes.bool,
   schemeOptions: PropTypes.arrayOf(
     PropTypes.shape({

@@ -13,7 +13,7 @@ const ImprintISBNField = ({
   fieldPath, // injected by the custom field loader via the `field` config property
   isbn,
   label = "ISBN",
-  icon = "barcode",
+  labelIcon = "barcode",
   description,
   ...extraProps
 }) => {
@@ -21,7 +21,7 @@ const ImprintISBNField = ({
     <TextField
       fieldPath={fieldPath}
       label={label}
-      icon={icon}
+      labelIcon={labelIcon}
       {...extraProps}
     />
     // {/* {description && (
@@ -33,7 +33,7 @@ const ImprintISBNField = ({
 ImprintISBNField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   isbn: PropTypes.object,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   description: PropTypes.string,
   placeholder: PropTypes.string,

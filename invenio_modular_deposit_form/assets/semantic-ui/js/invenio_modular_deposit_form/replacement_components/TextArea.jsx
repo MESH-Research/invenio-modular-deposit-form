@@ -13,6 +13,7 @@ const TextArea = ({
   fluid = true,
   helpText = undefined,
   label,
+  labelIcon,
   onBlur,
   optimized = false,
   required = false,
@@ -23,12 +24,7 @@ const TextArea = ({
 }) => {
   // FIXME: Implement the extraRequiredFields and defaultFieldValues props
   // FIXME: reimplement the richtext editor
-  const {
-    defaultFieldValue,
-    editorConfig,
-    icon,
-    ...uiProps
-  } = extraProps;
+  const { defaultFieldValue, editorConfig, ...uiProps } = extraProps;
 
   const FormikField = optimized ? FastField : Field;
 
@@ -64,7 +60,7 @@ const TextArea = ({
             {showLabel && (
               <FieldLabel
                 htmlFor={fieldPath}
-                icon={icon}
+                icon={labelIcon}
                 label={label}
               />
             )}

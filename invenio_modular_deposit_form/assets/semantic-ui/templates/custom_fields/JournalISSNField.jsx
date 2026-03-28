@@ -12,7 +12,7 @@ import { TextField } from "@js/invenio_modular_deposit_form/replacement_componen
 const JournalISSNField = ({
   fieldPath, // injected by the custom field loader via the `field` config property
   issn,
-  icon,
+  labelIcon,
   label,
   placeholder,
   description,
@@ -24,7 +24,7 @@ const JournalISSNField = ({
         fieldPath={`${fieldPath}`}
         label={label}
         placeholder={placeholder}
-        icon={icon}
+        labelIcon={labelIcon}
         {...extraProps}
       />
       {description && <label className="helptext mb-0">{description}</label>}
@@ -35,7 +35,7 @@ const JournalISSNField = ({
 JournalISSNField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   issn: PropTypes.object,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   description: PropTypes.string,

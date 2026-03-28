@@ -13,8 +13,8 @@ const TextField = ({
   fieldPath,
   fluid = "true",
   helpText,
-  icon,
   label,
+  labelIcon,
   onBlur,
   optimized,
   required,
@@ -55,7 +55,12 @@ const TextField = ({
             width={width}
           >
             {showLabel && (
-              <FieldLabel id={`${fieldPath}.label`} htmlFor={fieldPath} icon={icon} label={label} />
+              <FieldLabel
+                id={`${fieldPath}.label`}
+                htmlFor={fieldPath}
+                icon={labelIcon}
+                label={label}
+              />
             )}
             {description && description !== " " && (
               <div className="helptext label" id={`${fieldPath}.helptext`}>

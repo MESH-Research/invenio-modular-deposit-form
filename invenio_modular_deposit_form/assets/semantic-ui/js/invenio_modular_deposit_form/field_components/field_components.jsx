@@ -21,7 +21,6 @@ import { useStore } from "react-redux";
 import {
   AccessRightField,
   CommunityHeader,
-  DatesField,
   DeleteButton,
   DepositStatusBox,
   FileUploader,
@@ -30,7 +29,6 @@ import {
   PublicationDateField,
   PublishButton,
   ReferencesField,
-  RelatedWorksField,
   SaveButton,
   SubjectsField,
   UppyUploader,
@@ -40,12 +38,14 @@ import { SyncFilesCountFromRedux } from "../helpers/SyncFilesCountFromRedux";
 import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
 import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
 import {
-  CreatibutorsField,
   CopyrightsField,
+  CreatibutorsField,
+  DatesField,
   DescriptionsField,
   IdentifiersField,
   LanguagesField,
   PublisherField,
+  RelatedWorksField,
   ResourceTypeField,
   TitlesField,
   VersionField,
@@ -107,7 +107,7 @@ const AccessRightsComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="AccessRightField"
-      icon="shield"
+      labelIcon="shield"
       label={i18next.t("Public access")}
       {...extraProps}
       fieldPath="access"
@@ -125,7 +125,7 @@ const AccessRightsComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Additional dates field (metadata.dates). Uses stock DatesField. Overridable version in overridable/ uses DatesFieldAlternate.
+ * Additional dates field (metadata.dates). Replacement DatesField (`replacement_components`; local widgets). Overridable version in overridable/ uses DatesFieldAlternate.
  * @overridable InvenioAppRdm.Deposit.DateField.container (via FieldComponentWrapper)
  */
 const AdditionalDatesComponent = ({ ...extraProps }) => {
@@ -155,7 +155,7 @@ const AlternateIdentifiersComponent = ({ ...extraProps }) => {
       componentName="IdentifiersField"
       fieldPath="metadata.identifiers"
       label={i18next.t("URLs and Other Identifiers")}
-      icon={"barcode"}
+      labelIcon="barcode"
       {...extraProps}
     >
       <IdentifiersField
@@ -200,7 +200,7 @@ const ContributorsComponent = ({ ...extraProps }) => {
       componentName="ContributorsField"
       fieldPath="metadata.contributors"
       label={i18next.t("Contributors")}
-      icon="user plus"
+      labelIcon="user plus"
       {...extraProps}
     >
       <CreatibutorsField
@@ -231,7 +231,7 @@ const CreatorsComponent = ({ ...extraProps }) => {
       componentName="CreatorsField"
       fieldPath="metadata.creators"
       label={i18next.t("Creators")}
-      icon="user"
+      labelIcon="user"
       description=""
       {...extraProps}
     >
@@ -270,16 +270,19 @@ const PublicationDateComponent = ({ ...extraProps }) => {
 
 /**
  * Delete draft button. Uses stock DeleteButton. Renders only when permissions.can_delete_draft.
+ * `icon` is the Semantic UI Button icon name (same as stock), not `FieldLabel` / `labelIcon`;
+ * it is applied directly to DeleteButton and must not be passed through FieldComponentWrapper
+ * (the wrapper only forwards `labelIcon` to children).
  * @overridable InvenioAppRdm.Deposit.CardDeleteButton.container (via FieldComponentWrapper)
  */
-const DeleteComponent = ({ ...extraProps }) => {
+const DeleteComponent = ({ icon = "trash alternate outline", ...extraProps }) => {
   const permissions = useStore().getState().deposit.permissions;
 
   return (
     <>
       {permissions?.can_delete_draft ? (
         <FieldComponentWrapper componentName="CardDeleteButton" fieldPath={""} {...extraProps}>
-          <DeleteButton fluid size="large" className="centered warning" />
+          <DeleteButton fluid size="large" className="centered warning" icon={icon} />
         </FieldComponentWrapper>
       ) : null}
     </>
@@ -650,7 +653,7 @@ const ReferencesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Related works (metadata.related_identifiers). Uses stock RelatedWorksField.
+ * Related works (metadata.related_identifiers). Replacement RelatedWorksField (`replacement_components`; local widgets).
  * @overridable InvenioAppRdm.Deposit.RelatedWorksField.container (via FieldComponentWrapper)
  */
 const RelatedWorksComponent = ({ ...extraProps }) => {

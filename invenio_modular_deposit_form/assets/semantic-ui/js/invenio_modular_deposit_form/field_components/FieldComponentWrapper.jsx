@@ -7,8 +7,8 @@ const FieldComponentWrapper = ({
   children,
   componentName,
   fieldPath,
-  icon,
   labelIcon,
+  icon,
   label,
   description,
   helpText,
@@ -27,9 +27,15 @@ const FieldComponentWrapper = ({
     priorityFieldValues,
     extraRequiredFields,
   } = useCurrentFieldMods();
-  const moddedIcon = iconMods && iconMods.hasOwnProperty(fieldPath) ? iconMods[fieldPath] : icon;
-  // Upstream invenio-rdm-records contrib uses labelIcon; custom field widgets expect icon
-  const effectiveIcon = moddedIcon ?? labelIcon;
+
+  const { icon: extraIcon, labelIcon: extraLabelIcon, ...restExtraProps } = extraProps;
+
+  const moddedLabelIcon =
+    iconMods && Object.prototype.hasOwnProperty.call(iconMods, fieldPath)
+      ? iconMods[fieldPath]
+      : labelIcon ?? icon;
+  const effectiveLabelIcon =
+    (moddedLabelIcon ?? labelIcon ?? icon) ?? extraLabelIcon ?? extraIcon;
   const moddedLabel =
     labelMods && labelMods.hasOwnProperty(fieldPath) ? labelMods[fieldPath] : label;
   const moddedDescription =
@@ -54,8 +60,7 @@ const FieldComponentWrapper = ({
     priorityFieldValues && priorityFieldValues.hasOwnProperty(fieldPath)
       ? priorityFieldValues[fieldPath]
       : null;
-  // Remove undefined values from extraProps
-  const cleanedExtraProps = pickBy(extraProps, (v) => v !== undefined);
+  const cleanedExtraProps = pickBy(restExtraProps, (v) => v !== undefined);
 
   return (
     <Overridable id={`InvenioAppRdm.Deposit.${componentName}.container`} fieldPath={fieldPath}>
@@ -71,7 +76,7 @@ const FieldComponentWrapper = ({
             fieldPath: fieldPath,
             helpText: moddedHelpText,
             label: moddedLabel,
-            icon: effectiveIcon,
+            labelIcon: effectiveLabelIcon,
             placeholder: moddedPlaceholder,
             priorityFieldValues: priorityFieldValueSet,
             required: moddedRequired,

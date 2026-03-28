@@ -33,7 +33,7 @@ export class VersionField extends Component {
         fieldPath={fieldPath}
         helpText={helpText}
         label={label}
-        icon={labelIcon}
+        labelIcon={labelIcon}
         placeholder={placeholder}
       />
     );

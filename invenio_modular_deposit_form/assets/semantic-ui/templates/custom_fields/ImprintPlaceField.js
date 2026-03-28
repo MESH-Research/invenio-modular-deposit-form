@@ -5,7 +5,7 @@
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { TextField } from "@js/invenio_modular_deposit_form/replacement_components/TextField";
 
@@ -13,7 +13,7 @@ const ImprintPlaceField = ({
   fieldPath, // injected by the custom field loader via the `field` config property
   place,
   label,
-  icon = "map marker alternate",
+  labelIcon = "map marker alternate",
   placeholder,
   description,
   ...extraProps
@@ -23,7 +23,7 @@ const ImprintPlaceField = ({
       <TextField
         fieldPath={fieldPath}
         label={label}
-        icon={icon}
+        labelIcon={labelIcon}
         placeholder={placeholder}
         type={"text"}
         {...extraProps}
@@ -36,7 +36,7 @@ const ImprintPlaceField = ({
 ImprintPlaceField.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   place: PropTypes.object,
-  icon: PropTypes.string,
+  labelIcon: PropTypes.string,
   label: PropTypes.string,
   placeholder: PropTypes.string,
   description: PropTypes.string,

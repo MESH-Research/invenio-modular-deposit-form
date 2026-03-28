@@ -24,7 +24,7 @@ const FIELD_COMPONENT_LOADERS = [
  * deposit config (custom_fields.ui). Looks up by field name only (e.g. "journal:journal.title").
  *
  * @param {string} fieldName - Dot-separated field path in the metadata schema (e.g. "journal:journal.title")
- * @param {object} componentProps - Props from the calling component (icon, label, etc.)
+ * @param {object} componentProps - Props from the calling component (labelIcon, label, legacy icon, etc.)
  * @returns {{ Widget: React.Element|null, fieldPath: string, props: object, loading: boolean }}
  */
 export function useCustomFieldWidget(fieldName, componentProps = {}) {
