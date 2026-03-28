@@ -2,15 +2,11 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setupStore } from '@custom-test-utils/redux_store';
-import { renderWithProviders } from '@custom-test-utils/redux_test_utils';
 import { LanguagesComponent } from './field_components';
-import { FormUIStateContext } from '../FormLayoutContainer';
+import { FormUIStateContext } from '../FormUIStateManager.jsx';
 import { renderWithFormik, setupFormMocks } from '@custom-test-utils/formik_test_utils';
 import axios from 'axios';
 import { Provider } from 'react-redux';
-
-// Mock axios for future API calls
-jest.mock('axios');
 
 describe('LanguagesComponent', () => {
   let store;
@@ -39,7 +35,16 @@ describe('LanguagesComponent', () => {
     });
   });
 
-  const renderComponent = (recordOptions = [], formOptions = []) => {
+  /**
+   * @param recordOptions - Redux deposit.record.ui.languages (first-load label source)
+   * @param formOptions - Formik metadata.languages (string codes only)
+   * @param formikUiLanguages - Formik ui.metadata.languages shadow (preferred when non-empty); see RemoteSelectField setFieldValue(`ui.${fieldPath}`, …)
+   */
+  const renderComponent = (
+    recordOptions = [],
+    formOptions = [],
+    formikUiLanguages = null
+  ) => {
     const preloadedState = {
       deposit: {
         config: {
@@ -71,6 +76,9 @@ describe('LanguagesComponent', () => {
       metadata: {
         languages: formOptions,
       },
+      ...(Array.isArray(formikUiLanguages)
+        ? { ui: { metadata: { languages: formikUiLanguages } } }
+        : {}),
     });
 
     store = setupStore(preloadedState);
@@ -115,19 +123,17 @@ describe('LanguagesComponent', () => {
     expect(frenchLabel).toHaveAttribute('value', 'fra');
   });
 
-  it('should use formOptions when they contain objects with id and title_l10n', () => {
-    const formOptions = [
+  it('should prefer Formik ui.metadata.languages for labels when metadata.languages are string IDs', () => {
+    const uiShadow = [
       { id: 'eng', title_l10n: 'English' },
       { id: 'fra', title_l10n: 'French' },
     ];
 
-    renderComponent([], formOptions);
+    renderComponent([], ['eng', 'fra'], uiShadow);
 
-    // Check for the selected values in the dropdown
     const dropdown = screen.getByRole('combobox');
     expect(dropdown).toBeInTheDocument();
 
-    // Check for the selected values in the dropdown's label elements
     const englishLabel = screen.getByText('English').closest('a');
     expect(englishLabel).toHaveClass('label');
     expect(englishLabel).toHaveAttribute('value', 'eng');

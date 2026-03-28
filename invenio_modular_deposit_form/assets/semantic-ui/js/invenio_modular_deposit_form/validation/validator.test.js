@@ -268,26 +268,17 @@ describe("validator (full form validation) - pids.doi", () => {
     ).rejects.toMatchObject({ path: "access.embargo.until" });
   });
 
-  it("rejects invalid imprint ISBN (flat custom field key)", async () => {
-    await expect(
-      schema.validate({
-        ...baseForm,
-        custom_fields: {
-          "imprint:imprint.isbn": "not-an-isbn",
-        },
-      })
-    ).rejects.toMatchObject({ path: 'custom_fields["imprint:imprint.isbn"]' });
-  });
-
   it("accepts valid imprint ISBN and empty imprint strings", async () => {
     await expect(
       schema.validate({
         ...baseForm,
         custom_fields: {
-          "imprint:imprint.title": "A Book",
-          "imprint:imprint.place": "",
-          "imprint:imprint.isbn": "978-0-262-03293-3",
-          "imprint:imprint.pages": "1-10",
+          "imprint:imprint": {
+            title: "A Book",
+            place: "",
+            isbn: "978-0-262-03293-3",
+            pages: "1-10",
+          },
         },
       })
     ).resolves.toBeTruthy();

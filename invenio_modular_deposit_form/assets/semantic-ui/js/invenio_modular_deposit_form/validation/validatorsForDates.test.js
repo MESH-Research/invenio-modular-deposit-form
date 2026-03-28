@@ -57,7 +57,9 @@ describe("validatorsForDates", () => {
 
     it ("should reject invalid formats", async () => {
       for ( const invalidEDTF of invalidEDTFs ) {
-        await expect(edtfSchema.validate({ edtf: invalidEDTF })).rejects.toThrow("Invalid EDTF format");
+        await expect(edtfSchema.validate({ edtf: invalidEDTF })).rejects.toThrow(
+          "Date must be formatted like YYYY-MM-DD (ranges like YYYY-MM-DD/YYY-MM-DD)"
+        );
       }
     });
   });
@@ -86,7 +88,7 @@ describe("validatorsForDates", () => {
     it("rejects ranges (slash)", async () => {
       for (const v of invalidSingles) {
         await expect(singleSchema.validate({ d: v })).rejects.toThrow(
-          "Invalid EDTF format (single date only, no range)"
+          "Date must be formatted like YYYY-MM-DD (single date only, no range)"
         );
       }
     });
