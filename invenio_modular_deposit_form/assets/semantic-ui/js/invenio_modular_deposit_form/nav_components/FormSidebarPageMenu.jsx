@@ -4,11 +4,11 @@
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Button, Header, Label, Menu } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
-import { FormUIStateContext } from "../FormLayoutContainer";
+import { useFormUIState } from "../FormUIStateManager.jsx";
 import { getPageFlaggedErrorCounts } from "../helpers/formUIStateReducer";
 import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityChecksConfig";
 
@@ -21,12 +21,12 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * deposit_form.less overrides default centered content on fluid buttons.
  */
 const FormSidebarPageMenu = ({ classnames, ...props }) => {
-  const ctx = useContext(FormUIStateContext);
-  const formPages = ctx?.formUIState?.visibleFormPages ?? [];
-  const formUIState = ctx?.formUIState ?? {};
+  const ctx = useFormUIState();
+  const formPages = ctx.formUIState?.visibleFormPages ?? [];
+  const formUIState = ctx.formUIState ?? {};
   const pageCounts = useMemo(() => getPageFlaggedErrorCounts(formUIState), [formUIState]);
   const currentFormPage = formUIState?.currentFormPage;
-  const handleFormPageChange = ctx?.handleFormPageChange;
+  const handleFormPageChange = ctx.handleFormPageChange;
   if (!formPages?.length) return null;
   return (
     <div className={classnames ?? undefined}>

@@ -3,7 +3,7 @@
 //
 // Overridable: replaces stock submission area with SubmitButtonModal + form feedback.
 
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import _isEmpty from "lodash/isEmpty";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
@@ -11,12 +11,12 @@ import { FormFeedback } from "@js/invenio_rdm_records";
 import { Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { SubmitButtonModal } from "../../replacement_components/PublishButton/SubmitButton";
-import { FormUIStateContext } from "../../FormLayoutContainer";
+import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { DeleteComponent } from "../field_components";
 import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
 
 /**
- * Submission section: save/preview/publish modals, form feedback, delete. Uses SubmitButtonModal and FormUIStateContext
+ * Submission section: save/preview/publish modals, form feedback, delete. Uses SubmitButtonModal and useFormUIState
  * instead of stock buttons.
  *
  * When used as an override (via the Overridable id), this component receives the same props as the
@@ -57,7 +57,7 @@ import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
  */
 const OverrideSubmissionComponent = () => {
   const { errors: clientErrors, values, setFieldValue } = useFormikContext();
-  const { fileUploadPageId, handleFormPageChange } = useContext(FormUIStateContext);
+  const { fileUploadPageId, handleFormPageChange } = useFormUIState();
   const [, setConfirmedNoFiles] = useState(undefined);
   const store = useStore();
 

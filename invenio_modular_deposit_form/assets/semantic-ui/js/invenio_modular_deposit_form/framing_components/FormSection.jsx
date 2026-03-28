@@ -1,8 +1,8 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Overridable from "react-overridable";
 import { useStore } from "react-redux";
 import { Accordion, Icon, Label, Segment } from "semantic-ui-react";
-import { FormUIStateContext } from "../FormLayoutContainer";
+import { useFormUIState } from "../FormUIStateManager.jsx";
 import { getFormSectionElementId } from "../utils";
 import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
 import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityChecksConfig";
@@ -19,9 +19,9 @@ const FormSection = ({
   classnames,
 }) => {
   const [isOpen, setIsOpen] = useState(startExpanded);
-  const ctx = useContext(FormUIStateContext);
+  const ctx = useFormUIState();
   const store = useStore();
-  const formUIState = ctx?.formUIState ?? {};
+  const formUIState = ctx.formUIState ?? {};
   const formSectionFields = store?.getState?.()?.deposit?.config?.formSectionFields ?? [];
   const currentFormPage = formUIState?.currentFormPage ?? "";
   const currentResourceType = formUIState?.currentResourceType ?? "";

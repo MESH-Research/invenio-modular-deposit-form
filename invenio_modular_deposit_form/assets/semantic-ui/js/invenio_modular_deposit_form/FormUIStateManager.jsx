@@ -4,7 +4,7 @@
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { createContext, useEffect, useMemo, useReducer, useRef } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef } from "react";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 
@@ -22,7 +22,9 @@ const FormUIStateContext = createContext();
  * FormUIStateManager class to provide UI state management.
  *
  * UI state that may be updated is managed by a single reducer state object,
- * made available on the formUIState property of the FormUIStateContext.
+ * made available on the formUIState property of the FormUIStateContext. Other
+ * shared handlers and refs related to global UI state are also created here
+ * and shared via the same context.
  *
  * Static values that aren't updated between page loads (static config,
  * record, permissions, language, etc.) live in the Redux store.
@@ -72,21 +74,19 @@ const FormUIStateManager = ({ children }) => {
   ]);
 
   // Autosave form data in browser local storage
-  const {
-    handleStorageData,
-    storageDataPresent,
-    recoveryAsked,
-    confirmModalRef,
-    handleRecoveryAsked,
-  } = useLocalStorageRecovery(currentUserprofile, state.currentFormPage, fileUploadPageId);
+  const recovery = useLocalStorageRecovery(
+    currentUserprofile,
+    state.currentFormPage,
+    fileUploadPageId
+  );
 
   // Set up form page navigation and url parameter handling
   const navigation = useFormPageNavigation(
     state,
     dispatch,
-    confirmModalRef,
+    recovery.confirmModalRef,
     focusFirstElement,
-    recoveryAsked,
+    recovery.recoveryAsked,
     formik,
     fileUploadPageId
   );
@@ -98,25 +98,40 @@ const FormUIStateManager = ({ children }) => {
   const pageTargetInViewport = useIsInViewport(pageTargetRef);
 
   // Set up form UI context for provider
-  const contextValue = {
-    confirmModalRef,
-    confirmingPageChange: navigation.confirmingPageChange,
-    formUIState: state,
-    formUIDispatch: dispatch,
-    fileUploadPageId,
-    handleFormPageChange: navigation.handleFormPageChange,
-    handlePageChangeCancel: navigation.handlePageChangeCancel,
-    handlePageChangeConfirm: navigation.handlePageChangeConfirm,
-    handleRecoveryAsked,
-    handleStorageData,
-    previousFormPage: navigation.previousFormPage,
-    nextFormPage: navigation.nextFormPage,
-    pageTargetRef,
-    pageTargetInViewport,
-    storageDataPresent,
-  };
+  const contextValue = useMemo(
+    () => ({
+      confirmModalRef: recovery.confirmModalRef,
+      confirmingPageChange: navigation.confirmingPageChange,
+      formUIState: state,
+      formUIDispatch: dispatch,
+      fileUploadPageId,
+      handleFormPageChange: navigation.handleFormPageChange,
+      handlePageChangeCancel: navigation.handlePageChangeCancel,
+      handlePageChangeConfirm: navigation.handlePageChangeConfirm,
+      handleRecoveryAsked: recovery.handleRecoveryAsked,
+      handleStorageData: recovery.handleStorageData,
+      previousFormPage: navigation.previousFormPage,
+      nextFormPage: navigation.nextFormPage,
+      pageTargetRef,
+      pageTargetInViewport,
+      recoveryAsked: recovery.recoveryAsked,
+      storageDataPresent: recovery.storageDataPresent,
+    }),
+    [navigation, state, dispatch, fileUploadPageId, pageTargetRef, pageTargetInViewport, recovery]
+  );
 
   return <FormUIStateContext.Provider value={contextValue}>{children}</FormUIStateContext.Provider>;
 };
 
-export { FormUIStateManager, FormUIStateContext };
+/**
+ * @returns Form UI state, dispatch, refs, and handlers from {@link FormUIStateManager}.
+ */
+function useFormUIState() {
+  const ctx = useContext(FormUIStateContext);
+  if (ctx == null) {
+    throw new Error("useFormUIState must be used within FormUIStateManager");
+  }
+  return ctx;
+}
+
+export { FormUIStateManager, FormUIStateContext, useFormUIState };

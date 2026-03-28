@@ -1,14 +1,13 @@
-import { useContext } from "react";
 import { useStore } from "react-redux";
-import { FormUIStateContext } from "../FormLayoutContainer";
+import { useFormUIState } from "../FormUIStateManager.jsx";
 
 /**
  * Returns field mods for the current resource type from Redux config.
- * Reads config via useStore(); currentResourceType from FormUIStateContext.
+ * Reads config via useStore(); currentResourceType from useFormUIState.
  */
 export function useCurrentFieldMods() {
   const config = useStore().getState().deposit?.config;
-  const { formUIState } = useContext(FormUIStateContext);
+  const { formUIState } = useFormUIState();
   const currentResourceType = formUIState?.currentResourceType;
 
   const labelModifications = config?.label_modifications ?? {};

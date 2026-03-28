@@ -1,4 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2026, MESH Research
+//
+// invenio-modular-deposit-form is free software; you can redistribute and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useFormikContext } from "formik";
 
 import { areDeeplyEqual, focusFirstElement } from "../utils";
@@ -19,10 +25,10 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
 
   // handler for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
-  const handleRecoveryAsked = () => {
+  const handleRecoveryAsked = useCallback(() => {
     setRecoveryAsked(true);
     focusFirstElement(currentFormPage, true, fileUploadPageId);
-  };
+  }, [currentFormPage, fileUploadPageId]);
 
   //keep changed form values in local storage
   useEffect(() => {
@@ -63,25 +69,31 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     }
   }, []);
 
-  const handleStorageData = (recover) => {
-    if (recover) {
-      console.log("recovering storage data");
-      async function doSetInitialValues() {
-        resetForm({ values: recoveredStorageValues });
+  const handleStorageData = useCallback(
+    (recover) => {
+      if (recover) {
+        console.log("recovering storage data");
+        async function doSetInitialValues() {
+          resetForm({ values: recoveredStorageValues });
+        }
+        doSetInitialValues();
+        setRecoveredStorageValues(null);
       }
-      doSetInitialValues();
-      setRecoveredStorageValues(null);
-    }
-    window.localStorage.removeItem(`rdmDepositFormValues.${currentUserprofile.id}.${values.id}`);
-  };
+      window.localStorage.removeItem(`rdmDepositFormValues.${currentUserprofile.id}.${values.id}`);
+    },
+    [currentUserprofile.id, recoveredStorageValues, resetForm, values.id]
+  );
 
-  return {
-    handleStorageData,
-    storageDataPresent,
-    recoveryAsked,
-    confirmModalRef,
-    handleRecoveryAsked,
-  };
+  return useMemo(
+    () => ({
+      handleStorageData,
+      storageDataPresent,
+      recoveryAsked,
+      confirmModalRef,
+      handleRecoveryAsked,
+    }),
+    [handleStorageData, storageDataPresent, recoveryAsked, confirmModalRef, handleRecoveryAsked]
+  );
 }
 
 export { useLocalStorageRecovery };

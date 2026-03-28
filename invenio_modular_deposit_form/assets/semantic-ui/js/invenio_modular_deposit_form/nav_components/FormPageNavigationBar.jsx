@@ -4,16 +4,16 @@
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { useContext } from "react";
+import React from "react";
 import { Button, Grid, Icon, Segment } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Trans } from "react-i18next";
 import PropTypes from "prop-types";
-import { FormUIStateContext } from "../FormLayoutContainer";
+import { useFormUIState } from "../FormUIStateManager.jsx";
 
 /**
  * Back / Continue navigation bar for multi-page deposit form (e.g. in form footer region).
- * Gets runtime data from FormUIStateContext; accepts classnames and other props from config.
+ * Gets runtime data from useFormUIState; accepts classnames and other props from config.
  */
 const FormPageNavigationBar = ({ classnames, ...props }) => {
   const {
@@ -22,7 +22,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
     nextFormPage,
     handleFormPageChange,
     storageDataPresent,
-  } = useContext(FormUIStateContext) ?? {};
+  } = useFormUIState();
   return (
     <div
       className={`ui container ${

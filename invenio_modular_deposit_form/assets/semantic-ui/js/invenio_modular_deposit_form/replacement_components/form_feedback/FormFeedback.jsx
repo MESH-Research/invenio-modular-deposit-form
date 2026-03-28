@@ -10,7 +10,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Component, useContext } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
@@ -18,7 +18,7 @@ import _set from "lodash/set";
 import { useStore } from "react-redux";
 import { Grid, Message, Icon } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { FormUIStateContext } from "../../FormLayoutContainer";
+import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { FormFeedbackSummary } from "./FormFeedbackSummary";
 import {
   DISCARD_PID_FAILED,
@@ -182,7 +182,7 @@ const FormFeedback = ({}) => {
   const { actionState, errors: backendErrors, config } = store.getState().deposit;
   const sectionsConfig = config?.formSectionFields;
 
-  const { formUIState } = useContext(FormUIStateContext) ?? {};
+  const { formUIState } = useFormUIState();
   const flaggedClientErrors = getFlaggedErrors(formUIState);
   const nonValidationErrors = getNonValidationErrors(backendErrors);
 

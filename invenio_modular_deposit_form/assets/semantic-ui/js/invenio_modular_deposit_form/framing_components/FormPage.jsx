@@ -1,8 +1,8 @@
-import React, { useLayoutEffect, useContext } from "react";
+import React, { useLayoutEffect } from "react";
 import Overridable from "react-overridable";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { FormUIStateContext } from "../FormLayoutContainer";
+import { useFormUIState } from "../FormUIStateManager.jsx";
 import PropTypes from "prop-types";
 import { SubsectionsRenderer } from "./SubsectionsRenderer";
 import { FieldsContent } from "./FieldsContent";
@@ -14,7 +14,7 @@ const FormPage = ({
   classnames,
   subsections,
 }) => {
-  const { formUIState, fileUploadPageId } = useContext(FormUIStateContext);
+  const { formUIState, fileUploadPageId } = useFormUIState();
   const currentFormPage = formUIState?.currentFormPage;
 
   useLayoutEffect(() => {

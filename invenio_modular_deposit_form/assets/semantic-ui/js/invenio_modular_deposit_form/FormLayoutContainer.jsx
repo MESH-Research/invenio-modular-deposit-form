@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Confirm, Container, Icon, Grid, Modal, Transition } from "semantic-ui-react";
@@ -13,7 +13,7 @@ import { RecoveryModal } from "./framing_components/RecoveryModal";
 import { focusFirstElement } from "./utils";
 import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 import { SIDEBAR_DEFAULTS_WIDTHS } from "./constants";
-import { FormUIStateContext } from "./FormUIStateManager.jsx";
+import { FormUIStateContext, useFormUIState } from "./FormUIStateManager.jsx";
 
 /* Get sidebar configs and calculate form column visibility and widths.
  * @param {object} commonFields
@@ -83,7 +83,7 @@ FormLayoutContainer component to provide layout and UI state management.
 const FormLayoutContainer = () => {
   const store = useStore();
   const { config, record, editorState } = store.getState().deposit ?? {};
-  const ctx = useContext(FormUIStateContext);
+  const ctx = useFormUIState();
   const state = ctx.formUIState;
 
   const commonFields = config?.common_fields ?? [];
@@ -167,7 +167,7 @@ const FormLayoutContainer = () => {
                           <FormPage
                             focusFirstElement={focusFirstElement}
                             id={`InvenioAppRdm.Deposit.FormPage.${section}`}
-                            recoveryAsked={recoveryAsked}
+                            recoveryAsked={ctx.recoveryAsked}
                             classnames={classnames}
                             subsections={actualSubsections}
                             {...pageProps}
@@ -220,7 +220,7 @@ const FormLayoutContainer = () => {
           onConfirm={ctx.handlePageChangeConfirm}
         />
 
-        {!recoveryAsked && storageDataPresent && (
+        {!ctx.recoveryAsked && ctx.storageDataPresent && (
           <RecoveryModal
             isDraft={record.status === "draft"}
             isVersionDraft={record.status === "new_version_draft"}

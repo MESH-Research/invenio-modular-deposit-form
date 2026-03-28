@@ -11,10 +11,10 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import _isEmpty from "lodash/isEmpty";
-import React, { useContext } from "react";
+import React from "react";
 import { Button, Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
-import { FormUIStateContext } from "../../FormLayoutContainer";
+import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { getSeverityLabel } from "../../helpers/severityChecksConfig";
 import { getFormSectionElementId } from "../../utils";
 import { getSeverityBadgeType } from "../../helpers/severityChecksConfig";
@@ -76,7 +76,7 @@ function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceT
   *
   */
 const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
-  const ctx = useContext(FormUIStateContext) ?? {};
+  const ctx = useFormUIState();
   const { formUIState, handleFormPageChange } = ctx;
   const currentFormPage = formUIState?.currentFormPage;
   const currentResourceType = currentResourceTypeProp ?? formUIState?.currentResourceType;
