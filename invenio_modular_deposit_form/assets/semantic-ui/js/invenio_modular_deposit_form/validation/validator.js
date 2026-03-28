@@ -135,7 +135,7 @@ function buildValidationSchema(config = {}) {
   const creatorIdentifiersShape = yupObject().shape({
     scheme: yupString(),
     identifier: yupString()
-      .required(i18next.t("A value is required for each identifier"))
+      .required(i18next.t("Add an identifier or remove this row"))
       .validIdentifierForScheme(creatorSchemeIds)
       .matches(/(?!\s).+/, {
         disallowEmptyString: true,
@@ -146,7 +146,7 @@ function buildValidationSchema(config = {}) {
   const recordIdentifiersShape = yupObject().shape({
     scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
     identifier: yupString()
-      .required(i18next.t("A value is required for each identifier"))
+      .required(i18next.t("Add an identifier or remove this row"))
       .validRecordIdentifierForScheme(recordSchemeIds)
       .matches(/(?!\s).+/, {
         disallowEmptyString: true,
@@ -183,11 +183,11 @@ function buildValidationSchema(config = {}) {
       is: (scheme) => scheme != null && String(scheme).trim() !== "",
       then: (schema) =>
         schema
-          .required(i18next.t("A value is required for each identifier"))
+          .required(i18next.t("Add an identifier or remove this row"))
           .validRecordIdentifierForScheme(recordSchemeIds)
           .matches(/(?!\s).+/, {
             disallowEmptyString: true,
-            message: i18next.t("Identifier cannot be blank"),
+            message: i18next.t("Add an identifier or remove this row"),
           }),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -300,11 +300,11 @@ function buildValidationSchema(config = {}) {
           yupObject().shape({
             scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
             identifier: yupString()
-              .required(i18next.t("A value is required for each identifier"))
+              .required(i18next.t("Add an identifier or remove this row"))
               .validRecordIdentifierForScheme(recordSchemeIds)
               .matches(/(?!\s).+/, {
                 disallowEmptyString: true,
-                message: i18next.t("Identifier cannot be blank"),
+                message: i18next.t("Add an identifier or remove this row"),
               }),
             relation_type: yupString(),
             resource_type: yupString(),
@@ -326,7 +326,7 @@ function buildValidationSchema(config = {}) {
             date: yupString()
               .edtf()
               .dateInSequence()
-              .required(i18next.t("A date is required for each date entry")),
+              .required(i18next.t("Add a date or remove this row")),
             type: additionalDateTypeSchema,
             description: yupString(),
           })
