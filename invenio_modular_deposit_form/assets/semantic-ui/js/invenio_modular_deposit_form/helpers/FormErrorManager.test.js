@@ -359,6 +359,32 @@ describe("FormErrorManager", () => {
         initialErrorFieldsToFlag: ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"],
       });
     });
+
+    it("drops undefined Yup array slots so index 0 is not an error path when only index 1 fails", () => {
+      const formik = {
+        ...mockFormikContext,
+        errors: {
+          metadata: {
+            identifiers: {
+              0: undefined,
+              1: { identifier: "Required" },
+            },
+          },
+        },
+        touched: {
+          metadata: {
+            identifiers: { 0: { identifier: true, scheme: true } },
+          },
+        },
+        initialErrors: {},
+        initialValues: { metadata: { identifiers: [] } },
+        values: { metadata: { identifiers: [{}, {}] } },
+      };
+      const mgr = new FormErrorManager(formik, mockStore);
+      const fieldSets = mgr.errorsToFieldSets();
+      expect(fieldSets.errorFields).toEqual(["metadata.identifiers.1.identifier"]);
+      expect(fieldSets.touchedErrorFields).toEqual([]);
+    });
   });
 
   describe("addBackendErrors", () => {

@@ -18,6 +18,25 @@ function isRecordFieldErrorPath(path) {
 }
 
 /**
+ * Dot paths from {@link flattenKeysDotJoined} include every nested object key. Yup often
+ * leaves `undefined` slots in array-shaped error maps (e.g. `{ 0: undefined, 1: { … } }`)
+ * so index 1 errors still align with values; those paths are not real errors. Dropping
+ * them stops aggregate UI from treating `metadata.identifiers.0` as an error when only
+ * row 1 is invalid.
+ *
+ * @param {Object|null|undefined} errorsObj - `errors` or `initialErrors`
+ * @returns {string[]}
+ */
+function flattenDefinedRecordErrorPaths(errorsObj) {
+  if (errorsObj == null || typeof errorsObj !== "object") {
+    return [];
+  }
+  return flattenKeysDotJoined(errorsObj)
+    .filter(isRecordFieldErrorPath)
+    .filter((path) => get(errorsObj, path) !== undefined);
+}
+
+/**
  * Resolve severity for a field path from the errors object at that path.
  * Error values may be a string (legacy) or an object { message, severity?, description? }.
  * Backend and validation can set severity to "error" | "warning" | "info"; if missing, treated as "error".
@@ -107,7 +126,7 @@ class FormErrorManager {
       actionState && String(actionState).includes("VALIDATION_ERRORS");
     if (!hasBackendValidationErrors) return;
     const { errors, touched, setFieldTouched } = this.formik;
-    const errorFields = errors ? flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath) : [];
+    const errorFields = errors ? flattenDefinedRecordErrorPaths(errors) : [];
     if (errorFields.length === 0) return;
     errorFields.forEach((field) => {
       if (!get(touched, field) && !getTouchedParent(touched, field)) {
@@ -136,7 +155,7 @@ class FormErrorManager {
    */
   errorsToFieldSets = () => {
     const { errors, touched, initialErrors, initialValues, values } = this.formik;
-    const errorFields = flattenKeysDotJoined(errors).filter(isRecordFieldErrorPath);
+    const errorFields = flattenDefinedRecordErrorPaths(errors);
     // Formik may set a leaf to `false` (explicitly untouched); do not count those paths as touched.
     const touchedFields = flattenKeysDotJoined(touched, {
       includeLeaf: (value) => value !== false,
@@ -144,7 +163,7 @@ class FormErrorManager {
     const touchedErrorFields = errorFields?.filter(
       (item) => touchedFields.includes(item) || getTouchedParent(touched, item, true)
     );
-    const initialErrorFields = flattenKeysDotJoined(initialErrors).filter(isRecordFieldErrorPath);
+    const initialErrorFields = flattenDefinedRecordErrorPaths(initialErrors);
     const initialErrorFieldsUntouched = initialErrorFields?.filter(
       (item) => !touchedFields.includes(item)
     );
@@ -317,17 +336,19 @@ class FormErrorManager {
     const errorFieldSets = this.errorsToFieldSets();
     console.log("errorFieldSets", errorFieldSets);
     this.addBackendErrors(errorFieldSets.initialErrorFieldsToFlag);
+    console.log("after addBackendErrors — errors:", this.formik.errors);
+    console.log("after addBackendErrors — touched:", this.formik.touched);
 
     const sectionErrorsFlagged = this.getSectionErrorState(
       errorFieldSets.touchedErrorFields,
       errorFieldSets.initialErrorFieldsToFlag
     );
-    console.log("sectionErrorsFlagged", sectionErrorsFlagged);
-    console.log("sectionErrorsAll", sectionErrorsAll);
     const sectionErrorsAll = this.getSectionErrorStateAll(
       errorFieldSets.errorFields,
       errorFieldSets.initialErrorFieldsUnchanged
     );
+    console.log("sectionErrorsFlagged", sectionErrorsFlagged);
+    console.log("sectionErrorsAll", sectionErrorsAll);
     dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED, payload: sectionErrorsFlagged });
     dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_ALL, payload: sectionErrorsAll });
   };
