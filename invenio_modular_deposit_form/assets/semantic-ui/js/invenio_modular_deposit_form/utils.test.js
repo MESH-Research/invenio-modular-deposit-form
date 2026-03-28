@@ -212,6 +212,39 @@ describe('flattenKeysDotJoined', () => {
       )
     ).toEqual(['a.b']);
   });
+
+  test('descendArrays + includeLeaf omits undefined slots (Yup array errors)', () => {
+    const opts = {
+      descendArrays: true,
+      includeLeaf: (v) => v !== undefined,
+    };
+    const obj = {
+      metadata: {
+        identifiers: [undefined, { identifier: 'Required' }],
+      },
+    };
+    expect(flattenKeysDotJoined(obj, opts)).toEqual([
+      'metadata.identifiers.1.identifier',
+    ]);
+  });
+
+  test('descendArrays + includeLeaf omits undefined object keys like Yup array maps', () => {
+    const opts = {
+      descendArrays: true,
+      includeLeaf: (v) => v !== undefined,
+    };
+    const obj = {
+      metadata: {
+        identifiers: {
+          0: undefined,
+          1: { identifier: 'Required' },
+        },
+      },
+    };
+    expect(flattenKeysDotJoined(obj, opts)).toEqual([
+      'metadata.identifiers.1.identifier',
+    ]);
+  });
 });
 
 describe('getTouchedParent', () => {

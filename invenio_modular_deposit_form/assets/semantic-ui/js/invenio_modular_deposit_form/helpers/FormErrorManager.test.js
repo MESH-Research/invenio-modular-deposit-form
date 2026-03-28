@@ -385,6 +385,29 @@ describe("FormErrorManager", () => {
       expect(fieldSets.errorFields).toEqual(["metadata.identifiers.1.identifier"]);
       expect(fieldSets.touchedErrorFields).toEqual([]);
     });
+
+    it("array-shaped Yup errors do not register metadata.identifiers as a path when index 0 is undefined", () => {
+      const formik = {
+        ...mockFormikContext,
+        errors: {
+          metadata: {
+            identifiers: [undefined, { identifier: "Required" }],
+          },
+        },
+        touched: {
+          metadata: {
+            identifiers: { 0: { identifier: true, scheme: true } },
+          },
+        },
+        initialErrors: {},
+        initialValues: { metadata: { identifiers: [] } },
+        values: { metadata: { identifiers: [{}, {}] } },
+      };
+      const mgr = new FormErrorManager(formik, mockStore);
+      const fieldSets = mgr.errorsToFieldSets();
+      expect(fieldSets.errorFields).toEqual(["metadata.identifiers.1.identifier"]);
+      expect(fieldSets.touchedErrorFields).toEqual([]);
+    });
   });
 
   describe("addBackendErrors", () => {

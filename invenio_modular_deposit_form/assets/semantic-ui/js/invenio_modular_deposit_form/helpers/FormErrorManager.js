@@ -18,22 +18,45 @@ function isRecordFieldErrorPath(path) {
 }
 
 /**
- * Dot paths from {@link flattenKeysDotJoined} include every nested object key. Yup often
- * leaves `undefined` slots in array-shaped error maps (e.g. `{ 0: undefined, 1: { … } }`)
- * so index 1 errors still align with values; those paths are not real errors. Dropping
- * them stops aggregate UI from treating `metadata.identifiers.0` as an error when only
- * row 1 is invalid.
+ * All dot paths under `errors` / `initialErrors` that denote a real leaf error on a record
+ * field (see {@link RECORD_FIELD_ERROR_ROOTS}). Uses {@link flattenKeysDotJoined} with
+ * {@link FLATTEN_RECORD_ERRORS_OPTIONS} (descend into array indices; omit `undefined` slots via
+ * `includeLeaf`).
  *
  * @param {Object|null|undefined} errorsObj - `errors` or `initialErrors`
+ * @param {string} [label] - label for debug logs (e.g. `"errors"` / `"initialErrors"`)
  * @returns {string[]}
  */
-function flattenDefinedRecordErrorPaths(errorsObj) {
+function flattenDefinedRecordErrorPaths(errorsObj, label = "errors") {
   if (errorsObj == null || typeof errorsObj !== "object") {
+    console.log(
+      "[FormErrorManager] flattenDefinedRecordErrorPaths",
+      label,
+      "stage: skip (null/non-object)"
+    );
     return [];
   }
-  return flattenKeysDotJoined(errorsObj)
-    .filter(isRecordFieldErrorPath)
-    .filter((path) => get(errorsObj, path) !== undefined);
+
+  const options = {
+    descendArrays: true,
+    includeLeaf: (v) => v !== undefined,
+  };
+
+  const raw = flattenKeysDotJoined(errorsObj, options);
+  console.log(
+    "[FormErrorManager] flattenDefinedRecordErrorPaths",
+    label,
+    "stage: raw keys from flattenKeysDotJoined(record errors options)",
+    raw
+  );
+  const filtered = raw.filter(isRecordFieldErrorPath);
+  console.log(
+    "[FormErrorManager] flattenDefinedRecordErrorPaths",
+    label,
+    "stage: after RECORD_FIELD_ERROR_ROOTS filter",
+    filtered
+  );
+  return filtered;
 }
 
 /**
@@ -163,7 +186,7 @@ class FormErrorManager {
     const touchedErrorFields = errorFields?.filter(
       (item) => touchedFields.includes(item) || getTouchedParent(touched, item, true)
     );
-    const initialErrorFields = flattenDefinedRecordErrorPaths(initialErrors);
+    const initialErrorFields = flattenDefinedRecordErrorPaths(initialErrors, "initialErrors");
     const initialErrorFieldsUntouched = initialErrorFields?.filter(
       (item) => !touchedFields.includes(item)
     );

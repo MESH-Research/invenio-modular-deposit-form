@@ -45,39 +45,85 @@ function pushToArrayEnd(startingArray, targetValue, keyLabel) {
 /**
  * List leaf paths in dot notation (e.g. `metadata.title`, `pids.doi`).
  *
+ * Two independent controls:
+ * - **`descendArrays`**: structure only. If true, array values are walked index-by-index and the
+ *   array node is not emitted as one path; if false (default), an array value is a single leaf
+ *   (legacy).
+ * - **`includeLeaf`**: optional `(value, path) => boolean`. If set, a value only participates
+ *   when this returns true: primitives emit a path only when allowed; under `descendArrays`,
+ *   an array slot is skipped (no paths under it) when the slot value fails the test (e.g. Yup
+ *   holes: `(v) => v !== undefined`). Object keys whose value fails the test are not emitted as
+ *   leaves. Callers choose the predicate per use case (`touched`: omit `false` leaves, errors:
+ *   omit `undefined`, etc.). If omitted, any value may produce paths (legacy).
+ *
  * @param {Record<string, unknown>} val
- * @param {{ includeLeaf?: (value: unknown, path: string) => boolean }} [options] If omitted,
- *   every leaf path is included (legacy behavior). Use `includeLeaf` to drop paths —
- *   e.g. for Formik `touched`, pass `(v) => v !== false` so explicit `false` leaves are not
- *   treated as touched when flattening.
+ * @param {{
+ *   descendArrays?: boolean,
+ *   includeLeaf?: (value: unknown, path: string) => boolean,
+ * }} [options]
  */
 function flattenKeysDotJoined(val, options) {
   const includeLeaf = options?.includeLeaf;
+  const descendArrays = options?.descendArrays === true;
 
-  function flatten(obj, prefix) {
-    if (obj == null || typeof obj !== "object" || Array.isArray(obj)) {
-      return [];
-    }
-    const keysArray = Object.keys(obj);
-    let newArray = [];
-    for (let i = 0; i < keysArray.length; i++) {
-      const key = keysArray[i];
-      const myValue = obj[key];
-      const path = prefix === "" ? key : `${prefix}.${key}`;
-      if (
-        typeof myValue === "object" &&
-        !Array.isArray(myValue) &&
-        myValue !== null
-      ) {
-        newArray = newArray.concat(flatten(myValue, path));
-      } else if (includeLeaf === undefined || includeLeaf(myValue, path)) {
-        newArray.push(path);
-      }
-    }
-    return newArray;
+  function leafAllowed(value, path) {
+    return includeLeaf === undefined || includeLeaf(value, path);
   }
 
-  return flatten(val, "");
+  /**
+   * @param {unknown} node
+   * @param {string} prefix - empty string at root object only
+   */
+  function walk(node, prefix) {
+    if (node === undefined) {
+      return [];
+    }
+    if (node === null || typeof node !== "object") {
+      return prefix !== "" && leafAllowed(node, prefix) ? [prefix] : [];
+    }
+    if (Array.isArray(node)) {
+      if (!descendArrays) {
+        return prefix !== "" && leafAllowed(node, prefix) ? [prefix] : [];
+      }
+      const out = [];
+      for (let i = 0; i < node.length; i++) {
+        const el = node[i];
+        const path = prefix === "" ? String(i) : `${prefix}.${i}`;
+        if (el === undefined && !leafAllowed(el, path)) {
+          continue;
+        }
+        out.push(...walk(el, path));
+      }
+      return out;
+    }
+    const keysArray = Object.keys(node);
+    const out = [];
+    for (let i = 0; i < keysArray.length; i++) {
+      const key = keysArray[i];
+      const myValue = node[key];
+      const path = prefix === "" ? key : `${prefix}.${key}`;
+      if (Array.isArray(myValue)) {
+        if (descendArrays) {
+          out.push(...walk(myValue, path));
+        } else if (leafAllowed(myValue, path)) {
+          out.push(path);
+        }
+      } else if (typeof myValue === "object" && myValue !== null) {
+        out.push(...walk(myValue, path));
+      } else if (leafAllowed(myValue, path)) {
+        out.push(path);
+      }
+    }
+    return out;
+  }
+
+  if (val == null || typeof val !== "object") {
+    return [];
+  }
+  if (Array.isArray(val)) {
+    return descendArrays ? walk(val, "") : [];
+  }
+  return walk(val, "");
 }
 
 function flattenWrappers(page) {
