@@ -28,6 +28,12 @@ The same top-level barrel also exports core replacement widgets directly:
 
 For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements intentionally mirror stock prop mapping/defaults while delegating rendering to local replacement fields (`TextField`, `SelectField`, `RemoteSelectField`). `Dropdown` and `AutocompleteDropdown` also pass through additional props to their underlying replacement field component.
 
+### `SelectField` and Formik `touched`
+
+Stock `react-invenio-forms` `SelectField` wires `onBlur={handleBlur}` on `Form.Dropdown`. Formik’s `handleBlur` decides which field to mark touched from **`event.target.name`** or **`event.target.id`**. For a **search** dropdown, the element that blurs is often **not** labeled with the Formik path, so touch can fail for the real `fieldPath`. The local replacement keeps stock-style **`handleBlur(e)`** and also calls **`form.setFieldTouched(fieldPath, true, false)`** on blur so touched-aware error gating (see file header) works. It also gates visible messages from **`form.errors`** on **`form.touched`** while leaving the stock **`error` prop** and **initial-value / `initialErrors`** branch unchanged.
+
+**`RemoteSelectField`** passes **`searchInput={{ id: fieldPath, … }}`**, which can make **`handleBlur`’s `id` fallback** succeed on the inner search input; it still passes **`onBlur`** in spread-after-default order, which **replaces** the default dropdown `onBlur` on the root—if remote fields must match local touch behavior, the remote **`onBlur`** should chain **`handleBlur`** / **`setFieldTouched`** (or equivalent) as needed.
+
 In addition, local `RemoteSelectField` now synchronizes selected suggestions to `formik.values.ui.<fieldPath>` on add/change. This keeps the UI label cache aligned with selected IDs so `initialSuggestions` can rehydrate readable labels after remount/recovery without changing the canonical submitted value shape.
 
 ## `FieldComponentWrapper` and `labelIcon`

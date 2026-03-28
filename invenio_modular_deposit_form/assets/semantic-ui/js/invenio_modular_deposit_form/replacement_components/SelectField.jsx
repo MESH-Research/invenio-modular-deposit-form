@@ -16,8 +16,11 @@
 // - Stock destructures nonexistent `form.meta`; we use `form.touched` so messages from
 //   `form.errors` show only after the field is touched (prop `error` and initial-error
 //   while value unchanged stay as in stock).
-// - Stock does not set formik field touched on blur, because the event target doesn't
-//   carry the formField on id or name. So we have to manually set touched on blur.
+// - Formik `handleBlur(e)` infers the field from `e.target.name` or `e.target.id`. For
+//   `Form.Dropdown` (search), the blur target is often a wrapper or an inner input
+//   without that path, so we still call `setFieldTouched(fieldPath, true, false)` on
+//   blur after `handleBlur(e)`. Callers that pass `onBlur` via props (spread after this
+//   handler) replace it and must chain touch/Formik blur themselves if needed.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -68,7 +71,16 @@ export class SelectField extends Component {
 
   renderFormField = (formikProps) => {
     const {
-      form: { values, setFieldValue, handleBlur, errors, initialErrors, initialValues, touched },
+      form: {
+        values,
+        setFieldValue,
+        setFieldTouched,
+        handleBlur,
+        errors,
+        initialErrors,
+        initialValues,
+        touched,
+      },
       ...cmpProps
     } = formikProps;
     const {
@@ -115,8 +127,8 @@ export class SelectField extends Component {
         name={fieldPath}
         disabled={disabled}
         required={required}
-        onBlur={() => {
-          handleBlur();
+        onBlur={(e) => {
+          handleBlur(e);
           setFieldTouched(fieldPath, true, false);
         }}
         onChange={(event, data) => {
