@@ -80,6 +80,29 @@ All of the stock form field components listed above can be overridden using the 
 
 In your instance's `assets/js/invenio_app_rdm/overridableRegistry/mapping.js` file, you can import any of these components from `@js/invenio_modular_deposit_form/field_components/overridable`. See [Override guide](override-guide.md) for slot ids.
 
+## Alternate components
+
+Alternate components live in `replacement_components/alternate_components/` and offer a different UX for the same logical field. They are registered in the componentsRegistry alongside their standard counterparts, so you can swap between them by changing the component name in your layout config.
+
+### CreatorsComponentFlat / ContributorsComponentFlat
+
+These use **CreatibutorsFieldFlat** instead of the stock `CreatibutorsField`. The default layout config uses `CreatorsComponentFlat` for creators. To revert to the modal-based version, change `"component": "CreatorsComponentFlat"` back to `"component": "CreatorsComponent"` in your `common_fields` config. For contributors, use `ContributorsComponentFlat` in place of `ContributorsComponent`.
+
+**Behavioral differences from CreatorsComponent / ContributorsComponent:**
+
+| Area | Standard (modal) | Flat (inline) |
+| --- | --- | --- |
+| **Editing** | Opens a modal dialog with its own internal Formik instance and Yup validation schema. | Expands an inline form panel beneath the item. Edits write directly to the parent Formik context (no nested Formik or Yup schema). |
+| **Reordering** | Drag-and-drop only. | Drag-and-drop plus explicit Up/Down buttons with `aria-label`s, so items can be reordered via keyboard. |
+| **Identifier editing** | Dropdown that stores identifier strings, with scheme resolved on save via serialize/deserialize. | Explicit text + scheme-select rows in a FieldArray. Each identifier is a `{identifier, scheme}` object in the form state. |
+| **"Add myself"** | Not available. | An "Add myself" button pre-fills a new entry from the logged-in user's profile (name parts, identifiers, affiliations). |
+| **Focus management** | Focus stays in the modal while it is open. | Focus returns to the "Add" button after closing or removing an item. New items auto-focus the name search field. |
+| **Validation visibility** | The modal validates on submit via its internal Yup schema. Errors appear inside the modal. | No per-item schema. Errors come from the parent form validator. Opening an existing item for edit marks all its subfields as touched so that existing errors are immediately visible. |
+| **Name autofill** | Remote search via `/api/names` with autofill of names, identifiers (as strings), and affiliations. Uses refs to sync dropdown internal state. | Same remote search and autofill flow. Identifiers are set as `{identifier, scheme}` objects directly, so the explicit rows re-render without needing ref-based state syncing. |
+| **Transition animation** | Modal open/close. | Fade transition on the inline panel. |
+
+All other behavior (person/organization toggle with cached identifiers and affiliations per type, role selection, affiliation search via `/api/affiliations`, `Overridable` extension points on each form section) is the same.
+
 ## Custom field components
 
 Defined in `field_components/custom_field_components.jsx`. They use the **CustomField** component (see the [Extending](extending.md) guide, section **Handling custom fields**), which reads widget and props from the InvenioRDM custom field UI config (`custom_fields.ui`). These cover resource-type-specific custom metadata (imprint, journal, meeting, code, thesis, etc.) and are registered by default for use in type-specific layouts.

@@ -338,6 +338,60 @@
 </ul>
 <p>In your instance’s <code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code> file, you can import any of these components from <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/field_components/overridable</span></code>. See <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a> for slot ids.</p>
 </section>
+<section id="alternate-components">
+<h2>Alternate components<a class="headerlink" href="#alternate-components" title="Link to this heading">¶</a></h2>
+<p>Alternate components live in <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/</span></code> and offer a different UX for the same logical field. They are registered in the componentsRegistry alongside their standard counterparts, so you can swap between them by changing the component name in your layout config.</p>
+<section id="creatorscomponentflat-contributorscomponentflat">
+<h3>CreatorsComponentFlat / ContributorsComponentFlat<a class="headerlink" href="#creatorscomponentflat-contributorscomponentflat" title="Link to this heading">¶</a></h3>
+<p>These use <strong>CreatibutorsFieldFlat</strong> instead of the stock <code class="docutils literal notranslate"><span class="pre">CreatibutorsField</span></code>. The default layout config uses <code class="docutils literal notranslate"><span class="pre">CreatorsComponentFlat</span></code> for creators. To revert to the modal-based version, change <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;CreatorsComponentFlat&quot;</span></code> back to <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;CreatorsComponent&quot;</span></code> in your <code class="docutils literal notranslate"><span class="pre">common_fields</span></code> config. For contributors, use <code class="docutils literal notranslate"><span class="pre">ContributorsComponentFlat</span></code> in place of <code class="docutils literal notranslate"><span class="pre">ContributorsComponent</span></code>.</p>
+<p><strong>Behavioral differences from CreatorsComponent / ContributorsComponent:</strong></p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Area</p></th>
+<th class="head"><p>Standard (modal)</p></th>
+<th class="head"><p>Flat (inline)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Editing</strong></p></td>
+<td><p>Opens a modal dialog with its own internal Formik instance and Yup validation schema.</p></td>
+<td><p>Expands an inline form panel beneath the item. Edits write directly to the parent Formik context (no nested Formik or Yup schema).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Reordering</strong></p></td>
+<td><p>Drag-and-drop only.</p></td>
+<td><p>Drag-and-drop plus explicit Up/Down buttons with <code class="docutils literal notranslate"><span class="pre">aria-label</span></code>s, so items can be reordered via keyboard.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Identifier editing</strong></p></td>
+<td><p>Dropdown that stores identifier strings, with scheme resolved on save via serialize/deserialize.</p></td>
+<td><p>Explicit text + scheme-select rows in a FieldArray. Each identifier is a <code class="docutils literal notranslate"><span class="pre">{identifier,</span> <span class="pre">scheme}</span></code> object in the form state.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>“Add myself”</strong></p></td>
+<td><p>Not available.</p></td>
+<td><p>An “Add myself” button pre-fills a new entry from the logged-in user’s profile (name parts, identifiers, affiliations).</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Focus management</strong></p></td>
+<td><p>Focus stays in the modal while it is open.</p></td>
+<td><p>Focus returns to the “Add” button after closing or removing an item. New items auto-focus the name search field.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Validation visibility</strong></p></td>
+<td><p>The modal validates on submit via its internal Yup schema. Errors appear inside the modal.</p></td>
+<td><p>No per-item schema. Errors come from the parent form validator. Opening an existing item for edit marks all its subfields as touched so that existing errors are immediately visible.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Name autofill</strong></p></td>
+<td><p>Remote search via <code class="docutils literal notranslate"><span class="pre">/api/names</span></code> with autofill of names, identifiers (as strings), and affiliations. Uses refs to sync dropdown internal state.</p></td>
+<td><p>Same remote search and autofill flow. Identifiers are set as <code class="docutils literal notranslate"><span class="pre">{identifier,</span> <span class="pre">scheme}</span></code> objects directly, so the explicit rows re-render without needing ref-based state syncing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Transition animation</strong></p></td>
+<td><p>Modal open/close.</p></td>
+<td><p>Fade transition on the inline panel.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All other behavior (person/organization toggle with cached identifiers and affiliations per type, role selection, affiliation search via <code class="docutils literal notranslate"><span class="pre">/api/affiliations</span></code>, <code class="docutils literal notranslate"><span class="pre">Overridable</span></code> extension points on each form section) is the same.</p>
+</section>
+</section>
 <section id="custom-field-components">
 <h2>Custom field components<a class="headerlink" href="#custom-field-components" title="Link to this heading">¶</a></h2>
 <p>Defined in <code class="docutils literal notranslate"><span class="pre">field_components/custom_field_components.jsx</span></code>. They use the <strong>CustomField</strong> component (see the <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a> guide, section <strong>Handling custom fields</strong>), which reads widget and props from the InvenioRDM custom field UI config (<code class="docutils literal notranslate"><span class="pre">custom_fields.ui</span></code>). These cover resource-type-specific custom metadata (imprint, journal, meeting, code, thesis, etc.) and are registered by default for use in type-specific layouts.</p>
@@ -449,6 +503,10 @@
 </li>
 <li><a class="reference internal" href="#contrib-components">Contrib components</a></li>
 <li><a class="reference internal" href="#overridable-components">Overridable components</a></li>
+<li><a class="reference internal" href="#alternate-components">Alternate components</a><ul>
+<li><a class="reference internal" href="#creatorscomponentflat-contributorscomponentflat">CreatorsComponentFlat / ContributorsComponentFlat</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#custom-field-components">Custom field components</a></li>
 <li><a class="reference internal" href="#gotchas">Gotchas</a></li>
 </ul>
