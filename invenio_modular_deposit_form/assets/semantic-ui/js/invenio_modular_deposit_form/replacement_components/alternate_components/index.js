@@ -1,4 +1,5 @@
 export * from "./CommunityField";
+export * from "./CreatibutorsFieldFlat";
 export * from "./DatesFieldAlternate";
 export * from "./PIDField";
 export * from "./LanguagesField";

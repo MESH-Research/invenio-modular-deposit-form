@@ -146,7 +146,7 @@ _PAGED_FORM_PAGES = {
                         {
                             "section": "creators",
                             "label": "Creators",
-                            "component": "CreatorsComponent",
+                            "component": "CreatorsComponentFlat",
                         },
                         {
                             "section": "abstract",
@@ -357,7 +357,7 @@ COMMON_FIELDS_DEFAULT_SINGLE = [
                             {
                                 "section": "creators",
                                 "label": "Creators",
-                                "component": "CreatorsComponent",
+                                "component": "CreatorsComponentFlat",
                             },
                             {
                                 "section": "abstract",
