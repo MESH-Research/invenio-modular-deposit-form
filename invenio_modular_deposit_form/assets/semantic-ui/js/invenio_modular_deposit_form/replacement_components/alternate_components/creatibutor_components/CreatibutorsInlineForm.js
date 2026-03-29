@@ -64,24 +64,16 @@ const CreatibutorsInlineForm = ({
 
   // Cached identifiers/affiliations per type (for toggle restore)
   const [personIdentifiers, setPersonIdentifiers] = useState(
-    !isOrganization
-      ? _get(initialCreatibutor, "person_or_org.identifiers", [])
-      : []
+    !isOrganization ? _get(initialCreatibutor, "person_or_org.identifiers", []) : []
   );
   const [personAffiliations, setPersonAffiliations] = useState(
-    !isOrganization
-      ? _get(initialCreatibutor, "affiliations", [])
-      : []
+    !isOrganization ? _get(initialCreatibutor, "affiliations", []) : []
   );
   const [organizationIdentifiers, setOrganizationIdentifiers] = useState(
-    isOrganization
-      ? _get(initialCreatibutor, "person_or_org.identifiers", [])
-      : []
+    isOrganization ? _get(initialCreatibutor, "person_or_org.identifiers", []) : []
   );
   const [organizationAffiliations, setOrganizationAffiliations] = useState(
-    isOrganization
-      ? _get(initialCreatibutor, "affiliations", [])
-      : []
+    isOrganization ? _get(initialCreatibutor, "affiliations", []) : []
   );
 
   const namesAutocompleteRef = createRef();
@@ -152,9 +144,7 @@ const CreatibutorsInlineForm = ({
   const onOrganizationSearchChange = useCallback(
     ({ formikProps }, selectedSuggestions) => {
       const selected = selectedSuggestions[0].extra;
-      const newIdentifiers = (selected.identifiers ?? []).filter(
-        (id) => id.scheme !== "grid"
-      );
+      const newIdentifiers = (selected.identifiers ?? []).filter((id) => id.scheme !== "grid");
 
       setOrganizationIdentifiers(newIdentifiers);
       setOrganizationAffiliations([]);
@@ -181,22 +171,14 @@ const CreatibutorsInlineForm = ({
 
       if (switchingToOrg) {
         // Cache current person values, restore org values
-        setPersonIdentifiers(
-          getIn(values, identifiersFieldPath, [])
-        );
-        setPersonAffiliations(
-          getIn(values, affiliationsFieldPath, [])
-        );
+        setPersonIdentifiers(getIn(values, identifiersFieldPath, []));
+        setPersonAffiliations(getIn(values, affiliationsFieldPath, []));
         setFieldValue(identifiersFieldPath, organizationIdentifiers);
         setFieldValue(affiliationsFieldPath, organizationAffiliations);
       } else {
         // Cache current org values, restore person values
-        setOrganizationIdentifiers(
-          getIn(values, identifiersFieldPath, [])
-        );
-        setOrganizationAffiliations(
-          getIn(values, affiliationsFieldPath, [])
-        );
+        setOrganizationIdentifiers(getIn(values, identifiersFieldPath, []));
+        setOrganizationAffiliations(getIn(values, affiliationsFieldPath, []));
         setFieldValue(identifiersFieldPath, personIdentifiers);
         setFieldValue(affiliationsFieldPath, personAffiliations);
       }
@@ -236,14 +218,9 @@ const CreatibutorsInlineForm = ({
   };
 
   return (
-    <Transition
-      visible={show}
-      animation="fade"
-      duration={300}
-      transitionOnMount
-    >
-      <div className={`${fieldPath}-item-form ui form`}>
-        {isNewItem && <Header as="h2">{addLabel}</Header>}
+    <Transition visible={show} animation="fade" duration={300} transitionOnMount>
+      <fieldset className={`${fieldPath}-item-form ui segment invenio-form-section`}>
+        {isNewItem && <legend>{addLabel}</legend>}
         <CreatibutorsFormBody
           affiliationsRef={affiliationsRef}
           autocompleteNames={autocompleteNames}
@@ -256,9 +233,7 @@ const CreatibutorsInlineForm = ({
           onPersonOrgToggle={onPersonOrgToggle}
           onPersonSearchChange={onPersonSearchChange}
           roleOptions={roleOptions}
-          serializeSuggestions={
-            serializeSuggestionsProp || defaultSerializeSuggestions
-          }
+          serializeSuggestions={serializeSuggestionsProp || defaultSerializeSuggestions}
           showPersonForm={showPersonForm}
           values={values}
         />
@@ -274,7 +249,7 @@ const CreatibutorsInlineForm = ({
             setShowPersonForm={setShowPersonForm}
           />
         </Form.Group>
-      </div>
+      </fieldset>
     </Transition>
   );
 };
