@@ -85,7 +85,7 @@ The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `fiel
 
 | Interaction | Where |
 |-------------|--------|
-| **Mount**, empty identifier, per **`doiDefaultSelection`** (`default_selected`) | **`RequiredPIDField.js` only** — seed `{ provider: "external", identifier: "" }` for `"yes"`, or `{}` for `"no"` when clearing a non-empty stale value. **`OptionalPIDField`** does not seed (optional DOI must not validate an empty field). |
+| **Mount**, empty identifier, per **`doiDefaultSelection`** (`default_selected`) | **`RequiredPIDField.js` only** — seed `{ provider: "external", identifier: "" }` for `"yes"`, or `{}` for `"no"` when clearing a non-empty stale value **unless** `provider` is already **`"external"`** (do not wipe unmanaged). **Stock upstream has no `componentDidMount` seeding** (see below). **`OptionalPIDField`** does not seed (optional DOI must not validate an empty field). |
 | User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, true)` (touch + run validation; radios rely on `setFieldValue` + `validateOnChange`). `Form.Input` gets `name={field.name \|\| fieldPath}`. |
 | User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `setFieldTouched(fieldPath, false, false)` (mark untouched; do not validate on that call). |
 | User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — same `false`, `false` on radio. |
@@ -95,11 +95,26 @@ Blur/input paths set `touched` so `getFieldErrorsForDisplay` can show errors aft
 (formik-pid-initial-provider)=
 ### Initial `pids.<scheme>` shape vs `default_selected`
 
-Deposit config exposes per-scheme UI default as **`default_selected`** (`"yes"` / `"no"` / `"not_needed"` for optional DOI), passed to `PIDField` as **`doiDefaultSelection`**. The UI derives managed vs unmanaged from that plus the current identifier, but until the user types or toggles radios, Formik may still hold `{}` or a value **without** `provider: "external"` on the unmanaged branch.
+Deposit config exposes per-scheme UI default as **`default_selected`** (`"yes"` / `"no"` / `"not_needed"` for optional DOI), passed to `PIDField` as **`doiDefaultSelection`**.
 
-**`RequiredPIDField`** runs **`componentDidMount`**: if the identifier is empty, **`doiDefaultSelection === "yes"`** sets **`{ provider: "external", identifier: "" }`** when `provider` is missing or not `"external"`; **`doiDefaultSelection === "no"`** sets **`{}`** if the value object still has keys (clear stale shape). **`OptionalPIDField`** does **not** do this: seeding external would make Yup treat the field as an external DOI branch and can flag an empty identifier even when optional DOI should not require one. **`not_needed`** is unchanged (no external seed from this block). This keeps required-PID Yup and the unmanaged input aligned with the visible default without relying on backend-only defaults.
+#### Stock `RequiredPIDField` (upstream `invenio_rdm_records`)
 
-**`OptionalPIDField`** also avoids setting **`provider: "external"`** when the user switches radios to the unmanaged branch: it clears **`pids`** (same as managed / not-needed), and **`provider: "external"`** is written only when the user types in the unmanaged identifier input (`onExternalIdentifierChanged`).
+- **No `componentDidMount`** — Formik is not normalized from `default_selected` on mount.
+- **Constructor:** if **`record.is_draft === true`** and the field has a **non-empty** identifier and a **non-`external`** provider, local state **`isManagedSelected`** is initialized to **`true`** (managed). Otherwise it is **`undefined`**.
+- **Render:** if state is **`undefined`**, managed vs unmanaged is inferred as  
+  **`hasManagedIdentifier || (empty identifier && doiDefaultSelection === "no")`**.  
+  So **`{ provider: "external", identifier: "" }`** with **`default_selected === "no"`** still infers **managed** after remount (local state is lost), which disagrees with Formik.
+- **Errors:** **`getFieldErrors`** (no touched gating like this package).
+- **Radio:** **`onManagedUnmanagedChange`** does **not** call **`setFieldTouched`** on the PID path.
+
+#### This package’s `RequiredPIDField` (additional / changed behavior)
+
+- **`componentDidMount`:** if the identifier is empty, **`doiDefaultSelection === "yes"`** sets **`{ provider: "external", identifier: "" }`** when `provider` is missing or not `"external"`; **`doiDefaultSelection === "no"`** sets **`{}`** only when the value still has keys **and** `provider` is **not** `"external"` (avoids clearing explicit unmanaged shape from the API or after user choice).
+- **`getFieldErrorsForDisplay`** on the label row and identifier components; **`setFieldTouched(fieldPath, false, false)`** when managed/unmanaged radios change (see table above).
+- **Render (fix vs stock):** when local **`isManagedSelected`** is **`undefined`**, if **`provider === "external"`** the radio is **unmanaged** **before** applying the stock rule **`empty identifier && doiDefaultSelection === "no"`** → managed. Unmanaged branch still uses **`onExternalIdentifierChanged`** (debounced **`setFieldValue`**) like stock.
+- **`doiDefaultSelection` PropTypes** use **`string`** (stock incorrectly types it as **`object`**).
+
+**`OptionalPIDField`** does **not** mount-seed; behaviour for **`not_needed`** is unchanged. Seeding external would make Yup treat the field as an external DOI branch and can flag an empty identifier when optional DOI should not require one. It also avoids setting **`provider: "external"`** when the user switches radios to the unmanaged branch: it clears **`pids`** (same as managed / not-needed), and **`provider: "external"`** is written only when the user types in the unmanaged identifier input (`onExternalIdentifierChanged`).
 
 ## Upstream changes that could remove these replacements
 
