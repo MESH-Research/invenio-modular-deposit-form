@@ -27,7 +27,6 @@ import { NamesAutocompleteOptions } from "./CreatibutorsInlineForm";
 const CreatibutorsFormBody = ({
   affiliationsRef,
   autocompleteNames,
-  fieldPath,
   fieldPathPrefix,
   isCreator,
   isNewItem,
@@ -104,7 +103,7 @@ const CreatibutorsFormBody = ({
                 searchInput={{
                   autoFocus: isNewItem,
                 }}
-                fieldPath={fieldPath}
+                fieldPath={`${fieldPathPrefix}.__namesSearch`}
                 clearable
                 multiple={false}
                 allowAdditions={false}
@@ -185,7 +184,7 @@ const CreatibutorsFormBody = ({
                 searchInput={{
                   autoFocus: isNewItem,
                 }}
-                fieldPath={fieldPath}
+                fieldPath={`${fieldPathPrefix}.__orgSearch`}
                 clearable
                 multiple={false}
                 allowAdditions={false}
@@ -270,7 +269,6 @@ const CreatibutorsFormBody = ({
 CreatibutorsFormBody.propTypes = {
   affiliationsRef: PropTypes.object,
   autocompleteNames: PropTypes.oneOf(["search", "search_only", "off"]),
-  fieldPath: PropTypes.string.isRequired,
   fieldPathPrefix: PropTypes.string.isRequired,
   isCreator: PropTypes.bool,
   isNewItem: PropTypes.bool,

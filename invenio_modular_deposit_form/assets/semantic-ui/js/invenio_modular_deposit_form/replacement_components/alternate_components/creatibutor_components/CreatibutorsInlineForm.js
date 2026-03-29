@@ -247,7 +247,6 @@ const CreatibutorsInlineForm = ({
         <CreatibutorsFormBody
           affiliationsRef={affiliationsRef}
           autocompleteNames={autocompleteNames}
-          fieldPath={fieldPath}
           fieldPathPrefix={fieldPathPrefix}
           isCreator={isCreator}
           isNewItem={isNewItem}
