@@ -27,8 +27,10 @@
 //   docs/source/replacement_field_components.md § “Formik touched and this fork”.
 //   **Initial `provider` (required PID only):** `RequiredPIDField` on mount, if there is no
 //   identifier yet, seeds `pids.<scheme>` from `doiDefaultSelection` (`default_selected`).
-//   `OptionalPIDField` does not seed (optional DOI must not validate empty); its unmanaged
-//   radio clears `pids` without `provider: "external"` (external only on input). Sphinx:
+//   `OptionalPIDField` does not seed (optional DOI must not validate empty); it persists
+//   optional-DOI radio choice in `values.ui.pids.doi.managed_selection` when the user
+//   changes radios (survives `pids` cleared / remount); its unmanaged radio clears `pids`
+//   without `provider: "external"` (external only on input). Sphinx:
 //   replacement_field_components.md (PIDField).
 //   Leaf widgets that are unchanged are deep-imported from `@js/invenio_rdm_records/...`;
 //   deposit API/state imports use `@js` because relative paths from upstream

@@ -24,6 +24,12 @@
 //   `field` from the FastField render props.
 // - When optional DOI radios change, `setFieldTouched(fieldPath, false, false)` — same as
 //   `RequiredPIDField` (see there).
+// - **`values.ui.pids.doi.managed_selection`:** optional-DOI radios persist a string enum
+//   (`managed` / `unmanaged` / `not_needed`) in Formik so after `pids` is `{}` (or remount)
+//   the branch is not inferred only from empty PID + `doiDefaultSelection`. When
+//   `managed_selection` is unset, `computeManagedUnmanaged` falls back to stock-style
+//   heuristics (identifier + provider + `doiDefaultSelection`). See
+//   `replacement_field_components.md` (PIDField).
 // - **No mount-time PID seed** (unlike `RequiredPIDField`): seeding `{ provider: "external",
 //   identifier: "" }` would make Yup validate an empty optional DOI. See
 //   `replacement_field_components.md` (PIDField).
@@ -46,11 +52,17 @@ import { getFieldErrorsForDisplay } from "./pid_components/fieldErrorsForDisplay
 
 const PROVIDER_EXTERNAL = "external";
 const UPDATE_PID_DEBOUNCE_MS = 200;
+const RADIO_CHOICE_ENUM = {
+  UNMANAGED: "unmanaged",
+  MANAGED: "managed",
+  NOT_NEEDED: "not_needed",
+};
 
 /**
  * Optional PID field with optional-DOI radios (`OptionalDOIoptions`), managed/unmanaged
- * branches, and `getFieldErrorsForDisplay`. Radio: `setFieldTouched(fieldPath, false, false)`; see header.
- * No mount-time PID seed.
+ * branches, and `getFieldErrorsForDisplay`. Persists radio choice in Formik
+ * `values.ui.pids.doi.managed_selection`; radio change: `setFieldTouched(fieldPath, false, false)`.
+ * No mount-time PID seed (see file header).
  */
 class OptionalPIDFieldCmp extends Component {
   constructor(props) {
@@ -99,7 +111,7 @@ class OptionalPIDFieldCmp extends Component {
 
   computeManagedUnmanaged = () => {
     const { isManagedSelected, isNoNeedSelected } = this.state;
-    const { field, record, doiDefaultSelection } = this.props;
+    const { field, form, record, doiDefaultSelection } = this.props;
 
     const value = field.value || {};
     const currentIdentifier = value.identifier || "";
@@ -122,25 +134,29 @@ class OptionalPIDFieldCmp extends Component {
     const hasParentDoi = parentDoi !== "";
     const isDraft = record.is_draft;
 
-    const _isUnmanagedSelected =
-      isManagedSelected === undefined
-        ? hasUnmanagedIdentifier ||
-          (currentIdentifier === "" && doiDefaultSelection === "yes")
-        : !isManagedSelected;
+    let _isUnmanagedSelected, _isManagedSelected, _isNoNeedSelected;
+    const selectionFlagValue = form?.values?.ui?.pids?.doi?.managed_selection;
+    if (selectionFlagValue === undefined) {
+      _isUnmanagedSelected =
+        isManagedSelected === undefined
+          ? hasUnmanagedIdentifier || (currentIdentifier === "" && doiDefaultSelection === "yes")
+          : !isManagedSelected;
 
-    const _isManagedSelected =
-      isManagedSelected === undefined
-        ? hasManagedIdentifier ||
-          (currentIdentifier === "" && doiDefaultSelection === "no")
-        : isManagedSelected;
+      _isManagedSelected =
+        isManagedSelected === undefined
+          ? hasManagedIdentifier || (currentIdentifier === "" && doiDefaultSelection === "no")
+          : isManagedSelected;
 
-    const _isNoNeedSelected =
-      isNoNeedSelected === undefined
-        ? (!_isManagedSelected && !_isUnmanagedSelected) ||
-          (isDraft !== true &&
-            currentIdentifier === "" &&
-            doiDefaultSelection === "not_needed")
-        : isNoNeedSelected;
+      _isNoNeedSelected =
+        isNoNeedSelected === undefined
+          ? (!_isManagedSelected && !_isUnmanagedSelected) ||
+            (isDraft !== true && currentIdentifier === "" && doiDefaultSelection === "not_needed")
+          : isNoNeedSelected;
+    } else {
+      _isUnmanagedSelected = selectionFlagValue === RADIO_CHOICE_ENUM.UNMANAGED;
+      _isManagedSelected = selectionFlagValue === RADIO_CHOICE_ENUM.MANAGED;
+      _isNoNeedSelected = selectionFlagValue === RADIO_CHOICE_ENUM.NOT_NEEDED;
+    }
 
     return {
       managedIdentifier,
@@ -159,14 +175,17 @@ class OptionalPIDFieldCmp extends Component {
       form.setFieldValue("pids", {});
       if (!required) {
         setNoINeedDOI(true);
+        form.setFieldValue("ui.pids.doi.managed_selection", RADIO_CHOICE_ENUM.MANAGED);
       }
     } else if (userSelectedNoNeed) {
       form.setFieldValue("pids", {});
       setNoINeedDOI(false);
+      form.setFieldValue("ui.pids.doi.managed_selection", RADIO_CHOICE_ENUM.NOT_NEEDED);
     } else {
       // Unmanaged: clear without `provider: "external"` — that would validate empty optional DOI.
       form.setFieldValue("pids", {});
       setNoINeedDOI(false);
+      form.setFieldValue("ui.pids.doi.managed_selection", RADIO_CHOICE_ENUM.UNMANAGED);
     }
     form.setFieldError(fieldPath, false);
     form.setFieldTouched(fieldPath, false, false);
@@ -216,10 +235,7 @@ class OptionalPIDFieldCmp extends Component {
 
     return (
       <>
-        <Form.Field
-          required={required || hasParentDoi}
-          error={fieldError ? true : false}
-        >
+        <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
           <Grid>
             <Grid.Column width={5}>
               <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
@@ -295,7 +311,7 @@ OptionalPIDFieldCmp.propTypes = {
   required: PropTypes.bool.isRequired,
   unmanagedHelpText: PropTypes.string,
   record: PropTypes.object.isRequired,
-  doiDefaultSelection: PropTypes.object.isRequired,
+  doiDefaultSelection: PropTypes.string.isRequired,
   optionalDOItransitions: PropTypes.object.isRequired,
   publishedDOI: PropTypes.object,
   setNoINeedDOI: PropTypes.func.isRequired,

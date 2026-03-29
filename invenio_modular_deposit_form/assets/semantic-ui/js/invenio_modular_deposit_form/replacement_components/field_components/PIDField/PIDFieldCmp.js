@@ -63,7 +63,7 @@ PIDField.propTypes = {
   required: PropTypes.bool,
   unmanagedHelpText: PropTypes.string,
   record: PropTypes.object.isRequired,
-  doiDefaultSelection: PropTypes.object.isRequired,
+  doiDefaultSelection: PropTypes.string.isRequired,
   optionalDOItransitions: PropTypes.object.isRequired,
 };
 

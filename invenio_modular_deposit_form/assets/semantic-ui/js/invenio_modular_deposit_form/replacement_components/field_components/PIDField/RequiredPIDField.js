@@ -32,9 +32,10 @@
 //   keys (stale shape), but **not** when `provider` is already `"external"` (unmanaged).
 //   See `replacement_field_components.md` (PIDField).
 // - **Radio vs remount:** constructor still pins **managed** only for
-//   `isDraft && identifier && internal provider` (matches upstream). When state is
-//   `undefined`, infer unmanaged if `provider === "external"` **before** applying the
-//   legacy `doiDefaultSelection === "no"` empty-identifier rule, so remount matches Formik.
+//   `isDraft && identifier && internal provider` (matches upstream). In `render`, when
+//   local state is `undefined`, infer **unmanaged** if `provider === "external"` **before**
+//   applying the stock rule `empty identifier && doiDefaultSelection === "no"` → managed,
+//   so remount matches Formik (stock infers managed in that external-empty case).
 
 import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
@@ -53,8 +54,9 @@ const UPDATE_PID_DEBOUNCE_MS = 200;
  * Required PID (e.g. DOI) field: managed vs unmanaged UI from stock, with
  * `getFieldErrorsForDisplay` on the label row and identifier components.
  * Calls `setFieldTouched(fieldPath, false, false)` on managed/unmanaged radio change (see file header).
- * Mount-time seeding from
- * `doiDefaultSelection` when the identifier is empty — see file header.
+ * Mount-time seeding from `doiDefaultSelection` when the identifier is empty;
+ * when local radio state is `undefined`, render infers unmanaged from `provider === "external"`
+ * before the empty-identifier + default heuristic (see file header).
  */
 export class RequiredPIDField extends Component {
   constructor(props) {
