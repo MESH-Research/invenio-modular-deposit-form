@@ -1,7 +1,7 @@
 // Jest test suite for utils.js
 // File resides next to the implementation.
 
-jest.mock('./readableFieldLabels.js', () => ({
+jest.mock('./helpers/readableFieldLabels.js', () => ({
   readableFieldLabels: {
     'metadata.title': 'Title',
     'metadata.creators': 'Creators',

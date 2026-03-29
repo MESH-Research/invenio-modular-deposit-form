@@ -16,7 +16,7 @@ import { DepositFormApp } from "@js/invenio_rdm_records";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { componentsRegistry } from "./componentsRegistry";
-import { buildFormSections } from "./buildFormStructure";
+import { buildFormSections } from "./helpers/buildFormStructure";
 import { FormLayoutContainer } from "./FormLayoutContainer";
 import { FormUIStateManager } from "./FormUIStateManager";
 

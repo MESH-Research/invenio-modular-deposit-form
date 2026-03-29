@@ -3,8 +3,6 @@ import i18next from "i18next";
 // FIXME: The untranslated fallback values are a hack until translations are available
 const readableFieldLabels = {
   "files.enabled": i18next.t("Files") || "Files",
-  "custom_fields.kcr:ai_usage.ai_used": i18next.t("AI used") || "AI used",
-  "custom_fields.kcr:ai_usage.description": i18next.t("AI used") || "AI used",
   "metadata.resource_type": i18next.t("Resource type") || "Resource type",
   "metadata.title": i18next.t("Title") || "Title",
   "metadata.additional_titles": i18next.t("Additional titles") || "Additional titles",

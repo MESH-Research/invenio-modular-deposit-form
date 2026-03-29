@@ -8,7 +8,7 @@
 import { func } from "prop-types";
 import get from "lodash/get";
 import { getIn } from "formik";
-import { readableFieldLabels } from "./readableFieldLabels";
+import { readableFieldLabels } from "./helpers/readableFieldLabels";
 import { SEVERITIES } from "./constants";
 
 /**

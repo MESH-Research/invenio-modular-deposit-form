@@ -4,7 +4,7 @@
  * resourceTypes is an array of resource type ids that include this section in their overrides (empty for base-only).
  */
 
-import { flattenWrappers } from "./utils";
+import { flattenWrappers } from "../utils";
 
 function getFieldPathsForSubsection(subsection, registry) {
   if (!subsection) return [];
