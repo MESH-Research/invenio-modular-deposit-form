@@ -29,7 +29,12 @@
 // - **Mount:** if there is no identifier yet, align Formik value with deposit
 //   `default_selected` (`doiDefaultSelection` prop): `"yes"` →
 //   `{ provider: "external", identifier: "" }`; `"no"` → `{}` when the value still has
-//   keys (stale shape). See `replacement_field_components.md` (PIDField).
+//   keys (stale shape), but **not** when `provider` is already `"external"` (unmanaged).
+//   See `replacement_field_components.md` (PIDField).
+// - **Radio vs remount:** constructor still pins **managed** only for
+//   `isDraft && identifier && internal provider` (matches upstream). When state is
+//   `undefined`, infer unmanaged if `provider === "external"` **before** applying the
+//   legacy `doiDefaultSelection === "no"` empty-identifier rule, so remount matches Formik.
 
 import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
@@ -90,7 +95,12 @@ export class RequiredPIDField extends Component {
       }
       return;
     }
-    if (doiDefaultSelection === "no" && value && Object.keys(value).length > 0) {
+    if (
+      doiDefaultSelection === "no" &&
+      value &&
+      Object.keys(value).length > 0 &&
+      value.provider !== PROVIDER_EXTERNAL
+    ) {
       form.setFieldValue(fieldPath, {});
     }
   }
@@ -156,8 +166,10 @@ export class RequiredPIDField extends Component {
 
     const _isManagedSelected =
       isManagedSelected === undefined
-        ? hasManagedIdentifier ||
-          (currentIdentifier === "" && doiDefaultSelection === "no")
+        ? currentProvider === PROVIDER_EXTERNAL
+          ? false
+          : hasManagedIdentifier ||
+            (currentIdentifier === "" && doiDefaultSelection === "no")
         : isManagedSelected;
 
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
@@ -246,7 +258,7 @@ RequiredPIDField.propTypes = {
   required: PropTypes.bool.isRequired,
   unmanagedHelpText: PropTypes.string,
   record: PropTypes.object.isRequired,
-  doiDefaultSelection: PropTypes.object.isRequired,
+  doiDefaultSelection: PropTypes.string.isRequired,
 };
 
 RequiredPIDField.defaultProps = {
