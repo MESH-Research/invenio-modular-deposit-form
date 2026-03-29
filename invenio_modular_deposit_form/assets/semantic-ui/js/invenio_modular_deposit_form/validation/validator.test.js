@@ -294,5 +294,43 @@ describe("validator (full form validation) - pids.doi", () => {
       })
     ).rejects.toMatchObject({ path: "custom_fields.imprint:imprint.isbn" });
   });
+
+  it("requires metadata.related_identifiers[].relation_type when a row is present", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          related_identifiers: [
+            {
+              scheme: "doi",
+              identifier: "10.1234/abc",
+              relation_type: "",
+              resource_type: "",
+            },
+          ],
+        },
+      })
+    ).rejects.toMatchObject({ path: "metadata.related_identifiers[0].relation_type" });
+  });
+
+  it("accepts metadata.related_identifiers with scheme, identifier, and relation_type", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        metadata: {
+          ...baseForm.metadata,
+          related_identifiers: [
+            {
+              scheme: "doi",
+              identifier: "10.1234/abc",
+              relation_type: "iscitedby",
+              resource_type: "",
+            },
+          ],
+        },
+      })
+    ).resolves.toBeTruthy();
+  });
 });
 

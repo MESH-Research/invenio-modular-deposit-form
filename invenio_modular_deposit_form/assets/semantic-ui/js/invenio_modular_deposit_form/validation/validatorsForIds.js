@@ -29,6 +29,14 @@ export function defaultInvalidMessageForSchemeWithDetail(schemeId, detail) {
 }
 
 /**
+ * Generic fallback for the parent-scheme Yup `.test` wrapper ({@link validIdentifierForScheme} in identifierSchemeValidators).
+ * Per-scheme validation still uses {@link identifierMessagesForScheme}.
+ */
+export const DEFAULT_GENERIC_IDENTIFIER_INVALID_MESSAGE = i18next.t(
+  "This is not a valid identifier for this scheme."
+);
+
+/**
  * Test if argument is a Research Organization Registry identifier.
  *
  * The ROR is a 9-character alphanumeric string. It can be in the
@@ -712,6 +720,9 @@ const SCHEME_ID_TO_VALIDATOR = {
   ror: rorValidator,
 };
 
+/** Scheme ids with a registered Yup method (keys of {@link SCHEME_ID_TO_VALIDATOR}). */
+const VALIDATOR_SCHEME_IDS = Object.freeze(Object.keys(SCHEME_ID_TO_VALIDATOR));
+
 export {
   adsValidator,
   alwaysValidValidator,
@@ -733,4 +744,5 @@ export {
   SCHEME_ID_TO_VALIDATOR,
   urlValidator,
   urnValidator,
+  VALIDATOR_SCHEME_IDS,
 };

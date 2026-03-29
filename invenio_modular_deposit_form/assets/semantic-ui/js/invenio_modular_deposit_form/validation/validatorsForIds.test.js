@@ -1,14 +1,8 @@
 import { addMethod } from "yup";
 import * as yup from "yup";
 
-import {
-  makeCreatorIdentifierTest,
-  makeRecordIdentifierTest,
-  validIdentifierForScheme,
-  validRecordIdentifierForScheme,
-  VALIDATOR_SCHEME_IDS,
-} from "./identifierSchemeValidators";
-import { SCHEME_ID_TO_VALIDATOR } from "./validatorsForIds";
+import { makeSchemeBasedIdentifierTest, validIdentifierForScheme } from "./identifierSchemeValidators";
+import { SCHEME_ID_TO_VALIDATOR, VALIDATOR_SCHEME_IDS } from "./validatorsForIds";
 
 // Register all scheme validators from the map (mirrors validator.js)
 for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
@@ -16,7 +10,6 @@ for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
 }
 
 addMethod(yup.string, "validIdentifierForScheme", validIdentifierForScheme);
-addMethod(yup.string, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
 describe("validatorsForIds", () => {
   describe("rorValidator", () => {
@@ -259,7 +252,7 @@ describe("validatorsForIds", () => {
     });
   });
 
-  describe("makeCreatorIdentifierTest / makeRecordIdentifierTest: restricted vocab", () => {
+  describe("makeSchemeBasedIdentifierTest: restricted vocab", () => {
     const creatorRestricted = yup.object().shape({
       scheme: yup.string().required(),
       identifier: yup
@@ -268,7 +261,11 @@ describe("validatorsForIds", () => {
         .test(
           "creator-identifier-by-scheme",
           "invalid",
-          makeCreatorIdentifierTest(["orcid", "url"], yup.string)
+          makeSchemeBasedIdentifierTest({
+            allowedSchemeIds: ["orcid", "url"],
+            yupString: yup.string,
+            inferSchemeWhenEmpty: true,
+          })
         ),
     });
 
@@ -280,7 +277,11 @@ describe("validatorsForIds", () => {
         .test(
           "record-identifier-by-scheme",
           "invalid",
-          makeRecordIdentifierTest(["doi", "ark"], yup.string)
+          makeSchemeBasedIdentifierTest({
+            allowedSchemeIds: ["doi", "ark"],
+            yupString: yup.string,
+            inferSchemeWhenEmpty: false,
+          })
         ),
     });
 
@@ -324,7 +325,7 @@ describe("validatorsForIds", () => {
   describe("applies the correct validation function for each identifier scheme (creator: validIdentifierForScheme)", () => {
     const identifierSchema = yup.object().shape({
       scheme: yup.string().required(),
-      identifier: yup.string().required().validIdentifierForScheme(VALIDATOR_SCHEME_IDS),
+      identifier: yup.string().required().validIdentifierForScheme(VALIDATOR_SCHEME_IDS, true),
     });
 
     const validPerScheme = {
@@ -408,7 +409,7 @@ describe("validatorsForIds", () => {
       identifier: yup
         .string()
         .required()
-        .validRecordIdentifierForScheme(VALIDATOR_SCHEME_IDS),
+        .validIdentifierForScheme(VALIDATOR_SCHEME_IDS),
     });
 
     const validPerScheme = {

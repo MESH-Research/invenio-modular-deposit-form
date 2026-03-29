@@ -17,15 +17,8 @@ import {
 } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { DEFAULT_TITLE_MAX_LENGTH, RDM_RECORD_ACCESS_LEVELS } from "../constants";
-import {
-  getCreatorIdentifierSchemeIdsFromVocab,
-  getLocationIdentifierSchemeIdsFromVocab,
-  getRecordIdentifierSchemeIdsFromVocab,
-  getVocabOptionValues,
-  validIdentifierForScheme,
-  validRecordIdentifierForScheme,
-} from "./identifierSchemeValidators";
-import { SCHEME_ID_TO_VALIDATOR, urlValidator } from "./validatorsForIds";
+import { getIdentifierSchemeIds, validIdentifierForScheme } from "./identifierSchemeValidators";
+import { SCHEME_ID_TO_VALIDATOR, urlValidator, VALIDATOR_SCHEME_IDS } from "./validatorsForIds";
 import {
   dateInSequence,
   edtfSingleDateValidator,
@@ -34,6 +27,17 @@ import {
   isoDateStringValidator,
 } from "./validatorsForDates.js";
 import { buildCustomFieldsSchema } from "./customFieldsSchema.js";
+
+/**
+ * Option ids from a vocabulary array (`{ id, title_l10n }` or `{ value, text }`).
+ *
+ * @param {unknown} vocab
+ * @returns {string[]}
+ */
+function getVocabOptionValues(vocab) {
+  if (!Array.isArray(vocab)) return [];
+  return vocab.map((item) => item.id ?? item.value ?? "").filter(Boolean);
+}
 
 addMethod(yupString, "edtf", edtfValidator);
 addMethod(yupString, "edtfSingle", edtfSingleDateValidator);
@@ -44,7 +48,6 @@ for (const [schemeId, validatorFn] of Object.entries(SCHEME_ID_TO_VALIDATOR)) {
 }
 
 addMethod(yupString, "validIdentifierForScheme", validIdentifierForScheme);
-addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
 const accessSchema = yupObject().shape({
   files: yupString()
@@ -119,9 +122,9 @@ const pidEntrySchema = yupObject()
  */
 function buildValidationSchema(config = {}) {
   const titleMaxLength = Number(config.max_title_length) || DEFAULT_TITLE_MAX_LENGTH;
-  const creatorSchemeIds = getCreatorIdentifierSchemeIdsFromVocab(config);
-  const recordSchemeIds = getRecordIdentifierSchemeIdsFromVocab(config);
-  const locationSchemeIds = getLocationIdentifierSchemeIdsFromVocab(config);
+  const creatorSchemeIds = getIdentifierSchemeIds(config, "metadata.creators.identifiers.scheme");
+  const recordSchemeIds = getIdentifierSchemeIds(config, "metadata.identifiers.scheme");
+  const locationSchemeIds = getIdentifierSchemeIds(config, "metadata.locations.identifiers.scheme");
   const titleTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.titles?.type ?? config?.vocabularies?.titles?.type
   );
@@ -136,7 +139,7 @@ function buildValidationSchema(config = {}) {
     scheme: yupString(),
     identifier: yupString()
       .required(i18next.t("Add an identifier or remove this row"))
-      .validIdentifierForScheme(creatorSchemeIds)
+      .validIdentifierForScheme(creatorSchemeIds, true)
       .matches(/(?!\s).+/, {
         disallowEmptyString: true,
         message: i18next.t("Identifier cannot be blank"),
@@ -147,7 +150,7 @@ function buildValidationSchema(config = {}) {
     scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
     identifier: yupString()
       .required(i18next.t("Add an identifier or remove this row"))
-      .validRecordIdentifierForScheme(recordSchemeIds)
+      .validIdentifierForScheme(recordSchemeIds)
       .matches(/(?!\s).+/, {
         disallowEmptyString: true,
         message: i18next.t("Identifier cannot be blank"),
@@ -157,8 +160,8 @@ function buildValidationSchema(config = {}) {
   const locationIdentifiersShape = yupObject().shape({
     scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
     identifier: yupString()
-      .required(i18next.t("A value is required for each identifier"))
-      .validRecordIdentifierForScheme(locationSchemeIds)
+      .required(i18next.t("Add an identifier or remove this row"))
+      .validIdentifierForScheme(locationSchemeIds)
       .matches(/(?!\s).+/, {
         disallowEmptyString: true,
         message: i18next.t("Identifier cannot be blank"),
@@ -184,7 +187,7 @@ function buildValidationSchema(config = {}) {
       then: (schema) =>
         schema
           .required(i18next.t("Add an identifier or remove this row"))
-          .validRecordIdentifierForScheme(recordSchemeIds)
+          .validIdentifierForScheme(recordSchemeIds)
           .matches(/(?!\s).+/, {
             disallowEmptyString: true,
             message: i18next.t("Add an identifier or remove this row"),
@@ -301,12 +304,14 @@ function buildValidationSchema(config = {}) {
             scheme: yupString().required(i18next.t("A scheme is required for each identifier")),
             identifier: yupString()
               .required(i18next.t("Add an identifier or remove this row"))
-              .validRecordIdentifierForScheme(recordSchemeIds)
+              .validIdentifierForScheme(recordSchemeIds)
               .matches(/(?!\s).+/, {
                 disallowEmptyString: true,
                 message: i18next.t("Add an identifier or remove this row"),
               }),
-            relation_type: yupString(),
+            relation_type: yupString().required(
+              i18next.t("A relation type is required for each related identifier")
+            ),
             resource_type: yupString(),
           })
         ),
@@ -400,3 +405,4 @@ function buildValidationSchema(config = {}) {
 }
 
 export default buildValidationSchema;
+export { getVocabOptionValues, VALIDATOR_SCHEME_IDS };

@@ -8,13 +8,10 @@ import { addMethod, array as yupArray, object as yupObject, string as yupString 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { isbnValidator, issnValidator, urlValidator } from "./validatorsForIds";
 import { edtfSingleDateValidator } from "./validatorsForDates.js";
-import { validRecordIdentifierForScheme } from "./identifierSchemeValidators.js";
-
 addMethod(yupString, "isURL", urlValidator);
 addMethod(yupString, "isbn", isbnValidator);
 addMethod(yupString, "issn", issnValidator);
 addMethod(yupString, "edtfSingle", edtfSingleDateValidator);
-addMethod(yupString, "validRecordIdentifierForScheme", validRecordIdentifierForScheme);
 
 /**
  * Yup shape for `custom_fields`, aligned with InvenioRDM contrib custom fields.
@@ -71,7 +68,7 @@ function buildCustomFieldsSchema(recordSchemeIds) {
               ),
               identifier: yupString()
                 .required(i18next.t("A value is required for each identifier"))
-                .validRecordIdentifierForScheme(recordSchemeIds)
+                .validIdentifierForScheme(recordSchemeIds)
                 .matches(/(?!\s).+/, {
                   disallowEmptyString: true,
                   message: i18next.t("Identifier cannot be blank"),
