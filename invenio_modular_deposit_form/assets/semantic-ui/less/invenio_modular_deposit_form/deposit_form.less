@@ -251,6 +251,13 @@
           }
         }
       }
+      &.metadata-creators-field {
+        .creator-identifiers {
+          .close-btn {
+            margin-top: 1.5em;
+          }
+        }
+      }
     }
 
     .fields.invenio-group-field {
@@ -260,6 +267,62 @@
           margin-bottom: 0;
         }
       }
+    }
+  }
+
+  // FIXME: Hack to deal with nested untouched creatibutors
+  .field.error fieldset:not(.error) .field:not(.error) {
+    & > .input input:not(.error),
+    label:not(.error),
+    .ui.dropdown:not(.error) {
+      background-color: #fff !important; // @inputBackground;
+      border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
+      color: #000 !important; // @inputColor;
+
+      &.active,
+      &.active:hover {
+        border-color: #2185d0;
+        box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+      }
+    }
+    .ui.dropdown .item {
+      border-top: 1px solid #fafafa;
+      background-color: #fff !important;
+      color: #000 !important;
+      .text {
+        color: #000 !important;
+        background-color: #fff !important;
+      }
+      &:hover,
+      &:active {
+        background: rgba(0, 0, 0, 0.05) !important;
+      }
+    }
+    .ui.dropdown .item.selected {
+      background: rgba(0, 0, 0, 0.03) !important;
+      color: rgba(0, 0, 0, 0.95) !important;
+      .text {
+        color: rgba(0, 0, 0, 0.95) !important;
+      }
+    }
+    .ui.checkbox:not(.error) label:before {
+      background-color: #fff !important; // @inputBackground;
+      border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
+    }
+    .ui.checkbox:not(.error) label:after {
+      background-color: #000 !important; // @inputBackground;
+      border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
+    }
+    .ui.dropdown:not(.error) .ui.label {
+      background-color: #e8e8e8 !important; // @inputBackground;
+      border-color: #000 !important; // @inputBorder;
+      color: #757575 !important; // @inputColor;
+      box-shadow: 0px 0px 0px 1px rgba(34, 36, 38, 0.15) inset;
+    }
+    .ui.dropdown:not(.error) .divider.text {
+      background-color: #fff !important; // @inputBackground;
+      border-color: #000 !important; // @inputBorder;
+      color: #000 !important; // @inputColor;
     }
   }
 
