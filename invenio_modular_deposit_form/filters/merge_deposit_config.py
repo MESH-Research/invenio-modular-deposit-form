@@ -73,6 +73,13 @@ def merge_deposit_config(forms_config, extra=None):
                 for k, v in personorg_schemes.items()
             ]
         }
+        base["vocabularies"].setdefault("contributors", {})
+        base["vocabularies"]["contributors"]["identifiers"] = {
+            "scheme": [
+                {"id": k, "title_l10n": str(v.get("label", k))}
+                for k, v in personorg_schemes.items()
+            ]
+        }
     record_identifiers_schemes = current_app.config.get(
         "RDM_RECORDS_IDENTIFIERS_SCHEMES", {}
     )

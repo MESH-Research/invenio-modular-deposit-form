@@ -42,6 +42,7 @@ const CREATOR_IDENTIFIER_INFERENCE_ORDER = ["orcid", "isni", "ror", "gnd"];
  */
 function getIdentifierSchemeIds(config, fieldPath) {
   const fieldSchemeDefaults = {
+    "metadata.contributors.identifiers.scheme": DEFAULT_PERSONORG_SCHEME_IDS,
     "metadata.creators.identifiers.scheme": DEFAULT_PERSONORG_SCHEME_IDS,
     "metadata.identifiers.scheme": DEFAULT_RECORD_IDENTIFIER_SCHEME_IDS,
     "metadata.locations.identifiers.scheme": DEFAULT_LOCATION_SCHEME_IDS,
@@ -119,7 +120,11 @@ function unrecognizedCreatorIdentifierMessage(allowedSchemeIds) {
  * @param {boolean} [options.inferSchemeWhenEmpty=false]
  * @returns {function} Yup `.test` callback (`true`, or `createError(...)`)
  */
-function makeSchemeBasedIdentifierTest({ allowedSchemeIds, yupString, inferSchemeWhenEmpty = false }) {
+function makeSchemeBasedIdentifierTest({
+  allowedSchemeIds,
+  yupString,
+  inferSchemeWhenEmpty = false,
+}) {
   return function (value) {
     const { createError, path } = this;
     const rawScheme = this.parent?.scheme;
@@ -175,8 +180,4 @@ function validIdentifierForScheme(allowedSchemeIds, inferSchemeWhenEmpty = false
   );
 }
 
-export {
-  getIdentifierSchemeIds,
-  makeSchemeBasedIdentifierTest,
-  validIdentifierForScheme,
-};
+export { getIdentifierSchemeIds, makeSchemeBasedIdentifierTest, validIdentifierForScheme };
