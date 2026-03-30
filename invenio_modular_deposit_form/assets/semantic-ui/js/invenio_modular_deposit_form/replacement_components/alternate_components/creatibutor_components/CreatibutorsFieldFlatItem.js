@@ -215,7 +215,7 @@ const CreatibutorsFieldFlatItem = ({
             )}
             {errorMessages.length > 0 && !showEditForms.includes(index) && (
               <Label pointing prompt>
-                <List>{errorMessages[0]}</List>
+                {errorMessages[0]}
               </Label>
             )}
           </>

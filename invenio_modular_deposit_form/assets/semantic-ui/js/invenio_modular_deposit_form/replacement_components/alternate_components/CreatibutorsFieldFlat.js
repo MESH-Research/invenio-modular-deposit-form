@@ -97,6 +97,7 @@ const makeSelfCreatibutor = (currentUserprofile) => {
     typeof currentUserprofile.affiliations === "string" && currentUserprofile.affiliations !== ""
       ? [currentUserprofile.affiliations]
       : currentUserprofile?.affiliations;
+  console.log(currentUserprofile);
 
   let myNameParts = {};
   if (currentUserprofile?.name_parts_local && currentUserprofile.name_parts_local !== "") {
@@ -104,12 +105,14 @@ const makeSelfCreatibutor = (currentUserprofile) => {
   } else if (currentUserprofile?.name_parts && currentUserprofile.name_parts !== "") {
     myNameParts = JSON.parse(currentUserprofile.name_parts);
   }
+  console.log(myNameParts);
 
   const rawIdentifiers = Object.fromEntries(
     Object.entries(currentUserprofile).filter(
       ([key, value]) => key.startsWith("identifier") && value !== "" && value !== null
     )
   );
+  console.log(rawIdentifiers);
 
   let myIdentifiers = [];
   if (rawIdentifiers && Object.keys(rawIdentifiers).length > 0) {
@@ -119,7 +122,7 @@ const makeSelfCreatibutor = (currentUserprofile) => {
     }));
   }
 
-  return {
+  const return_obj = {
     person_or_org: {
       family_name: getFamilyName(myNameParts) || currentUserprofile?.full_name || "",
       given_name: getGivenName(myNameParts) || myNameParts?.first || "",
@@ -138,6 +141,8 @@ const makeSelfCreatibutor = (currentUserprofile) => {
           }))
         : [],
   };
+  console.log(return_obj);
+  return return_obj;
 };
 
 const CreatibutorsFieldFlat = ({
