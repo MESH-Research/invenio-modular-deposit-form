@@ -57,15 +57,10 @@ const CreatibutorsFormBody = ({
         <RadioField
           fieldPath={typeFieldPath}
           label={i18next.t("Person")}
-          checked={
-            _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON
-          }
+          checked={_get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON}
           value={CREATIBUTOR_TYPE.PERSON}
           onChange={({ formikProps }) => {
-            formikProps.form.setFieldValue(
-              typeFieldPath,
-              CREATIBUTOR_TYPE.PERSON
-            );
+            formikProps.form.setFieldValue(typeFieldPath, CREATIBUTOR_TYPE.PERSON);
             onPersonOrgToggle(CREATIBUTOR_TYPE.PERSON);
           }}
           optimized
@@ -73,15 +68,10 @@ const CreatibutorsFormBody = ({
         <RadioField
           fieldPath={typeFieldPath}
           label={i18next.t("Organization")}
-          checked={
-            _get(values, typeFieldPath) === CREATIBUTOR_TYPE.ORGANIZATION
-          }
+          checked={_get(values, typeFieldPath) === CREATIBUTOR_TYPE.ORGANIZATION}
           value={CREATIBUTOR_TYPE.ORGANIZATION}
           onChange={({ formikProps }) => {
-            formikProps.form.setFieldValue(
-              typeFieldPath,
-              CREATIBUTOR_TYPE.ORGANIZATION
-            );
+            formikProps.form.setFieldValue(typeFieldPath, CREATIBUTOR_TYPE.ORGANIZATION);
             onPersonOrgToggle(CREATIBUTOR_TYPE.ORGANIZATION);
           }}
           optimized
@@ -107,9 +97,7 @@ const CreatibutorsFormBody = ({
                 clearable
                 multiple={false}
                 allowAdditions={false}
-                placeholder={i18next.t(
-                  "Search for persons by name, identifier, or affiliation..."
-                )}
+                placeholder={i18next.t("Search for persons by name, identifier, or affiliation...")}
                 noQueryMessage={i18next.t(
                   "Search for persons by name, identifier, or affiliation..."
                 )}
@@ -151,9 +139,7 @@ const CreatibutorsFormBody = ({
               >
                 <CreatibutorsIdentifiers
                   fieldPath={identifiersFieldPath}
-                  label={i18next.t(
-                    "Personal identifiers (ORCID, KC member id, ISNI, or GND)"
-                  )}
+                  label={i18next.t("Personal identifiers (ORCID, KC member id, ISNI, or GND)")}
                   idTypes={["orcid", "isni", "gnd", "kc_username", "email"]}
                 />
               </Overridable>
@@ -162,10 +148,7 @@ const CreatibutorsFormBody = ({
                 ref={affiliationsRef}
                 fieldPath={affiliationsFieldPath}
               >
-                <AffiliationsField
-                  fieldPath={affiliationsFieldPath}
-                  selectRef={affiliationsRef}
-                />
+                <AffiliationsField fieldPath={affiliationsFieldPath} selectRef={affiliationsRef} />
               </Overridable>
             </>
           )}
@@ -232,17 +215,13 @@ const CreatibutorsFormBody = ({
             ref={affiliationsRef}
             fieldPath={affiliationsFieldPath}
           >
-            <AffiliationsField
-              fieldPath={affiliationsFieldPath}
-              selectRef={affiliationsRef}
-            />
+            <AffiliationsField fieldPath={affiliationsFieldPath} selectRef={affiliationsRef} />
           </Overridable>
         </>
       )}
 
       {(_get(values, typeFieldPath) === CREATIBUTOR_TYPE.ORGANIZATION ||
-        (showPersonForm &&
-          _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON)) && (
+        (showPersonForm && _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON)) && (
         <Overridable
           id="InvenioRDMRecords.CreatibutorsFlat.RoleSelectField.container"
           fieldPath={roleFieldPath}

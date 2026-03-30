@@ -64,11 +64,7 @@ const CreatibutorsFieldFlatItem = ({
   showEditForms,
   values,
 }) => {
-  const identifiersList = _get(
-    values,
-    `${fieldPathPrefix}.person_or_org.identifiers`,
-    []
-  );
+  const identifiersList = _get(values, `${fieldPathPrefix}.person_or_org.identifiers`, []);
   const dropRef = useRef(null);
   // eslint-disable-next-line no-unused-vars
   const [_, drag, preview] = useDrag({
@@ -97,8 +93,7 @@ const CreatibutorsFieldFlatItem = ({
 
   const renderRole = (role) => {
     if (role) {
-      const friendlyRole =
-        roleOptions.find(({ value }) => value === role)?.text ?? role;
+      const friendlyRole = roleOptions.find(({ value }) => value === role)?.text ?? role;
       return <Label>{friendlyRole}</Label>;
     }
     return null;
@@ -128,9 +123,7 @@ const CreatibutorsFieldFlatItem = ({
                     : handleOpenForm(index);
                 }}
               >
-                {i18next.t(
-                  showEditForms.includes(index) ? cancelLabel : editLabel
-                )}
+                {i18next.t(showEditForms.includes(index) ? cancelLabel : editLabel)}
               </Button>
               <Button
                 size="mini"
@@ -169,9 +162,7 @@ const CreatibutorsFieldFlatItem = ({
                 <List.Description>
                   <span className="creatibutor">
                     {displayName}{" "}
-                    {identifiersList.some(
-                      (id) => id.scheme === "orcid"
-                    ) && (
+                    {identifiersList.some((id) => id.scheme === "orcid") && (
                       <img
                         alt="ORCID logo"
                         className="inline-id-icon mr-5"
@@ -180,9 +171,7 @@ const CreatibutorsFieldFlatItem = ({
                         height="16"
                       />
                     )}
-                    {identifiersList.some(
-                      (id) => id.scheme === "ror"
-                    ) && (
+                    {identifiersList.some((id) => id.scheme === "ror") && (
                       <img
                         alt="ROR logo"
                         className="inline-id-icon mr-5"
@@ -191,9 +180,7 @@ const CreatibutorsFieldFlatItem = ({
                         height="16"
                       />
                     )}
-                    {identifiersList.some(
-                      (id) => id.scheme === "gnd"
-                    ) && (
+                    {identifiersList.some((id) => id.scheme === "gnd") && (
                       <img
                         alt="GND logo"
                         className="inline-id-icon mr-5"
@@ -202,9 +189,7 @@ const CreatibutorsFieldFlatItem = ({
                         height="16"
                       />
                     )}{" "}
-                    {renderRole(
-                      _get(values, `${fieldPathPrefix}.role`)
-                    )}
+                    {renderRole(_get(values, `${fieldPathPrefix}.role`))}
                   </span>
                 </List.Description>
               </List.Content>
@@ -230,11 +215,7 @@ const CreatibutorsFieldFlatItem = ({
             )}
             {errorMessages.length > 0 && !showEditForms.includes(index) && (
               <Label pointing prompt>
-                <List>
-                  {errorMessages.map((e, i) => (
-                    <List.Item key={i}>{e}</List.Item>
-                  ))}
-                </List>
+                <List>{errorMessages[0]}</List>
               </Label>
             )}
           </>
