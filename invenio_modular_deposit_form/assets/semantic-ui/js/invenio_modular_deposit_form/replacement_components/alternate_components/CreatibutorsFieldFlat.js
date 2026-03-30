@@ -13,14 +13,7 @@
 import React, { useState } from "react";
 import { useStore } from "react-redux";
 import { getIn, FieldArray, useFormikContext } from "formik";
-import {
-  Button,
-  Form,
-  Icon,
-  Label,
-  List,
-  TransitionGroup,
-} from "semantic-ui-react";
+import { Button, Form, Icon, Label, List, TransitionGroup } from "semantic-ui-react";
 import _get from "lodash/get";
 import { FieldLabel } from "react-invenio-forms";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -62,21 +55,14 @@ const moveCommonRolesToTop = (roleArray) => {
 const orderOptions = (optionList, contribsOptionList) => {
   const newOptionList = optionList.concat(
     contribsOptionList.filter(
-      (item) =>
-        !optionList.some(
-          (item2) => item2.text.toLowerCase() === item.text.toLowerCase()
-        )
+      (item) => !optionList.some((item2) => item2.text.toLowerCase() === item.text.toLowerCase())
     )
   );
   return moveCommonRolesToTop(sortOptions(newOptionList));
 };
 
 const creatibutorNameDisplay = (value) => {
-  const creatibutorType = _get(
-    value,
-    "person_or_org.type",
-    CREATIBUTOR_TYPE.PERSON
-  );
+  const creatibutorType = _get(value, "person_or_org.type", CREATIBUTOR_TYPE.PERSON);
   const isPerson = creatibutorType === CREATIBUTOR_TYPE.PERSON;
 
   const familyName = _get(value, "person_or_org.family_name", "");
@@ -108,28 +94,20 @@ const emptyCreatibutor = {
 
 const makeSelfCreatibutor = (currentUserprofile) => {
   const myAffiliations =
-    typeof currentUserprofile.affiliations === "string" &&
-    currentUserprofile.affiliations !== ""
+    typeof currentUserprofile.affiliations === "string" && currentUserprofile.affiliations !== ""
       ? [currentUserprofile.affiliations]
       : currentUserprofile?.affiliations;
 
   let myNameParts = {};
-  if (
-    currentUserprofile?.name_parts_local &&
-    currentUserprofile.name_parts_local !== ""
-  ) {
+  if (currentUserprofile?.name_parts_local && currentUserprofile.name_parts_local !== "") {
     myNameParts = JSON.parse(currentUserprofile.name_parts_local);
-  } else if (
-    currentUserprofile?.name_parts &&
-    currentUserprofile.name_parts !== ""
-  ) {
+  } else if (currentUserprofile?.name_parts && currentUserprofile.name_parts !== "") {
     myNameParts = JSON.parse(currentUserprofile.name_parts);
   }
 
   const rawIdentifiers = Object.fromEntries(
     Object.entries(currentUserprofile).filter(
-      ([key, value]) =>
-        key.startsWith("identifier") && value !== "" && value !== null
+      ([key, value]) => key.startsWith("identifier") && value !== "" && value !== null
     )
   );
 
@@ -143,8 +121,7 @@ const makeSelfCreatibutor = (currentUserprofile) => {
 
   return {
     person_or_org: {
-      family_name:
-        getFamilyName(myNameParts) || currentUserprofile?.full_name || "",
+      family_name: getFamilyName(myNameParts) || currentUserprofile?.full_name || "",
       given_name: getGivenName(myNameParts) || myNameParts?.first || "",
       name: currentUserprofile?.full_name || "",
       type: "personal",
@@ -187,22 +164,15 @@ const CreatibutorsFieldFlat = ({
   const [addingSelf, setAddingSelf] = useState(false);
   const [newItemIndex, setNewItemIndex] = useState(-1);
   const [showEditForms, setShowEditForms] = useState([]);
-  const {
-    errors,
-    initialErrors,
-    initialValues,
-    setFieldTouched,
-    touched,
-    values,
-  } = useFormikContext();
+  const { errors, initialErrors, initialValues, setFieldTouched, touched, values } =
+    useFormikContext();
 
   const error = _get(errors, fieldPath, null);
   const initialError = getIn(initialErrors, fieldPath, null);
   const creatibutorsTouched = getIn(touched, fieldPath, null);
   const creatibutorsError =
     (!!error && !!creatibutorsTouched) ||
-    (_get(values, fieldPath, []) === _get(initialValues, fieldPath, []) &&
-      initialError);
+    (_get(values, fieldPath, []) === _get(initialValues, fieldPath, []) && initialError);
 
   const focusAddButtonHandler = () => {
     setTimeout(() => {
@@ -215,8 +185,7 @@ const CreatibutorsFieldFlat = ({
     pushFunc(newItem);
     const newIndex = getIn(values, fieldPath).length;
     setNewItemIndex(newIndex);
-    const newEditForms =
-      filteredEditForms !== undefined ? filteredEditForms : showEditForms;
+    const newEditForms = filteredEditForms !== undefined ? filteredEditForms : showEditForms;
     setShowEditForms([...newEditForms, newIndex]);
   };
 
@@ -243,31 +212,14 @@ const CreatibutorsFieldFlat = ({
         setFieldTouched(`${fieldPath}.${i}.person_or_org.family_name`, true);
         setFieldTouched(`${fieldPath}.${i}.person_or_org.given_name`, true);
         setFieldTouched(`${fieldPath}.${i}.role`, true);
-        const affiliations = getIn(
-          values,
-          `${fieldPath}.${i}.affiliations`,
-          []
-        );
+        const affiliations = getIn(values, `${fieldPath}.${i}.affiliations`, []);
         for (let j = 0; j < affiliations.length; j++) {
-          setFieldTouched(
-            `${fieldPath}.${i}.affiliations.${j}.name`,
-            true
-          );
+          setFieldTouched(`${fieldPath}.${i}.affiliations.${j}.name`, true);
         }
-        const identifiers = getIn(
-          values,
-          `${fieldPath}.${i}.person_or_org.identifiers`,
-          []
-        );
+        const identifiers = getIn(values, `${fieldPath}.${i}.person_or_org.identifiers`, []);
         for (let j = 0; j < identifiers.length; j++) {
-          setFieldTouched(
-            `${fieldPath}.${i}.person_or_org.identifiers.${j}.identifier`,
-            true
-          );
-          setFieldTouched(
-            `${fieldPath}.${i}.person_or_org.identifiers.${j}.scheme`,
-            true
-          );
+          setFieldTouched(`${fieldPath}.${i}.person_or_org.identifiers.${j}.identifier`, true);
+          setFieldTouched(`${fieldPath}.${i}.person_or_org.identifiers.${j}.scheme`, true);
         }
       }
     }
@@ -304,124 +256,103 @@ const CreatibutorsFieldFlat = ({
   );
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <Form.Field id={fieldPath} required={required} error={creatibutorsError}>
-        <FieldArray
-          name={fieldPath}
-          className="creators"
-          required={!!required}
-          render={(arrayHelpers) => (
-            <>
-              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
+    <Form.Field id={fieldPath} required={required} error={creatibutorsError}>
+      <FieldArray
+        name={fieldPath}
+        className="creators"
+        required={!!required}
+        render={(arrayHelpers) => (
+          <>
+            <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
 
-              <TransitionGroup
-                as={List}
-                className="creators-list"
-                duration={500}
-                animation="fade"
-              >
-                {getIn(arrayHelpers.form.values, fieldPath, []).map(
-                  (value, index) => {
-                    const fieldPathPrefix = `${fieldPath}.${index}`;
-                    const displayName = creatibutorNameDisplay(value);
-                    return (
-                      <CreatibutorsFieldFlatItem
-                        {...otherProps}
-                        addCreatibutor={arrayHelpers.push}
-                        addLabel={addButtonLabel}
-                        autocompleteNames={autocompleteNames}
-                        cancelLabel={cancelButtonLabel}
-                        creatibutorsLength={
-                          getIn(values, fieldPath, []).length
-                        }
-                        creatibutorDown={creatibutorDown}
-                        creatibutorUp={creatibutorUp}
-                        displayName={displayName}
-                        editLabel={modal.editLabel}
-                        fieldPath={fieldPath}
-                        fieldPathPrefix={fieldPathPrefix}
-                        focusAddButtonHandler={focusAddButtonHandler}
-                        handleRemove={handleRemove}
-                        handleCancel={handleCancel}
-                        handleCloseForm={handleCloseForm}
-                        handleOpenForm={handleOpenForm}
-                        index={index}
-                        isNewItem={newItemIndex === index}
-                        itemError={
-                          creatibutorsError ? error?.[index] : null
-                        }
-                        key={index}
-                        moveCreatibutor={arrayHelpers.move}
-                        removeCreatibutor={arrayHelpers.remove}
-                        replaceCreatibutor={arrayHelpers.replace}
-                        roleOptions={orderedRoleOptions}
-                        schema={schema}
-                        serializeSuggestions={serializeSuggestionsProp}
-                        showEditForms={showEditForms}
-                        values={values}
-                      />
-                    );
-                  }
-                )}
-              </TransitionGroup>
+            <TransitionGroup as={List} className="creators-list" duration={500} animation="fade">
+              {getIn(arrayHelpers.form.values, fieldPath, []).map((value, index) => {
+                const fieldPathPrefix = `${fieldPath}.${index}`;
+                const displayName = creatibutorNameDisplay(value);
+                return (
+                  <CreatibutorsFieldFlatItem
+                    {...otherProps}
+                    addCreatibutor={arrayHelpers.push}
+                    addLabel={addButtonLabel}
+                    autocompleteNames={autocompleteNames}
+                    cancelLabel={cancelButtonLabel}
+                    creatibutorsLength={getIn(values, fieldPath, []).length}
+                    creatibutorDown={creatibutorDown}
+                    creatibutorUp={creatibutorUp}
+                    displayName={displayName}
+                    editLabel={modal.editLabel}
+                    fieldPath={fieldPath}
+                    fieldPathPrefix={fieldPathPrefix}
+                    focusAddButtonHandler={focusAddButtonHandler}
+                    handleRemove={handleRemove}
+                    handleCancel={handleCancel}
+                    handleCloseForm={handleCloseForm}
+                    handleOpenForm={handleOpenForm}
+                    index={index}
+                    isNewItem={newItemIndex === index}
+                    itemError={creatibutorsError ? error?.[index] : null}
+                    key={index}
+                    moveCreatibutor={arrayHelpers.move}
+                    removeCreatibutor={arrayHelpers.remove}
+                    replaceCreatibutor={arrayHelpers.replace}
+                    roleOptions={orderedRoleOptions}
+                    schema={schema}
+                    serializeSuggestions={serializeSuggestionsProp}
+                    showEditForms={showEditForms}
+                    values={values}
+                  />
+                );
+              })}
+            </TransitionGroup>
 
-              {!(
-                newItemIndex > -1 && showEditForms.includes(newItemIndex)
-              ) && (
-                <div>
-                  <Button
-                    type="button"
-                    icon
-                    labelPosition="left"
-                    id={`${fieldPath}.add-button`}
-                    className="add-button"
-                    aria-labelledby={`${fieldPath}-field-description`}
-                    onClick={() => {
-                      setAddingSelf(false);
-                      handleAddNew(arrayHelpers.push, emptyCreatibutor);
-                    }}
-                  >
-                    <Icon name="add" />
-                    {addButtonLabel}
-                  </Button>
-                  <Button
-                    type="button"
-                    icon
-                    labelPosition="left"
-                    id={`${fieldPath}.add-self-button`}
-                    className="add-button"
-                    aria-labelledby={`${fieldPath}-field-description`}
-                    onClick={() => {
-                      setAddingSelf(true);
-                      handleAddNew(
-                        arrayHelpers.push,
-                        makeSelfCreatibutor(currentUserprofile)
-                      );
-                    }}
-                  >
-                    <Icon name="add" />
-                    {i18next.t("Add myself")}
-                  </Button>
-                </div>
-              )}
+            {!(newItemIndex > -1 && showEditForms.includes(newItemIndex)) && (
+              <div>
+                <Button
+                  type="button"
+                  icon
+                  labelPosition="left"
+                  id={`${fieldPath}.add-button`}
+                  className="add-button"
+                  aria-labelledby={`${fieldPath}-field-description`}
+                  onClick={() => {
+                    setAddingSelf(false);
+                    handleAddNew(arrayHelpers.push, emptyCreatibutor);
+                  }}
+                >
+                  <Icon name="add" />
+                  {addButtonLabel}
+                </Button>
+                <Button
+                  type="button"
+                  icon
+                  labelPosition="left"
+                  id={`${fieldPath}.add-self-button`}
+                  className="add-button"
+                  aria-labelledby={`${fieldPath}-field-description`}
+                  onClick={() => {
+                    setAddingSelf(true);
+                    handleAddNew(arrayHelpers.push, makeSelfCreatibutor(currentUserprofile));
+                  }}
+                >
+                  <Icon name="add" />
+                  {i18next.t("Add myself")}
+                </Button>
+              </div>
+            )}
 
-              {creatibutorsError && typeof error === "string" && (
-                <Label pointing="above" prompt>
-                  {error}
-                </Label>
-              )}
+            {creatibutorsError && typeof error === "string" && (
+              <Label pointing="above" prompt>
+                {error}
+              </Label>
+            )}
 
-              <span
-                id={`${fieldPath}-field-description`}
-                className="helptext"
-              >
-                {description}
-              </span>
-            </>
-          )}
-        />
-      </Form.Field>
-    </DndProvider>
+            <span id={`${fieldPath}-field-description`} className="helptext">
+              {description}
+            </span>
+          </>
+        )}
+      />
+    </Form.Field>
   );
 };
 

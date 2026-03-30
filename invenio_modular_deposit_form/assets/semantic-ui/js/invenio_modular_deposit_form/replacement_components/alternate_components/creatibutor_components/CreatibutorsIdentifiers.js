@@ -42,49 +42,45 @@ const CreatibutorsIdentifiers = ({
         name={fieldPath}
         render={(arrayHelpers) => (
           <>
-            {_get(arrayHelpers.form.values, fieldPath, [])?.map(
-              (option, index) => {
-                const fieldPathPrefix = `${fieldPath}.${index}`;
+            {_get(arrayHelpers.form.values, fieldPath, [])?.map((option, index) => {
+              const fieldPathPrefix = `${fieldPath}.${index}`;
 
-                return (
-                  <Form.Group
-                    key={index}
-                    inline
-                    className="creatibutors-identifiers-item-row"
-                  >
-                    <TextField
-                      fieldPath={`${fieldPathPrefix}.identifier`}
-                      label=""
-                      width={10}
-                      required
-                      classnames="flex-grow"
-                    />
-                    <SelectField
-                      fieldPath={`${fieldPathPrefix}.scheme`}
-                      label={i18next.t("Scheme")}
-                      options={idTypes.map((opt) => idTypeData[opt])}
-                      required
-                      selection
-                      selectOnBlur
-                      optimized
-                      fluid
-                      classnames="flex-grow"
-                    />
-                    <Form.Field className="no-label">
-                      <Button
-                        aria-label={i18next.t("Remove identifier")}
-                        className="close-btn"
-                        icon
-                        type="button"
-                        onClick={() => arrayHelpers.remove(index)}
-                      >
-                        <Icon name="close" />
-                      </Button>
-                    </Form.Field>
-                  </Form.Group>
-                );
-              }
-            )}
+              return (
+                <Form.Group
+                  key={index}
+                  className="creatibutors-identifiers-item-row invenio-group-field invenio-form-row"
+                >
+                  <TextField
+                    fieldPath={`${fieldPathPrefix}.identifier`}
+                    label=""
+                    width={10}
+                    required
+                  />
+                  <SelectField
+                    fieldPath={`${fieldPathPrefix}.scheme`}
+                    label={i18next.t("Scheme")}
+                    options={idTypes.map((opt) => idTypeData[opt])}
+                    required
+                    selection
+                    selectOnBlur
+                    optimized
+                    fluid
+                    width={5}
+                  />
+                  <Form.Field className="no-label">
+                    <Button
+                      aria-label={i18next.t("Remove identifier")}
+                      className="close-btn"
+                      icon
+                      type="button"
+                      onClick={() => arrayHelpers.remove(index)}
+                    >
+                      <Icon name="close" />
+                    </Button>
+                  </Form.Field>
+                </Form.Group>
+              );
+            })}
 
             <Button
               type="button"
