@@ -50,7 +50,11 @@ function getIdentifierSchemeIds(config, fieldPath) {
   const ids = Array.isArray(schemeVocab)
     ? schemeVocab.map((item) => item.id ?? item.value ?? "").filter(Boolean)
     : [];
-  return ids.length > 0 ? ids : [...fieldSchemeDefaults[fieldPath]];
+  if (ids.length > 0) {
+    return ids;
+  }
+  const fallback = fieldSchemeDefaults[fieldPath];
+  return fallback != null ? [...fallback] : [];
 }
 
 /**

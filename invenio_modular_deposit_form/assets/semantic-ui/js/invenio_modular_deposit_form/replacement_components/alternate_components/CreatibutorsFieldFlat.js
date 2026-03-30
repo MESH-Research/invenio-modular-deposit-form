@@ -255,7 +255,7 @@ const CreatibutorsFieldFlat = ({
 
   const orderedRoleOptions = orderOptions(
     roleOptions ?? [],
-    config.vocabularies?.contributors?.role ?? []
+    config.vocabularies?.metadata?.contributors?.role ?? []
   );
 
   return (

@@ -111,19 +111,25 @@ const pidEntrySchema = yupObject()
 
 /**
  * Build the validation schema from deposit config.
- * Uses config.max_title_length, config.vocabularies.creators.identifiers.scheme,
- * config.vocabularies.metadata.identifiers.scheme (record identifiers, related,
- * references), config for location identifier schemes, and optional
- * config.vocabularies.metadata.dates.type (and titles.type) for oneOf.
+ * Uses config.max_title_length and, under config.vocabularies.metadata,
+ * creators.identifiers.scheme, identifiers.scheme (record / related / references),
+ * locations.identifiers.scheme, plus optional metadata.dates.type (and titles.type)
+ * for oneOf. Paths match the Redux deposit config shape after RDMDepositForm.
  *
  * @param {Object} config - Deposit config (e.g. from Redux or merge_deposit_config payload)
  * @returns {import("yup").ObjectSchema}
  */
 function buildValidationSchema(config = {}) {
   const titleMaxLength = Number(config.max_title_length) || DEFAULT_TITLE_MAX_LENGTH;
-  const creatorSchemeIds = getIdentifierSchemeIds(config, "creators.identifiers.scheme");
-  const recordSchemeIds = getIdentifierSchemeIds(config, "identifiers.scheme");
-  const locationSchemeIds = getIdentifierSchemeIds(config, "locations.identifiers.scheme");
+  const creatorSchemeIds = getIdentifierSchemeIds(
+    config,
+    "metadata.creators.identifiers.scheme"
+  );
+  const recordSchemeIds = getIdentifierSchemeIds(config, "metadata.identifiers.scheme");
+  const locationSchemeIds = getIdentifierSchemeIds(
+    config,
+    "metadata.locations.identifiers.scheme"
+  );
   const titleTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.titles?.type ?? config?.vocabularies?.titles?.type
   );
