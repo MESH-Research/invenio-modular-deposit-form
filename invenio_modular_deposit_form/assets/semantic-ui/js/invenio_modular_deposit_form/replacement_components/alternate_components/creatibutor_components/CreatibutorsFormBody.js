@@ -11,6 +11,7 @@
 
 import React, { createRef } from "react";
 import PropTypes from "prop-types";
+import { useStore } from "react-redux";
 import { Form } from "semantic-ui-react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
@@ -48,6 +49,11 @@ const CreatibutorsFormBody = ({
   const identifiersFieldPath = `${personOrOrgPath}.identifiers`;
   const affiliationsFieldPath = `${fieldPathPrefix}.affiliations`;
   const roleFieldPath = `${fieldPathPrefix}.role`;
+
+  const store = useStore();
+  const state_vocabs = store.getState().deposit.config.vocabularies;
+  const personorg_schemes = state_vocabs?.creators?.identifiers?.scheme;
+  const personorg_scheme_labels = personorg_schemes.map((s) => s.title_l10n);
 
   const inputRef = createRef();
 
@@ -139,8 +145,8 @@ const CreatibutorsFormBody = ({
               >
                 <CreatibutorsIdentifiers
                   fieldPath={identifiersFieldPath}
-                  label={i18next.t("Personal identifiers (ORCID, KC member id, ISNI, or GND)")}
-                  idTypes={["orcid", "isni", "gnd", "kc_username", "email"]}
+                  label={`${i18next.t("Personal identifiers")} (${personorg_scheme_labels.join(", ")})`}
+                  idTypes={personorg_schemes}
                 />
               </Overridable>
               <Overridable
@@ -206,8 +212,8 @@ const CreatibutorsFormBody = ({
           >
             <CreatibutorsIdentifiers
               fieldPath={identifiersFieldPath}
-              label={i18next.t("Organization identifiers (ROR, ISNI, or GND)")}
-              idTypes={["ror", "isni", "gnd"]}
+              label={`${i18next.t("Organization identifiers")} (${personorg_scheme_labels.join(", ")})`}
+              idTypes={personorg_schemes}
             />
           </Overridable>
           <Overridable

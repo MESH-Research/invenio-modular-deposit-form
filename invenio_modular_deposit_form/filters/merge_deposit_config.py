@@ -34,7 +34,10 @@ _CONFIG_KEYS = [
     ("MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", "extra_required_fields"),
     ("MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", "default_resource_type"),
     ("MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
-    ("MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP", "show_community_banner_at_top"),
+    (
+        "MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP",
+        "show_community_banner_at_top",
+    ),
     ("RDM_RECORDS_PERMISSIONS_PER_FIELD", "permissions_per_field"),
 ]
 
@@ -57,26 +60,37 @@ def merge_deposit_config(forms_config, extra=None):
             base[payload_key] = value
 
     # Validation: max title length and identifier schemes for dynamic schema
-    base["max_title_length"] = current_app.config.get("RDM_RECORDS_MAX_TITLE_LENGTH", 260)
+    base["max_title_length"] = current_app.config.get(
+        "RDM_RECORDS_MAX_TITLE_LENGTH", 260
+    )
     personorg_schemes = current_app.config.get("RDM_RECORDS_PERSONORG_SCHEMES", {})
     if personorg_schemes:
         base.setdefault("vocabularies", {})
-        base["vocabularies"].setdefault("metadata", {})
-        base["vocabularies"]["metadata"].setdefault("creators", {})
-        base["vocabularies"]["metadata"]["creators"]["identifiers"] = {
+        base["vocabularies"].setdefault("creators", {})
+        base["vocabularies"]["creators"]["identifiers"] = {
             "scheme": [
                 {"id": k, "title_l10n": str(v.get("label", k))}
                 for k, v in personorg_schemes.items()
             ]
         }
-    record_identifiers_schemes = current_app.config.get("RDM_RECORDS_IDENTIFIERS_SCHEMES", {})
+    record_identifiers_schemes = current_app.config.get(
+        "RDM_RECORDS_IDENTIFIERS_SCHEMES", {}
+    )
     if record_identifiers_schemes:
         base.setdefault("vocabularies", {})
-        base["vocabularies"].setdefault("metadata", {})
-        base["vocabularies"]["metadata"].setdefault("identifiers", {})
-        base["vocabularies"]["metadata"]["identifiers"]["scheme"] = [
+        base["vocabularies"].setdefault("identifiers", {})
+        base["vocabularies"]["identifiers"]["scheme"] = [
             {"id": k, "title_l10n": str(v.get("label", k))}
             for k, v in record_identifiers_schemes.items()
+        ]
+
+    record_location_schemes = current_app.config.get("RDM_RECORDS_LOCATION_SCHEMES", {})
+    if record_location_schemes:
+        base.setdefault("vocabularies", {})
+        base["vocabularies"].setdefault("location", {})
+        base["vocabularies"]["locations"]["identifiers"]["scheme"] = [
+            {"id": k, "title_l10n": str(v.get("label", k))}
+            for k, v in record_location_schemes.items()
         ]
 
     if extra:

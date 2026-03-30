@@ -92,6 +92,9 @@ export const RDMDepositForm = ({
           identifiers: {
             ...config.vocabularies.identifiers,
           },
+          locations: {
+            ...config.vocabularies.locations,
+          },
         },
       }
     : { metadata: {} };

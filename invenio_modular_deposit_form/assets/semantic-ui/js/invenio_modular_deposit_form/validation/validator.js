@@ -122,9 +122,9 @@ const pidEntrySchema = yupObject()
  */
 function buildValidationSchema(config = {}) {
   const titleMaxLength = Number(config.max_title_length) || DEFAULT_TITLE_MAX_LENGTH;
-  const creatorSchemeIds = getIdentifierSchemeIds(config, "metadata.creators.identifiers.scheme");
-  const recordSchemeIds = getIdentifierSchemeIds(config, "metadata.identifiers.scheme");
-  const locationSchemeIds = getIdentifierSchemeIds(config, "metadata.locations.identifiers.scheme");
+  const creatorSchemeIds = getIdentifierSchemeIds(config, "creators.identifiers.scheme");
+  const recordSchemeIds = getIdentifierSchemeIds(config, "identifiers.scheme");
+  const locationSchemeIds = getIdentifierSchemeIds(config, "locations.identifiers.scheme");
   const titleTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.titles?.type ?? config?.vocabularies?.titles?.type
   );

@@ -20,20 +20,15 @@ import { FieldArray } from "formik";
 
 const newIdentifier = { scheme: "", identifier: "" };
 
-const idTypeData = {
-  orcid: { text: "ORCID", value: "orcid", key: "orcid" },
-  isni: { text: "ISNI", value: "isni", key: "isni" },
-  gnd: { text: "GND", value: "gnd", key: "gnd" },
-  ror: { text: "ROR", value: "ror", key: "ror" },
-  kc_username: { text: "KC username", value: "kc_username", key: "kc_username" },
-  email: { text: "email", value: "email", key: "email" },
+const serializeIdSchemes = (schemes) => {
+  return schemes.map((s) => ({ text: s.title_l10n, value: s.id, key: s.id }));
 };
 
 const CreatibutorsIdentifiers = ({
   fieldPath,
   label = i18next.t("Name identifiers"),
   placeholder = "",
-  idTypes = ["orcid", "isni", "gnd", "ror", "kc_username", "email"],
+  idTypes,
 }) => {
   return (
     <Form.Field className="creator-identifiers">
@@ -59,7 +54,7 @@ const CreatibutorsIdentifiers = ({
                   <SelectField
                     fieldPath={`${fieldPathPrefix}.scheme`}
                     label={i18next.t("Scheme")}
-                    options={idTypes.map((opt) => idTypeData[opt])}
+                    options={serializeIdSchemes(idTypes)}
                     required
                     selection
                     selectOnBlur
