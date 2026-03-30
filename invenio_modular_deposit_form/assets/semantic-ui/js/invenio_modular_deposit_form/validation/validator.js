@@ -13,12 +13,11 @@ import {
   number as yupNumber,
   object as yupObject,
   string as yupString,
-  date as yupDate,
 } from "yup";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { DEFAULT_TITLE_MAX_LENGTH, RDM_RECORD_ACCESS_LEVELS } from "../constants";
 import { getIdentifierSchemeIds, validIdentifierForScheme } from "./identifierSchemeValidators";
-import { SCHEME_ID_TO_VALIDATOR, urlValidator, VALIDATOR_SCHEME_IDS } from "./validatorsForIds";
+import { SCHEME_ID_TO_VALIDATOR, VALIDATOR_SCHEME_IDS } from "./validatorsForIds";
 import {
   dateInSequence,
   edtfSingleDateValidator,

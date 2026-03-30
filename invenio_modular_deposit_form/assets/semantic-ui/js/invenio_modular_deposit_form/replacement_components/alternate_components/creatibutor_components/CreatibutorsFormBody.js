@@ -51,8 +51,10 @@ const CreatibutorsFormBody = ({
   const roleFieldPath = `${fieldPathPrefix}.role`;
 
   const store = useStore();
-  const state_vocabs = store.getState().deposit.config.vocabularies;
-  const personorg_schemes = state_vocabs?.creators?.identifiers?.scheme;
+  // RDMDepositForm nests merged vocabs under vocabularies.metadata.* (same as stock payload shape).
+  const personorg_schemes =
+    store.getState().deposit.config.vocabularies?.metadata?.creators?.identifiers
+      ?.scheme ?? [];
   const personorg_scheme_labels = personorg_schemes.map((s) => s.title_l10n);
 
   const inputRef = createRef();

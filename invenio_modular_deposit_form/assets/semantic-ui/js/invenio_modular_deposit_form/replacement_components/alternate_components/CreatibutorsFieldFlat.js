@@ -16,8 +16,6 @@ import { getIn, FieldArray, useFormikContext } from "formik";
 import { Button, Form, Icon, Label, List, TransitionGroup } from "semantic-ui-react";
 import _get from "lodash/get";
 import { FieldLabel } from "react-invenio-forms";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { DndProvider } from "react-dnd";
 import PropTypes from "prop-types";
 
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";

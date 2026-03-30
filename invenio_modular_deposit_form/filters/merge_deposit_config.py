@@ -87,7 +87,8 @@ def merge_deposit_config(forms_config, extra=None):
     record_location_schemes = current_app.config.get("RDM_RECORDS_LOCATION_SCHEMES", {})
     if record_location_schemes:
         base.setdefault("vocabularies", {})
-        base["vocabularies"].setdefault("location", {})
+        base["vocabularies"].setdefault("locations", {})
+        base["vocabularies"]["locations"].setdefault("identifiers", {})
         base["vocabularies"]["locations"]["identifiers"]["scheme"] = [
             {"id": k, "title_l10n": str(v.get("label", k))}
             for k, v in record_location_schemes.items()

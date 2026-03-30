@@ -21,7 +21,11 @@ import { FieldArray } from "formik";
 const newIdentifier = { scheme: "", identifier: "" };
 
 const serializeIdSchemes = (schemes) => {
-  return schemes.map((s) => ({ text: s.title_l10n, value: s.id, key: s.id }));
+  return (schemes ?? []).map((s) => ({
+    text: s.title_l10n,
+    value: s.id,
+    key: s.id,
+  }));
 };
 
 const CreatibutorsIdentifiers = ({
@@ -37,7 +41,7 @@ const CreatibutorsIdentifiers = ({
         name={fieldPath}
         render={(arrayHelpers) => (
           <>
-            {_get(arrayHelpers.form.values, fieldPath, [])?.map((option, index) => {
+            {_get(arrayHelpers.form.values, fieldPath, [])?.map((_, index) => {
               const fieldPathPrefix = `${fieldPath}.${index}`;
 
               return (
@@ -99,7 +103,9 @@ CreatibutorsIdentifiers.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   label: PropTypes.string,
   placeholder: PropTypes.string,
-  idTypes: PropTypes.arrayOf(PropTypes.string),
+  idTypes: PropTypes.arrayOf(
+    PropTypes.shape({ id: PropTypes.string, title_l10n: PropTypes.string })
+  ),
 };
 
 export { CreatibutorsIdentifiers };

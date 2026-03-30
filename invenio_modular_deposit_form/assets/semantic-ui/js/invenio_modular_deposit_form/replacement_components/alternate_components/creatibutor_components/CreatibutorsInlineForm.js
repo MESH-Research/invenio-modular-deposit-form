@@ -12,7 +12,7 @@
 
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { Form, Header, Transition } from "semantic-ui-react";
+import { Form, Transition } from "semantic-ui-react";
 import { getIn, useFormikContext } from "formik";
 import _isEmpty from "lodash/isEmpty";
 import _get from "lodash/get";
@@ -104,7 +104,7 @@ const CreatibutorsInlineForm = ({
   );
 
   const onPersonSearchChange = useCallback(
-    ({ formikProps }, selectedSuggestions) => {
+    (selectedSuggestions) => {
       if (selectedSuggestions[0].key === "manual-entry") {
         if (namesAutocompleteRef.current) {
           namesAutocompleteRef.current.setState({
