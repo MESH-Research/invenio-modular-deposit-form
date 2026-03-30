@@ -104,8 +104,13 @@ const CreatibutorsInlineForm = ({
   );
 
   const onPersonSearchChange = useCallback(
-    (selectedSuggestions) => {
-      if (selectedSuggestions[0].key === "manual-entry") {
+    (_ctx, selectedSuggestions) => {
+      const first = selectedSuggestions?.[0];
+      if (!first) {
+        return;
+      }
+
+      if (first.key === "manual-entry") {
         if (namesAutocompleteRef.current) {
           namesAutocompleteRef.current.setState({
             suggestions: [],
@@ -116,7 +121,10 @@ const CreatibutorsInlineForm = ({
         return;
       }
 
-      const selected = selectedSuggestions[0].extra;
+      const selected = first.extra;
+      if (!selected) {
+        return;
+      }
       const newIdentifiers = selected.identifiers ?? [];
       const newAffiliations = selected.affiliations ?? [];
 
@@ -142,8 +150,12 @@ const CreatibutorsInlineForm = ({
   );
 
   const onOrganizationSearchChange = useCallback(
-    ({ formikProps }, selectedSuggestions) => {
-      const selected = selectedSuggestions[0].extra;
+    (_ctx, selectedSuggestions) => {
+      const first = selectedSuggestions?.[0];
+      if (!first?.extra) {
+        return;
+      }
+      const selected = first.extra;
       const newIdentifiers = (selected.identifiers ?? []).filter((id) => id.scheme !== "grid");
 
       setOrganizationIdentifiers(newIdentifiers);
