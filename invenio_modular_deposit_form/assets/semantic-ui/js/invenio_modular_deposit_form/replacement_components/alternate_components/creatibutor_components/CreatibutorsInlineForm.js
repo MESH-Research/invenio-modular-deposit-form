@@ -53,7 +53,7 @@ const CreatibutorsInlineForm = ({
     i18next.t("Save and add another")
   );
   const [show, setShow] = useState(true);
-  const [showPersonForm, setShowPersonForm] = useState(
+  const [personDetailsExpanded, setPersonDetailsExpanded] = useState(
     autocompleteNames !== NamesAutocompleteOptions.SEARCH_ONLY ||
       !_isEmpty(initialCreatibutor?.person_or_org?.family_name)
   );
@@ -76,13 +76,16 @@ const CreatibutorsInlineForm = ({
     isOrganization ? _get(initialCreatibutor, "affiliations", []) : []
   );
 
-  const namesAutocompleteRef = createRef();
+  const familyNameWidgetRef = createRef();
   const affiliationsRef = createRef();
 
   const personOrOrgPath = `${fieldPathPrefix}.person_or_org`;
   const identifiersFieldPath = `${personOrOrgPath}.identifiers`;
   const affiliationsFieldPath = `${fieldPathPrefix}.affiliations`;
 
+  // Affiliations RemoteSelectField doesn't update automatically when the
+  // formik values change, so we maintain a ref pointer to the widget
+  // instance and update it manually here.
   const syncAffiliationsRef = useCallback(
     (affiliations) => {
       if (!affiliationsRef.current) return;
@@ -103,32 +106,15 @@ const CreatibutorsInlineForm = ({
     [affiliationsRef]
   );
 
-  const onPersonSearchChange = useCallback(
-    (_ctx, selectedSuggestions) => {
-      const first = selectedSuggestions?.[0];
-      if (!first) {
-        return;
-      }
-
-      if (first.key === "manual-entry") {
-        if (namesAutocompleteRef.current) {
-          namesAutocompleteRef.current.setState({
-            suggestions: [],
-            selectedSuggestions: [],
-          });
-        }
-        setShowPersonForm(true);
-        return;
-      }
-
-      const selected = first.extra;
+  const applyPersonFromApi = useCallback(
+    (selected) => {
       if (!selected) {
         return;
       }
       const newIdentifiers = selected.identifiers ?? [];
       const newAffiliations = selected.affiliations ?? [];
 
-      setShowPersonForm(true);
+      setPersonDetailsExpanded(true);
       setPersonIdentifiers(newIdentifiers);
       setPersonAffiliations(newAffiliations);
 
@@ -140,13 +126,42 @@ const CreatibutorsInlineForm = ({
       syncAffiliationsRef(newAffiliations);
     },
     [
-      namesAutocompleteRef,
       personOrOrgPath,
       identifiersFieldPath,
       affiliationsFieldPath,
       setFieldValue,
       syncAffiliationsRef,
     ]
+  );
+
+  const onPersonSearchChange = useCallback(
+    (_ctx, selectedSuggestions) => {
+      const selectedSuggestion = selectedSuggestions?.[0];
+      if (!selectedSuggestion) {
+        return;
+      }
+
+      if (selectedSuggestion.key === "manual-entry") {
+        if (familyNameWidgetRef.current) {
+          familyNameWidgetRef.current.setState({
+            suggestions: [],
+            selectedSuggestions: [],
+          });
+        }
+        setPersonDetailsExpanded(true);
+        return;
+      }
+
+      if (selectedSuggestion.extra) {
+        applyPersonFromApi(selectedSuggestion.extra);
+        return;
+      }
+
+      const freeText = selectedSuggestion.value ?? selectedSuggestion.text ?? "";
+      setPersonDetailsExpanded(true);
+      setFieldValue(`${personOrOrgPath}.family_name`, String(freeText));
+    },
+    [familyNameWidgetRef, applyPersonFromApi, personOrOrgPath, setFieldValue]
   );
 
   const onOrganizationSearchChange = useCallback(
@@ -236,17 +251,17 @@ const CreatibutorsInlineForm = ({
         <CreatibutorsFormBody
           affiliationsRef={affiliationsRef}
           autocompleteNames={autocompleteNames}
+          familyNameWidgetRef={familyNameWidgetRef}
           fieldPathPrefix={fieldPathPrefix}
           isCreator={isCreator}
           isNewItem={isNewItem}
           isOrganization={isOrganization}
-          namesAutocompleteRef={namesAutocompleteRef}
+          onPersonSearchChange={onPersonSearchChange}
           onOrganizationSearchChange={onOrganizationSearchChange}
           onPersonOrgToggle={onPersonOrgToggle}
-          onPersonSearchChange={onPersonSearchChange}
           roleOptions={roleOptions}
           serializeSuggestions={serializeSuggestionsProp || defaultSerializeSuggestions}
-          showPersonForm={showPersonForm}
+          personDetailsExpanded={personDetailsExpanded}
           values={values}
         />
         <Form.Group inline className="creatibutors-item-form-buttons">
@@ -258,7 +273,7 @@ const CreatibutorsInlineForm = ({
             isNewItem={isNewItem}
             removeCreatibutor={removeCreatibutor}
             saveAndContinueLabel={saveAndContinueLabel}
-            setShowPersonForm={setShowPersonForm}
+            setPersonDetailsExpanded={setPersonDetailsExpanded}
           />
         </Form.Group>
       </fieldset>

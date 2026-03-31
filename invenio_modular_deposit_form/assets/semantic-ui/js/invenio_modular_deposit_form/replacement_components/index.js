@@ -8,13 +8,15 @@ export * from "./Input";
 // Top-level core replacement widgets:
 // - SelectField / Dropdown / AutocompleteDropdown / TextField / TextArea
 // - RemoteSelectField / MultiInput
-// - SelectField: gates `form.errors` on `form.touched`; on blur calls `handleBlur(e)`
-//   then `setFieldTouched(fieldPath)` because Dropdown blur targets often lack
-//   name/id Formik can map to the field (see file header). RemoteSelectField passes
-//   `onBlur` after the default props and overrides that handler—chain touch/Formik
-//   there if remote UX must match.
-// - RemoteSelectField keeps ui.<fieldPath> selected label cache in sync on
-//   add/change for initialSuggestions rehydration across remount/recovery.
+// SelectField (vs stock react-invenio-forms):
+// - Gates visible `form.errors` on `form.touched`; merges `classnames` into `className`.
+// - On blur: `handleBlur(e)` then `setFieldTouched(fieldPath)` (Dropdown blur target fix),
+//   then optional `onBlur(e, { formikProps })` so callers extend blur without dropping touch.
+// RemoteSelectField (vs stock):
+// - `ui.<fieldPath>` label cache on add/change for `initialSuggestions` rehydration.
+// - Optional `commitSearchOnBlur` + `focusFieldPathAfterSelect` (see file header).
+// - Search string ref + debounce cancel on unmount.
+// Published departures: docs/source/replacement_field_components.md (Sphinx docs in this tree).
 export * from "./SelectField";
 export * from "./Dropdown";
 export * from "./AutocompleteDropdown";

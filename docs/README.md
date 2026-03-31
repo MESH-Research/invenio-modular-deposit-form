@@ -40,6 +40,7 @@ sphinx-autobuild source build
 
 ## Documentation Structure
 
+- `internal/` — Internal working notes (Markdown). **Not** part of the Sphinx build; only `source/` is published via the toctree.
 - `source/` — Source files for the documentation
   - `index.md` — Main documentation index
   - `introduction.md` — Project introduction and features

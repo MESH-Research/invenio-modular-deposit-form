@@ -19,8 +19,12 @@
 // - Formik `handleBlur(e)` infers the field from `e.target.name` or `e.target.id`. For
 //   `Form.Dropdown` (search), the blur target is often a wrapper or an inner input
 //   without that path, so we still call `setFieldTouched(fieldPath, true, false)` on
-//   blur after `handleBlur(e)`. Callers that pass `onBlur` via props (spread after this
-//   handler) replace it and must chain touch/Formik blur themselves if needed.
+//   blur after `handleBlur(e)`.
+// - If `onBlur` is passed as a field prop, it is **not** spread onto `Form.Dropdown`
+//   alone: we destructure it and call it **after** `handleBlur` + `setFieldTouched`, as
+//   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
+//   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
+//   and any other caller that needs extra blur logic.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -91,6 +95,7 @@ export class SelectField extends Component {
       options,
       onChange,
       onAddItem,
+      onBlur: onBlurFromProps,
       multiple,
       disabled,
       required,
@@ -130,6 +135,9 @@ export class SelectField extends Component {
         onBlur={(e) => {
           handleBlur(e);
           setFieldTouched(fieldPath, true, false);
+          if (onBlurFromProps) {
+            onBlurFromProps(e, { formikProps });
+          }
         }}
         onChange={(event, data) => {
           if (onChange) {

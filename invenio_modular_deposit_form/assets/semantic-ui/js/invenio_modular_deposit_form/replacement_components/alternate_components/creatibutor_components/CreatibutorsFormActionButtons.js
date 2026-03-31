@@ -19,8 +19,10 @@ const CreatibutorsFormActionButtons = ({
   isNewItem,
   removeCreatibutor,
   saveAndContinueLabel,
-  setShowPersonForm,
+  setPersonDetailsExpanded,
 }) => {
+  const personDetailsExpandedAfterSave = () =>
+    autocompleteNames !== NamesAutocompleteOptions.SEARCH_ONLY;
   return (
     <>
       <Button
@@ -37,9 +39,7 @@ const CreatibutorsFormActionButtons = ({
           <Button
             name="saveAndContinue"
             onClick={() => {
-              setShowPersonForm(
-                autocompleteNames !== NamesAutocompleteOptions.SEARCH_ONLY
-              );
+              setPersonDetailsExpanded(personDetailsExpandedAfterSave());
               handleSave("saveAndContinue");
             }}
             primary
@@ -50,9 +50,7 @@ const CreatibutorsFormActionButtons = ({
         <Button
           name="save"
           onClick={() => {
-            setShowPersonForm(
-              autocompleteNames !== NamesAutocompleteOptions.SEARCH_ONLY
-            );
+            setPersonDetailsExpanded(personDetailsExpandedAfterSave());
             handleSave("saveAndClose");
           }}
           primary
@@ -72,7 +70,7 @@ CreatibutorsFormActionButtons.propTypes = {
   isNewItem: PropTypes.bool,
   removeCreatibutor: PropTypes.func.isRequired,
   saveAndContinueLabel: PropTypes.string.isRequired,
-  setShowPersonForm: PropTypes.func.isRequired,
+  setPersonDetailsExpanded: PropTypes.func.isRequired,
 };
 
 export { CreatibutorsFormActionButtons };

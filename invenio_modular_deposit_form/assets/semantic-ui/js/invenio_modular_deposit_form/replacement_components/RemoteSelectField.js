@@ -10,10 +10,18 @@
 // see the LICENSE file for more details.
 //
 // Differences from stock react-invenio-forms RemoteSelectField:
-// - Uses local replacement SelectField import.
+// - Uses local replacement SelectField (touched-aware; chains `onBlur` — see SelectField.jsx).
 // - Preserves className/classnames passthrough for local styling hooks.
-// - Syncs selected suggestions to formik.values.ui.<fieldPath> on add/change so
-//   initialSuggestions can rehydrate readable labels on remount/recovery.
+// - Syncs selected suggestions to `formik.values.ui.<fieldPath>` on add/change so
+//   `initialSuggestions` can rehydrate readable labels on remount/recovery (stock does not).
+// - Search: keeps `latestSearchStringRef` in sync on **every** `onSearchChange` event (before
+//   debounce) so blur can commit the literal typed string; debounced fetch is `runDebouncedSearch`
+//   with `.cancel()` on unmount (stock debounces only, no ref / cancel).
+// - `commitSearchOnBlur` (default false): when true with `allowAdditions` and not `multiple`,
+//   blur commits trimmed search text like a free-text addition (`onValueChange` + `ui.*`).
+// - `focusFieldPathAfterSelect` (optional Formik field path / DOM id): after `onChange` (pick
+//   from list) or `onAddItem` (Enter on addition), focuses `document.getElementById(path)` on
+//   the next tick; not run after blur-only commit (browser tab order applies).
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
@@ -51,8 +59,10 @@ function withCancel(promise) {
 class RemoteSelectField extends Component {
   constructor(props) {
     super(props);
+    this.latestSearchStringRef = { current: "" };
 
     this.onSelectValue = async (event, { options, value }, callbackFunc) => {
+      this.latestSearchStringRef.current = "";
       const { multiple } = this.props;
       const newSelectedSuggestions = options.filter((item) =>
         multiple ? value.includes(item.value) : item.value === value
@@ -70,6 +80,7 @@ class RemoteSelectField extends Component {
     };
 
     this.handleAddition = async (e, { value }, callbackFunc) => {
+      this.latestSearchStringRef.current = "";
       const { serializeAddedValue } = this.props;
       const { selectedSuggestions } = this.state;
 
@@ -89,10 +100,16 @@ class RemoteSelectField extends Component {
       await this.searchIfNoSuggestions(newSelectedSuggestions);
     };
 
-    this.onSearchChange = _debounce(async (e, { searchQuery }) => {
+    this.runDebouncedSearch = _debounce(async (e, { searchQuery }) => {
       this.cancellableAction && this.cancellableAction.cancel();
       await this.executeSearch(searchQuery);
     }, this.props.debounceTime);
+
+    this.handleSearchInputChange = (e, data) => {
+      const q = data?.searchQuery;
+      this.latestSearchStringRef.current = q == null ? "" : String(q);
+      this.runDebouncedSearch(e, data);
+    };
 
     this.executeSearch = async (searchQuery) => {
       const { preSearchChange, serializeSuggestions } = this.props;
@@ -169,8 +186,53 @@ class RemoteSelectField extends Component {
       this.setState({ open: false });
     };
 
-    this.onBlur = () => {
-      const { searchOnFocus } = this.props;
+    this.onBlur = (e, { formikProps }) => {
+      const {
+        searchOnFocus,
+        commitSearchOnBlur,
+        multiple,
+        allowAdditions,
+        serializeAddedValue,
+        onValueChange,
+        fieldPath,
+      } = this.props;
+      const q = (this.latestSearchStringRef.current || "").trim();
+      this.latestSearchStringRef.current = "";
+
+      if (commitSearchOnBlur && !multiple && allowAdditions && q) {
+        const selectedSuggestion = serializeAddedValue
+          ? serializeAddedValue(q)
+          : { ...createOption(q), name: q };
+        const newSelectedSuggestions = [selectedSuggestion];
+        this.setState(
+          (prevState) => ({
+            open: false,
+            error: false,
+            searchQuery: null,
+            selectedSuggestions: newSelectedSuggestions,
+            suggestions: mergeOptions(prevState.suggestions, newSelectedSuggestions),
+          }),
+          () => {
+            if (onValueChange) {
+              onValueChange(
+                { event: e, data: { value: q }, formikProps },
+                newSelectedSuggestions
+              );
+            } else {
+              formikProps.form.setFieldValue(fieldPath, q);
+            }
+            formikProps.form.setFieldValue(
+              `ui.${fieldPath}`,
+              newSelectedSuggestions.map((o) => ({
+                id: o.value,
+                title_l10n: o.text,
+              }))
+            );
+          }
+        );
+        return;
+      }
+
       this.setState((prevState) => ({
         open: false,
         error: false,
@@ -207,6 +269,8 @@ class RemoteSelectField extends Component {
         onValueChange,
         search,
         isFocused,
+        commitSearchOnBlur,
+        focusFieldPathAfterSelect,
         ...uiProps
       } = this.props;
 
@@ -228,6 +292,8 @@ class RemoteSelectField extends Component {
         onValueChange,
         search,
         isFocused,
+        commitSearchOnBlur,
+        focusFieldPathAfterSelect,
       };
       return { compProps, uiProps };
     };
@@ -245,8 +311,23 @@ class RemoteSelectField extends Component {
     };
   }
 
+  scheduleFocusFieldPath = (path) => {
+    if (!path || typeof window === "undefined") {
+      return;
+    }
+    window.setTimeout(() => {
+      const el = document.getElementById(path);
+      if (el && typeof el.focus === "function") {
+        el.focus();
+      }
+    }, 0);
+  };
+
   componentWillUnmount() {
     this.cancellableAction && this.cancellableAction.cancel();
+    if (this.runDebouncedSearch && typeof this.runDebouncedSearch.cancel === "function") {
+      this.runDebouncedSearch.cancel();
+    }
   }
 
   render() {
@@ -274,7 +355,7 @@ class RemoteSelectField extends Component {
         onClose={this.onClose}
         onFocus={this.onFocus}
         onBlur={this.onBlur}
-        onSearchChange={this.onSearchChange}
+        onSearchChange={this.handleSearchInputChange}
         onAddItem={({ event, data, formikProps }) => {
           this.handleAddition(event, data, (selectedSuggestions) => {
             if (compProps.onValueChange) {
@@ -288,6 +369,7 @@ class RemoteSelectField extends Component {
                 title_l10n: o.text,
               }))
             );
+            this.scheduleFocusFieldPath(compProps.focusFieldPathAfterSelect);
           });
         }}
         onChange={({ event, data, formikProps }) => {
@@ -305,6 +387,7 @@ class RemoteSelectField extends Component {
                 title_l10n: o.text,
               }))
             );
+            this.scheduleFocusFieldPath(compProps.focusFieldPathAfterSelect);
           });
         }}
         loading={isFetching}
@@ -332,6 +415,8 @@ RemoteSelectField.defaultProps = {
   onValueChange: undefined,
   isFocused: false,
   searchOnFocus: false,
+  commitSearchOnBlur: false,
+  focusFieldPathAfterSelect: undefined,
 };
 
 RemoteSelectField.propTypes = {
@@ -356,6 +441,8 @@ RemoteSelectField.propTypes = {
   classnames: PropTypes.string,
   searchOnFocus: PropTypes.bool,
   multiple: PropTypes.bool,
+  commitSearchOnBlur: PropTypes.bool,
+  focusFieldPathAfterSelect: PropTypes.string,
 };
 
 export { RemoteSelectField };
