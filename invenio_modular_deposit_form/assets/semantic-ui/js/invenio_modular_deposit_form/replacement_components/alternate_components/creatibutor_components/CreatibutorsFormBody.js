@@ -9,10 +9,10 @@
 // Replacement-modal-style form content adapted for inline (non-modal) use
 // with prefixed Formik field paths and override-style identifier rows.
 //
-// Person family-name `RemoteSelectField` (local replacement, not stock RDM): enables
-// `commitSearchOnBlur` and `focusFieldPathAfterSelect` toward given name when that field
-// is rendered — see `replacement_components/RemoteSelectField.js` and
-// `docs/source/replacement_field_components.md`.
+// Person family-name `RemoteSelectField`: `hideAdditionMenuItem` + `commitSearchOnBlur` so
+// semantic-ui-react does not show the synthetic “Add …” menu row (no SUIR knob for that alone);
+// typed family name still commits on blur. `focusFieldPathAfterSelect` when given name shows.
+// See `replacement_components/RemoteSelectField.js` and `docs/source/replacement_field_components.md`.
 
 import React, { createRef } from "react";
 import PropTypes from "prop-types";
@@ -112,7 +112,7 @@ const CreatibutorsFormBody = ({
                   label={i18next.t("Family name")}
                   clearable
                   multiple={false}
-                  allowAdditions
+                  hideAdditionMenuItem
                   commitSearchOnBlur
                   focusFieldPathAfterSelect={
                     !namesSearchOnly || personDetailsExpanded ? givenNameFieldPath : undefined

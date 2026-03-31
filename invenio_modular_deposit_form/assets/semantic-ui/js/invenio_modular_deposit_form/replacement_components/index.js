@@ -14,7 +14,8 @@ export * from "./Input";
 //   then optional `onBlur(e, { formikProps })` so callers extend blur without dropping touch.
 // RemoteSelectField (vs stock):
 // - `ui.<fieldPath>` label cache on add/change for `initialSuggestions` rehydration.
-// - Optional `commitSearchOnBlur` + `focusFieldPathAfterSelect` (see file header).
+// - Optional `commitSearchOnBlur`, `hideAdditionMenuItem` (semantic-ui-react Dropdown additions),
+//   `focusFieldPathAfterSelect` (see file header).
 // - Search string ref + debounce cancel on unmount.
 // Published departures: docs/source/replacement_field_components.md (Sphinx docs in this tree).
 export * from "./SelectField";

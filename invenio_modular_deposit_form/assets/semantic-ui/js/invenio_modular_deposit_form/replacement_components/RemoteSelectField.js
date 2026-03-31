@@ -17,11 +17,16 @@
 // - Search: keeps `latestSearchStringRef` in sync on **every** `onSearchChange` event (before
 //   debounce) so blur can commit the literal typed string; debounced fetch is `runDebouncedSearch`
 //   with `.cancel()` on unmount (stock debounces only, no ref / cancel).
-// - `commitSearchOnBlur` (default false): when true with `allowAdditions` and not `multiple`,
-//   blur commits trimmed search text like a free-text addition (`onValueChange` + `ui.*`).
+// - `commitSearchOnBlur` (default false): when true and not `multiple`, blur commits trimmed
+//   search text like a free-text value (`onValueChange` + `ui.*`). Does not require
+//   `allowAdditions` on semantic-ui-react `Form.Dropdown`.
+// - `hideAdditionMenuItem` (default false): passes `allowAdditions={false}` into `SelectField` /
+//   `Form.Dropdown`. semantic-ui-react has no prop to hide only the synthetic “Add …” row in
+//   `getMenuOptions`; turning additions off removes that row. Pair with `commitSearchOnBlur` (or
+//   list-only selection) so free text is still accepted when needed.
 // - `focusFieldPathAfterSelect` (optional Formik field path / DOM id): after `onChange` (pick
-//   from list) or `onAddItem` (Enter on addition), focuses `document.getElementById(path)` on
-//   the next tick; not run after blur-only commit (browser tab order applies).
+//   from list) or `onAddItem` (Enter on addition when additions are enabled), focuses
+//   `document.getElementById(path)` on the next tick; not run after blur-only commit.
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
@@ -191,7 +196,6 @@ class RemoteSelectField extends Component {
         searchOnFocus,
         commitSearchOnBlur,
         multiple,
-        allowAdditions,
         serializeAddedValue,
         onValueChange,
         fieldPath,
@@ -199,7 +203,7 @@ class RemoteSelectField extends Component {
       const q = (this.latestSearchStringRef.current || "").trim();
       this.latestSearchStringRef.current = "";
 
-      if (commitSearchOnBlur && !multiple && allowAdditions && q) {
+      if (commitSearchOnBlur && !multiple && q) {
         const selectedSuggestion = serializeAddedValue
           ? serializeAddedValue(q)
           : { ...createOption(q), name: q };
@@ -271,6 +275,7 @@ class RemoteSelectField extends Component {
         isFocused,
         commitSearchOnBlur,
         focusFieldPathAfterSelect,
+        hideAdditionMenuItem,
         ...uiProps
       } = this.props;
 
@@ -294,6 +299,7 @@ class RemoteSelectField extends Component {
         isFocused,
         commitSearchOnBlur,
         focusFieldPathAfterSelect,
+        hideAdditionMenuItem,
       };
       return { compProps, uiProps };
     };
@@ -341,7 +347,9 @@ class RemoteSelectField extends Component {
     return (
       <SelectField
         {...uiProps}
-        allowAdditions={error ? false : uiProps.allowAdditions}
+        allowAdditions={
+          error ? false : compProps.hideAdditionMenuItem ? false : uiProps.allowAdditions
+        }
         fieldPath={compProps.fieldPath}
         options={suggestions}
         noResultsMessage={this.getNoResultsMessage()}
@@ -417,6 +425,7 @@ RemoteSelectField.defaultProps = {
   searchOnFocus: false,
   commitSearchOnBlur: false,
   focusFieldPathAfterSelect: undefined,
+  hideAdditionMenuItem: false,
 };
 
 RemoteSelectField.propTypes = {
@@ -443,6 +452,7 @@ RemoteSelectField.propTypes = {
   multiple: PropTypes.bool,
   commitSearchOnBlur: PropTypes.bool,
   focusFieldPathAfterSelect: PropTypes.string,
+  hideAdditionMenuItem: PropTypes.bool,
 };
 
 export { RemoteSelectField };

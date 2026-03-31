@@ -31,12 +31,12 @@ We reuse the package **`RemoteSelectField`** (`replacement_components/RemoteSele
 | Concern | Choice |
 |--------|--------|
 | Formik path | `person_or_org.family_name` (real field, not `__namesSearch`) |
-| Free-text family name | `allowAdditions` on the Dropdown; handler treats options **without** `extra` as typed family name |
+| Free-text family name | **`hideAdditionMenuItem`** on `RemoteSelectField` → semantic-ui-react **`allowAdditions={false}`** (no synthetic “Add …” row; SUIR has no finer toggle). **`commitSearchOnBlur`** commits trimmed typed text on blur; **`onPersonSearchChange`** still treats committed values **without** `extra` as plain family name. |
 | Custom fill on pick | `onValueChange` → `onPersonSearchChange` in `CreatibutorsInlineForm` |
 | Blur / Tab free text | `RemoteSelectField` **`commitSearchOnBlur`** (enabled on this field in `CreatibutorsFormBody`): trimmed search text is committed on blur via the same `onValueChange` path as a typed addition. Uses a ref updated on every search input change so debounced fetch does not lag behind the string. |
-| Focus after list/add choice | **`focusFieldPathAfterSelect={givenNameFieldPath}`** when given name is rendered (`!search_only \|\| personDetailsExpanded`). After **`onChange`** (pick from list, including click) or **`onAddItem`** (Enter on an added value), focus moves to that **`TextField`** (`id` / `name` = path). Not used after blur-only commit (browser Tab order applies). |
+| Focus after list/add choice | **`focusFieldPathAfterSelect={givenNameFieldPath}`** when given name is rendered (`!search_only \|\| personDetailsExpanded`). After **`onChange`** (pick from list, including click), focus moves to that **`TextField`**. With **`hideAdditionMenuItem`**, there is no **`onAddItem`** row from the Dropdown (free text is blur commit). Not used after blur-only commit (browser Tab order applies). |
 
-**`RemoteSelectField` defaults:** `commitSearchOnBlur` and `focusFieldPathAfterSelect` are **opt-in**; other uses (e.g. `AutocompleteDropdown`) are unchanged.
+**`RemoteSelectField` defaults:** `commitSearchOnBlur`, `hideAdditionMenuItem`, and `focusFieldPathAfterSelect` are **opt-in**; other uses (e.g. `AutocompleteDropdown`) are unchanged.
 
 **`SelectField`:** If a custom **`onBlur(e, { formikProps })`** is passed, it runs **after** Formik **`handleBlur`** and **`setFieldTouched`**, so touched state stays correct.
 
@@ -122,7 +122,7 @@ We reuse the package **`RemoteSelectField`** (`replacement_components/RemoteSele
 | `replacement_components/alternate_components/creatibutor_components/CreatibutorsFormBody.js` | Layout: remote family vs plain fields; `search` vs `search_only` given-name visibility; org branch |
 | `replacement_components/alternate_components/creatibutor_components/CreatibutorsInlineForm.js` | `applyPersonFromApi`, `onPersonSearchChange`, `familyNameWidgetRef`, `personDetailsExpanded` |
 | `replacement_components/alternate_components/creatibutor_components/CreatibutorsFormActionButtons.js` | `setPersonDetailsExpanded` / `personDetailsExpandedAfterSave` when `search_only` |
-| `replacement_components/RemoteSelectField.js` | Remote fetch + Dropdown + `onValueChange`; optional `commitSearchOnBlur`, `focusFieldPathAfterSelect` |
+| `replacement_components/RemoteSelectField.js` | Remote fetch + Dropdown + `onValueChange`; optional `commitSearchOnBlur`, `hideAdditionMenuItem`, `focusFieldPathAfterSelect` |
 | `replacement_components/SelectField.jsx` | Chains custom `onBlur` after Formik `handleBlur` / `setFieldTouched` |
 
 ---
