@@ -44,12 +44,13 @@ Upstream: `react-invenio-forms` `RemoteSelectField` (often consumed via `invenio
 | **`ui.<fieldPath>`** | Not written | On add/change, maps selected options to **`{ id, title_l10n }`** so **`initialSuggestions`** / label display can recover after remount without changing the canonical value shape |
 | **Search text vs debounce** | Debounced search only | **`latestSearchStringRef`** updated on **every** search input change **before** debounce, for accurate blur-time reads |
 | **Unmount** | Request cancel only | Also **`runDebouncedSearch.cancel()`** |
-| **`commitSearchOnBlur`** | N/A | **Opt-in** (default `false`). When `true` with **`allowAdditions`** and single value, blur commits **trimmed** search text like a free-text choice (`onValueChange` + **`ui.*`**) |
-| **`focusFieldPathAfterSelect`** | N/A | **Opt-in** `string` (expected DOM **`id`** / name path used by `TextField`). After **`onChange`** (list pick, including click) or **`onAddItem`** (Enter on addition), focuses that element on the next tick; **not** used after blur-only commit |
+| **`commitSearchOnBlur`** | N/A | **Opt-in** (default `false`). When `true` and single value (not `multiple`), blur commits **trimmed** search text like a free-text choice (`onValueChange` + **`ui.*`**). Does **not** require semantic-ui-react **`allowAdditions`**. |
+| **`hideAdditionMenuItem`** | N/A | **Opt-in** (default `false`). Sets **`allowAdditions={false}`** on **`Form.Dropdown`**. semantic-ui-react **`getMenuOptions`** injects the synthetic “Add …” row only when **`allowAdditions`** is true; there is no separate prop to hide that row while leaving additions on. Use with **`commitSearchOnBlur`** (or list-only values) when free text must still apply. |
+| **`focusFieldPathAfterSelect`** | N/A | **Opt-in** `string` (expected DOM **`id`** / name path used by `TextField`). After **`onChange`** (list pick, including click) or **`onAddItem`** (when **`allowAdditions`** is true), focuses that element on the next tick; **not** used after blur-only commit |
 
 **`RemoteSelectField`** passes **`searchInput={{ id: fieldPath, … }}`**, which can still help **`handleBlur`’s `id`** fallback on the inner search input.
 
-**Creators flat UI:** `alternate_components/creatibutor_components/CreatibutorsFormBody.js` enables **`commitSearchOnBlur`** and **`focusFieldPathAfterSelect`** on the person **family name** names API field when the given-name column is shown (`!namesSearchOnly || personDetailsExpanded`, matching the sibling `TextField`). Other uses (e.g. `AutocompleteDropdown`) keep defaults unless they opt in.
+**Creators flat UI:** `alternate_components/creatibutor_components/CreatibutorsFormBody.js` enables **`hideAdditionMenuItem`**, **`commitSearchOnBlur`**, and **`focusFieldPathAfterSelect`** on the person **family name** names API field when the given-name column is shown (`!namesSearchOnly || personDetailsExpanded`, matching the sibling `TextField`). Other uses (e.g. `AutocompleteDropdown`) keep defaults unless they opt in.
 
 **Internal design notes** (not built by Sphinx as a manual page): `docs/internal/creatibutors-field-flat-person-names.md` for the flat creatibutor name UX.
 
