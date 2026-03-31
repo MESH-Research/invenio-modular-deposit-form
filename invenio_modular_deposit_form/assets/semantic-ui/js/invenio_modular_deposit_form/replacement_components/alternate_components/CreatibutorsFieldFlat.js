@@ -153,14 +153,16 @@ const CreatibutorsFieldFlat = ({
   cancelButtonLabel = i18next.t("Cancel"),
   description,
   fieldPath,
-  label = undefined,
-  icon = undefined,
-  required = true,
-  roleOptions = undefined,
+  label,
+  icon = "users",
+  required: requiredProp,
+  roleOptions,
   schema = "creators",
   serializeSuggestions: serializeSuggestionsProp,
   ...otherProps
 }) => {
+  const required = requiredProp ?? schema === "creators";
+  const label = label ?? i18next.t(schema.charAt(0).toUpperCase() + str.slice(1));
   const store = useStore();
   const config = store.getState().deposit.config;
   const currentUserprofile = config?.current_user_profile ?? {};
