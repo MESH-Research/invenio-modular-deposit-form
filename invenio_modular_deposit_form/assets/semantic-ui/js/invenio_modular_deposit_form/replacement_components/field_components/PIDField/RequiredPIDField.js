@@ -37,11 +37,11 @@
 // - **Radio vs remount:** same storage shape as `OptionalPIDField` for DOI: `managed_selection`
 //   lives under `values.ui.<fieldPath>` (`managed` / `unmanaged`). Toggles and mount seeding
 //   keep it set; `render` reads only that key for the switch (not local React state).
-// - **Backups:** `draft_unmanaged_pid_backup` / `draft_managed_pid_backup` under the same
-//   `values.ui.<fieldPath>` object. Unmanaged input updates both `pids` and the unmanaged
-//   backup (debounced). While `managed_selection === managed`, `componentDidUpdate` copies
-//   `pids.<scheme>` into `draft_managed_pid_backup` when the Formik value **reference**
-//   changes (covers reserve/discard without a child callback).
+// - **Backups:** `draft_unmanaged_pid_backup` / `draft_managed_pid_backup` under
+//   `values.ui.<fieldPath>`. On mount, the **active** branch’s backup is set from current
+//   `pids.<scheme>` when that backup key is still `undefined`. Unmanaged typing updates both
+//   `pids` and the unmanaged backup (debounced). While managed is selected, `componentDidUpdate`
+//   refreshes `draft_managed_pid_backup` when the PID object **reference** changes (reserve/discard).
 // - **Switch `disabled` (parity with stock):** `hasDoi` from `record.pids.doi.identifier`;
 //   `isDoiCreated` from draft `field.value.identifier` (see render).
 
@@ -161,6 +161,19 @@ export class RequiredPIDField extends Component {
       } else if (doiDefaultSelection === "no") {
         form.setFieldValue(`${ui}.managed_selection`, RADIO_CHOICE_ENUM.MANAGED);
       }
+    }
+
+    const branch = getIn(form.values, `${ui}.managed_selection`);
+    if (branch !== RADIO_CHOICE_ENUM.MANAGED && branch !== RADIO_CHOICE_ENUM.UNMANAGED) {
+      return;
+    }
+
+    const backupField =
+      branch === RADIO_CHOICE_ENUM.MANAGED
+        ? "draft_managed_pid_backup"
+        : "draft_unmanaged_pid_backup";
+    if (getIn(form.values, `${ui}.${backupField}`) === undefined) {
+      form.setFieldValue(`${ui}.${backupField}`, { ...(getIn(form.values, fieldPath) || {}) });
     }
   };
 
