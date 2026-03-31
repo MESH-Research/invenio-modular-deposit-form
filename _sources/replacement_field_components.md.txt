@@ -32,9 +32,26 @@ For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements inte
 
 Stock `react-invenio-forms` `SelectField` wires `onBlur={handleBlur}` on `Form.Dropdown`. Formik’s `handleBlur` decides which field to mark touched from **`event.target.name`** or **`event.target.id`**. For a **search** dropdown, the element that blurs is often **not** labeled with the Formik path, so touch can fail for the real `fieldPath`. The local replacement keeps stock-style **`handleBlur(e)`** and also calls **`form.setFieldTouched(fieldPath, true, false)`** on blur so touched-aware error gating (see file header) works. It also gates visible messages from **`form.errors`** on **`form.touched`** while leaving the stock **`error` prop** and **initial-value / `initialErrors`** branch unchanged.
 
-**`RemoteSelectField`** passes **`searchInput={{ id: fieldPath, … }}`**, which can make **`handleBlur`’s `id` fallback** succeed on the inner search input; it still passes **`onBlur`** in spread-after-default order, which **replaces** the default dropdown `onBlur` on the root—if remote fields must match local touch behavior, the remote **`onBlur`** should chain **`handleBlur`** / **`setFieldTouched`** (or equivalent) as needed.
+**Chained `onBlur` (departure from stock spread order):** if the field receives an **`onBlur`** prop (e.g. from `RemoteSelectField`), the local implementation **does not** rely on spreading that prop onto `Form.Dropdown` last (which would **replace** the default blur handler and **drop** `setFieldTouched`). Instead it destructures **`onBlur`** from incoming props and invokes **`onBlurFromProps(e, { formikProps })` only after** `handleBlur` and **`setFieldTouched`**. Callers therefore extend blur behavior without re-implementing touch parity.
 
-In addition, local `RemoteSelectField` now synchronizes selected suggestions to `formik.values.ui.<fieldPath>` on add/change. This keeps the UI label cache aligned with selected IDs so `initialSuggestions` can rehydrate readable labels after remount/recovery without changing the canonical submitted value shape.
+### `RemoteSelectField` (departures from stock)
+
+Upstream: `react-invenio-forms` `RemoteSelectField` (often consumed via `invenio_rdm_records` deposit). Local module: `replacement_components/RemoteSelectField.js`.
+
+| Topic | Stock (typical) | Local replacement |
+|--------|-----------------|-------------------|
+| `SelectField` import | Package `SelectField` | Local `SelectField` (touched + chained blur above) |
+| **`ui.<fieldPath>`** | Not written | On add/change, maps selected options to **`{ id, title_l10n }`** so **`initialSuggestions`** / label display can recover after remount without changing the canonical value shape |
+| **Search text vs debounce** | Debounced search only | **`latestSearchStringRef`** updated on **every** search input change **before** debounce, for accurate blur-time reads |
+| **Unmount** | Request cancel only | Also **`runDebouncedSearch.cancel()`** |
+| **`commitSearchOnBlur`** | N/A | **Opt-in** (default `false`). When `true` with **`allowAdditions`** and single value, blur commits **trimmed** search text like a free-text choice (`onValueChange` + **`ui.*`**) |
+| **`focusFieldPathAfterSelect`** | N/A | **Opt-in** `string` (expected DOM **`id`** / name path used by `TextField`). After **`onChange`** (list pick, including click) or **`onAddItem`** (Enter on addition), focuses that element on the next tick; **not** used after blur-only commit |
+
+**`RemoteSelectField`** passes **`searchInput={{ id: fieldPath, … }}`**, which can still help **`handleBlur`’s `id`** fallback on the inner search input.
+
+**Creators flat UI:** `alternate_components/creatibutor_components/CreatibutorsFormBody.js` enables **`commitSearchOnBlur`** and **`focusFieldPathAfterSelect`** on the person **family name** names API field when the given-name column is shown (`!namesSearchOnly || personDetailsExpanded`, matching the sibling `TextField`). Other uses (e.g. `AutocompleteDropdown`) keep defaults unless they opt in.
+
+**Internal design notes** (not built by Sphinx as a manual page): `docs/internal/creatibutors-field-flat-person-names.md` for the flat creatibutor name UX.
 
 ## `FieldComponentWrapper` and `labelIcon`
 
