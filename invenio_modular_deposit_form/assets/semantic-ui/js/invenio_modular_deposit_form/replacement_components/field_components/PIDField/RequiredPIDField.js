@@ -26,17 +26,26 @@
 // - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath, false, false)` so
 //   the PID is not touched and validation is not run for that call (`getFieldErrorsForDisplay` stays
 //   quiet until blur / identifier change).
-// - **Mount:** if there is no identifier yet, align Formik value with deposit
-//   `default_selected` (`doiDefaultSelection` prop): `"yes"` →
+// - **PID defaults (mount only):** `applyRequiredPidDefaultsOnMount` runs in
+//   `componentDidMount` when the identifier is empty: align `pids.<scheme>` with deposit
+//   `default_selected` (`doiDefaultSelection`): `"yes"` →
 //   `{ provider: "external", identifier: "" }`; `"no"` → `{}` when the value still has
 //   keys (stale shape), but **not** when `provider` is already `"external"` (unmanaged).
-//   See `replacement_field_components.md` (PIDField).
-// - **Radio vs remount:** constructor still pins **managed** only for
-//   `isDraft && identifier && internal provider` (matches upstream). In `render`, when
-//   local state is `undefined`, infer **unmanaged** if `provider === "external"` **before**
-//   applying the stock rule `empty identifier && doiDefaultSelection === "no"` → managed,
-//   so remount matches Formik (stock infers managed in that external-empty case).
+//   It also seeds `managed_selection` under `values.ui.<fieldPath>` when still `undefined`
+//   (e.g. `fieldPath === "pids.doi"` → `values.ui.pids.doi.managed_selection`). See
+//   `replacement_field_components.md` (PIDField).
+// - **Radio vs remount:** same storage shape as `OptionalPIDField` for DOI: `managed_selection`
+//   lives under `values.ui.<fieldPath>` (`managed` / `unmanaged`). Toggles and mount seeding
+//   keep it set; `render` reads only that key for the switch (not local React state).
+// - **Backups:** `draft_unmanaged_pid_backup` / `draft_managed_pid_backup` under the same
+//   `values.ui.<fieldPath>` object. Unmanaged input updates both `pids` and the unmanaged
+//   backup (debounced). While `managed_selection === managed`, `componentDidUpdate` copies
+//   `pids.<scheme>` into `draft_managed_pid_backup` when the Formik value **reference**
+//   changes (covers reserve/discard without a child callback).
+// - **Switch `disabled` (parity with stock):** `hasDoi` from `record.pids.doi.identifier`;
+//   `isDoiCreated` from draft `field.value.identifier` (see render).
 
+import { getIn } from "formik";
 import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
@@ -50,80 +59,129 @@ import { getFieldErrorsForDisplay } from "./pid_components/fieldErrorsForDisplay
 const PROVIDER_EXTERNAL = "external";
 const UPDATE_PID_DEBOUNCE_MS = 200;
 
+/** Same string values as `OptionalPIDField` (`managed` / `unmanaged`). */
+const RADIO_CHOICE_ENUM = {
+  UNMANAGED: "unmanaged",
+  MANAGED: "managed",
+};
+
 /**
  * Required PID (e.g. DOI) field: managed vs unmanaged UI from stock, with
  * `getFieldErrorsForDisplay` on the label row and identifier components.
- * Calls `setFieldTouched(fieldPath, false, false)` on managed/unmanaged radio change (see file header).
- * Mount-time seeding from `doiDefaultSelection` when the identifier is empty;
- * when local radio state is `undefined`, render infers unmanaged from `provider === "external"`
- * before the empty-identifier + default heuristic (see file header).
+ * Persists radio branch in `values.ui.<fieldPath>.managed_selection` and restores from
+ * `draft_*_pid_backup` under the same `ui` path when toggling (see file header).
+ * Calls `setFieldTouched(fieldPath, false, false)` on managed/unmanaged radio change.
  */
 export class RequiredPIDField extends Component {
   constructor(props) {
     super(props);
 
-    const { canBeManaged, canBeUnmanaged, record, field } = this.props;
+    const { canBeManaged, canBeUnmanaged } = props;
     this.canBeManagedAndUnmanaged = canBeManaged && canBeUnmanaged;
-    const value = field?.value;
-    const isInternalProvider = value?.provider !== PROVIDER_EXTERNAL;
-    const isDraft = record?.is_draft === true;
-    const hasIdentifier = value?.identifier;
-    const isManagedSelected =
-      isDraft && hasIdentifier && isInternalProvider ? true : undefined;
-
-    this.state = {
-      isManagedSelected: isManagedSelected,
-    };
   }
 
-  /**
-   * Align `pids.<scheme>` with the configured default when there is no identifier yet:
-   * unmanaged default (`default_selected` "yes") → `{ provider: "external", identifier: "" }`;
-   * managed default ("no") → `{}` so no stray `external` provider without user action.
-   */
   componentDidMount() {
-    const { doiDefaultSelection, field, fieldPath, form } = this.props;
-    const value = field?.value;
-    const id = String(value?.identifier ?? "").trim();
-    if (id !== "") {
-      return;
-    }
-    if (doiDefaultSelection === "yes") {
-      if (!value?.provider || value.provider !== PROVIDER_EXTERNAL) {
-        form.setFieldValue(fieldPath, {
-          provider: PROVIDER_EXTERNAL,
-          identifier: "",
-        });
-      }
-      return;
-    }
-    if (
-      doiDefaultSelection === "no" &&
-      value &&
-      Object.keys(value).length > 0 &&
-      value.provider !== PROVIDER_EXTERNAL
-    ) {
-      form.setFieldValue(fieldPath, {});
-    }
+    this.applyRequiredPidDefaultsOnMount();
   }
 
-  onExternalIdentifierChanged = (identifier) => {
+  componentDidUpdate(prevProps) {
     const { form, fieldPath } = this.props;
+    const ui = `ui.${fieldPath}`;
+    if (getIn(form.values, `${ui}.managed_selection`) !== RADIO_CHOICE_ENUM.MANAGED) {
+      return;
+    }
+    const value = getIn(form.values, fieldPath);
+    if (value === getIn(prevProps.form.values, fieldPath)) {
+      return;
+    }
+    form.setFieldValue(`${ui}.draft_managed_pid_backup`, { ...(value || {}) });
+  }
+
+  onUnmanagedIdentifierChanged = (newIdentifier) => {
+    const { form, fieldPath } = this.props;
+    const ui = `ui.${fieldPath}`;
 
     const pid = {
-      identifier: identifier,
+      identifier: newIdentifier,
       provider: PROVIDER_EXTERNAL,
     };
 
     this.debounced && this.debounced.cancel();
     this.debounced = _debounce(() => {
       form.setFieldValue(fieldPath, pid);
+      form.setFieldValue(`${ui}.draft_unmanaged_pid_backup`, pid);
     }, UPDATE_PID_DEBOUNCE_MS);
     this.debounced();
   };
 
+  /**
+   * Ensure that on radio change the previous value is restored or default set.
+   */
+  restoreFromBackup = (userSelectedManaged) => {
+    const { form, fieldPath } = this.props;
+    const ui = `ui.${fieldPath}`;
+
+    const backupField = !userSelectedManaged
+      ? "draft_unmanaged_pid_backup"
+      : "draft_managed_pid_backup";
+    const backup = getIn(form.values, `${ui}.${backupField}`);
+    const fallback = !userSelectedManaged ? { identifier: "", provider: PROVIDER_EXTERNAL } : {};
+    const updateValue = backup ? backup : fallback;
+
+    form.setFieldValue(fieldPath, { ...updateValue });
+  };
+
+  /**
+   * Mount only: guarded Formik writes for empty `pids.<scheme>` and unset `managed_selection`.
+   */
+  applyRequiredPidDefaultsOnMount = () => {
+    const { form, fieldPath, doiDefaultSelection } = this.props;
+    const ui = `ui.${fieldPath}`;
+    const value = getIn(form.values, fieldPath);
+    const id = String(value?.identifier ?? "").trim();
+
+    if (id === "") {
+      if (doiDefaultSelection === "yes") {
+        if (!value?.provider || value.provider !== PROVIDER_EXTERNAL) {
+          form.setFieldValue(fieldPath, { provider: PROVIDER_EXTERNAL, identifier: "" });
+        }
+      } else if (
+        doiDefaultSelection === "no" &&
+        value &&
+        Object.keys(value).length > 0 &&
+        value.provider !== PROVIDER_EXTERNAL
+      ) {
+        form.setFieldValue(fieldPath, {});
+      }
+    }
+
+    if (getIn(form.values, `${ui}.managed_selection`) === undefined) {
+      if (doiDefaultSelection === "yes") {
+        form.setFieldValue(`${ui}.managed_selection`, RADIO_CHOICE_ENUM.UNMANAGED);
+      } else if (doiDefaultSelection === "no") {
+        form.setFieldValue(`${ui}.managed_selection`, RADIO_CHOICE_ENUM.MANAGED);
+      }
+    }
+  };
+
+  onManagedUnmanagedChange = (userSelectedManaged) => {
+    const { fieldPath, form } = this.props;
+    const ui = `ui.${fieldPath}`;
+    this.debounced && this.debounced.cancel();
+
+    this.restoreFromBackup(userSelectedManaged);
+
+    const updateValue = userSelectedManaged
+      ? RADIO_CHOICE_ENUM.MANAGED
+      : RADIO_CHOICE_ENUM.UNMANAGED;
+    form.setFieldValue(`${ui}.managed_selection`, updateValue);
+
+    // FIXME: Is this still right?
+    form.setFieldError(fieldPath, false);
+    form.setFieldTouched(fieldPath, false, false);
+  };
+
   render() {
-    const { isManagedSelected } = this.state;
     const {
       btnLabelDiscardPID,
       btnLabelGetPID,
@@ -144,66 +202,38 @@ export class RequiredPIDField extends Component {
       record,
     } = this.props;
 
-    let { doiDefaultSelection } = this.props;
-
     const value = field.value || {};
     const currentIdentifier = value.identifier || "";
-    const currentProvider = value.provider || "";
 
-    let managedIdentifier = "",
-      unmanagedIdentifier = "";
-    if (currentIdentifier !== "") {
-      const isProviderExternal = currentProvider === PROVIDER_EXTERNAL;
-      managedIdentifier = !isProviderExternal ? currentIdentifier : "";
-      unmanagedIdentifier = isProviderExternal ? currentIdentifier : "";
-    }
+    const parentDoi = record?.parent?.pids?.doi?.identifier || "";
 
-    const hasManagedIdentifier = managedIdentifier !== "";
-    const doi = record?.pids?.doi?.identifier || "";
-    const parentDoi = record.parent?.pids?.doi?.identifier || "";
-
-    const hasDoi = doi !== "";
-    const hasParentDoi = parentDoi !== "";
+    // hasDoi === pre-existing backend PID, isDoiCreated === frontend
+    const hasDoi = !!record?.pids?.doi?.identifier;
     const isDoiCreated = currentIdentifier !== "";
+    const hasParentDoi = parentDoi !== "";
 
     const _isManagedSelected =
-      isManagedSelected === undefined
-        ? currentProvider === PROVIDER_EXTERNAL
-          ? false
-          : hasManagedIdentifier ||
-            (currentIdentifier === "" && doiDefaultSelection === "no")
-        : isManagedSelected;
+      getIn(form.values, `ui.${fieldPath}.managed_selection`) === RADIO_CHOICE_ENUM.MANAGED;
+
+    const managedIdentifier = _isManagedSelected ? currentIdentifier : "";
+    const hasManagedIdentifier = managedIdentifier !== "";
+    const unmanagedIdentifier = !_isManagedSelected ? currentIdentifier : "";
 
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
 
     return (
       <>
-        <Form.Field
-          required={required || hasParentDoi}
-          error={fieldError ? true : false}
-        >
+        <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
           <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
         </Form.Field>
 
         {this.canBeManagedAndUnmanaged && (
           <ManagedUnmanagedSwitch
             disabled={
-              (isEditingPublishedRecord || hasManagedIdentifier) &&
-              (hasDoi || isDoiCreated)
+              (isEditingPublishedRecord || hasManagedIdentifier) && (hasDoi || isDoiCreated)
             }
             isManagedSelected={_isManagedSelected}
-            onManagedUnmanagedChange={(userSelectedManaged) => {
-              if (userSelectedManaged) {
-                form.setFieldValue("pids", {});
-              } else {
-                this.onExternalIdentifierChanged("");
-              }
-              form.setFieldError(fieldPath, false);
-              form.setFieldTouched(fieldPath, false, false);
-              this.setState({
-                isManagedSelected: userSelectedManaged,
-              });
-            }}
+            onManagedUnmanagedChange={this.onManagedUnmanagedChange}
             pidLabel={pidLabel}
           />
         )}
@@ -226,13 +256,11 @@ export class RequiredPIDField extends Component {
 
         {canBeUnmanaged && !_isManagedSelected && (
           <UnmanagedIdentifierCmp
-            identifier={unmanagedIdentifier}
-            onIdentifierChanged={(identifier) => {
-              this.onExternalIdentifierChanged(identifier);
-            }}
             field={field}
             form={form}
             fieldPath={fieldPath}
+            identifier={unmanagedIdentifier}
+            onIdentifierChanged={this.onUnmanagedIdentifierChanged}
             pidPlaceholder={pidPlaceholder}
             helpText={unmanagedHelpText}
           />

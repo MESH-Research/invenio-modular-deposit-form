@@ -18,8 +18,13 @@
 // `setFieldTouched(fieldPath, false, false)` on PID radios (untouched, no validate on that call); see
 // docs/source/replacement_field_components.md (“Formik touched and this fork”).
 // `RequiredPIDField` seeds `provider: "external"` (or clears stale non-external shape for
-// managed default) on mount when there is no identifier; `OptionalPIDField` does not seed,
-// persists optional-DOI radios in `values.ui.pids.doi.managed_selection`, and its unmanaged
-// radio clears `pids` without `external` (optional DOI). Same doc.
+// managed default) on mount when there is no identifier; persists **`managed_selection`** and
+// **`draft_*_pid_backup`** under **`values.ui.<fieldPath>`**; radio **`restoreFromBackup`**;
+// debounced unmanaged backup; **`componentDidUpdate`** syncs **`draft_managed_pid_backup`**
+// when managed branch + `pids.<scheme>` reference changes. Switch **`disabled`**: **`hasDoi`**
+// from **`record.pids.doi`**, **`isDoiCreated`** from draft field (stock parity).
+// `OptionalPIDField` does not seed, persists optional-DOI radios in
+// `values.ui.pids.doi.managed_selection`, and its unmanaged radio clears `pids` without
+// `external` (optional DOI). Same doc.
 
 export { PIDField } from "./PIDFieldCmp";

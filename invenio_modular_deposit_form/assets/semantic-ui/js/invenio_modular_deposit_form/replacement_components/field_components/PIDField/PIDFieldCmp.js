@@ -72,6 +72,7 @@ PIDField.defaultProps = {
   btnLabelGetPID: "Reserve",
   canBeManaged: true,
   canBeUnmanaged: true,
+  doiDefaultSelection: "yes",
   managedHelpText: null,
   pidIcon: "barcode",
   pidPlaceholder: "",

@@ -386,7 +386,7 @@ const DoiComponent = ({ ...extraProps }) => {
               btnLabelGetPID={pid.btn_label_get_pid}
               canBeManaged={pid.can_be_managed}
               canBeUnmanaged={pid.can_be_unmanaged}
-              doiDefaultSelection={pid.default_selected ?? {}}
+              doiDefaultSelection={pid.default_selected}
               optionalDOItransitions={pid.optional_doi_transitions ?? {}}
               fieldPath={`pids.${pid.scheme}`}
               fieldLabel={pid.field_label}
@@ -397,6 +397,7 @@ const DoiComponent = ({ ...extraProps }) => {
               pidType={pid.scheme}
               record={record ?? {}}
               required={config?.is_doi_required ?? true}
+              reservedHelpText={pid.reserved_help_text}
               unmanagedHelpText={pid.unmanaged_help_text}
               {...extraProps}
             />
@@ -597,8 +598,7 @@ const LanguagesComponent = ({ ...extraProps }) => {
     formikUiLanguages.length > 0 ? formikUiLanguages : depositRecordUiLanguages;
 
   const languageCodes =
-    values?.metadata?.languages?.filter((lang) => lang !== null && typeof lang === "string") ||
-    [];
+    values?.metadata?.languages?.filter((lang) => lang !== null && typeof lang === "string") || [];
 
   const initialOptions = languageCodes.map((code) => {
     const hit = uiSourceOptions.find((o) => o.id === code);

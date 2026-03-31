@@ -119,6 +119,30 @@ instance's resource_types vocabulary. Values map dot-separated metadata field pa
 help text values.
 """
 
+MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES = {
+    "doi": {
+        "field_label": "Digital Object Identifier",
+        "pid_placeholder": _("Copy/paste your existing DOI here..."),
+        "btn_label_discard_pid": _("Discard the reserved DOI."),
+        "btn_label_get_pid": _("Get a DOI now!"),
+        "managed_help_text": _(
+            "Reserve a DOI by pressing the button "
+            "(so it can be included in files prior to upload). "
+            "The DOI is registered when your upload is published."
+        ),
+        "reserved_help_text": _(
+            "Reserve a DOI by pressing the button "
+            "(so it can be included in files prior to upload). "
+            "The DOI is registered when your upload is published."
+        ),
+        "unmanaged_help_text": _(
+            "Only enter a DOI if you have already registered one "
+            "with a DOI provider. If you have not registered one "
+            "we will register a DOI for you when your upload is published."
+        ),
+    }
+}
+
 MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES = {}
 """Field default value modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 

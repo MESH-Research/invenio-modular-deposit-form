@@ -27,6 +27,13 @@
 //   docs/source/replacement_field_components.md § “Formik touched and this fork”.
 //   **Initial `provider` (required PID only):** `RequiredPIDField` on mount, if there is no
 //   identifier yet, seeds `pids.<scheme>` from `doiDefaultSelection` (`default_selected`).
+//   It also keeps **`managed_selection`** and **`draft_*_pid_backup`** under **`values.ui.<fieldPath>`**
+//   (for DOI, **`pids.doi`** → **`values.ui.pids.doi.*`**): radio change runs **`restoreFromBackup`**;
+//   unmanaged typing updates `pids` + **`draft_unmanaged_pid_backup`** (debounced); while
+//   managed is selected, **`componentDidUpdate`** mirrors **`pids.<scheme>`** into
+//   **`draft_managed_pid_backup`** when the Formik value reference changes (reserve/discard).
+//   **`ManagedUnmanagedSwitch` `disabled`:** stock-style **`hasDoi`** from **`record.pids.doi`**,
+//   **`isDoiCreated`** from draft **`field.value.identifier`**.
 //   `OptionalPIDField` does not seed (optional DOI must not validate empty); it persists
 //   optional-DOI radio choice in `values.ui.pids.doi.managed_selection` when the user
 //   changes radios (survives `pids` cleared / remount); its unmanaged radio clears `pids`
