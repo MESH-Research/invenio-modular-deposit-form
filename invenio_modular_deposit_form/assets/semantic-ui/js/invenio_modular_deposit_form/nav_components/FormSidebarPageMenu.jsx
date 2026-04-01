@@ -20,7 +20,7 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * Items use Menu.Item as={Button} (type="button") for semantics and tab order;
  * deposit_form.less overrides default centered content on fluid buttons.
  */
-const FormSidebarPageMenu = ({ classnames, label, ...props }) => {
+const FormSidebarPageMenu = ({ classnames, label, showBadgeLabels, ...props }) => {
   const effectiveLabel = label ?? i18next.t("Form Pages");
   const ctx = useFormUIState();
   const formPages = ctx.formUIState?.visibleFormPages ?? [];
@@ -68,8 +68,10 @@ const FormSidebarPageMenu = ({ classnames, label, ...props }) => {
                         className={getSeverityBadgeType("error")}
                         key="error"
                       >
-                        {counts.errors} {getSeverityLabel("error")}
-                        {counts.errors !== 1 ? "s" : ""}
+                        {counts.errors}
+                        {showBadgeLabels
+                          ? ` ${getSeverityLabel("error")}${counts.errors !== 1 ? "s" : ""}`
+                          : ""}
                       </Label>
                     )}
                     {counts.warnings > 0 && (
@@ -79,8 +81,10 @@ const FormSidebarPageMenu = ({ classnames, label, ...props }) => {
                         className={getSeverityBadgeType("warning")}
                         key="warning"
                       >
-                        {counts.warnings} {getSeverityLabel("warning")}
-                        {counts.warnings !== 1 ? "s" : ""}
+                        {counts.warnings}
+                        {showBadgeLabels
+                          ? ` ${getSeverityLabel("warning")}${counts.warnings !== 1 ? "s" : ""}`
+                          : ""}
                       </Label>
                     )}
                     {counts.info > 0 && (
@@ -90,8 +94,10 @@ const FormSidebarPageMenu = ({ classnames, label, ...props }) => {
                         className={getSeverityBadgeType("info")}
                         key="info"
                       >
-                        {counts.info} {getSeverityLabel("info")}
-                        {counts.info !== 1 ? "s" : ""}
+                        {counts.warnings}
+                        {showBadgeLabels
+                          ? ` ${getSeverityLabel("warning")}${counts.info !== 1 ? "s" : ""}`
+                          : ""}
                       </Label>
                     )}
                   </span>
