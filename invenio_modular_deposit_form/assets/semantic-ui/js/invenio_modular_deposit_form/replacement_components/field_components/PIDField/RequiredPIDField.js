@@ -26,22 +26,24 @@
 // - When the managed/unmanaged radio changes, call `setFieldTouched(fieldPath, false, false)` so
 //   the PID is not touched and validation is not run for that call (`getFieldErrorsForDisplay` stays
 //   quiet until blur / identifier change).
-// - **PID defaults (mount only):** `applyRequiredPidDefaultsOnMount` runs in
-//   `componentDidMount` when the identifier is empty: align `pids.<scheme>` with deposit
-//   `default_selected` (`doiDefaultSelection`): `"yes"` →
-//   `{ provider: "external", identifier: "" }`; `"no"` → `{}` when the value still has
-//   keys (stale shape), but **not** when `provider` is already `"external"` (unmanaged).
-//   It also seeds `managed_selection` under `values.ui.<fieldPath>` when still `undefined`
-//   (e.g. `fieldPath === "pids.doi"` → `values.ui.pids.doi.managed_selection`). See
-//   `replacement_field_components.md` (PIDField).
+// - **PID defaults (mount):** `applyRequiredPidDefaultsOnMount` runs `getFreshManagedSelection`
+//   (persist / infer `ui.<fieldPath>.managed_selection`), then `handleEmptyPid(branch)` (empty-id
+//   `pids.<scheme>` shape **gated by branch**: external placeholder only when **unmanaged**;
+//   managed stale clear only when **managed**), then `ensureDraftPidBackups(branch, pidValue)`.
+//   See `replacement_field_components.md` (PIDField).
 // - **Radio vs remount:** same storage shape as `OptionalPIDField` for DOI: `managed_selection`
 //   lives under `values.ui.<fieldPath>` (`managed` / `unmanaged`). Toggles and mount seeding
 //   keep it set; `render` reads only that key for the switch (not local React state).
+// - **Reinit after reserve:** `ui` is not on the server payload, so `managed_selection` can
+//   become `undefined` after Formik `enableReinitialize`. When unset, infer from `pids.<scheme>`:
+//   non-empty identifier + `provider !== "external"` → `managed`; identifier + `external` →
+//   `unmanaged`; empty identifier → `doiDefaultSelection` as before.
 // - **Backups:** `draft_unmanaged_pid_backup` / `draft_managed_pid_backup` under
 //   `values.ui.<fieldPath>`. On mount, the **active** branch’s backup is set from current
 //   `pids.<scheme>` when that backup key is still `undefined`. Unmanaged typing updates both
-//   `pids` and the unmanaged backup (debounced). While managed is selected, `componentDidUpdate`
-//   refreshes `draft_managed_pid_backup` when the PID object **reference** changes (reserve/discard).
+//   `pids` and the unmanaged backup (debounced). While managed is selected, `backUpReservedPid`
+//   in `componentDidUpdate` updates `draft_managed_pid_backup` when the PID object **reference**
+//   changes (reserve/discard).
 // - **Switch `disabled` (parity with stock):** `hasDoi` from `record.pids.doi.identifier`;
 //   `isDoiCreated` from draft `field.value.identifier` (see render).
 
@@ -85,16 +87,10 @@ export class RequiredPIDField extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { form, fieldPath } = this.props;
-    const ui = `ui.${fieldPath}`;
-    if (getIn(form.values, `${ui}.managed_selection`) !== RADIO_CHOICE_ENUM.MANAGED) {
-      return;
-    }
-    const value = getIn(form.values, fieldPath);
-    if (value === getIn(prevProps.form.values, fieldPath)) {
-      return;
-    }
-    form.setFieldValue(`${ui}.draft_managed_pid_backup`, { ...(value || {}) });
+    const branch = this.getFreshManagedSelection();
+    const pidValue = this.handleEmptyPid(branch);
+    this.ensureDraftPidBackups(branch, pidValue);
+    this.backUpReservedPid(prevProps);
   }
 
   onUnmanagedIdentifierChanged = (newIdentifier) => {
@@ -132,38 +128,75 @@ export class RequiredPIDField extends Component {
   };
 
   /**
-   * Mount only: guarded Formik writes for empty `pids.<scheme>` and unset `managed_selection`.
+   * Returns `managed` / `unmanaged` (and persists when `managed_selection` was unset).
+   * Pre-existing `managed_selection` is returned as-is.
    */
-  applyRequiredPidDefaultsOnMount = () => {
-    const { form, fieldPath, doiDefaultSelection } = this.props;
+  getFreshManagedSelection = () => {
+    const { doiDefaultSelection, form, fieldPath } = this.props;
     const ui = `ui.${fieldPath}`;
-    const value = getIn(form.values, fieldPath);
+    const existing = getIn(form.values, `${ui}.managed_selection`);
+    if (existing !== undefined) {
+      return existing;
+    }
+
+    const currentValue = getIn(form.values, fieldPath) || {};
+    const currentId = String(currentValue.identifier ?? "").trim();
+    const currentProvider = currentValue.provider;
+
+    let branch;
+    if (currentId !== "") {
+      branch =
+        currentProvider === PROVIDER_EXTERNAL
+          ? RADIO_CHOICE_ENUM.UNMANAGED
+          : RADIO_CHOICE_ENUM.MANAGED;
+    } else if (doiDefaultSelection === "yes") {
+      branch = RADIO_CHOICE_ENUM.UNMANAGED;
+    } else if (doiDefaultSelection === "no") {
+      branch = RADIO_CHOICE_ENUM.MANAGED;
+    } else {
+      return undefined;
+    }
+
+    form.setFieldValue(`${ui}.managed_selection`, branch);
+    return branch;
+  };
+
+  /**
+   * Empty-id `pids.<scheme>` defaults, **gated by** `branch` from `getFreshManagedSelection`.
+   * Returns canonical PID value after any writes (or current value if non-empty id).
+   */
+  handleEmptyPid = (branch) => {
+    const { doiDefaultSelection, form, fieldPath } = this.props;
+    let value = getIn(form.values, fieldPath) || {};
     const id = String(value?.identifier ?? "").trim();
 
-    if (id === "") {
-      if (doiDefaultSelection === "yes") {
-        if (!value?.provider || value.provider !== PROVIDER_EXTERNAL) {
-          form.setFieldValue(fieldPath, { provider: PROVIDER_EXTERNAL, identifier: "" });
-        }
-      } else if (
-        doiDefaultSelection === "no" &&
-        value &&
-        Object.keys(value).length > 0 &&
-        value.provider !== PROVIDER_EXTERNAL
-      ) {
-        form.setFieldValue(fieldPath, {});
-      }
+    if (id !== "") {
+      return { ...value };
     }
 
-    if (getIn(form.values, `${ui}.managed_selection`) === undefined) {
-      if (doiDefaultSelection === "yes") {
-        form.setFieldValue(`${ui}.managed_selection`, RADIO_CHOICE_ENUM.UNMANAGED);
-      } else if (doiDefaultSelection === "no") {
-        form.setFieldValue(`${ui}.managed_selection`, RADIO_CHOICE_ENUM.MANAGED);
+    if (branch === RADIO_CHOICE_ENUM.UNMANAGED && doiDefaultSelection === "yes") {
+      if (!value?.provider || value.provider !== PROVIDER_EXTERNAL) {
+        form.setFieldValue(fieldPath, { provider: PROVIDER_EXTERNAL, identifier: "" });
       }
+    } else if (
+      branch === RADIO_CHOICE_ENUM.MANAGED &&
+      doiDefaultSelection === "no" &&
+      value &&
+      Object.keys(value).length > 0 &&
+      value.provider !== PROVIDER_EXTERNAL
+    ) {
+      form.setFieldValue(fieldPath, {});
     }
 
-    const branch = getIn(form.values, `${ui}.managed_selection`);
+    return { ...(getIn(form.values, fieldPath) || {}) };
+  };
+
+  /**
+   * Initializes the active branch draft backup when still undefined (uses canonical `pidValue`).
+   */
+  ensureDraftPidBackups = (branch, pidValue) => {
+    const { form, fieldPath } = this.props;
+    const ui = `ui.${fieldPath}`;
     if (branch !== RADIO_CHOICE_ENUM.MANAGED && branch !== RADIO_CHOICE_ENUM.UNMANAGED) {
       return;
     }
@@ -173,8 +206,34 @@ export class RequiredPIDField extends Component {
         ? "draft_managed_pid_backup"
         : "draft_unmanaged_pid_backup";
     if (getIn(form.values, `${ui}.${backupField}`) === undefined) {
-      form.setFieldValue(`${ui}.${backupField}`, { ...(getIn(form.values, fieldPath) || {}) });
+      form.setFieldValue(`${ui}.${backupField}`, { ...pidValue });
     }
+  };
+
+  /**
+   * When managed is selected and `pids.<scheme>` reference changes (reserve/discard), copy the
+   * current PID into `draft_managed_pid_backup` even if backup was already set.
+   */
+  backUpReservedPid = (prevProps) => {
+    const { form, fieldPath } = this.props;
+    const ui = `ui.${fieldPath}`;
+    if (getIn(form.values, `${ui}.managed_selection`) !== RADIO_CHOICE_ENUM.MANAGED) {
+      return;
+    }
+    const value = getIn(form.values, fieldPath);
+    if (value === getIn(prevProps.form.values, fieldPath)) {
+      return;
+    }
+    form.setFieldValue(`${ui}.draft_managed_pid_backup`, { ...(value || {}) });
+  };
+
+  /**
+   * Mount only: selection → empty PID shape (branch-aware) → draft backups.
+   */
+  applyRequiredPidDefaultsOnMount = () => {
+    const branch = this.getFreshManagedSelection();
+    const pidValue = this.handleEmptyPid(branch);
+    this.ensureDraftPidBackups(branch, pidValue);
   };
 
   onManagedUnmanagedChange = (userSelectedManaged) => {
