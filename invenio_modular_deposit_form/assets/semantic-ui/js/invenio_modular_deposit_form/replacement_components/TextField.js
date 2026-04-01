@@ -1,3 +1,5 @@
+// Optional `description` renders above the input, `helpText` below (both `.helptext`; strings via
+// `i18next.t`). Same placement contract as `TextArea`, `MultiInput`, `SelectField`.
 import React from "react";
 import { FastField, Field } from "formik";
 import { Form } from "semantic-ui-react";
@@ -32,6 +34,14 @@ const TextField = ({
     extraRequiredFields,
     ...uiProps
   } = extraProps;
+
+  const descriptionId = description ? `${fieldPath}.description` : "";
+  const helptextId = helpText ? `${fieldPath}.helptext` : "";
+  const describedByText = [
+    helptextId ? `${fieldPath}.helptext` : "",
+    descriptionId ? `${fieldPath}.description` : "",
+  ].join(" ");
+
   return (
     <FormikField id={fieldPath} name={fieldPath}>
       {({
@@ -63,9 +73,9 @@ const TextField = ({
               />
             )}
             {description && description !== " " && (
-              <label className="helptext" id={`${fieldPath}.helptext`}>
+              <div className="helptext" id={descriptionId}>
                 {i18next.t(description)}
-              </label>
+              </div>
             )}
             <Form.Input
               error={showError ? meta.error : undefined}
@@ -75,7 +85,7 @@ const TextField = ({
               id={fieldPath}
               name={fieldPath}
               aria-labelledby={`${fieldPath}.label`}
-              aria-describedby={`${fieldPath}.helptext`}
+              aria-describedby={describedByText}
               {...field}
               {...(onBlur && {
                 onBlur: (e) => {
@@ -86,9 +96,9 @@ const TextField = ({
               {...uiProps}
             />
             {helpText && helpText !== " " && (
-              <label className="helptext" id={`${fieldPath}.helptext`}>
+              <div className="helptext" id={helptextId}>
                 {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
-              </label>
+              </div>
             )}
           </Form.Field>
         );
