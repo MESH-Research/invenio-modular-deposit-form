@@ -185,7 +185,7 @@ const FormFeedbackSummary = ({
           type="button"
           transparent
           basic
-          className={`pl-5 comma-separated ${severityClass}`}
+          className={`p-5 ${severityClass}`}
           onClick={(e) => {
             if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
               handleFormPageChange(e, { value: pageId });

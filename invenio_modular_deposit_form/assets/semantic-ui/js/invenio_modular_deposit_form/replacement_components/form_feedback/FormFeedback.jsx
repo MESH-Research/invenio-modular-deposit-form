@@ -233,11 +233,11 @@ const FormFeedback = ({}) => {
     <Message
       visible
       {...{ [type]: true }}
-      className="flashed top attached"
+      className="flashed pb-10"
       id={type + "-feedback-div"}
       error
     >
-      <Message.Header>{displayMessage}</Message.Header>
+      <MessageHeader className="rel-mt-1 rel-ml-1">{displayMessage}</MessageHeader>
       {!_isEmpty(flaggedClientErrors) && (
         <Message.List className="mt-15 mb-10 rel-ml-1">
           <FormFeedbackSummary
