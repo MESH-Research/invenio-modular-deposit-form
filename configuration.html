@@ -273,7 +273,7 @@
         <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPages&quot;</span><span class="p">,</span>
         <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;page-1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Type &amp; Title&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPage&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -295,7 +295,7 @@
                 <span class="p">],</span>
             <span class="p">},</span>
             <span class="p">{</span>
-                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;page-2&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Publish&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
                     <span class="p">{</span>
@@ -425,23 +425,25 @@
 <h2>Changing layout by resource type<a class="headerlink" href="#changing-layout-by-resource-type" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the <code class="docutils literal notranslate"><span class="pre">section</span></code> ids of the <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> components in your common fields layout.</p>
 <p>If a page is not included in the resource type dictionary, the default layout from the common fields is used. If a page is included, the new page layout <strong>replaces</strong> the default for that page.</p>
-<p>Example: replace the entire <code class="docutils literal notranslate"><span class="pre">&quot;page-3&quot;</span></code> page with a single ISBN field when the selected resource type is <code class="docutils literal notranslate"><span class="pre">&quot;textDocument-book&quot;</span></code>:</p>
+<p>Example: replace the entire page whose <code class="docutils literal notranslate"><span class="pre">section</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;3&quot;</span></code> with a single ISBN field when the selected resource type is <code class="docutils literal notranslate"><span class="pre">&quot;textDocument-book&quot;</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;textDocument-book&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;page-3&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;isbn&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;ISBN&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;ISBNComponent&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;wrapped&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="p">},</span>
-        <span class="p">],</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;isbn&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;ISBN&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;ISBNComponent&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wrapped&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+        <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>To re-use the override from another resource type, include an object with a single key <code class="docutils literal notranslate"><span class="pre">same_as</span></code> whose value is the label of another configured resource type. Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;textDocument-monograph&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;page-2&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;same_as&quot;</span><span class="p">:</span> <span class="s2">&quot;textDocument-book&quot;</span><span class="p">}]}</span>
+<p>To re-use another resource type’s page entry for the same FormPage <code class="docutils literal notranslate"><span class="pre">section</span></code> id, set top-level <code class="docutils literal notranslate"><span class="pre">same_as</span></code> to that type’s id. The form resolves the target page (following further <code class="docutils literal notranslate"><span class="pre">same_as</span></code> on that type if present), then <strong>shallow-merges</strong> your entry on top: keys you set—such as <strong><code class="docutils literal notranslate"><span class="pre">label</span></code></strong> or <strong><code class="docutils literal notranslate"><span class="pre">classnames</span></code></strong> (and any other keys the merged page object supports)—override the target. If you omit <strong><code class="docutils literal notranslate"><span class="pre">subsections</span></code></strong>, the target’s subsection list is used; if you <strong>include</strong> <code class="docutils literal notranslate"><span class="pre">subsections</span></code>, your list <strong>replaces</strong> the inherited one entirely. Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;textDocument-monograph&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;same_as&quot;</span><span class="p">:</span> <span class="s2">&quot;textDocument-book&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Monograph details&quot;</span><span class="p">}}</span>
 </pre></div>
 </div>
 </section>
