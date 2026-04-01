@@ -196,19 +196,34 @@ const FormFeedbackSummary = ({
         >
           {label}{" "}
           {errorsCount > 0 && (
-            <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
+            <Label
+              size="tiny"
+              circular
+              className={`${getSeverityBadgeType("error")} rel-ml-1`}
+              key="error"
+            >
               {errorsCount} {getSeverityLabel("error")}
               {errorsCount !== 1 ? "s" : ""}
             </Label>
           )}
           {warningsCount > 0 && (
-            <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
+            <Label
+              size="tiny"
+              circular
+              className={`${getSeverityBadgeType("warning")} rel-ml-1`}
+              key="warning"
+            >
               {warningsCount} {getSeverityLabel("warning")}
               {warningsCount !== 1 ? "s" : ""}
             </Label>
           )}
           {infoCount > 0 && (
-            <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
+            <Label
+              size="tiny"
+              circular
+              className={`${getSeverityBadgeType("info")} rel-ml-1`}
+              key="info"
+            >
               {infoCount} {getSeverityLabel("info")}
               {infoCount !== 1 ? "s" : ""}
             </Label>

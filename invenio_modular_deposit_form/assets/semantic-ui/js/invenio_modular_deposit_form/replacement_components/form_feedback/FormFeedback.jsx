@@ -49,7 +49,7 @@ const ACTIONS = {
   // Add action state representing purely client-side validation errors
   ["CLIENT_VALIDATION_ERRORS"]: {
     feedback: "negative",
-    message: i18next.t("Please fix the issues in"),
+    message: i18next.t("Before submitting, please fix the issues in"),
   },
   // Add action state representing cleared errors
   ["ERRORS_CLEARED"]: {
@@ -235,22 +235,17 @@ const FormFeedback = ({}) => {
       {...{ [type]: true }}
       className="flashed top attached"
       id={type + "-feedback-div"}
+      error
     >
-      <Grid container>
-        <Grid.Column width={15} textAlign="left">
-          <strong>
-            <Icon name={icon} middle aligned /> {displayMessage}
-            {!_isEmpty(flaggedClientErrors) && (
-              <List>
-                <FormFeedbackSummary
-                  sectionsConfig={sectionsConfig}
-                  currentResourceType={formUIState?.currentResourceType}
-                />
-              </List>
-            )}
-          </strong>
-        </Grid.Column>
-      </Grid>
+      <Message.Header>{displayMessage}</Message.Header>
+      {!_isEmpty(flaggedClientErrors) && (
+        <Message.List className="mt-15 mb-10 rel-ml-1">
+          <FormFeedbackSummary
+            sectionsConfig={sectionsConfig}
+            currentResourceType={formUIState?.currentResourceType}
+          />
+        </Message.List>
+      )}
     </Message>
   );
 };
