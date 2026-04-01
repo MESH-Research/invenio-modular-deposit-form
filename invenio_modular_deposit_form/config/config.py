@@ -134,9 +134,9 @@ MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES = {
             "The DOI is registered when your upload is published."
         ),
         "reserved_help_text": _(
-            "Reserve a DOI by pressing the button "
-            "(so it can be included in files prior to upload). "
-            "The DOI is registered when your upload is published."
+            "This DOI has been reserved for the current record. "
+            "It will be registered when your upload is published, "
+            "and it will not change unless you discard it here."
         ),
         "unmanaged_help_text": _(
             "Only enter a DOI if you have already registered one "

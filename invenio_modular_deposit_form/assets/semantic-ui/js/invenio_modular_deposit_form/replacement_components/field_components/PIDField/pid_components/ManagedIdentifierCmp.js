@@ -29,10 +29,7 @@ import { Form } from "semantic-ui-react";
 import { connect } from "react-redux";
 import { ReservePIDBtn } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/ReservePIDBtn";
 import { UnreservePIDBtn } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/UnreservePIDBtn";
-import {
-  discardPID,
-  reservePID,
-} from "@js/invenio_rdm_records/src/deposit/state/actions";
+import { discardPID, reservePID } from "@js/invenio_rdm_records/src/deposit/state/actions";
 import {
   DISCARD_PID_STARTED,
   RESERVE_PID_STARTED,
@@ -100,9 +97,7 @@ class ManagedIdentifierComponent extends Component {
       <ReservePIDBtn
         disabled={disabled || hasIdentifier}
         label={btnLabelGetPID}
-        loading={
-          actionState === RESERVE_PID_STARTED && actionStateExtra.pidType === pidType
-        }
+        loading={actionState === RESERVE_PID_STARTED && actionStateExtra.pidType === pidType}
         handleReservePID={this.handleReservePID}
         fieldError={getFieldErrorsForDisplay(form, fieldPath, field)}
       />
@@ -113,16 +108,14 @@ class ManagedIdentifierComponent extends Component {
         disabled={disabled}
         label={btnLabelDiscardPID}
         handleDiscardPID={this.handleDiscardPID}
-        loading={
-          actionState === DISCARD_PID_STARTED && actionStateExtra.pidType === pidType
-        }
+        loading={actionState === DISCARD_PID_STARTED && actionStateExtra.pidType === pidType}
         pidType={pidType}
       />
     );
 
     return (
       <>
-        <Form.Group inline>
+        <Form.Group inline className="rel-ml-1">
           {hasIdentifier ? (
             <Form.Field>
               <label>{identifier}</label>
@@ -135,7 +128,7 @@ class ManagedIdentifierComponent extends Component {
 
           <Form.Field>{identifier ? UnreserveBtn : ReserveBtn}</Form.Field>
         </Form.Group>
-        {helpText && <label className="helptext">{helpText}</label>}
+        {helpText && <label className="helptext mt-0">{helpText}</label>}
       </>
     );
   }
