@@ -195,6 +195,17 @@
     }
 
     .invenio-field-wrapper {
+      .field {
+        .helptext {
+          // copies stock InvenioRDM styles for label.helptext
+          margin-top: -0.8em;
+          margin-bottom: 2em;
+          display: block;
+          color: #757575 !important;
+          font-size: 0.9em !important;
+          font-weight: 400 !important;
+        }
+      }
       &.files-field {
         .ui.horizontal.list > .item:last-child {
           @media all and (min-width: @largestTabletScreen) and (max-width: @largestSmallMonitor) {
