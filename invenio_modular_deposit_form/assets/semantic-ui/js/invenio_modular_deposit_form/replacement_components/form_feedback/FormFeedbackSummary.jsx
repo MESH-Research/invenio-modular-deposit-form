@@ -12,7 +12,7 @@
 
 import _isEmpty from "lodash/isEmpty";
 import React, { useMemo } from "react";
-import { Button, Label } from "semantic-ui-react";
+import { Button, Label, List } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { getSeverityLabel } from "../../helpers/severityChecksConfig";
@@ -59,7 +59,7 @@ function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceT
     const entries = byKey.get(key);
     const chosen =
       currentResourceType && entries.length > 1
-        ? entries.find((s) => (s.resourceTypes || []).includes(currentResourceType)) ?? entries[0]
+        ? (entries.find((s) => (s.resourceTypes || []).includes(currentResourceType)) ?? entries[0])
         : entries[0];
     result.push({
       ...chosen,
@@ -72,9 +72,9 @@ function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceT
 }
 
 /* React component to display validation and system error messages.
-  *
-  *
-  */
+ *
+ *
+ */
 function pageLabelsByPageIdFromResolved(resolvedFormPages) {
   const map = new Map();
   for (const p of resolvedFormPages ?? []) {
@@ -86,7 +86,10 @@ function pageLabelsByPageIdFromResolved(resolvedFormPages) {
   return map;
 }
 
-const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
+const FormFeedbackSummary = ({
+  sectionsConfig = [],
+  currentResourceType: currentResourceTypeProp,
+}) => {
   const ctx = useFormUIState();
   const { formUIState, handleFormPageChange } = ctx;
   const currentFormPage = formUIState?.currentFormPage;
@@ -95,7 +98,11 @@ const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: current
     () => pageLabelsByPageIdFromResolved(formUIState?.resolvedFormPages),
     [formUIState?.resolvedFormPages]
   );
-  const sectionsWithCount = getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceType);
+  const sectionsWithCount = getErrorSectionsFromState(
+    formUIState,
+    sectionsConfig,
+    currentResourceType
+  );
   if (_isEmpty(sectionsWithCount)) {
     return null;
   }
@@ -148,7 +155,14 @@ const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: current
   };
 
   return sectionsWithCount.map((section) => {
-    const { pageId, sectionId, sectionLabel, errors: errorsCount = 0, warnings: warningsCount = 0, info: infoCount = 0 } = section;
+    const {
+      pageId,
+      sectionId,
+      sectionLabel,
+      errors: errorsCount = 0,
+      warnings: warningsCount = 0,
+      info: infoCount = 0,
+    } = section;
     const pagePart = pageLabelByPageId.get(pageId) ?? pageId;
     const sectionPart = sectionLabel ?? sectionId;
     const label = multiPage
@@ -157,42 +171,53 @@ const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: current
         : `${pagePart} / ${sectionPart}`
       : sectionPart;
     const severityClass =
-      errorsCount > 0 ? getSeverityBadgeType("error") : warningsCount > 0 ? getSeverityBadgeType("warning") : infoCount > 0 ? getSeverityBadgeType("info") : "";
+      errorsCount > 0
+        ? getSeverityBadgeType("error")
+        : warningsCount > 0
+          ? getSeverityBadgeType("warning")
+          : infoCount > 0
+            ? getSeverityBadgeType("info")
+            : "";
     return (
-      <Button
-        key={`${pageId}\0${sectionId}`}
-        type="button"
-        transparent
-        basic
-        className={`pl-5 comma-separated ${severityClass}`}
-        onClick={(e) => {
-          if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
-            handleFormPageChange(e, { value: pageId });
-          }
-          const waitForElement = multiPage && pageId !== currentFormPage;
-          scrollToSection(sectionId, { waitForElement });
-        }}
-      >
-        {label}{" "}
-        {errorsCount > 0 && (
-          <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
-            {errorsCount} {getSeverityLabel("error")}{errorsCount !== 1 ? "s" : ""}
-          </Label>
-        )}
-        {warningsCount > 0 && (
-          <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
-            {warningsCount} {getSeverityLabel("warning")}{warningsCount !== 1 ? "s" : ""}
-          </Label>
-        )}
-        {infoCount > 0 && (
-          <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
-            {infoCount} {getSeverityLabel("info")}{infoCount !== 1 ? "s" : ""}
-          </Label>
-        )}
-      </Button>
+      <List.Item>
+        <Button
+          key={`${pageId}\0${sectionId}`}
+          type="button"
+          transparent
+          basic
+          className={`pl-5 comma-separated ${severityClass}`}
+          onClick={(e) => {
+            if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
+              handleFormPageChange(e, { value: pageId });
+            }
+            const waitForElement = multiPage && pageId !== currentFormPage;
+            scrollToSection(sectionId, { waitForElement });
+          }}
+        >
+          {label}{" "}
+          {errorsCount > 0 && (
+            <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
+              {errorsCount} {getSeverityLabel("error")}
+              {errorsCount !== 1 ? "s" : ""}
+            </Label>
+          )}
+          {warningsCount > 0 && (
+            <Label size="tiny" circular className={getSeverityBadgeType("warning")} key="warning">
+              {warningsCount} {getSeverityLabel("warning")}
+              {warningsCount !== 1 ? "s" : ""}
+            </Label>
+          )}
+          {infoCount > 0 && (
+            <Label size="tiny" circular className={getSeverityBadgeType("info")} key="info">
+              {infoCount} {getSeverityLabel("info")}
+              {infoCount !== 1 ? "s" : ""}
+            </Label>
+          )}
+        </Button>
+      </List.Item>
     );
   });
-}
+};
 
 FormFeedbackSummary.propTypes = {
   sectionsConfig: PropTypes.array.isRequired,

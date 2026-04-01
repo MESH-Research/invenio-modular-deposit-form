@@ -16,7 +16,7 @@ import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import _set from "lodash/set";
 import { useStore } from "react-redux";
-import { Grid, Message, Icon } from "semantic-ui-react";
+import { Grid, List, Message, Icon } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { FormFeedbackSummary } from "./FormFeedbackSummary";
@@ -82,9 +82,7 @@ const ACTIONS = {
   },
   [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: {
     feedback: "negative",
-    message: i18next.t(
-      "The draft was not published. Record saved with validation feedback in"
-    ),
+    message: i18next.t("The draft was not published. Record saved with validation feedback in"),
   },
   [DRAFT_SUBMIT_REVIEW_FAILED]: {
     feedback: "negative",
@@ -162,9 +160,7 @@ function getFlaggedErrors(formUIState) {
 function getNonValidationErrors(backendErrors) {
   if (_isEmpty(backendErrors)) return undefined;
   return Object.fromEntries(
-    Object.entries(backendErrors).filter(
-      ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key)
-    )
+    Object.entries(backendErrors).filter(([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key))
   );
 }
 
@@ -175,8 +171,8 @@ function hasErrorSeverityInObject(obj) {
 }
 
 /**
-  * React component to display error and warning messages to the user as the form is filled.
-  */
+ * React component to display error and warning messages to the user as the form is filled.
+ */
 const FormFeedback = ({}) => {
   const store = useStore();
   const { actionState, errors: backendErrors, config } = store.getState().deposit;
@@ -200,14 +196,22 @@ const FormFeedback = ({}) => {
       : actionState;
   // Provide a sensical actionState if we've cleared validation errors client side, but there were also
   // non-validation errors.
-  if (_isEmpty(flaggedClientErrors) && !_isEmpty(nonValidationErrors) && WITH_VALIDATION_TO_PLAIN[actionState]) {
+  if (
+    _isEmpty(flaggedClientErrors) &&
+    !_isEmpty(nonValidationErrors) &&
+    WITH_VALIDATION_TO_PLAIN[actionState]
+  ) {
     effectiveActionState = WITH_VALIDATION_TO_PLAIN[actionState];
   }
 
-  const { feedback: initialFeedback, message: actionMessage } = _get(ACTIONS, effectiveActionState, {
-    feedback: undefined,
-    message: undefined,
-  });
+  const { feedback: initialFeedback, message: actionMessage } = _get(
+    ACTIONS,
+    effectiveActionState,
+    {
+      feedback: undefined,
+      message: undefined,
+    }
+  );
 
   const backendErrorMessage = backendErrors?.message || backendErrors?._schema;
   const displayMessage = actionMessage || backendErrorMessage;
@@ -217,8 +221,9 @@ const FormFeedback = ({}) => {
   }
 
   const noSeverityChecksWithErrors =
-    !(formUIState?.sectionErrorsFlagged ?? []).some((entry) => (entry?.error_fields?.length ?? 0) > 0) ||
-    hasErrorSeverityInObject(nonValidationErrors);
+    !(formUIState?.sectionErrorsFlagged ?? []).some(
+      (entry) => (entry?.error_fields?.length ?? 0) > 0
+    ) || hasErrorSeverityInObject(nonValidationErrors);
 
   const feedback = noSeverityChecksWithErrors ? "suggestive" : initialFeedback;
 
@@ -236,14 +241,19 @@ const FormFeedback = ({}) => {
           <strong>
             <Icon name={icon} middle aligned /> {displayMessage}
             {!_isEmpty(flaggedClientErrors) && (
-              <FormFeedbackSummary sectionsConfig={sectionsConfig} currentResourceType={formUIState?.currentResourceType} />
+              <List>
+                <FormFeedbackSummary
+                  sectionsConfig={sectionsConfig}
+                  currentResourceType={formUIState?.currentResourceType}
+                />
+              </List>
             )}
           </strong>
         </Grid.Column>
       </Grid>
     </Message>
   );
-}
+};
 
 FormFeedback.propTypes = {
   labels: PropTypes.object,
@@ -254,4 +264,3 @@ FormFeedback.defaultProps = {
 };
 
 export { FormFeedback };
-
