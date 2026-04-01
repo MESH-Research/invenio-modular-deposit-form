@@ -65,6 +65,7 @@ const OverrideDoiComponent = ({ ...extraProps }) => {
               record.is_published === true
             }
             managedHelpText={pid.managed_help_text}
+            reservedHelpText={pid.reserved_help_text}
             pidLabel={pid.pid_label}
             pidPlaceholder={pid.pid_placeholder}
             pidType={pid.scheme}

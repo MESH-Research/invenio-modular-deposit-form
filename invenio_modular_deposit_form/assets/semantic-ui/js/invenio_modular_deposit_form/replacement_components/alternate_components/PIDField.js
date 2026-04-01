@@ -438,6 +438,7 @@ class CustomPIDField extends Component {
       icon,
       isEditingPublishedRecord,
       managedHelpText,
+      reservedHelpText,
       pidLabel,
       pidIcon,
       pidPlaceholder,
@@ -460,6 +461,10 @@ class CustomPIDField extends Component {
     }
 
     const hasManagedIdentifier = managedIdentifier !== "";
+    const managedHelptextForDisplay =
+      hasManagedIdentifier && reservedHelpText != null
+        ? reservedHelpText
+        : managedHelpText;
 
     const _isManagedSelected =
       isManagedSelected === undefined
@@ -498,7 +503,7 @@ class CustomPIDField extends Component {
             btnLabelGetPID={btnLabelGetPID}
             form={form}
             identifier={managedIdentifier}
-            helpText={managedHelpText}
+            helpText={managedHelptextForDisplay}
             pidPlaceholder={pidPlaceholder}
             pidType={pidType}
             pidLabel={pidLabel}
@@ -534,6 +539,7 @@ CustomPIDField.propTypes = {
   fieldLabel: PropTypes.string.isRequired,
   isEditingPublishedRecord: PropTypes.bool.isRequired,
   managedHelpText: PropTypes.string,
+  reservedHelpText: PropTypes.string,
   pidIcon: PropTypes.string.isRequired,
   pidLabel: PropTypes.string.isRequired,
   pidPlaceholder: PropTypes.string.isRequired,
@@ -544,6 +550,7 @@ CustomPIDField.propTypes = {
 
 CustomPIDField.defaultProps = {
   managedHelpText: null,
+  reservedHelpText: null,
   unmanagedHelpText: null,
   field: undefined,
 };
@@ -582,6 +589,7 @@ PIDFieldAlternate.propTypes = {
   fieldLabel: PropTypes.string.isRequired,
   isEditingPublishedRecord: PropTypes.bool.isRequired,
   managedHelpText: PropTypes.string,
+  reservedHelpText: PropTypes.string,
   pidIcon: PropTypes.string,
   pidLabel: PropTypes.string.isRequired,
   pidPlaceholder: PropTypes.string,
@@ -596,6 +604,7 @@ PIDFieldAlternate.defaultProps = {
   canBeManaged: true,
   canBeUnmanaged: true,
   managedHelpText: null,
+  reservedHelpText: null,
   pidIcon: "barcode",
   pidPlaceholder: "",
   required: false,

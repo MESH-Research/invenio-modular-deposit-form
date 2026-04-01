@@ -206,6 +206,7 @@ class OptionalPIDFieldCmp extends Component {
       fieldPath,
       fieldLabel,
       managedHelpText,
+      reservedHelpText,
       pidLabel,
       pidIcon,
       pidPlaceholder,
@@ -225,6 +226,11 @@ class OptionalPIDFieldCmp extends Component {
     } = this.computeManagedUnmanaged();
 
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
+    const hasManagedIdentifier = managedIdentifier !== "";
+    const managedHelptextForDisplay =
+      hasManagedIdentifier && reservedHelpText != null
+        ? reservedHelpText
+        : managedHelpText;
     const hasPublishedManagedDOI =
       publishedDOI?.identifier && publishedDOI?.provider !== PROVIDER_EXTERNAL;
     const isManagedProviderAllowed = _isEmpty(optionalDOItransitions)
@@ -268,7 +274,7 @@ class OptionalPIDFieldCmp extends Component {
             form={form}
             fieldPath={fieldPath}
             identifier={managedIdentifier}
-            helpText={managedHelpText}
+            helpText={managedHelptextForDisplay}
             pidPlaceholder={pidPlaceholder}
             pidType={pidType}
             pidLabel={pidLabel}
@@ -304,6 +310,7 @@ OptionalPIDFieldCmp.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   fieldLabel: PropTypes.string.isRequired,
   managedHelpText: PropTypes.string,
+  reservedHelpText: PropTypes.string,
   pidIcon: PropTypes.string.isRequired,
   pidLabel: PropTypes.string.isRequired,
   pidPlaceholder: PropTypes.string.isRequired,
@@ -319,6 +326,7 @@ OptionalPIDFieldCmp.propTypes = {
 
 OptionalPIDFieldCmp.defaultProps = {
   managedHelpText: null,
+  reservedHelpText: null,
   unmanagedHelpText: null,
   field: undefined,
   publishedDOI: {},

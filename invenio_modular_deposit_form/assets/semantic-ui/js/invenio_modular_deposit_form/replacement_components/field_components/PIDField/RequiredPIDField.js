@@ -264,6 +264,7 @@ export class RequiredPIDField extends Component {
       fieldLabel,
       isEditingPublishedRecord,
       managedHelpText,
+      reservedHelpText,
       pidLabel,
       pidIcon,
       pidPlaceholder,
@@ -289,6 +290,10 @@ export class RequiredPIDField extends Component {
 
     const managedIdentifier = _isManagedSelected ? currentIdentifier : "";
     const hasManagedIdentifier = managedIdentifier !== "";
+    const managedHelptextForDisplay =
+      hasManagedIdentifier && reservedHelpText != null
+        ? reservedHelpText
+        : managedHelpText;
     const unmanagedIdentifier = !_isManagedSelected ? currentIdentifier : "";
 
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
@@ -319,7 +324,7 @@ export class RequiredPIDField extends Component {
             form={form}
             fieldPath={fieldPath}
             identifier={managedIdentifier}
-            helpText={managedHelpText}
+            helpText={managedHelptextForDisplay}
             pidPlaceholder={pidPlaceholder}
             pidType={pidType}
             pidLabel={pidLabel}
@@ -353,6 +358,7 @@ RequiredPIDField.propTypes = {
   fieldLabel: PropTypes.string.isRequired,
   isEditingPublishedRecord: PropTypes.bool.isRequired,
   managedHelpText: PropTypes.string,
+  reservedHelpText: PropTypes.string,
   pidIcon: PropTypes.string.isRequired,
   pidLabel: PropTypes.string.isRequired,
   pidPlaceholder: PropTypes.string.isRequired,
@@ -365,6 +371,7 @@ RequiredPIDField.propTypes = {
 
 RequiredPIDField.defaultProps = {
   managedHelpText: null,
+  reservedHelpText: null,
   unmanagedHelpText: null,
   field: undefined,
 };
