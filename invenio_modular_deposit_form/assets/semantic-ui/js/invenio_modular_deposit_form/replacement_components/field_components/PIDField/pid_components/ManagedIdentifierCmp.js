@@ -10,15 +10,16 @@
 // Upstream: `.../PIDField/components/ManagedIdentifierCmp.js`
 //
 // Import path changes (required for this package):
-// Stock uses relative paths into `invenio_rdm_records` (`../../../../api/DepositFormSubmitContext`,
-// `../../../../state/types`, `./ReservePIDBtn`, `./UnreservePIDBtn`). Those paths are only
-// valid inside the upstream package tree. Here, the same symbols are imported via
+// Stock uses relative paths into `invenio_rdm_records`. Here, the same symbols are imported via
 // `@js/invenio_rdm_records/...` so the bundler resolves them from the installed package.
 //
-// Behavioral change:
+// Behavioral changes vs stock:
 // - `ReservePIDBtn` receives `fieldError={getFieldErrorsForDisplay(form, fieldPath, field)}`
 //   instead of `getFieldErrors`, and the parent passes `field` so error visibility matches
 //   `TextField.js` rules (see `./fieldErrorsForDisplay.js`).
+// - Reserve / discard dispatch `reservePID` / `discardPID` directly (same thunks as
+//   `DepositBootstrap`) instead of `setSubmitContext` + `formik.handleSubmit`, so Formik does
+//   not run full submit validation or mark all fields touched for those actions.
 //
 // JSX structure (managed identifier display, reserve/unreserve buttons) matches stock.
 
@@ -29,34 +30,53 @@ import { connect } from "react-redux";
 import { ReservePIDBtn } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/ReservePIDBtn";
 import { UnreservePIDBtn } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/UnreservePIDBtn";
 import {
-  DepositFormSubmitActions,
-  DepositFormSubmitContext,
-} from "@js/invenio_rdm_records/src/deposit/api/DepositFormSubmitContext";
+  discardPID,
+  reservePID,
+} from "@js/invenio_rdm_records/src/deposit/state/actions";
 import {
   DISCARD_PID_STARTED,
   RESERVE_PID_STARTED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
+import { scrollTop } from "@js/invenio_rdm_records/src/deposit/utils";
 import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
 
 class ManagedIdentifierComponent extends Component {
-  static contextType = DepositFormSubmitContext;
-
-  handleReservePID = (event, formik) => {
-    const { pidType } = this.props;
-    const { setSubmitContext } = this.context;
-    setSubmitContext(DepositFormSubmitActions.RESERVE_PID, {
-      pidType: pidType,
-    });
-    formik.handleSubmit(event);
+  handleReservePID = async (event, formik) => {
+    if (event?.preventDefault) {
+      event.preventDefault();
+    }
+    if (event?.stopPropagation) {
+      event.stopPropagation();
+    }
+    const { pidType, reservePID: reservePIDAction } = this.props;
+    try {
+      await reservePIDAction(formik.values, { pidType });
+    } catch (error) {
+      if (error && error.errors) {
+        formik.setErrors(error.errors);
+      } else {
+        scrollTop();
+      }
+    }
   };
 
-  handleDiscardPID = (event, formik) => {
-    const { pidType } = this.props;
-    const { setSubmitContext } = this.context;
-    setSubmitContext(DepositFormSubmitActions.DISCARD_PID, {
-      pidType: pidType,
-    });
-    formik.handleSubmit(event);
+  handleDiscardPID = async (event, formik) => {
+    if (event?.preventDefault) {
+      event.preventDefault();
+    }
+    if (event?.stopPropagation) {
+      event.stopPropagation();
+    }
+    const { discardPID: discardPIDAction, pidType } = this.props;
+    try {
+      await discardPIDAction(formik.values, { pidType });
+    } catch (error) {
+      if (error && error.errors) {
+        formik.setErrors(error.errors);
+      } else {
+        scrollTop();
+      }
+    }
   };
 
   render() {
@@ -134,6 +154,8 @@ ManagedIdentifierComponent.propTypes = {
   fieldPath: PropTypes.string.isRequired,
   actionState: PropTypes.string,
   actionStateExtra: PropTypes.object,
+  discardPID: PropTypes.func.isRequired,
+  reservePID: PropTypes.func.isRequired,
 };
 
 ManagedIdentifierComponent.defaultProps = {
@@ -149,7 +171,12 @@ const mapStateToProps = (state) => ({
   actionStateExtra: state.deposit.actionStateExtra,
 });
 
+const mapDispatchToProps = (dispatch) => ({
+  discardPID: (values, { pidType }) => dispatch(discardPID(values, { pidType })),
+  reservePID: (values, { pidType }) => dispatch(reservePID(values, { pidType })),
+});
+
 export const ManagedIdentifierCmp = connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(ManagedIdentifierComponent);
