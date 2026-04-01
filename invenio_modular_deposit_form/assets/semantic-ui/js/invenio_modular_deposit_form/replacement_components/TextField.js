@@ -63,9 +63,9 @@ const TextField = ({
               />
             )}
             {description && description !== " " && (
-              <div className="helptext label" id={`${fieldPath}.helptext`}>
+              <label className="helptext" id={`${fieldPath}.helptext`}>
                 {i18next.t(description)}
-              </div>
+              </label>
             )}
             <Form.Input
               error={showError ? meta.error : undefined}
@@ -86,9 +86,9 @@ const TextField = ({
               {...uiProps}
             />
             {helpText && helpText !== " " && (
-              <div className="helptext label" id={`${fieldPath}.helptext`}>
+              <label className="helptext" id={`${fieldPath}.helptext`}>
                 {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
-              </div>
+              </label>
             )}
           </Form.Field>
         );
