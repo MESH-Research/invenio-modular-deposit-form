@@ -20,7 +20,8 @@ import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityCheck
  * Items use Menu.Item as={Button} (type="button") for semantics and tab order;
  * deposit_form.less overrides default centered content on fluid buttons.
  */
-const FormSidebarPageMenu = ({ classnames, ...props }) => {
+const FormSidebarPageMenu = ({ classnames, label, ...props }) => {
+  const effectiveLabel = label ?? i18next.t("Form Pages");
   const ctx = useFormUIState();
   const formPages = ctx.formUIState?.visibleFormPages ?? [];
   const formUIState = ctx.formUIState ?? {};
@@ -31,7 +32,7 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
   return (
     <div className={classnames ?? undefined}>
       <Header as="h2" className="ui medium top attached header">
-        {i18next.t("Form pages")}
+        {effectiveLabel}
       </Header>
       <div className="ui segment bottom attached p-0">
         <Menu
@@ -39,7 +40,7 @@ const FormSidebarPageMenu = ({ classnames, ...props }) => {
           fluid
           className="theme-primary-menu deposit-form-sidebar-menu borderless"
           role="navigation"
-          aria-label={i18next.t("Form pages")}
+          aria-label={effectiveLabel}
         >
           {formPages.map(({ section, label }) => {
             const counts = pageCounts[section];

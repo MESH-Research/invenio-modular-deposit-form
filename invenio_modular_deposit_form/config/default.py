@@ -49,6 +49,7 @@ _PAGED_FORM_LEFT_SIDEBAR = {
     "subsections": [
         {
             "component": "FormSidebarPageMenu",
+            "label": "Steps",
             "classnames": "computer widescreen large-monitor only",
         },
     ],
@@ -457,279 +458,285 @@ COMMON_FIELDS_DEFAULT_SINGLE = [
 _JOURNAL_PAGE_4 = {
     "label": "Journal details",
     "subsections": [
-    {
-        "section": "journal_details",
-        "component": "FormSection",
-        "show_heading": True,
-        "icon": "newspaper outline",
-        "label": "Journal details",
-        "subsections": [
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "journal_title",
-                        "component": "JournalTitleComponent",
-                        "label": "Journal title",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "journal_volume",
-                        "component": "JournalVolumeComponent",
-                    },
-                    {
-                        "section": "journal_issue",
-                        "component": "JournalIssueComponent",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {"section": "journal_pages", "component": "SectionPagesComponent"},
-                    {"section": "journal_issn", "component": "JournalISSNComponent"},
-                ],
-            },
-        ],
-    },
-],
+        {
+            "section": "journal_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "newspaper outline",
+            "label": "Journal details",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "journal_title",
+                            "component": "JournalTitleComponent",
+                            "label": "Journal title",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "journal_volume",
+                            "component": "JournalVolumeComponent",
+                        },
+                        {
+                            "section": "journal_issue",
+                            "component": "JournalIssueComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "journal_pages",
+                            "component": "SectionPagesComponent",
+                        },
+                        {
+                            "section": "journal_issn",
+                            "component": "JournalISSNComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 _BOOK_IMPRINT_PAGE_4 = {
     "label": "Publication Details",
     "subsections": [
-    {
-        "section": "publication_details",
-        "show_heading": True,
-        "icon": "file",
-        "label": "Publication Details",
-        "component": "FormSection",
-        "subsections": [
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "book_title",
-                        "component": "BookTitleComponent",
-                        "label": "Book Title",
-                        "icon": "book",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "location",
-                        "component": "PublicationLocationComponent",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {"section": "book_pages", "component": "TotalPagesComponent"},
-                    {"section": "isbn", "component": "ISBNComponent"},
-                ],
-            },
-        ],
-    },
-],
+        {
+            "section": "publication_details",
+            "show_heading": True,
+            "icon": "file",
+            "label": "Publication Details",
+            "component": "FormSection",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "book_title",
+                            "component": "BookTitleComponent",
+                            "label": "Book Title",
+                            "icon": "book",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "location",
+                            "component": "PublicationLocationComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {"section": "book_pages", "component": "TotalPagesComponent"},
+                        {"section": "isbn", "component": "ISBNComponent"},
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 _MEETING_PAGE_4 = {
     "label": "Conference details",
     "subsections": [
-    {
-        "section": "conference_details",
-        "component": "FormSection",
-        "show_heading": True,
-        "icon": "calendar",
-        "label": "Conference details",
-        "subsections": [
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "meeting_title",
-                        "component": "MeetingTitleComponent",
-                        "label": "Event title",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "meeting_acronym",
-                        "component": "MeetingAcronymComponent",
-                        "label": "Acronym",
-                    },
-                    {
-                        "section": "meeting_dates",
-                        "component": "MeetingDatesComponent",
-                        "label": "Dates",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "meeting_place",
-                        "component": "MeetingPlaceComponent",
-                        "label": "Location",
-                    },
-                    {
-                        "section": "meeting_url",
-                        "component": "MeetingURLComponent",
-                        "label": "Website",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "meeting_session",
-                        "component": "MeetingSessionComponent",
-                    },
-                    {
-                        "section": "meeting_session_part",
-                        "component": "MeetingSessionPartComponent",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "meeting_identifiers",
-                        "component": "MeetingIdentifiersComponent",
-                        "label": "Conference identifiers",
-                        "icon": "barcode",
-                    },
-                ],
-            },
-        ],
-    },
-],
+        {
+            "section": "conference_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "calendar",
+            "label": "Conference details",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_title",
+                            "component": "MeetingTitleComponent",
+                            "label": "Event title",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_acronym",
+                            "component": "MeetingAcronymComponent",
+                            "label": "Acronym",
+                        },
+                        {
+                            "section": "meeting_dates",
+                            "component": "MeetingDatesComponent",
+                            "label": "Dates",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_place",
+                            "component": "MeetingPlaceComponent",
+                            "label": "Location",
+                        },
+                        {
+                            "section": "meeting_url",
+                            "component": "MeetingURLComponent",
+                            "label": "Website",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_session",
+                            "component": "MeetingSessionComponent",
+                        },
+                        {
+                            "section": "meeting_session_part",
+                            "component": "MeetingSessionPartComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_identifiers",
+                            "component": "MeetingIdentifiersComponent",
+                            "label": "Conference identifiers",
+                            "icon": "barcode",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 _THESIS_PAGE_4 = {
     "label": "Thesis details",
     "subsections": [
-    {
-        "section": "thesis_details",
-        "component": "FormSection",
-        "show_heading": True,
-        "icon": "graduation",
-        "label": "Thesis details",
-        "subsections": [
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "thesis_university",
-                        "component": "UniversityComponent",
-                    },
-                    {
-                        "section": "thesis_department",
-                        "component": "ThesisDepartmentComponent",
-                    },
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {"section": "thesis_type", "component": "ThesisTypeComponent"},
-                ],
-            },
-            {
-                "component": "FormRow",
-                "classnames": "equal width",
-                "subsections": [
-                    {
-                        "section": "thesis_date_submitted",
-                        "component": "ThesisDateSubmittedComponent",
-                    },
-                    {
-                        "section": "thesis_date_defended",
-                        "component": "ThesisDateDefendedComponent",
-                    },
-                ],
-            },
-        ],
-    },
-],
+        {
+            "section": "thesis_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "graduation",
+            "label": "Thesis details",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "thesis_university",
+                            "component": "UniversityComponent",
+                        },
+                        {
+                            "section": "thesis_department",
+                            "component": "ThesisDepartmentComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {"section": "thesis_type", "component": "ThesisTypeComponent"},
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "thesis_date_submitted",
+                            "component": "ThesisDateSubmittedComponent",
+                        },
+                        {
+                            "section": "thesis_date_defended",
+                            "component": "ThesisDateDefendedComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
 _SOFTWARE_PAGE_4 = {
     "label": "Software details",
     "subsections": [
-    {
-        "section": "software_details",
-        "component": "FormSection",
-        "label": "Software details",
-        "icon": "code",
-        "show_heading": True,
-        "subsections": [
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "code_repository",
-                        "component": "CodeRepositoryComponent",
-                        "icon": "github",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "development_status",
-                        "component": "CodeDevelopmentStatusComponent",
-                        "icon": "heartbeat",
-                        "placeholder": "",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "programming_language",
-                        "component": "CodeProgrammingLanguageComponent",
-                        "icon": "code",
-                        "label": "Programming languages",
-                        "placeholder": "e.g., Python, JavaScript, R",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-        ],
-    },
-],
+        {
+            "section": "software_details",
+            "component": "FormSection",
+            "label": "Software details",
+            "icon": "code",
+            "show_heading": True,
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "code_repository",
+                            "component": "CodeRepositoryComponent",
+                            "icon": "github",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "development_status",
+                            "component": "CodeDevelopmentStatusComponent",
+                            "icon": "heartbeat",
+                            "placeholder": "",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "programming_language",
+                            "component": "CodeProgrammingLanguageComponent",
+                            "icon": "code",
+                            "label": "Programming languages",
+                            "placeholder": "e.g., Python, JavaScript, R",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+            ],
+        },
+    ],
 }
 
 
