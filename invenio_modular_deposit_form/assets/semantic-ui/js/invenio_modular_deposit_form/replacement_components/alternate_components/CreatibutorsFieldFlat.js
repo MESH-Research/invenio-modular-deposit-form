@@ -269,6 +269,11 @@ const CreatibutorsFieldFlat = ({
         render={(arrayHelpers) => (
           <>
             <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="mb-15" />
+            {description && (
+              <span id={`${fieldPath}-field-description`} className="description mt-5 mb-5">
+                {helpText}
+              </span>
+            )}
 
             <TransitionGroup as={List} className="creators-list" duration={500} animation="fade">
               {getIn(arrayHelpers.form.values, fieldPath, []).map((value, index) => {
@@ -351,9 +356,11 @@ const CreatibutorsFieldFlat = ({
               </Label>
             )}
 
-            <span id={`${fieldPath}-field-description`} className="helptext">
-              {description}
-            </span>
+            {description && (
+              <div id={`${fieldPath}-field-helptext`} className="helptext">
+                {helpText}
+              </div>
+            )}
           </>
         )}
       />

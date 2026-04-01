@@ -73,8 +73,8 @@ const TextField = ({
               />
             )}
             {description && description !== " " && (
-              <div className="helptext" id={descriptionId}>
-                {i18next.t(description)}
+              <div className="description mb-5 mt-5" id={descriptionId}>
+                {React.isValidElement(description) ? description : description}
               </div>
             )}
             <Form.Input
@@ -97,7 +97,7 @@ const TextField = ({
             />
             {helpText && helpText !== " " && (
               <div className="helptext" id={helptextId}>
-                {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
+                {React.isValidElement(helpText) ? helpText : helpText}
               </div>
             )}
           </Form.Field>
