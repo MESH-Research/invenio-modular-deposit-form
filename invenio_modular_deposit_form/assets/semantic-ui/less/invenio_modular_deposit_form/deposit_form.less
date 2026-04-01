@@ -145,13 +145,12 @@
 
       .deposit-form-sidebar-menu-badges {
         position: absolute;
-        left: -5em;
+        left: -2.5em;
 
         .ui.label {
           margin-left: 0.25em;
           position: relative;
           top: -0.15em;
-          min-width: 5.5em;
         }
       }
     }
@@ -286,6 +285,11 @@
   }
 
   // FIXME: Hack to deal with nested untouched creatibutors
+  .fieldset.error .field:not(.error) .field:not(.error) {
+    input::placeholder {
+      color: #c7c7c7;
+    }
+  }
   .field.error fieldset:not(.error) .field:not(.error) {
     & > .input input:not(.error),
     label:not(.error),
