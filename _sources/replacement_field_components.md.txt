@@ -26,7 +26,7 @@ The same top-level barrel also exports core replacement widgets directly:
 - `RemoteSelectField`
 - `MultiInput`
 
-For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements intentionally mirror stock prop mapping/defaults while delegating rendering to local replacement fields (`TextField`, `SelectField`, `RemoteSelectField`). `Dropdown` and `AutocompleteDropdown` also pass through additional props to their underlying replacement field component.
+For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements delegate to `TextField`, `SelectField`, and `RemoteSelectField`. They pass **`description`** and **`helpText`** as **separate** props: optional copy **above** the control (`description`) and **below** (`helpText`), matching replacement `TextField`, `TextArea`, `MultiInput`, and `SelectField`. This differs from stock `react-invenio-forms`, which typically uses `helpText ?? description` as a single string below the field. PID fields and `ResourceTypeSelectorField` are exceptions with their own helptext behavior.
 
 ### `SelectField` and Formik `touched`
 
