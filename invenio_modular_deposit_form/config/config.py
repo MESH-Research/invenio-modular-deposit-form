@@ -80,6 +80,9 @@ If you do provide an override for a given page, your override will replace that 
 COMMON_FIELDS layout entirely.
 
 Omit resource types you are not customizing; missing resource types fall back to COMMON_FIELDS layout.
+
+Per-page values are ``{"subsections": [...], "label"?: str}``; keys match each FormPage
+``section`` in ``MODULAR_DEPOSIT_FORM_COMMON_FIELDS``.
 """
 
 MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS = {

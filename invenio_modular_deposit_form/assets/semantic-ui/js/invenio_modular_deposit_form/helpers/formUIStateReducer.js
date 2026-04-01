@@ -8,9 +8,12 @@
  * - currentFormPage: current form page id (section id from form pages config).
  * - currentFormPageFields: resolved Formik field paths per page for current type { [pageId]: string[] }.
  * - currentResourceType: current resource type id.
- * - currentTypeFields: layout config for the current resource type { [pageId]: subsectionConfig[] }.
- * - visibleFormPages: pages with non-empty merged subsections for the active layout. Same shape as the
- *     array of FormPage component definitions in MODULAR_DEPOSIT_FORM_COMMON_FIELDS.
+ * - currentTypePageConfigs: per-page layout entries for the current resource type
+ *   (`fields_by_type[resourceTypeId]`): { [pageId]: { subsections?, label?, same_as?, … } }.
+ * - resolvedFormPages: all merged FormPage rows for the current type (same order as config),
+ *     including empty placeholder pages; see getResolvedFormPages in utils.js.
+ * - visibleFormPages: filter of resolvedFormPages with non-empty subsections (stepper, sidebar,
+ *     main column); derived together with resolvedFormPages in one dispatch.
  * - sectionErrorsFlagged: flat list of section entries for "flagged" errors only (touched + initial-to-flag).
  *   Used by stepper, sidebar, section headers. Same shape as sectionErrorsAll.
  * - sectionErrorsAll: flat list of section entries for any error (client + initial/unchanged).
@@ -21,19 +24,20 @@
 
 const FORM_UI_ACTION = {
   SET_CURRENT_FORM_PAGE: "SET_CURRENT_FORM_PAGE",
-  SET_SECTION_ERRORS_FLAGGED: "SET_SECTION_ERRORS_FLAGGED",
-  SET_SECTION_ERRORS_ALL: "SET_SECTION_ERRORS_ALL",
-  SET_CURRENT_RESOURCE_TYPE: "SET_CURRENT_RESOURCE_TYPE",
-  SET_CURRENT_TYPE_FIELDS: "SET_CURRENT_TYPE_FIELDS",
-  SET_VISIBLE_FORM_PAGES: "SET_VISIBLE_FORM_PAGES",
   SET_CURRENT_FORM_PAGE_FIELDS: "SET_CURRENT_FORM_PAGE_FIELDS",
+  SET_CURRENT_RESOURCE_TYPE: "SET_CURRENT_RESOURCE_TYPE",
+  SET_CURRENT_TYPE_PAGE_CONFIGS: "SET_CURRENT_TYPE_PAGE_CONFIGS",
+  SET_SECTION_ERRORS_ALL: "SET_SECTION_ERRORS_ALL",
+  SET_SECTION_ERRORS_FLAGGED: "SET_SECTION_ERRORS_FLAGGED",
+  SET_FORM_PAGES_LAYOUT: "SET_FORM_PAGES_LAYOUT",
 };
 
 const defaultState = {
   currentFormPage: "",
   currentFormPageFields: {},
   currentResourceType: "",
-  currentTypeFields: {},
+  currentTypePageConfigs: {},
+  resolvedFormPages: [],
   visibleFormPages: [],
   sectionErrorsFlagged: [],
   sectionErrorsAll: [],
@@ -41,12 +45,13 @@ const defaultState = {
 
 /**
  * Build initial form UI state from form pages config and resource type config.
- * visibleFormPages stays empty until useCurrentResourceTypeFields dispatches SET_VISIBLE_FORM_PAGES.
+ * resolvedFormPages / visibleFormPages stay empty until useCurrentResourceTypeFields dispatches
+ * SET_FORM_PAGES_LAYOUT.
  * currentFormPage is the first configured page id (provisional until visibility sync effects run).
  *
  * @param {Array} formPages - form pages from deposit config (common_fields FormPages subsections)
  * @param {string} defaultResourceType - initial resource type id
- * @param {Object} fieldsByType - resource type id -> { [pageId]: subsectionConfig[] }
+ * @param {Object} fieldsByType - resource type id -> { [pageId]: page layout entry }
  * @returns {Object} initial state for formUIStateReducer
  */
 function getInitialFormUIState(formPages = [], defaultResourceType, fieldsByType = {}) {
@@ -54,13 +59,13 @@ function getInitialFormUIState(formPages = [], defaultResourceType, fieldsByType
     ...defaultState,
     currentFormPage: formPages[0]?.section ?? "",
     currentResourceType: defaultResourceType ?? "",
-    currentTypeFields: fieldsByType[defaultResourceType] ?? {},
+    currentTypePageConfigs: fieldsByType[defaultResourceType] ?? {},
   };
 }
 
 /**
  * Reducer for form UI state. Handles: SET_CURRENT_FORM_PAGE, SET_SECTION_ERRORS_FLAGGED,
- * SET_SECTION_ERRORS_ALL, SET_CURRENT_RESOURCE_TYPE, SET_CURRENT_TYPE_FIELDS, SET_VISIBLE_FORM_PAGES,
+ * SET_SECTION_ERRORS_ALL, SET_CURRENT_RESOURCE_TYPE, SET_CURRENT_TYPE_PAGE_CONFIGS, SET_FORM_PAGES_LAYOUT,
  * SET_CURRENT_FORM_PAGE_FIELDS.
  */
 function formUIStateReducer(state, action) {
@@ -73,10 +78,16 @@ function formUIStateReducer(state, action) {
       return { ...state, sectionErrorsAll: action.payload ?? [] };
     case FORM_UI_ACTION.SET_CURRENT_RESOURCE_TYPE:
       return { ...state, currentResourceType: action.payload };
-    case FORM_UI_ACTION.SET_CURRENT_TYPE_FIELDS:
-      return { ...state, currentTypeFields: action.payload ?? {} };
-    case FORM_UI_ACTION.SET_VISIBLE_FORM_PAGES:
-      return { ...state, visibleFormPages: action.payload ?? [] };
+    case FORM_UI_ACTION.SET_CURRENT_TYPE_PAGE_CONFIGS:
+      return { ...state, currentTypePageConfigs: action.payload ?? {} };
+    case FORM_UI_ACTION.SET_FORM_PAGES_LAYOUT: {
+      const payload = action.payload ?? {};
+      return {
+        ...state,
+        resolvedFormPages: payload.resolvedFormPages ?? [],
+        visibleFormPages: payload.visibleFormPages ?? [],
+      };
+    }
     case FORM_UI_ACTION.SET_CURRENT_FORM_PAGE_FIELDS:
       return { ...state, currentFormPageFields: action.payload };
     default:

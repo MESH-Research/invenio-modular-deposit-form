@@ -10,24 +10,27 @@ jest.mock('./helpers/readableFieldLabels.js', () => ({
 }));
 
 import {
+  _filterNestedObject,
+  _mergeNestedObjects,
+  _mergeSameAsLayout,
+  _pushToArrayEnd,
+  _resolveMergedFormPageConfig,
+  _scrollTop,
   areDeeplyEqual,
   collectLeafFieldPathsUnderRoot,
-  filterNestedObject,
+  filterVisibleFormPages,
   findPageIdContainingComponent,
   flattenKeysDotJoined,
   focusFirstElement,
   getErrorParent,
   getReadableFields,
+  getResolvedFormPages,
   getTouchedParent,
-  getVisibleFormPages,
   isNearViewportBottom,
-  mergeNestedObjects,
   moveToArrayStart,
-  pushToArrayEnd,
-  scrollTop,
 } from './utils.js';
 
-describe('filterNestedObject', () => {
+describe('_filterNestedObject', () => {
   const errors = {
     A: { b: [{ c: 'foo' }], x: 'err' },
     B: { y: 'bar' },
@@ -35,27 +38,27 @@ describe('filterNestedObject', () => {
   };
 
   test('keeps only whitelisted top level paths', () => {
-    const result = filterNestedObject(errors, ['A']);
+    const result = _filterNestedObject(errors, ['A']);
     expect(result).toEqual({ A: { b: [{ c: 'foo' }], x: 'err' } });
   });
 
   test('keeps array of objects when parent path is allowed', () => {
-    const result = filterNestedObject(errors, ['A.b']);
+    const result = _filterNestedObject(errors, ['A.b']);
     expect(result).toEqual({ A: { b: [{ c: 'foo' }] } });
   });
 
   test('keeps deep property inside array when the exact path is allowed', () => {
-    const result = filterNestedObject(errors, ['A.b.c']);
+    const result = _filterNestedObject(errors, ['A.b.c']);
     expect(result).toEqual({ A: { b: [{ c: 'foo' }] } });
   });
 
   test('keeps nested object when its path is whitelisted', () => {
-    const result = filterNestedObject(errors, ['C.d']);
+    const result = _filterNestedObject(errors, ['C.d']);
     expect(result).toEqual({ C: { d: { e: 'baz' } } });
   });
 
   test('returns empty object when nothing matches', () => {
-    const result = filterNestedObject(errors, ['Z']);
+    const result = _filterNestedObject(errors, ['Z']);
     expect(result).toEqual({});
   });
 });
@@ -104,15 +107,15 @@ describe('areDeeplyEqual', () => {
 describe('findPageIdContainingComponent', () => {
   test('returns page section id when component found in page', () => {
     const formPages = [
-      { section: 'page-1', subsections: [{ component: 'Other' }] },
-      { section: 'page-6', subsections: [{ component: 'FileUploadComponent' }] },
+      { section: '1', subsections: [{ component: 'Other' }] },
+      { section: '6', subsections: [{ component: 'FileUploadComponent' }] },
     ];
-    expect(findPageIdContainingComponent(formPages, 'FileUploadComponent')).toBe('page-6');
+    expect(findPageIdContainingComponent(formPages, 'FileUploadComponent')).toBe('6');
   });
 
   test('returns null when component not found', () => {
     const formPages = [
-      { section: 'page-1', subsections: [{ component: 'Other' }] },
+      { section: '1', subsections: [{ component: 'Other' }] },
     ];
     expect(findPageIdContainingComponent(formPages, 'FileUploadComponent')).toBe(null);
   });
@@ -120,7 +123,7 @@ describe('findPageIdContainingComponent', () => {
   test('finds component in nested subsections', () => {
     const formPages = [
       {
-        section: 'page-1',
+        section: '1',
         subsections: [
           {
             subsections: [{ component: 'FileUploadComponent' }],
@@ -128,7 +131,7 @@ describe('findPageIdContainingComponent', () => {
         ],
       },
     ];
-    expect(findPageIdContainingComponent(formPages, 'FileUploadComponent')).toBe('page-1');
+    expect(findPageIdContainingComponent(formPages, 'FileUploadComponent')).toBe('1');
   });
 
   test('returns null for invalid inputs', () => {
@@ -138,7 +141,30 @@ describe('findPageIdContainingComponent', () => {
   });
 });
 
-describe('getVisibleFormPages', () => {
+describe('getResolvedFormPages / filterVisibleFormPages', () => {
+  const formPages = [
+    {
+      section: 'page-a',
+      label: 'A',
+      subsections: [{ section: 's1', component: 'TitlesComponent' }],
+    },
+    { section: 'page-b', label: 'B', subsections: [] },
+  ];
+
+  test('resolved list has one merged row per configured page', () => {
+    const resolved = getResolvedFormPages(formPages, {}, {});
+    expect(resolved).toHaveLength(2);
+    expect(resolved[0].section).toBe('page-a');
+    expect(resolved[1].section).toBe('page-b');
+  });
+
+  test('filter drops pages with empty merged subsections', () => {
+    const resolved = getResolvedFormPages(formPages, {}, {});
+    expect(filterVisibleFormPages(resolved).map((p) => p.section)).toEqual(['page-a']);
+  });
+});
+
+describe('resolved + visible form pages (integration)', () => {
   const formPages = [
     {
       section: 'page-a',
@@ -150,29 +176,144 @@ describe('getVisibleFormPages', () => {
   ];
 
   test('drops pages with empty merged subsections', () => {
-    const visible = getVisibleFormPages(formPages, {}, {});
+    const visible = filterVisibleFormPages(getResolvedFormPages(formPages, {}, {}));
     expect(visible.map((p) => p.section)).toEqual(['page-a']);
   });
 
   test('includes page when type override adds subsections to empty common page', () => {
-    const typeFields = {
-      'page-b': [{ section: 'x', component: 'AbstractComponent' }],
+    const currentTypePageConfigs = {
+      'page-b': { subsections: [{ section: 'x', component: 'AbstractComponent' }] },
     };
-    const visible = getVisibleFormPages(formPages, typeFields, {});
+    const visible = filterVisibleFormPages(
+      getResolvedFormPages(formPages, currentTypePageConfigs, {})
+    );
     expect(visible.map((p) => p.section)).toEqual(['page-a', 'page-b']);
   });
 
   test('respects same_as for empty common page', () => {
     const fieldsByType = {
       template: {
-        'page-c': [{ section: 'y', component: 'TitlesComponent' }],
+        'page-c': {
+          subsections: [{ section: 'y', component: 'TitlesComponent' }],
+          label: 'From template',
+        },
+      },
+      consumer: {
+        'page-c': { same_as: 'template' },
       },
     };
-    const typeFields = {
-      'page-c': [{ same_as: 'template' }],
-    };
-    const visible = getVisibleFormPages(formPages, typeFields, fieldsByType);
+    const currentTypePageConfigs = fieldsByType.consumer;
+    const visible = filterVisibleFormPages(
+      getResolvedFormPages(formPages, currentTypePageConfigs, fieldsByType, 'consumer')
+    );
     expect(visible.map((p) => p.section)).toEqual(['page-a', 'page-c']);
+    expect(visible.find((p) => p.section === 'page-c').label).toBe('From template');
+  });
+
+  test('same_as page may override template label', () => {
+    const fieldsByType = {
+      template: {
+        'page-c': {
+          subsections: [{ section: 'y', component: 'TitlesComponent' }],
+          label: 'From template',
+        },
+      },
+      consumer: {
+        'page-c': { same_as: 'template', label: 'My label' },
+      },
+    };
+    const currentTypePageConfigs = fieldsByType.consumer;
+    const visible = filterVisibleFormPages(
+      getResolvedFormPages(formPages, currentTypePageConfigs, fieldsByType, 'consumer')
+    );
+    const pageC = visible.find((p) => p.section === 'page-c');
+    expect(pageC.label).toBe('My label');
+    expect(pageC.subsections).toEqual([{ section: 'y', component: 'TitlesComponent' }]);
+  });
+
+  test('fields_by_type may override common classnames on merged visible page', () => {
+    const formPagesLocal = [
+      {
+        section: 'p1',
+        label: 'One',
+        classnames: 'common-layout',
+        component: 'FormPage',
+        subsections: [{ section: 's1', component: 'TitlesComponent' }],
+      },
+    ];
+    const currentTypePageConfigs = {
+      p1: {
+        subsections: [{ section: 's1', component: 'TitlesComponent' }],
+        classnames: 'type-override',
+      },
+    };
+    const visible = filterVisibleFormPages(
+      getResolvedFormPages(formPagesLocal, currentTypePageConfigs, {})
+    );
+    expect(visible).toHaveLength(1);
+    expect(visible[0].classnames).toBe('type-override');
+  });
+});
+
+describe('_resolveMergedFormPageConfig', () => {
+  test('shallow-merges override keys onto common FormPage', () => {
+    const commonPage = {
+      section: '1',
+      label: 'Common',
+      component: 'FormPage',
+      classnames: 'a',
+      subsections: [],
+    };
+    const currentTypePageConfigs = {
+      '1': {
+        subsections: [{ section: 'f', component: 'DoiComponent' }],
+        classnames: 'b',
+      },
+    };
+    const merged = _resolveMergedFormPageConfig(commonPage, currentTypePageConfigs, {});
+    expect(merged.section).toBe('1');
+    expect(merged.component).toBe('FormPage');
+    expect(merged.classnames).toBe('b');
+    expect(merged.subsections).toEqual([{ section: 'f', component: 'DoiComponent' }]);
+  });
+});
+
+describe('_mergeSameAsLayout', () => {
+  test('returns null when consumer is not a same_as layout', () => {
+    expect(_mergeSameAsLayout({ subsections: [] }, {})).toBe(null);
+    expect(_mergeSameAsLayout(null, {})).toBe(null);
+  });
+
+  test('merges base then overrides; subsections from base when omitted on consumer', () => {
+    const baseLayout = {
+      subsections: [{ section: 'a', component: 'A' }],
+      label: 'Base label',
+      classnames: 't',
+    };
+    const consumer = {
+      same_as: 'base-type-id',
+      label: 'Override',
+      foo: 1,
+    };
+    const m = _mergeSameAsLayout(consumer, baseLayout);
+    expect(m.subsections).toEqual(baseLayout.subsections);
+    expect(m.label).toBe('Override');
+    expect(m.foo).toBe(1);
+    expect(m.classnames).toBe('t');
+  });
+
+  test('consumer subsections replace base when provided', () => {
+    const baseLayout = {
+      subsections: [{ section: 'a', component: 'A' }],
+      label: 'Base label',
+    };
+    const consumer = {
+      same_as: 'base-type-id',
+      subsections: [{ section: 'b', component: 'B' }],
+    };
+    const m = _mergeSameAsLayout(consumer, baseLayout);
+    expect(m.subsections).toEqual([{ section: 'b', component: 'B' }]);
+    expect(m.label).toBe('Base label');
   });
 });
 
@@ -353,41 +494,41 @@ describe('isNearViewportBottom', () => {
   });
 });
 
-describe('mergeNestedObjects', () => {
+describe('_mergeNestedObjects', () => {
   test('merges plain objects with A taking priority', () => {
     const a = { x: 1, y: 2 };
     const b = { y: 3, z: 4 };
-    expect(mergeNestedObjects(a, b)).toEqual({ x: 1, y: 2, z: 4 });
+    expect(_mergeNestedObjects(a, b)).toEqual({ x: 1, y: 2, z: 4 });
   });
 
   test('concatenates arrays by default', () => {
     const a = [1, 2];
     const b = [3];
-    expect(mergeNestedObjects(a, b)).toEqual([1, 2, 3]);
+    expect(_mergeNestedObjects(a, b)).toEqual([1, 2, 3]);
   });
 
   test('dedup strategy removes duplicates', () => {
     const a = [1, 2];
     const b = [2, 3];
-    expect(mergeNestedObjects(a, b, 'dedup')).toEqual([1, 2, 3]);
+    expect(_mergeNestedObjects(a, b, 'dedup')).toEqual([1, 2, 3]);
   });
 
   test('override strategy keeps only objA array', () => {
     const a = [1, 2];
     const b = [3, 4];
-    expect(mergeNestedObjects(a, b, 'override')).toEqual([1, 2]);
+    expect(_mergeNestedObjects(a, b, 'override')).toEqual([1, 2]);
   });
 
   test('recursively merges nested objects', () => {
     const a = { meta: { a: 1, b: 2 } };
     const b = { meta: { b: 3, c: 4 } };
-    expect(mergeNestedObjects(a, b)).toEqual({ meta: { a: 1, b: 2, c: 4 } });
+    expect(_mergeNestedObjects(a, b)).toEqual({ meta: { a: 1, b: 2, c: 4 } });
   });
 
   test('returns the other when one is null/undefined (avoids Object.keys throw)', () => {
-    expect(mergeNestedObjects(null, null)).toBe(null);
-    expect(mergeNestedObjects(undefined, { x: 1 })).toEqual({ x: 1 });
-    expect(mergeNestedObjects({ a: 1 }, null)).toEqual({ a: 1 });
+    expect(_mergeNestedObjects(null, null)).toBe(null);
+    expect(_mergeNestedObjects(undefined, { x: 1 })).toEqual({ x: 1 });
+    expect(_mergeNestedObjects({ a: 1 }, null)).toEqual({ a: 1 });
   });
 });
 
@@ -425,14 +566,14 @@ describe('moveToArrayStart', () => {
   });
 });
 
-describe('pushToArrayEnd', () => {
+describe('_pushToArrayEnd', () => {
   test('moves item matching key to end', () => {
     const arr = [
       { id: 'a', v: 1 },
       { id: 'b', v: 2 },
       { id: 'c', v: 3 },
     ];
-    expect(pushToArrayEnd(arr, 'b', 'id')).toEqual([
+    expect(_pushToArrayEnd(arr, 'b', 'id')).toEqual([
       { id: 'a', v: 1 },
       { id: 'c', v: 3 },
       { id: 'b', v: 2 },
@@ -441,16 +582,16 @@ describe('pushToArrayEnd', () => {
 
   test('does not mutate original array', () => {
     const arr = [{ id: 'a' }, { id: 'b' }];
-    pushToArrayEnd(arr, 'a', 'id');
+    _pushToArrayEnd(arr, 'a', 'id');
     expect(arr[0].id).toBe('a');
   });
 });
 
-describe('scrollTop', () => {
+describe('_scrollTop', () => {
   test('calls window.scrollTo with top 0 and smooth behavior', () => {
     const scrollTo = jest.fn();
     Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true });
-    scrollTop();
+    _scrollTop();
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'smooth' });
   });
 });
@@ -472,11 +613,11 @@ describe('focusFirstElement', () => {
     Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
     Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true });
 
-    focusFirstElement('page-1', true, null);
+    focusFirstElement('1', true, null);
     jest.advanceTimersByTime(100);
 
     expect(querySelectorAll).toHaveBeenCalledWith(
-      '#InvenioAppRdm\\.Deposit\\.FormPage\\.page-1 button, #InvenioAppRdm\\.Deposit\\.FormPage\\.page-1 input, #InvenioAppRdm\\.Deposit\\.FormPage\\.page-1 .selection.dropdown input'
+      '#InvenioAppRdm\\.Deposit\\.FormPage\\.1 button, #InvenioAppRdm\\.Deposit\\.FormPage\\.1 input, #InvenioAppRdm\\.Deposit\\.FormPage\\.1 .selection.dropdown input'
     );
     expect(focus).toHaveBeenCalled();
     expect(scrollTo).toHaveBeenCalledWith(0, 0);
@@ -486,7 +627,7 @@ describe('focusFirstElement', () => {
     const querySelectorAll = jest.fn(() => [{ focus: jest.fn() }]);
     Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
 
-    focusFirstElement('page-1', false);
+    focusFirstElement('1', false);
     jest.advanceTimersByTime(100);
 
     expect(querySelectorAll).not.toHaveBeenCalled();
@@ -498,7 +639,7 @@ describe('focusFirstElement', () => {
     const querySelectorAll = jest.fn(() => [{ focus: focus0 }, { focus: focus1 }]);
     Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
 
-    focusFirstElement('page-6', true, 'page-6');
+    focusFirstElement('6', true, '6');
     jest.advanceTimersByTime(100);
 
     expect(focus0).not.toHaveBeenCalled();

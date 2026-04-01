@@ -11,7 +11,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import _isEmpty from "lodash/isEmpty";
-import React from "react";
+import React, { useMemo } from "react";
 import { Button, Label } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { useFormUIState } from "../../FormUIStateManager.jsx";
@@ -21,8 +21,8 @@ import { getSeverityBadgeType } from "../../helpers/severityChecksConfig";
 
 /**
  * Section list and counts from formUIState.sectionErrorsFlagged (FormErrorManager), so badges
- * match the menu/stepper/section headers and update on resubmit. sectionsConfig is used only
- * for key order and labels.
+ * match the menu/stepper/section headers and update on resubmit. sectionsConfig is used for key
+ * order and section labels; page labels come from formUIState.resolvedFormPages (current type).
  *
  */
 function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceType) {
@@ -75,11 +75,26 @@ function getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceT
   *
   *
   */
+function pageLabelsByPageIdFromResolved(resolvedFormPages) {
+  const map = new Map();
+  for (const p of resolvedFormPages ?? []) {
+    const id = p?.section;
+    if (id == null || id === "") continue;
+    const lab = typeof p?.label === "string" ? p.label.trim() : "";
+    if (lab !== "") map.set(id, lab);
+  }
+  return map;
+}
+
 const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: currentResourceTypeProp }) => {
   const ctx = useFormUIState();
   const { formUIState, handleFormPageChange } = ctx;
   const currentFormPage = formUIState?.currentFormPage;
   const currentResourceType = currentResourceTypeProp ?? formUIState?.currentResourceType;
+  const pageLabelByPageId = useMemo(
+    () => pageLabelsByPageIdFromResolved(formUIState?.resolvedFormPages),
+    [formUIState?.resolvedFormPages]
+  );
   const sectionsWithCount = getErrorSectionsFromState(formUIState, sectionsConfig, currentResourceType);
   if (_isEmpty(sectionsWithCount)) {
     return null;
@@ -133,8 +148,8 @@ const FormFeedbackSummary = ({ sectionsConfig = [], currentResourceType: current
   };
 
   return sectionsWithCount.map((section) => {
-    const { pageId, sectionId, pageLabel, sectionLabel, errors: errorsCount = 0, warnings: warningsCount = 0, info: infoCount = 0 } = section;
-    const pagePart = pageLabel ?? pageId;
+    const { pageId, sectionId, sectionLabel, errors: errorsCount = 0, warnings: warningsCount = 0, info: infoCount = 0 } = section;
+    const pagePart = pageLabelByPageId.get(pageId) ?? pageId;
     const sectionPart = sectionLabel ?? sectionId;
     const label = multiPage
       ? pagePart === sectionPart

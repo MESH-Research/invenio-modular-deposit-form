@@ -12,7 +12,7 @@ const commonFields = [
     component: "FormPages",
     subsections: [
       {
-        section: "page-1",
+        section: "1",
         label: "Type & Title",
         subsections: [
           { section: "resource_type", label: "Resource Type", component: "ResourceTypeComponent" },
@@ -21,7 +21,7 @@ const commonFields = [
         ],
       },
       {
-        section: "page-2",
+        section: "2",
         label: "Details",
         subsections: [
           { section: "publisher", label: "Publisher", component: "PublisherComponent" },
@@ -33,9 +33,11 @@ const commonFields = [
 
 const fieldsByType = {
   dataset: {
-    "page-2": [
-      { section: "extra_section", label: "Extra", component: "TitlesComponent" },
-    ],
+    "2": {
+      subsections: [
+        { section: "extra_section", label: "Extra", component: "TitlesComponent" },
+      ],
+    },
   },
 };
 
@@ -44,7 +46,7 @@ describe("buildFormSections", () => {
     const result = buildFormSections(commonFields, null, registry);
     expect(Array.isArray(result)).toBe(true);
     expect(result).toContainEqual({
-      pageId: "page-1",
+      pageId: "1",
       sectionId: "resource_type",
       pageLabel: "Type & Title",
       sectionLabel: "Resource Type",
@@ -52,7 +54,7 @@ describe("buildFormSections", () => {
       resourceTypes: [],
     });
     expect(result).toContainEqual({
-      pageId: "page-1",
+      pageId: "1",
       sectionId: "doi",
       pageLabel: "Type & Title",
       sectionLabel: "DOI",
@@ -60,7 +62,7 @@ describe("buildFormSections", () => {
       resourceTypes: [],
     });
     expect(result).toContainEqual({
-      pageId: "page-2",
+      pageId: "2",
       sectionId: "publisher",
       pageLabel: "Details",
       sectionLabel: "Publisher",
@@ -72,7 +74,7 @@ describe("buildFormSections", () => {
   it("includes by_type sections with correct page labels", () => {
     const result = buildFormSections(commonFields, fieldsByType, registry);
     expect(result).toContainEqual({
-      pageId: "page-2",
+      pageId: "2",
       sectionId: "extra_section",
       pageLabel: "Details",
       sectionLabel: "Extra",
@@ -88,15 +90,74 @@ describe("buildFormSections", () => {
   });
 
   it("merges resourceTypes when same section appears in multiple type overrides", () => {
+    const page2Override = {
+      subsections: [{ section: "extra_section", label: "Extra", component: "TitlesComponent" }],
+    };
     const multiType = {
-      dataset: { "page-2": [{ section: "extra_section", label: "Extra", component: "TitlesComponent" }] },
-      image: { "page-2": [{ section: "extra_section", label: "Extra", component: "TitlesComponent" }] },
+      dataset: { "2": { ...page2Override } },
+      image: { "2": { ...page2Override } },
     };
     const result = buildFormSections(commonFields, multiType, registry);
-    const extra = result.filter((e) => e.sectionId === "extra_section");
-    expect(extra).toHaveLength(1);
-    expect(extra[0].resourceTypes).toEqual(expect.arrayContaining(["dataset", "image"]));
-    expect(extra[0].resourceTypes).toHaveLength(2);
+    const merged = result.filter((e) => e.sectionId === "extra_section");
+    expect(merged).toHaveLength(1);
+    expect(merged[0].resourceTypes).toEqual(expect.arrayContaining(["dataset", "image"]));
+    expect(merged[0].resourceTypes).toHaveLength(2);
+  });
+
+  it("adds consumer resource type via same_as without duplicating section rows", () => {
+    const common = [
+      {
+        component: "FormPages",
+        subsections: [
+          {
+            section: "page-c",
+            label: "C",
+            subsections: [{ section: "y", label: "Y", component: "TitlesComponent" }],
+          },
+        ],
+      },
+    ];
+    const byType = {
+      template: {
+        "page-c": {
+          subsections: [{ section: "y", label: "Y", component: "TitlesComponent" }],
+        },
+      },
+      consumer: {
+        "page-c": { same_as: "template" },
+      },
+    };
+    const result = buildFormSections(common, byType, registry);
+    const yRows = result.filter((e) => e.pageId === "page-c" && e.sectionId === "y");
+    expect(yRows).toHaveLength(1);
+    expect(yRows[0].resourceTypes).toEqual(expect.arrayContaining(["template", "consumer"]));
+    expect(yRows[0].resourceTypes).toHaveLength(2);
+  });
+
+  it("propagates resource types along multi-hop same_as chains", () => {
+    const common = [
+      {
+        component: "FormPages",
+        subsections: [
+          {
+            section: "p",
+            label: "P",
+            subsections: [{ section: "s", component: "DoiComponent" }],
+          },
+        ],
+      },
+    ];
+    const byType = {
+      root: {
+        p: { subsections: [{ section: "s", component: "DoiComponent" }] },
+      },
+      mid: { p: { same_as: "root" } },
+      leaf: { p: { same_as: "mid" } },
+    };
+    const result = buildFormSections(common, byType, registry);
+    const rows = result.filter((e) => e.pageId === "p" && e.sectionId === "s");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].resourceTypes.sort()).toEqual(["leaf", "mid", "root"]);
   });
 
   it("uses section id as label fallback", () => {
@@ -105,7 +166,7 @@ describe("buildFormSections", () => {
         component: "FormPages",
         subsections: [
           {
-            section: "page-1",
+            section: "1",
             subsections: [{ section: "foo", component: "DoiComponent" }],
           },
         ],
@@ -114,9 +175,9 @@ describe("buildFormSections", () => {
     const result = buildFormSections(minimal, {}, registry);
     const entry = result.find((e) => e.sectionId === "foo");
     expect(entry).toEqual({
-      pageId: "page-1",
+      pageId: "1",
       sectionId: "foo",
-      pageLabel: "page-1",
+      pageLabel: "1",
       sectionLabel: "foo",
       fields: ["pids.doi"],
       resourceTypes: [],

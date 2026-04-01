@@ -23,6 +23,8 @@ viewport sizes** (not only mobile/tablet), use
 To use the non-paged version, use COMMON_FIELD_DEFAULT_UNPAGED instead.
 """
 
+import copy
+
 _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
     "component": "FormHeader",
     "classnames": "default-layout",
@@ -40,10 +42,10 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
 _PAGED_FORM_LEFT_SIDEBAR = {
     "component": "FormLeftSidebar",
     "classnames": "default-layout",
-    # Sidebar widths: 2 (widescreen), 3 (largeScreen), 3 (computer)
+    # Sidebar widths
     "computer": 3,
     "largeScreen": 3,
-    "widescreen": 2,
+    "widescreen": 3,
     "subsections": [
         {
             "component": "FormSidebarPageMenu",
@@ -448,10 +450,13 @@ COMMON_FIELDS_DEFAULT_SINGLE = [
 ]
 
 # --- Page "4" (Additional): per-resource-type custom fields ---
-# Canonical layouts once; reuse via ``same_as`` (``useCurrentResourceTypeFields``).
+# Full page dicts ``{"label", "subsections"}``; assign with ``copy.deepcopy`` so presets
+# do not alias module-level objects. Aliases reuse via ``same_as``.
 # Component names match ``componentsRegistry.js``.
 
-_JOURNAL_PAGE_4 = [
+_JOURNAL_PAGE_4 = {
+    "label": "Journal details",
+    "subsections": [
     {
         "section": "journal_details",
         "component": "FormSection",
@@ -494,9 +499,12 @@ _JOURNAL_PAGE_4 = [
             },
         ],
     },
-]
+],
+}
 
-_BOOK_IMPRINT_PAGE_4 = [
+_BOOK_IMPRINT_PAGE_4 = {
+    "label": "Publication Details",
+    "subsections": [
     {
         "section": "publication_details",
         "show_heading": True,
@@ -536,9 +544,12 @@ _BOOK_IMPRINT_PAGE_4 = [
             },
         ],
     },
-]
+],
+}
 
-_MEETING_PAGE_4 = [
+_MEETING_PAGE_4 = {
+    "label": "Conference details",
+    "subsections": [
     {
         "section": "conference_details",
         "component": "FormSection",
@@ -617,9 +628,12 @@ _MEETING_PAGE_4 = [
             },
         ],
     },
-]
+],
+}
 
-_THESIS_PAGE_4 = [
+_THESIS_PAGE_4 = {
+    "label": "Thesis details",
+    "subsections": [
     {
         "section": "thesis_details",
         "component": "FormSection",
@@ -664,9 +678,12 @@ _THESIS_PAGE_4 = [
             },
         ],
     },
-]
+],
+}
 
-_SOFTWARE_PAGE_4 = [
+_SOFTWARE_PAGE_4 = {
+    "label": "Software details",
+    "subsections": [
     {
         "section": "software_details",
         "component": "FormSection",
@@ -712,39 +729,153 @@ _SOFTWARE_PAGE_4 = [
             },
         ],
     },
-]
+],
+}
 
+
+# Per resource type id, keys are FormPage ``section`` ids. The default layout uses
+# ``"4"`` for the additional-details step. Each page value is
+# ``{"subsections": [...], "label": "..."?, ...}``.
+# Canonical types use ``copy.deepcopy(_…_PAGE_*)`` (full page dict). Aliases may set
+# top-level ``same_as`` to another resource type id (inherit that page’s keys) and
+# optionally override e.g. ``label`` without duplicating widget trees.
 FIELDS_BY_TYPE_DEFAULT_PAGED = {
     "publication": {},
     "publication-annotationcollection": {},
-    "publication-book": {"4": _BOOK_IMPRINT_PAGE_4},
-    "publication-section": {"4": [{"same_as": "publication-book"}]},
-    "publication-conferencepaper": {"4": _MEETING_PAGE_4},
-    "publication-conferenceproceeding": {
-        "4": [{"same_as": "publication-conferencepaper"}],
+    "publication-book": {
+        "4": copy.deepcopy(_BOOK_IMPRINT_PAGE_4),
     },
-    "publication-datamanagementplan": {"4": [{"same_as": "publication-book"}]},
-    "publication-journal": {"4": _JOURNAL_PAGE_4},
-    "publication-article": {"4": [{"same_as": "publication-journal"}]},
+    "publication-section": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Section details",
+        },
+    },
+    "publication-conferencepaper": {
+        "4": copy.deepcopy(_MEETING_PAGE_4),
+    },
+    "publication-conferenceproceeding": {
+        "4": {
+            "same_as": "publication-conferencepaper",
+            "label": "Conference proceeding details",
+        },
+    },
+    "publication-datamanagementplan": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Data management plan details",
+        },
+    },
+    "publication-journal": {
+        "4": copy.deepcopy(_JOURNAL_PAGE_4),
+    },
+    "publication-article": {
+        "4": {
+            "same_as": "publication-journal",
+            "label": "Article details",
+        },
+    },
     "publication-patent": {},
-    "publication-peerreview": {"4": [{"same_as": "publication-journal"}]},
-    "publication-preprint": {"4": [{"same_as": "publication-journal"}]},
-    "publication-deliverable": {"4": [{"same_as": "publication-book"}]},
-    "publication-milestone": {"4": [{"same_as": "publication-book"}]},
-    "publication-proposal": {"4": [{"same_as": "publication-book"}]},
-    "publication-report": {"4": [{"same_as": "publication-book"}]},
-    "publication-softwaredocumentation": {"4": [{"same_as": "publication-book"}]},
-    "publication-taxonomictreatment": {"4": [{"same_as": "publication-journal"}]},
-    "publication-technicalnote": {"4": [{"same_as": "publication-book"}]},
-    "publication-thesis": {"4": _THESIS_PAGE_4},
-    "publication-workingpaper": {"4": [{"same_as": "publication-journal"}]},
-    "publication-datapaper": {"4": [{"same_as": "publication-journal"}]},
-    "publication-dissertation": {"4": [{"same_as": "publication-thesis"}]},
-    "publication-standard": {"4": [{"same_as": "publication-book"}]},
+    "publication-peerreview": {
+        "4": {
+            "same_as": "publication-journal",
+            "label": "Peer review details",
+        },
+    },
+    "publication-preprint": {
+        "4": {
+            "same_as": "publication-journal",
+            "label": "Preprint details",
+        },
+    },
+    "publication-deliverable": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Deliverable details",
+        },
+    },
+    "publication-milestone": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Milestone details",
+        },
+    },
+    "publication-proposal": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Proposal details",
+        },
+    },
+    "publication-report": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Report details",
+        },
+    },
+    "publication-softwaredocumentation": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Software documentation details",
+        },
+    },
+    "publication-taxonomictreatment": {
+        "4": {
+            "same_as": "publication-journal",
+            "label": "Taxonomic treatment details",
+        },
+    },
+    "publication-technicalnote": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Technical note details",
+        },
+    },
+    "publication-thesis": {
+        "4": copy.deepcopy(_THESIS_PAGE_4),
+    },
+    "publication-workingpaper": {
+        "4": {
+            "same_as": "publication-journal",
+            "label": "Working paper details",
+        },
+    },
+    "publication-datapaper": {
+        "4": {
+            "same_as": "publication-journal",
+            "label": "Data paper details",
+        },
+    },
+    "publication-dissertation": {
+        "4": {
+            "same_as": "publication-thesis",
+            "label": "Dissertation details",
+        },
+    },
+    "publication-standard": {
+        "4": {
+            "same_as": "publication-book",
+            "label": "Standard details",
+        },
+    },
     "publication-other": {},
-    "poster": {"4": [{"same_as": "publication-conferencepaper"}]},
-    "presentation": {"4": [{"same_as": "publication-conferencepaper"}]},
-    "event": {"4": [{"same_as": "publication-conferencepaper"}]},
+    "poster": {
+        "4": {
+            "same_as": "publication-conferencepaper",
+            "label": "Poster details",
+        },
+    },
+    "presentation": {
+        "4": {
+            "same_as": "publication-conferencepaper",
+            "label": "Presentation details",
+        },
+    },
+    "event": {
+        "4": {
+            "same_as": "publication-conferencepaper",
+            "label": "Event details",
+        },
+    },
     "dataset": {},
     "image": {},
     "image-figure": {},
@@ -756,9 +887,21 @@ FIELDS_BY_TYPE_DEFAULT_PAGED = {
     "model": {},
     "video": {},
     "audio": {},
-    "software": {"4": _SOFTWARE_PAGE_4},
-    "lesson": {"4": [{"same_as": "software"}]},
-    "software-computationalnotebook": {"4": [{"same_as": "software"}]},
+    "software": {
+        "4": copy.deepcopy(_SOFTWARE_PAGE_4),
+    },
+    "lesson": {
+        "4": {
+            "same_as": "software",
+            "label": "Lesson details",
+        },
+    },
+    "software-computationalnotebook": {
+        "4": {
+            "same_as": "software",
+            "label": "Notebook details",
+        },
+    },
     "other": {},
     "physicalobject": {},
     "workflow": {},

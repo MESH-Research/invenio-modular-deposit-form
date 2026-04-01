@@ -5,16 +5,13 @@
 // you can redistribute them and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import { func } from "prop-types";
-import get from "lodash/get";
 import { getIn } from "formik";
 import { readableFieldLabels } from "./helpers/readableFieldLabels";
-import { SEVERITIES } from "./constants";
 
 /**
  * Scroll page to top
  */
-function scrollTop() {
+function _scrollTop() {
   window.scrollTo({
     top: 0,
     left: 0,
@@ -31,7 +28,7 @@ function moveToArrayStart(startingArray, moveTargets, keyLabel) {
   return newArray;
 }
 
-function pushToArrayEnd(startingArray, targetValue, keyLabel) {
+function _pushToArrayEnd(startingArray, targetValue, keyLabel) {
   let newArray = [...startingArray];
   newArray.push(
     ...newArray.splice(
@@ -149,7 +146,7 @@ function flattenWrappers(page) {
  *
  * @param {Array} formPages - Array of page configs (each has section, subsections)
  * @param {string} componentName - Registry component name (e.g. "FileUploadComponent")
- * @returns {string|null} Page id (e.g. "page-6"), or null if not found
+ * @returns {string|null} Page id (e.g. "6"), or null if not found
  */
 function findPageIdContainingComponent(formPages, componentName) {
   if (!Array.isArray(formPages) || !componentName) return null;
@@ -163,41 +160,198 @@ function findPageIdContainingComponent(formPages, componentName) {
 }
 
 /**
- * Resolved subsections for one form page after applying resource-type layout overrides
- * (`currentTypeFields` / `same_as`), matching {@link FormLayoutContainer}.
+ * One `fields_by_type` page value must be `{ label?: string, subsections: Array }` (never a bare array).
  *
- * @param {Object} page - Form page config (section, subsections, …)
- * @param {Object} currentTypeFields - fields_by_type entry for active type
- * @param {Object} fieldsByType - full fields_by_type map
- * @returns {Array}
+ * @param {Object|null|undefined} raw
+ * @returns {{ label: (string|undefined), subsections: Array|null }}
  */
-function resolveFormPageSubsections(page, currentTypeFields, fieldsByType) {
-  const section = page?.section;
-  let actualSubsections = page?.subsections;
-  if (currentTypeFields && section && currentTypeFields[section]) {
-    actualSubsections = currentTypeFields[section];
-    const sameAs = actualSubsections?.[0]?.same_as;
-    if (sameAs) {
-      actualSubsections = fieldsByType[sameAs]?.[section];
-    }
+function _normalizeFieldsByTypePage(raw) {
+  if (raw == null) return { label: undefined, subsections: null };
+  if (typeof raw === "object" && !Array.isArray(raw) && Array.isArray(raw.subsections)) {
+    const label =
+      typeof raw.label === "string" && raw.label.trim() !== "" ? raw.label : undefined;
+    return { label, subsections: raw.subsections };
   }
-  return Array.isArray(actualSubsections) ? actualSubsections : [];
+  return { label: undefined, subsections: null };
 }
 
 /**
- * Pages that have at least one subsection after merging common layout with the given type layout.
- * Empty placeholder pages (common + override) are omitted so the stepper and sidebar stay in sync
- * with what is actually shown.
+ * Merge a layout that declares top-level `same_as` with the **already-resolved base type layout**
+ * for the same page. Base keys apply first; keys on `layoutWithSameAs` (except `same_as`) override
+ * shallowly. If the consumer defines `subsections`, it replaces the base list; otherwise
+ * subsections come from the base.
+ *
+ * @param {Object} layoutWithSameAs - `fields_by_type` slice entry with `same_as` set
+ * @param {Object|undefined|null} baseLayout - Resolved layout from the referenced type (same page id)
+ * @returns {object|null} Merged layout without `same_as`, or null if `layoutWithSameAs` is not a same_as row
+ */
+function _mergeSameAsLayout(layoutWithSameAs, baseLayout) {
+  if (layoutWithSameAs == null || typeof layoutWithSameAs !== "object" || Array.isArray(layoutWithSameAs)) {
+    return null;
+  }
+  if (typeof layoutWithSameAs.same_as !== "string" || layoutWithSameAs.same_as.trim() === "") {
+    return null;
+  }
+  const baseObj =
+    baseLayout != null && typeof baseLayout === "object" && !Array.isArray(baseLayout)
+      ? { ...baseLayout }
+      : {};
+  const { same_as: _same, ...overrides } = layoutWithSameAs;
+  const baseSubs = Array.isArray(baseObj.subsections) ? baseObj.subsections : [];
+  return {
+    ...baseObj,
+    ...overrides,
+    subsections: Object.prototype.hasOwnProperty.call(overrides, "subsections")
+      ? overrides.subsections
+      : baseSubs,
+  };
+}
+
+/**
+ * Resolves the **inherited page layout** for one step (`pageId`) and resource type: the object at
+ * `fields_by_type[resourceTypeId][pageId]` (e.g. `subsections`, `label`, `classnames`) after
+ * expanding `same_as`. Used internally before reading `.subsections` or labels; not Formik paths.
+ *
+ * **Without `same_as`:** shallow-copies the stored value (`{ ...pageLayout }`).
+ *
+ * **With `same_as: "<baseTypeId>"`:** resolves the **same** `pageId` on `baseTypeId`, then merges
+ * this type on top ({@link _mergeSameAsLayout}). The result normally has no `same_as`.
+ *
+ * **Why recursive:** The base type’s layout can also declare `same_as` (e.g. subtype → journal →
+ * generic). Each step must be fully resolved before merging the outer type, so the call walks the
+ * chain until a layout has no `same_as` (or stops on a cycle via `visitedTypeIds`).
+ *
+ * **Returns `null`** if missing, not a plain object, or `same_as` cycles.
+ *
+ * @param {string} pageId - Form page id (today: FormPage `section`)
+ * @param {string} resourceTypeId - Resource type whose `fields_by_type` slice is read
+ * @param {Object} fieldsByType - Full `fields_by_type` map
+ * @param {Set<string>} [visitedTypeIds] - Types already visited on this `same_as` chain (cycle guard)
+ * @returns {Object|null} Resolved layout object (includes `subsections` when present), or null
+ */
+function _resolveInheritedPageLayout(pageId, resourceTypeId, fieldsByType, visitedTypeIds = new Set()) {
+  if (resourceTypeId == null || resourceTypeId === "") return null;
+  if (visitedTypeIds.has(resourceTypeId)) return null;
+  const pageLayout = fieldsByType?.[resourceTypeId]?.[pageId];
+  if (pageLayout == null || typeof pageLayout !== "object" || Array.isArray(pageLayout)) return null;
+
+  if (typeof pageLayout.same_as === "string" && pageLayout.same_as.trim() !== "") {
+    const nextVisited = new Set(visitedTypeIds);
+    nextVisited.add(resourceTypeId);
+    // Resolve the base type’s layout first; it may itself use same_as (multi-hop chain).
+    const resolvedBaseLayout = _resolveInheritedPageLayout(
+      pageId,
+      pageLayout.same_as,
+      fieldsByType,
+      nextVisited
+    );
+    return _mergeSameAsLayout(pageLayout, resolvedBaseLayout);
+  }
+  return { ...pageLayout };
+}
+
+/**
+ * One merged FormPage row: common `FormPages` entry plus `fields_by_type` override (including
+ * `same_as` overlays). Resolves the type’s page entry (inheritance + shallow copy) once, then
+ * derives `subsections`, `label`, and shallow spread keys (always strips `same_as` from output).
+ *
+ * @param {Object} commonPage - One FormPage from common_fields FormPages.subsections
+ * @param {Object} currentTypePageConfigs - `fields_by_type[resourceTypeId]`
+ * @param {Object} fieldsByType - full `fields_by_type` map
+ * @param {string} [resourceTypeId] - Selected resource type id
+ * @returns {Object}
+ */
+function _resolveMergedFormPageConfig(
+  commonPage,
+  currentTypePageConfigs,
+  fieldsByType,
+  resourceTypeId
+) {
+  const pageId = commonPage?.section;
+  const raw = currentTypePageConfigs?.[pageId];
+  const commonSubs = Array.isArray(commonPage?.subsections) ? commonPage.subsections : [];
+
+  if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
+    return {
+      ...commonPage,
+      label: commonPage?.label ?? pageId ?? "",
+      subsections: commonSubs,
+    };
+  }
+
+  let resolvedPage;
+  if (typeof raw.same_as === "string" && raw.same_as.trim() !== "") {
+    resolvedPage =
+      resourceTypeId != null && resourceTypeId !== ""
+        ? _resolveInheritedPageLayout(pageId, resourceTypeId, fieldsByType)
+        : null;
+  } else {
+    resolvedPage = { ...raw };
+  }
+  const unanchoredSameAs =
+    typeof raw.same_as === "string" &&
+    raw.same_as.trim() !== "" &&
+    (resourceTypeId == null || resourceTypeId === "");
+
+  let subsections;
+  if (resolvedPage && Array.isArray(resolvedPage.subsections)) {
+    subsections = resolvedPage.subsections;
+  } else if (unanchoredSameAs) {
+    subsections = [];
+  } else if (resolvedPage) {
+    subsections = commonSubs;
+  } else {
+    const { subsections: normSubs } = _normalizeFieldsByTypePage(raw);
+    subsections = normSubs != null ? normSubs : commonSubs;
+  }
+
+  let navLabel;
+  if (resolvedPage) {
+    const lab =
+      typeof resolvedPage.label === "string" && resolvedPage.label.trim() !== ""
+        ? resolvedPage.label
+        : undefined;
+    navLabel = lab ?? commonPage?.label ?? pageId ?? "";
+  } else {
+    navLabel = commonPage?.label ?? pageId ?? "";
+  }
+
+  const spreadSource = resolvedPage ?? raw;
+  const { same_as: _sameAsKey, ...typePageRest } = spreadSource;
+  return {
+    ...commonPage,
+    ...typePageRest,
+    subsections,
+    label: navLabel,
+  };
+}
+
+/**
+ * Every FormPage row after merging common layout with the type override (`fields_by_type`), in the
+ * same order as `formPages`. Includes pages whose merged `subsections` are empty (placeholders).
+ * Each item is {@link _resolveMergedFormPageConfig} for that page.
  *
  * @param {Array} formPages - FormPages subsection array from common_fields
- * @param {Object} currentTypeFields - Active resource type layout slice
+ * @param {Object} currentTypePageConfigs - `fields_by_type` slice for the **selected** resource type
  * @param {Object} fieldsByType - Full fields_by_type map (for same_as)
- * @returns {Array<Object>} Filtered copy of page configs (same references as input items)
+ * @param {string} [resourceTypeId] - Selected resource type id
+ * @returns {Array<Object>}
  */
-function getVisibleFormPages(formPages, currentTypeFields, fieldsByType) {
-  return formPages.filter(
-    (p) => resolveFormPageSubsections(p, currentTypeFields, fieldsByType).length > 0
+function getResolvedFormPages(formPages, currentTypePageConfigs, fieldsByType, resourceTypeId) {
+  return formPages.map((p) =>
+    _resolveMergedFormPageConfig(p, currentTypePageConfigs, fieldsByType, resourceTypeId)
   );
+}
+
+/**
+ * Keep merged pages that have at least one subsection (stepper, sidebar, main column).
+ * Pass the array returned by {@link getResolvedFormPages}; do not resolve inside this helper.
+ *
+ * @param {Array<Object>} resolvedFormPages
+ * @returns {Array<Object>}
+ */
+function filterVisibleFormPages(resolvedFormPages) {
+  return (resolvedFormPages ?? []).filter((p) => (p.subsections ?? []).length > 0);
 }
 
 /** Dot-path segment that is a non-negative integer array index (Formik/Yup style). */
@@ -281,7 +435,7 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
 
     if (!keys2.includes(key)) return false;
 
-    if (!areDeeplyEqual(obj1[key], obj2[key], getSubKeys(key, ignoreKeys))) {
+    if (!areDeeplyEqual(obj1[key], obj2[key], _getSubKeys(key, ignoreKeys))) {
         return false;
     }
   }
@@ -295,7 +449,7 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
 // param key(string): key string or dot-separated key path
 // param ignoreKeys(array): array of dot-separated key paths
 // returns(array): array of the paths below the given key or path
-function getSubKeys(key, ignoreKeys) {
+function _getSubKeys(key, ignoreKeys) {
   return ignoreKeys
     .filter(ignoreKey => ignoreKey.startsWith(key + '.'))
     .map(ignoreKey => ignoreKey.slice(key.length + 1));
@@ -376,7 +530,7 @@ function getReadableFields(fields) {
  *
  * @param {string} arrayStrategy: One of "concat", "dedup", or "override"
  */
-function mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
+function _mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
   // Object.keys(null|undefined) throws; return the other so callers can pass arbitrary types.
   if (objA == null) return objB;
   if (objB == null) return objA;
@@ -401,7 +555,7 @@ function mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
     for (let i = 0; i < allKeys.length; i++) {
       const focusKey = allKeys[i];
       if (bKeys.includes(focusKey) && aKeys.includes(focusKey)) {
-        mergedObj[focusKey] = mergeNestedObjects(objA[focusKey], objB[focusKey], arrayStrategy);
+        mergedObj[focusKey] = _mergeNestedObjects(objA[focusKey], objB[focusKey], arrayStrategy);
       } else if (bKeys.includes(focusKey)) {
         mergedObj[focusKey] = objB[focusKey];
       }
@@ -414,7 +568,7 @@ function mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
   * Filter a nested object based on a whitelist of dot-separated paths.
   * Preserves array structure when allowed paths refer to properties inside array elements.
   */
-function filterNestedObject(errors, allowedPaths) {
+function _filterNestedObject(errors, allowedPaths) {
   const result = {};
   const allowed = new Set(allowedPaths);
 
@@ -497,39 +651,6 @@ function fieldMatches(errorPath, fieldPath) {
 }
 
 /**
- * Flatten a Formik-style errors object to dot-notation paths of leaf errors (string or { severity }).
- */
-function getAllErrPaths(obj, prev = "") {
-  const result = [];
-  for (const k in obj) {
-    const path = prev ? `${prev}.${k}` : k;
-    const v = obj[k];
-    if (typeof v === "string" || (v && typeof v === "object" && v.severity !== undefined)) {
-      result.push(path);
-    } else if (v !== null && typeof v === "object" && !Array.isArray(v)) {
-      result.push(...getAllErrPaths(v, path));
-    }
-  }
-  return result;
-}
-
-/**
- * Resolve severity for a field path from the errors object.
- * Error values may be a string (legacy) or an object { message, severity?, description? }.
- * If missing or invalid severity, treated as "error".
- * @param {Object} errors - Nested errors object (Formik-style or merged)
- * @param {string} path - Dot-notation field path
- * @returns {"error"|"warning"|"info"}
- */
-function getSeverityAtPath(errors, path) {
-  const err = get(errors, path);
-  if (err && typeof err === "object" && SEVERITIES.includes(err.severity)) {
-    return err.severity;
-  }
-  return "error";
-}
-
-/**
  * DOM id for a form section container. Uses hyphens only (no dots), safe for
  * getElementById, scroll targets, and CSS. Not the same as Overridable ids.
  * @param {string} sectionId - Section id from form config (e.g. "resource_type")
@@ -576,25 +697,25 @@ function collectLeafFieldPathsUnderRoot(rootPath, value) {
 }
 
 export {
+  _filterNestedObject,
+  _mergeNestedObjects,
+  _mergeSameAsLayout,
+  _pushToArrayEnd,
+  _resolveMergedFormPageConfig,
+  _scrollTop,
   areDeeplyEqual,
   collectLeafFieldPathsUnderRoot,
   fieldMatches,
+  filterVisibleFormPages,
   findPageIdContainingComponent,
-  filterNestedObject,
   flattenKeysDotJoined,
   flattenWrappers,
   focusFirstElement,
   getErrorParent,
   getFormSectionElementId,
-  getAllErrPaths,
   getReadableFields,
-  getSeverityAtPath,
+  getResolvedFormPages,
   getTouchedParent,
-  getVisibleFormPages,
   isNearViewportBottom,
-  mergeNestedObjects,
   moveToArrayStart,
-  pushToArrayEnd,
-  resolveFormPageSubsections,
-  scrollTop,
 };

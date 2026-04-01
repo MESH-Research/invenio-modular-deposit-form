@@ -8,45 +8,39 @@
 import { useEffect } from "react";
 import { useStore } from "react-redux";
 import { FORM_UI_ACTION } from "../helpers/formUIStateReducer";
-import { flattenWrappers, getVisibleFormPages } from "../utils";
+import {
+  filterVisibleFormPages,
+  flattenWrappers,
+  getResolvedFormPages,
+} from "../utils";
 
 /**
  * Fills `formUIState.currentFormPageFields`: for each configured FormPage, the list of Formik
  * field paths (from the component registry) that appear on that page for the active layout.
  *
- * For each page in `formPages`, widgets are taken from the type layout slice `initialLayout[section]`
- * when set; otherwise from the common page config. If that slice is a `same_as` placeholder,
- * dispatches `SET_CURRENT_TYPE_FIELDS` with the referenced template and flattens widgets from that
- * template for this page. Each iteration still reads `same_as` from `initialLayout` only (not from
- * a previous page’s template), matching existing behavior.
+ * Uses `resolvedFormPages[i]` (merged common + type layout) when that row has subsections;
+ * otherwise falls back to the common `formPages[i]` tree. Same ordering as `formPages`.
  *
- * Dispatches `SET_CURRENT_FORM_PAGE_FIELDS` with `{ [pageSection]: string[] }`.
+ * Dispatches `SET_CURRENT_FORM_PAGE_FIELDS` with `{ [pageId]: string[] }` (keys are each page’s `section` today).
  *
- * @returns {Object} Layout slice to pass to `getVisibleFormPages`: same as the reducer’s
- *   `currentTypeFields` after this loop (last `SET_CURRENT_TYPE_FIELDS` wins).
+ * @returns {void}
  */
 function dispatchPerPageFormikFieldPaths({
   formPages,
-  initialLayout,
-  fieldsByType,
+  resolvedFormPages,
   componentsRegistry,
   dispatch,
 }) {
-  let layoutSliceForVisibility = initialLayout;
   const perPageFormikPaths = {};
 
-  for (const page of formPages) {
-    let layoutForPage = initialLayout;
-    if (layoutForPage?.[page.section]?.[0]?.same_as) {
-      const templateTypeId = initialLayout[page.section][0].same_as;
-      layoutForPage = fieldsByType[templateTypeId];
-      dispatch({ type: FORM_UI_ACTION.SET_CURRENT_TYPE_FIELDS, payload: layoutForPage });
-      layoutSliceForVisibility = layoutForPage;
-    }
-
-    const nodes = !!layoutForPage?.[page.section]
-      ? flattenWrappers({ subsections: layoutForPage[page.section] })
-      : flattenWrappers(page);
+  for (let i = 0; i < formPages.length; i++) {
+    const page = formPages[i];
+    const merged = resolvedFormPages[i];
+    const subs = merged?.subsections ?? [];
+    const nodes =
+      Array.isArray(subs) && subs.length > 0
+        ? flattenWrappers({ subsections: subs })
+        : flattenWrappers(page);
 
     perPageFormikPaths[page.section] = nodes.reduce((paths, { component }) => {
       const regEntry = componentsRegistry[component];
@@ -58,22 +52,16 @@ function dispatchPerPageFormikFieldPaths({
     type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE_FIELDS,
     payload: perPageFormikPaths,
   });
-
-  return layoutSliceForVisibility;
-}
-
-function dispatchVisiblePages(dispatch, formPages, layoutSlice, fieldsByType) {
-  dispatch({
-    type: FORM_UI_ACTION.SET_VISIBLE_FORM_PAGES,
-    payload: getVisibleFormPages(formPages, layoutSlice, fieldsByType),
-  });
 }
 
 /**
  * Single place for resource-type layout sync: Formik → form UI useReducer, using deposit config
  * from the Redux store. Copies `metadata.resource_type` and the matching `fields_by_type` slice
- * into `formUIState` (useReducer in FormLayoutContainer), then updates visible pages and per-page
- * field paths for FormErrorManager / nav.
+ * into `formUIState` (useReducer in FormLayoutContainer), then updates resolved/visible pages and
+ * per-page field paths for FormErrorManager / nav.
+ *
+ * Resolves merged layout **once** per effect (`getResolvedFormPages`), stores full list as
+ * `resolvedFormPages` and the non-empty subset as `visibleFormPages` in one dispatch.
  *
  * @param {Object} formik - Formik instance (`values.metadata.resource_type` is the source of truth)
  * @param {Function} dispatch - Dispatch for form UI state only (FORM_UI_ACTION / formUIStateReducer), not Redux
@@ -85,15 +73,15 @@ const useCurrentResourceTypeFields = (formik, dispatch, fieldsByType, components
 
   useEffect(() => {
     const resourceTypeId = formik.values.metadata.resource_type;
-    const layoutForType = fieldsByType[resourceTypeId] ?? {};
+    const currentTypePageConfigs = fieldsByType[resourceTypeId] ?? {};
 
     dispatch({
       type: FORM_UI_ACTION.SET_CURRENT_RESOURCE_TYPE,
       payload: resourceTypeId,
     });
     dispatch({
-      type: FORM_UI_ACTION.SET_CURRENT_TYPE_FIELDS,
-      payload: layoutForType,
+      type: FORM_UI_ACTION.SET_CURRENT_TYPE_PAGE_CONFIGS,
+      payload: currentTypePageConfigs,
     });
 
     const formPages =
@@ -102,15 +90,42 @@ const useCurrentResourceTypeFields = (formik, dispatch, fieldsByType, components
         .deposit?.config?.common_fields?.find((item) => item.component === "FormPages")
         ?.subsections ?? [];
 
-    const layoutForVisibility = dispatchPerPageFormikFieldPaths({
+    for (const page of formPages) {
+      const pageRaw = currentTypePageConfigs?.[page.section];
+      if (
+        pageRaw &&
+        typeof pageRaw === "object" &&
+        !Array.isArray(pageRaw) &&
+        typeof pageRaw.same_as === "string" &&
+        pageRaw.same_as.trim() !== ""
+      ) {
+        const templateTypeId = pageRaw.same_as;
+        dispatch({
+          type: FORM_UI_ACTION.SET_CURRENT_TYPE_PAGE_CONFIGS,
+          payload: fieldsByType[templateTypeId],
+        });
+      }
+    }
+
+    const resolvedFormPages = getResolvedFormPages(
       formPages,
-      initialLayout: layoutForType,
+      currentTypePageConfigs,
       fieldsByType,
+      resourceTypeId
+    );
+    const visibleFormPages = filterVisibleFormPages(resolvedFormPages);
+
+    dispatch({
+      type: FORM_UI_ACTION.SET_FORM_PAGES_LAYOUT,
+      payload: { resolvedFormPages, visibleFormPages },
+    });
+
+    dispatchPerPageFormikFieldPaths({
+      formPages,
+      resolvedFormPages,
       componentsRegistry,
       dispatch,
     });
-
-    dispatchVisiblePages(dispatch, formPages, layoutForVisibility, fieldsByType);
   }, [formik.values.metadata.resource_type, fieldsByType, componentsRegistry, dispatch, store]);
 };
 

@@ -76,7 +76,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
         "component": "FormPages",
         "subsections": [
             {
-                "section": "page-1",
+                "section": "1",
                 "label": "Files",
                 "component": "FormPage",
                 "subsections": [
@@ -89,7 +89,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                 ],
             },
             {
-                "section": "page-2",
+                "section": "2",
                 "label": "Basic Information",
                 "subsections": [
                     {
@@ -135,7 +135,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                 ],
             },
             {
-                "section": "page-3",
+                "section": "3",
                 "label": "Recommended Information",
                 "component": "FormPage",
                 "subsections": [
@@ -217,7 +217,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                 ],
             },
             {
-                "section": "page-4",
+                "section": "4",
                 "label": "Contributors & Funding",
                 "component": "FormPage",
                 "subsections": [
@@ -229,7 +229,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                 ],
             },
             {
-                "section": "page-5",
+                "section": "5",
                 "label": "Make It Findable",
                 "component": "FormPage",
                 "subsections": [
@@ -241,7 +241,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                 ],
             },
             {
-                "section": "page-6",
+                "section": "6",
                 "label": "Access",
                 "component": "FormPage",
                 "subsections": [
@@ -253,7 +253,7 @@ COMMON_FIELDS_ZENODO_PAGED = [
                 ],
             },
             {
-                "section": "page-7",
+                "section": "7",
                 "label": "Files",
                 "component": "FormPage",
                 "subsections": [],

@@ -87,7 +87,6 @@ const FormLayoutContainer = () => {
   const state = ctx.formUIState;
 
   const commonFields = config?.common_fields ?? [];
-  const fieldsByType = config?.fields_by_type ?? {};
   const formHeaderConfig = commonFields.find((item) => item.component === "FormHeader");
   const formFooterConfig = commonFields.find((item) => item.component === "FormFooter");
 
@@ -152,31 +151,32 @@ const FormLayoutContainer = () => {
               className="mb-15"
             >
               <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
-                {state.visibleFormPages.map(
-                  ({ section, subsections, classnames, ...pageProps }) => {
-                    let actualSubsections = subsections;
-                    if (!!state.currentTypeFields && !!state.currentTypeFields[section]) {
-                      actualSubsections = state.currentTypeFields[section];
-                      if (!!actualSubsections[0]?.same_as) {
-                        actualSubsections = fieldsByType[actualSubsections[0].same_as][section];
-                      }
-                    }
-                    return (
-                      state.currentFormPage === section && (
-                        <div key={section}>
-                          <FormPage
-                            focusFirstElement={focusFirstElement}
-                            id={`InvenioAppRdm.Deposit.FormPage.${section}`}
-                            recoveryAsked={ctx.recoveryAsked}
-                            classnames={classnames}
-                            subsections={actualSubsections}
-                            {...pageProps}
-                          />
-                        </div>
-                      )
-                    );
-                  }
-                )}
+                {/* Non-empty pages only; full merged list (incl. placeholders) is formUIState.resolvedFormPages */}
+                {state.visibleFormPages.map((mergedPage) => {
+                  const {
+                    section,
+                    subsections,
+                    classnames,
+                    label,
+                    component: _formPageComponent,
+                    ...rest
+                  } = mergedPage;
+                  return (
+                    state.currentFormPage === section && (
+                      <div key={section}>
+                        <FormPage
+                          focusFirstElement={focusFirstElement}
+                          id={`InvenioAppRdm.Deposit.FormPage.${section}`}
+                          recoveryAsked={ctx.recoveryAsked}
+                          classnames={classnames}
+                          subsections={subsections}
+                          label={label}
+                          {...rest}
+                        />
+                      </div>
+                    )
+                  );
+                })}
               </Transition.Group>
             </Grid.Column>
             <FormRightSidebar

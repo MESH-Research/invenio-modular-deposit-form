@@ -23,7 +23,7 @@ MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
         "component": "FormPages",
         "subsections": [
             {
-                "section": "page-1",
+                "section": "1",
                 "label": "Type & Title",
                 "component": "FormPage",
                 "subsections": [
@@ -45,7 +45,7 @@ MODULAR_DEPOSIT_FORM_COMMON_FIELDS = [
                 ],
             },
             {
-                "section": "page-2",
+                "section": "2",
                 "label": "Publish",
                 "subsections": [
                     {
@@ -187,27 +187,29 @@ The `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` config variable lets you change layout
 
 If a page is not included in the resource type dictionary, the default layout from the common fields is used. If a page is included, the new page layout **replaces** the default for that page.
 
-Example: replace the entire `"page-3"` page with a single ISBN field when the selected resource type is `"textDocument-book"`:
+Example: replace the entire page whose `section` is `"3"` with a single ISBN field when the selected resource type is `"textDocument-book"`:
 
 ```python
 {
     "textDocument-book": {
-        "page-3": [
-            {
-                "section": "isbn",
-                "label": "ISBN",
-                "component": "ISBNComponent",
-                "wrapped": True,
-            },
-        ],
+        "3": {
+            "subsections": [
+                {
+                    "section": "isbn",
+                    "label": "ISBN",
+                    "component": "ISBNComponent",
+                    "wrapped": True,
+                },
+            ],
+        },
     },
 }
 ```
 
-To re-use the override from another resource type, include an object with a single key `same_as` whose value is the label of another configured resource type. Example:
+To re-use another resource type’s page entry for the same FormPage `section` id, set top-level `same_as` to that type’s id. The form resolves the target page (following further `same_as` on that type if present), then **shallow-merges** your entry on top: keys you set—such as **`label`** or **`classnames`** (and any other keys the merged page object supports)—override the target. If you omit **`subsections`**, the target’s subsection list is used; if you **include** `subsections`, your list **replaces** the inherited one entirely. Example:
 
 ```python
-"textDocument-monograph": {"page-2": [{"same_as": "textDocument-book"}]}
+"textDocument-monograph": {"2": {"same_as": "textDocument-book", "label": "Monograph details"}}
 ```
 
 ## Other changes to fields by resource type

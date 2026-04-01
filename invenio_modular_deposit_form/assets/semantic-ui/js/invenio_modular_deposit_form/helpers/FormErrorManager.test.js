@@ -7,7 +7,7 @@ import {
 
 const formPages = [
   {
-      "section": "page-1",
+      "section": "1",
       "label": "Type & Title",
       "component": "FormPage",
       "subsections": [
@@ -48,7 +48,7 @@ const formPages = [
       ],
   },
   {
-      "section": "page-2",
+      "section": "2",
       "label": "Details",
       "subsections": [
           {
@@ -78,7 +78,7 @@ const formPages = [
       ],
   },
   {
-      "section": "page-3",
+      "section": "3",
       "label": "Contributors & Funding",
       "subsections": [
           {
@@ -114,15 +114,15 @@ const formPages = [
 ];
 
 const formPageFields = {
-  "page-1": ["metadata.resource_type", "pids.doi", "metadata.title", "metadata.publication_date", "metadata.dates", "metadata.description"],
-  "page-2": ["custom_fields.journal:journal.title", "custom_fields.journal:journal.volume", "custom_fields.journal:journal.issue", "custom_fields.journal:journal.pages", "custom_fields.journal:journal.issn", "metadata.publisher", "custom_fields.imprint:imprint.place", "metadata.languages", "metadata.identifiers"],
-  "page-3": ["metadata.creators", "custom_fields.kcr:ai_usage"],
+  "1": ["metadata.resource_type", "pids.doi", "metadata.title", "metadata.publication_date", "metadata.dates", "metadata.description"],
+  "2": ["custom_fields.journal:journal.title", "custom_fields.journal:journal.volume", "custom_fields.journal:journal.issue", "custom_fields.journal:journal.pages", "custom_fields.journal:journal.issn", "metadata.publisher", "custom_fields.imprint:imprint.place", "metadata.languages", "metadata.identifiers"],
+  "3": ["metadata.creators", "custom_fields.kcr:ai_usage"],
 };
 
 const formSectionFields = [
-  { pageId: "page-1", sectionId: "main", fields: formPageFields["page-1"] },
-  { pageId: "page-2", sectionId: "main", fields: formPageFields["page-2"] },
-  { pageId: "page-3", sectionId: "main", fields: formPageFields["page-3"] },
+  { pageId: "1", sectionId: "main", fields: formPageFields["1"] },
+  { pageId: "2", sectionId: "main", fields: formPageFields["2"] },
+  { pageId: "3", sectionId: "main", fields: formPageFields["3"] },
 ];
 
 const errors = {
@@ -317,17 +317,17 @@ describe("FormErrorManager", () => {
     expect(mockDispatch).toHaveBeenCalledWith({
       type: FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED,
       payload: [
-        { page: "page-1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
-        { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
-        { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
+        { page: "1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
+        { page: "2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
+        { page: "3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
       ],
     });
     expect(mockDispatch).toHaveBeenCalledWith({
       type: FORM_UI_ACTION.SET_SECTION_ERRORS_ALL,
       payload: [
-        { page: "page-1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
-        { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
-        { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
+        { page: "1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
+        { page: "2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
+        { page: "3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
       ],
     });
   });
@@ -435,9 +435,9 @@ describe("FormErrorManager", () => {
         fieldState.initialErrorFieldsToFlag,
       );
       expect(sectionErrorsFlagged).toEqual([
-        { page: "page-1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
-        { page: "page-2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
-        { page: "page-3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
+        { page: "1", section: "main", error_fields: ["metadata.resource_type", "metadata.title"], info_fields: [], warning_fields: [] },
+        { page: "2", section: "main", error_fields: ["metadata.publisher"], info_fields: [], warning_fields: [] },
+        { page: "3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
       ]);
     });
   });

@@ -13,6 +13,8 @@ const FormPage = ({
   recoveryAsked,
   classnames,
   subsections,
+  label,
+  ...pageRest
 }) => {
   const { formUIState, fileUploadPageId } = useFormUIState();
   const currentFormPage = formUIState?.currentFormPage;
@@ -29,6 +31,8 @@ const FormPage = ({
       pageId={id}
       subsections={subsections}
       classnames={classnames}
+      label={label}
+      {...pageRest}
     >
       <DndProvider backend={HTML5Backend}>
         <SubsectionsRenderer
@@ -48,6 +52,7 @@ FormPage.propTypes = {
   recoveryAsked: PropTypes.bool,
   classnames: PropTypes.string,
   subsections: PropTypes.array.isRequired,
+  label: PropTypes.string,
 };
 
 export { FieldsContent, FormPage };
