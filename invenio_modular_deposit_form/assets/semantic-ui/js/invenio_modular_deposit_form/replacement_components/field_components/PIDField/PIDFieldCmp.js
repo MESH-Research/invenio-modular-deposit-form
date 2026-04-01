@@ -9,8 +9,9 @@
 // -----------------------------
 // Upstream: `.../Identifiers/PIDField/PIDFieldCmp.js`
 //
-// Purpose of this copy: the component body is unchanged from stock (FastField + required ?
-// RequiredPIDField : OptionalPIDField). It must live in this package so `RequiredPIDField`
+// Purpose of this copy: like stock but uses `Field` (not `FastField`) so `RequiredPIDField` /
+// `OptionalPIDField` re-render when `values.ui.<fieldPath>` changes (`managed_selection`, backups),
+// not only when `pids.<scheme>` changes. It must live in this package so `RequiredPIDField`
 // and `OptionalPIDField` resolve to the local siblings next to this file, not to
 // `invenio_rdm_records`’s `./RequiredPIDField` (those siblings import `pid_components/*`
 // for touched-sensitive errors and `@js/...` paths that only work from the modular bundle).
@@ -18,7 +19,7 @@
 // What differs from stock: only the import targets (`./RequiredPIDField`, `./OptionalPIDField`)
 // refer to this repo’s implementations; see those files for behavioral deltas.
 
-import { FastField } from "formik";
+import { Field } from "formik";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { RequiredPIDField } from "./RequiredPIDField";
@@ -43,7 +44,7 @@ export class PIDField extends Component {
     const { fieldPath, required } = this.props;
     const cmp = required ? RequiredPIDField : OptionalPIDField;
 
-    return <FastField name={fieldPath} component={cmp} {...this.props} />;
+    return <Field name={fieldPath} component={cmp} {...this.props} />;
   }
 }
 
