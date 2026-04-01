@@ -9,6 +9,8 @@
 // Differences from stock react-invenio-forms AutocompleteDropdown:
 // - Uses local FieldLabel import.
 // - Delegates rendering to local replacement RemoteSelectField.
+// - Passes **`description`** and **`helpText`** through separately to `SelectField` (description
+//   above, helpText below). Stock merges `helpText ?? description` into one `helpText`.
 
 import React, { Component } from "react";
 import _get from "lodash/get";
@@ -37,7 +39,6 @@ class AutocompleteDropdownComponent extends Component {
       ...dropdownProps
     } = this.props;
 
-    const helpText = helpTextProp ?? description;
     const labelIcon = labelIconProp ?? icon;
 
     return (
@@ -57,7 +58,8 @@ class AutocompleteDropdownComponent extends Component {
                 Accept: autocompleteFromAcceptHeader,
               }}
               disabled={disabled}
-              helpText={helpText}
+              description={description}
+              helpText={helpTextProp}
               serializeSuggestions={(suggestions) =>
                 _isArray(suggestions)
                   ? suggestions.map((item) => ({

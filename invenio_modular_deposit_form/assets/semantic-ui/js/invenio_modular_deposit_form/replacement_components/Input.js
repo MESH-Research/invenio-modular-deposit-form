@@ -9,7 +9,9 @@
 // Differences from stock react-invenio-forms Input:
 // - Uses local FieldLabel import.
 // - Delegates rendering to local replacement TextField.
-// - Mirrors stock InputComponent prop mapping/defaults.
+// - Passes **`description`** and **`helpText`** through separately (replacement contract:
+//   description above the control, helpText below). Stock merges `helpText ?? description`
+//   into a single `helpText` on `TextField`.
 
 import React, { Component } from "react";
 import { showHideOverridableWithDynamicId } from "react-invenio-forms";
@@ -31,7 +33,6 @@ class InputComponent extends Component {
       labelIcon: labelIconProp,
     } = this.props;
 
-    const helpText = helpTextProp ?? description;
     const labelIcon = labelIconProp ?? icon;
 
     return (
@@ -39,7 +40,8 @@ class InputComponent extends Component {
         key={fieldPath}
         fieldPath={fieldPath}
         required={required}
-        helpText={helpText}
+        description={description}
+        helpText={helpTextProp}
         disabled={disabled}
         label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
         placeholder={placeholder}

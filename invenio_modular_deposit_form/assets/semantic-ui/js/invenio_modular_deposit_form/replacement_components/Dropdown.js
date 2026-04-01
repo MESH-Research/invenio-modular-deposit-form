@@ -9,7 +9,8 @@
 // Differences from stock react-invenio-forms Dropdown:
 // - Uses local FieldLabel import.
 // - Delegates rendering to local replacement SelectField (touched-aware behavior).
-// - Keeps stock prop mapping/defaults; does not add extra pass-through props.
+// - Passes **`description`** and **`helpText`** through separately (description above the
+//   dropdown, helpText below). Stock merges `helpText ?? description` into one `helpText`.
 
 import React, { Component } from "react";
 import { showHideOverridableWithDynamicId } from "react-invenio-forms";
@@ -44,7 +45,6 @@ class DropdownComponent extends Component {
       ...dropdownProps
     } = this.props;
 
-    const helpText = helpTextProp ?? description;
     const labelIcon = labelIconProp ?? icon;
 
     return (
@@ -60,7 +60,8 @@ class DropdownComponent extends Component {
         clearable={clearable}
         required={required}
         defaultValue={multiple ? [] : ""}
-        helpText={helpText}
+        description={description}
+        helpText={helpTextProp}
         optimized={optimized}
         allowAdditions={allowAdditions}
         {...dropdownProps}

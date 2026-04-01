@@ -25,17 +25,21 @@
 //   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
 //   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
 //   and any other caller that needs extra blur logic.
+// - Optional **`description`** (above the dropdown) and **`helpText`** (below), same placement
+//   contract as replacement `TextField` / `TextArea` / `MultiInput`; string values run through
+//   `i18next.t` like `TextField`.
 
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { FastField, Field, getIn } from "formik";
-import { Form } from "semantic-ui-react";
+import PropTypes from "prop-types";
+import React, { Component } from "react";
 import {
   FeedbackLabel,
   mergeOptions,
   ensureSelectedValuesInOptions,
   createOption,
 } from "react-invenio-forms";
+import { Form } from "semantic-ui-react";
 
 export class SelectField extends Component {
   constructor(props) {
@@ -186,17 +190,28 @@ export class SelectField extends Component {
   };
 
   render() {
-    const { optimized, fieldPath, helpText, ...uiProps } = this.props;
+    const { optimized, fieldPath, helpText, description, ...uiProps } = this.props;
     const FormikField = optimized ? FastField : Field;
     return (
       <>
+        {description && description !== " " && (
+          <label className="helptext" id={`${fieldPath}.description`}>
+            {React.isValidElement(description)
+              ? description
+              : i18next.t(description)}
+          </label>
+        )}
         <FormikField
           name={fieldPath}
           component={this.renderFormField}
           fieldPath={fieldPath}
           {...uiProps}
         />
-        {helpText && <label className="helptext">{helpText}</label>}
+        {helpText && helpText !== " " && (
+          <label className="helptext" id={`${fieldPath}.helptext`}>
+            {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
+          </label>
+        )}
       </>
     );
   }
@@ -213,7 +228,8 @@ SelectField.propTypes = {
   onAddItem: PropTypes.func,
   allowAdditions: PropTypes.bool,
   multiple: PropTypes.bool,
-  helpText: PropTypes.string,
+  description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   required: PropTypes.bool,
   disabled: PropTypes.bool,
 };
@@ -226,6 +242,7 @@ SelectField.defaultProps = {
   onChange: undefined,
   onAddItem: undefined,
   multiple: false,
+  description: undefined,
   helpText: undefined,
   required: false,
   disabled: false,

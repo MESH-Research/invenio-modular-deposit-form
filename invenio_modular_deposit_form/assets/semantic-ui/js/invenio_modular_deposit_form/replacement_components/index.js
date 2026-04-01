@@ -3,7 +3,7 @@ export * from "./field_components";
 export * from "./CommunitySelectionModal";
 export * from "./PublishButton";
 // Top-level custom-field widget shims/adapters (stock ui_widget names):
-// - Input -> stock-like adapter over local TextField
+// - Input -> local TextField; passes `description` + `helpText` separately (above / below).
 export * from "./Input";
 // Top-level core replacement widgets:
 // - SelectField / Dropdown / AutocompleteDropdown / TextField / TextArea
@@ -17,6 +17,8 @@ export * from "./Input";
 // - Optional `commitSearchOnBlur`, `hideAdditionMenuItem` (semantic-ui-react Dropdown additions),
 //   `focusFieldPathAfterSelect` (see file header).
 // - Search string ref + debounce cancel on unmount.
+// Dropdown / AutocompleteDropdown: pass `description` + `helpText` through to SelectField /
+// RemoteSelectField (above / below), not merged like stock.
 // Published departures: docs/source/replacement_field_components.md (Sphinx docs in this tree).
 export * from "./SelectField";
 export * from "./Dropdown";

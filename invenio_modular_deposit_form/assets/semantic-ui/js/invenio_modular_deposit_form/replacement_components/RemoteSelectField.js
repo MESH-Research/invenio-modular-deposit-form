@@ -27,6 +27,8 @@
 // - `focusFieldPathAfterSelect` (optional Formik field path / DOM id): after `onChange` (pick
 //   from list) or `onAddItem` (Enter on addition when additions are enabled), focuses
 //   `document.getElementById(path)` on the next tick; not run after blur-only commit.
+// - **`description` / `helpText`:** forwarded to local `SelectField` (above / below the
+//   dropdown); see `SelectField.jsx`.
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
@@ -453,6 +455,8 @@ RemoteSelectField.propTypes = {
   commitSearchOnBlur: PropTypes.bool,
   focusFieldPathAfterSelect: PropTypes.string,
   hideAdditionMenuItem: PropTypes.bool,
+  description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };
 
 export { RemoteSelectField };
