@@ -35,6 +35,15 @@ describe("validator (full form validation) - pids.doi", () => {
     ).resolves.toBeTruthy();
   });
 
+  it("accepts pids.doi: {} (empty placeholder object)", async () => {
+    await expect(
+      schema.validate({
+        ...baseForm,
+        pids: { doi: {} },
+      })
+    ).resolves.toBeTruthy();
+  });
+
   it("sets a string error on pids.doi when provider is external and identifier is missing (PIDSchema)", async () => {
     await expect(
       schema.validate({

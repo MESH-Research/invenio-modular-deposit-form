@@ -14,6 +14,7 @@ import {
   object as yupObject,
   string as yupString,
 } from "yup";
+import isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { DEFAULT_TITLE_MAX_LENGTH, RDM_RECORD_ACCESS_LEVELS } from "../constants";
 import { getIdentifierSchemeIds, validIdentifierForScheme } from "./identifierSchemeValidators";
@@ -289,10 +290,16 @@ function buildValidationSchema(config = {}) {
     access: accessSchema,
     // Backend schema: `pids` is a dict of PID schemes (e.g. `pids: { doi: {...} }`).
     // Yup 0.32: `.optional()` on nested objects still validates missing keys; use `lazy`
-    // so we only run `PIDSchema` when `pids.doi` is present (non-null).
+    // so we only run `pidEntrySchema` when the slot is "real". Skip for `null` and lodash
+    // `isEmpty` values (e.g. `{}` — managed placeholder / restore fallback).
     pids: yupObject()
       .shape({
-        doi: yupLazy((value) => (value == null ? mixed().notRequired() : pidEntrySchema)),
+        doi: yupLazy((value) => {
+          if (value == null || isEmpty(value)) {
+            return mixed().notRequired();
+          }
+          return pidEntrySchema;
+        }),
       })
       .notRequired(),
     custom_fields: buildCustomFieldsSchema(recordSchemeIds),
