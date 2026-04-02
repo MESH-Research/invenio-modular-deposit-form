@@ -76,27 +76,19 @@ const ACTIONS = {
   // until the page unloads — surface copy for that gap.
   [DRAFT_PUBLISH_STARTED]: {
     feedback: "positive",
-    message: i18next.t(
-      "Publishing your record… You will be redirected when this is complete.",
-    ),
+    message: i18next.t("Publishing your record… You will be redirected when this is complete."),
   },
   [DRAFT_SUBMIT_REVIEW_STARTED]: {
     feedback: "positive",
-    message: i18next.t(
-      "Submitting for review… You will be redirected when this is complete.",
-    ),
+    message: i18next.t("Submitting for review… You will be redirected when this is complete."),
   },
   [DRAFT_PREVIEW_STARTED]: {
     feedback: "positive",
-    message: i18next.t(
-      "Opening preview… You will be redirected when this is complete.",
-    ),
+    message: i18next.t("Opening preview… You will be redirected when this is complete."),
   },
   [DRAFT_DELETE_STARTED]: {
     feedback: "warning",
-    message: i18next.t(
-      "Deleting this draft… You will be redirected when this is complete.",
-    ),
+    message: i18next.t("Deleting this draft… You will be redirected when this is complete."),
   },
   [DRAFT_HAS_VALIDATION_ERRORS]: {
     feedback: "warning",
@@ -109,67 +101,65 @@ const ACTIONS = {
   [DRAFT_SAVE_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "The draft was not saved. Please try again. If the problem persists, contact user support.",
+      "The draft was not saved. Please try again. If the problem persists, contact user support."
     ),
   },
   [DRAFT_PUBLISH_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "The draft was not published. Please try again. If the problem persists, contact user support.",
+      "The draft was not published. Please try again. If the problem persists, contact user support."
     ),
   },
   [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: {
     feedback: "error",
-    message: i18next.t(
-      "The draft was not published. Record saved with validation feedback in",
-    ),
+    message: i18next.t("The draft was not published. Record saved with validation feedback in"),
   },
   [DRAFT_SUBMIT_REVIEW_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "The draft was not submitted for review. Please try again. If the problem persists, contact user support.",
+      "The draft was not submitted for review. Please try again. If the problem persists, contact user support."
     ),
   },
   [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]: {
     feedback: "error",
     message: i18next.t(
-      "The draft was not submitted for review. Record saved with validation feedback in",
+      "The draft was not submitted for review. Record saved with validation feedback in"
     ),
   },
   [DRAFT_DELETE_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "Draft deletion failed. Please try again. If the problem persists, contact user support.",
+      "Draft deletion failed. Please try again. If the problem persists, contact user support."
     ),
   },
   [DRAFT_PREVIEW_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "Draft preview failed. Please try again. If the problem persists, contact user support.",
+      "Draft preview failed. Please try again. If the problem persists, contact user support."
     ),
   },
   [RESERVE_PID_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "Identifier reservation failed. Please try again. If the problem persists, contact user support.",
+      "Identifier reservation failed. Please try again. If the problem persists, contact user support."
     ),
   },
   [DISCARD_PID_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "Identifier could not be discarded. Please try again. If the problem persists, contact user support.",
+      "Identifier could not be discarded. Please try again. If the problem persists, contact user support."
     ),
   },
   [FILE_UPLOAD_SAVE_DRAFT_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "Draft save failed before file upload. Please try again. If the problem persists, contact user support.",
+      "Draft save failed before file upload. Please try again. If the problem persists, contact user support."
     ),
   },
   [FILE_IMPORT_FAILED]: {
     feedback: "error",
     message: i18next.t(
-      "Files import from the previous version failed. Please try again. If the problem persists, contact user support.",
+      "Files import from the previous version failed. Please try again. If the problem persists, contact user support."
     ),
   },
 };
@@ -223,8 +213,7 @@ const VISIBLE_ERROR_ACTION_STATES = [
 
 const WITH_VALIDATION_TO_PLAIN = {
   [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_PUBLISH_FAILED,
-  [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]:
-    DRAFT_SUBMIT_REVIEW_FAILED,
+  [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_SUBMIT_REVIEW_FAILED,
 };
 
 export const feedbackConfig = {
@@ -255,9 +244,7 @@ function getFlaggedErrors(formUIState) {
 function getNonValidationErrors(backendErrors) {
   if (_isEmpty(backendErrors)) return undefined;
   return Object.fromEntries(
-    Object.entries(backendErrors).filter(
-      ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key),
-    ),
+    Object.entries(backendErrors).filter(([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key))
   );
 }
 
@@ -266,13 +253,10 @@ function getEffectiveActionState(
   flaggedClientErrors,
   flaggedClientWarnings,
   flaggedClientInfo,
-  nonValidationErrors,
+  nonValidationErrors
 ) {
   if (!_isEmpty(flaggedClientErrors)) return CLIENT_VALIDATION_ERRORS;
-  if (
-    _isEmpty(nonValidationErrors) &&
-    !SUCCESS_ACTION_STATES.includes(actionState)
-  ) {
+  if (_isEmpty(nonValidationErrors) && !SUCCESS_ACTION_STATES.includes(actionState)) {
     if (VISIBLE_ERROR_ACTION_STATES.includes(actionState)) {
       const plainBackendActionState = WITH_VALIDATION_TO_PLAIN[actionState];
       return plainBackendActionState ?? actionState;
@@ -293,13 +277,10 @@ function getHighestSeverityLevel(formUIState, initialFeedbackType) {
   for (const severity of SEVERITY_ORDER) {
     if (
       (formUIState?.sectionErrorsFlagged ?? []).some(
-        (entry) => (entry?.[`${severity}_fields`]?.length ?? 0) > 0,
+        (entry) => (entry?.[`${severity}_fields`]?.length ?? 0) > 0
       )
     ) {
-      if (
-        SEVERITY_ORDER.indexOf(severity) >
-        SEVERITY_ORDER.indexOf(highestClientSeverity)
-      ) {
+      if (SEVERITY_ORDER.indexOf(severity) > SEVERITY_ORDER.indexOf(highestClientSeverity)) {
         highestClientSeverity = severity;
       }
     }
@@ -312,7 +293,7 @@ function noMessagesPresent(
   flaggedClientErrors,
   flaggedClientWarnings,
   flaggedClientInfo,
-  nonValidationErrors,
+  nonValidationErrors
 ) {
   return (
     !actionState &&
@@ -328,11 +309,7 @@ function noMessagesPresent(
  */
 const FormFeedback = ({}) => {
   const store = useStore();
-  const {
-    actionState,
-    errors: backendErrors,
-    config,
-  } = store.getState().deposit;
+  const { actionState, errors: backendErrors, config } = store.getState().deposit;
   const sectionsConfig = config?.formSectionFields;
 
   const { formUIState } = useFormUIState();
@@ -346,7 +323,7 @@ const FormFeedback = ({}) => {
       flaggedClientErrors,
       flaggedClientWarnings,
       flaggedClientInfo,
-      nonValidationErrors,
+      nonValidationErrors
     )
   ) {
     return null;
@@ -357,7 +334,7 @@ const FormFeedback = ({}) => {
     flaggedClientErrors,
     flaggedClientWarnings,
     flaggedClientInfo,
-    nonValidationErrors,
+    nonValidationErrors
   );
   // If the effective action state is not visible, return null.
   if (
@@ -373,7 +350,7 @@ const FormFeedback = ({}) => {
     {
       feedback: undefined,
       message: undefined,
-    },
+    }
   );
 
   // If no action message is present, still pass any backend error message if it exists.
@@ -384,35 +361,24 @@ const FormFeedback = ({}) => {
   }
 
   // Get the highest client-side severity level if there is one
-  const highestClientSeverityLevel = getHighestSeverityLevel(
-    formUIState,
-    initialFeedbackType,
-  );
+  const highestClientSeverityLevel = getHighestSeverityLevel(formUIState, initialFeedbackType);
   const feedbackType =
     SEVERITY_ORDER[
       Math.max(
         SEVERITY_ORDER.indexOf(highestClientSeverityLevel),
-        SEVERITY_ORDER.indexOf(initialFeedbackType),
+        SEVERITY_ORDER.indexOf(initialFeedbackType)
       )
     ];
 
-  const { icon, type } =
-    feedbackConfig[feedbackType] || feedbackConfig["warning"];
+  const { icon, type } = feedbackConfig[feedbackType] || feedbackConfig["warning"];
 
   return (
-    <Message
-      visible
-      {...{ [type]: true }}
-      className="flashed pb-10"
-      id={type + "-feedback-div"}
-    >
-      <Message.Header className="rel-mt-1 rel-ml-1">
-        {displayMessage}
-      </Message.Header>
+    <Message visible {...{ [type]: true }} className="flashed pb-15" id={type + "-feedback-div"}>
+      <Message.Header className="rel-mt-1 rel-ml-1">{displayMessage}</Message.Header>
       {(!_isEmpty(flaggedClientErrors) ||
         !_isEmpty(flaggedClientWarnings) ||
         !_isEmpty(flaggedClientInfo)) && (
-        <Message.List className="mt-15 mb-10 rel-ml-1">
+        <Message.List className="mt-15 mb-5 rel-ml-1">
           <FormFeedbackSummary
             sectionsConfig={sectionsConfig}
             currentResourceType={formUIState?.currentResourceType}
