@@ -10,49 +10,60 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import _set from "lodash/set";
 import { useStore } from "react-redux";
-import { Grid, List, Message, Icon } from "semantic-ui-react";
+import { Message } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { FormFeedbackSummary } from "./FormFeedbackSummary";
 import {
   DISCARD_PID_FAILED,
   DRAFT_DELETE_FAILED,
+  DRAFT_DELETE_STARTED,
   DRAFT_HAS_VALIDATION_ERRORS,
   DRAFT_PREVIEW_FAILED,
+  DRAFT_PREVIEW_STARTED,
   DRAFT_PUBLISH_FAILED,
   DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS,
+  DRAFT_PUBLISH_STARTED,
   DRAFT_SAVE_FAILED,
   DRAFT_SAVE_SUCCEEDED,
   DRAFT_LOADED_WITH_VALIDATION_ERRORS,
   DRAFT_SUBMIT_REVIEW_FAILED,
   DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS,
+  DRAFT_SUBMIT_REVIEW_STARTED,
   FILE_IMPORT_FAILED,
   FILE_UPLOAD_SAVE_DRAFT_FAILED,
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
 import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
 
-const WITH_VALIDATION_TO_PLAIN = {
-  [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_PUBLISH_FAILED,
-  [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_SUBMIT_REVIEW_FAILED,
-  [DRAFT_HAS_VALIDATION_ERRORS]: DRAFT_SAVE_FAILED,
-  [DRAFT_LOADED_WITH_VALIDATION_ERRORS]: DRAFT_SAVE_FAILED,
-};
+/** Synthetic FormFeedback action states (not a Redux deposit action type). */
+const CLIENT_VALIDATION_ERRORS = "CLIENT_VALIDATION_ERRORS";
+const CLIENT_VALIDATION_WARNINGS = "CLIENT_VALIDATION_WARNINGS";
+const CLIENT_VALIDATION_MESSAGES = "CLIENT_VALIDATION_MESSAGES";
+const ERRORS_CLEARED = "ERRORS_CLEARED";
 
 const ACTIONS = {
   // Add action state representing purely client-side validation errors
-  ["CLIENT_VALIDATION_ERRORS"]: {
-    feedback: "negative",
+  [CLIENT_VALIDATION_ERRORS]: {
+    feedback: "error",
     message: i18next.t("Before submitting, please fix the issues in"),
   },
+  [CLIENT_VALIDATION_WARNINGS]: {
+    feedback: "warning",
+    message: i18next.t("Note the warnings in"),
+  },
+  [CLIENT_VALIDATION_MESSAGES]: {
+    feedback: "info",
+    message: i18next.t("Note the messages in"),
+  },
   // Add action state representing cleared errors
-  ["ERRORS_CLEARED"]: {
+  [ERRORS_CLEARED]: {
     feedback: "positive",
     message: undefined,
   },
@@ -60,114 +71,256 @@ const ACTIONS = {
     feedback: "positive",
     message: i18next.t("Record successfully saved."),
   },
+  // Redux never dispatches *Succeeded for publish/submit/preview/delete: the deposit
+  // thunks call window.location.replace on success. Only *_STARTED remains visible
+  // until the page unloads — surface copy for that gap.
+  [DRAFT_PUBLISH_STARTED]: {
+    feedback: "positive",
+    message: i18next.t(
+      "Publishing your record… You will be redirected when this is complete.",
+    ),
+  },
+  [DRAFT_SUBMIT_REVIEW_STARTED]: {
+    feedback: "positive",
+    message: i18next.t(
+      "Submitting for review… You will be redirected when this is complete.",
+    ),
+  },
+  [DRAFT_PREVIEW_STARTED]: {
+    feedback: "positive",
+    message: i18next.t(
+      "Opening preview… You will be redirected when this is complete.",
+    ),
+  },
+  [DRAFT_DELETE_STARTED]: {
+    feedback: "warning",
+    message: i18next.t(
+      "Deleting this draft… You will be redirected when this is complete.",
+    ),
+  },
   [DRAFT_HAS_VALIDATION_ERRORS]: {
     feedback: "warning",
     message: i18next.t("Record saved with validation feedback in"),
   },
   [DRAFT_LOADED_WITH_VALIDATION_ERRORS]: {
-    feedback: "warning",
+    feedback: "error",
     message: i18next.t("Draft has validation feedback in"),
   },
   [DRAFT_SAVE_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "The draft was not saved. Please try again. If the problem persists, contact user support."
+      "The draft was not saved. Please try again. If the problem persists, contact user support.",
     ),
   },
   [DRAFT_PUBLISH_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "The draft was not published. Please try again. If the problem persists, contact user support."
+      "The draft was not published. Please try again. If the problem persists, contact user support.",
     ),
   },
   [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: {
-    feedback: "negative",
-    message: i18next.t("The draft was not published. Record saved with validation feedback in"),
+    feedback: "error",
+    message: i18next.t(
+      "The draft was not published. Record saved with validation feedback in",
+    ),
   },
   [DRAFT_SUBMIT_REVIEW_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "The draft was not submitted for review. Please try again. If the problem persists, contact user support."
+      "The draft was not submitted for review. Please try again. If the problem persists, contact user support.",
     ),
   },
   [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "The draft was not submitted for review. Record saved with validation feedback in"
+      "The draft was not submitted for review. Record saved with validation feedback in",
     ),
   },
   [DRAFT_DELETE_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "Draft deletion failed. Please try again. If the problem persists, contact user support."
+      "Draft deletion failed. Please try again. If the problem persists, contact user support.",
     ),
   },
   [DRAFT_PREVIEW_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "Draft preview failed. Please try again. If the problem persists, contact user support."
+      "Draft preview failed. Please try again. If the problem persists, contact user support.",
     ),
   },
   [RESERVE_PID_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "Identifier reservation failed. Please try again. If the problem persists, contact user support."
+      "Identifier reservation failed. Please try again. If the problem persists, contact user support.",
     ),
   },
   [DISCARD_PID_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "Identifier could not be discarded. Please try again. If the problem persists, contact user support."
+      "Identifier could not be discarded. Please try again. If the problem persists, contact user support.",
     ),
   },
   [FILE_UPLOAD_SAVE_DRAFT_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "Draft save failed before file upload. Please try again. If the problem persists, contact user support."
+      "Draft save failed before file upload. Please try again. If the problem persists, contact user support.",
     ),
   },
   [FILE_IMPORT_FAILED]: {
-    feedback: "negative",
+    feedback: "error",
     message: i18next.t(
-      "Files import from the previous version failed. Please try again. If the problem persists, contact user support."
+      "Files import from the previous version failed. Please try again. If the problem persists, contact user support.",
     ),
   },
+};
+
+const SEVERITY_ORDER = ["positive", "info", "warning", "error"];
+
+const VISIBLE_ACTION_STATES = [
+  CLIENT_VALIDATION_ERRORS,
+  CLIENT_VALIDATION_WARNINGS,
+  CLIENT_VALIDATION_MESSAGES,
+  DRAFT_SAVE_SUCCEEDED,
+  DRAFT_HAS_VALIDATION_ERRORS,
+  DRAFT_SAVE_FAILED,
+  DRAFT_PUBLISH_FAILED,
+  DRAFT_DELETE_FAILED,
+  DRAFT_PREVIEW_FAILED,
+  DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS,
+  DRAFT_LOADED_WITH_VALIDATION_ERRORS,
+  DRAFT_SUBMIT_REVIEW_FAILED,
+  DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS,
+  FILE_IMPORT_FAILED,
+  DRAFT_PUBLISH_STARTED,
+  DRAFT_SUBMIT_REVIEW_STARTED,
+  DRAFT_PREVIEW_STARTED,
+  DRAFT_DELETE_STARTED,
+  FILE_UPLOAD_SAVE_DRAFT_FAILED,
+];
+
+const SUCCESS_ACTION_STATES = [
+  DRAFT_SAVE_SUCCEEDED,
+  DRAFT_PUBLISH_STARTED,
+  DRAFT_SUBMIT_REVIEW_STARTED,
+  DRAFT_PREVIEW_STARTED,
+  DRAFT_DELETE_STARTED,
+];
+
+const VISIBLE_ERROR_ACTION_STATES = [
+  CLIENT_VALIDATION_ERRORS,
+  DRAFT_SAVE_FAILED,
+  DRAFT_HAS_VALIDATION_ERRORS,
+  DRAFT_LOADED_WITH_VALIDATION_ERRORS,
+  DRAFT_PUBLISH_FAILED,
+  DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS,
+  DRAFT_SUBMIT_REVIEW_FAILED,
+  DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS,
+  DRAFT_PREVIEW_FAILED,
+  DRAFT_DELETE_FAILED,
+  FILE_UPLOAD_SAVE_DRAFT_FAILED,
+  FILE_IMPORT_FAILED,
+];
+
+const WITH_VALIDATION_TO_PLAIN = {
+  [DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS]: DRAFT_PUBLISH_FAILED,
+  [DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS]:
+    DRAFT_SUBMIT_REVIEW_FAILED,
 };
 
 export const feedbackConfig = {
   positive: { icon: "check", type: "positive" },
-  suggestive: { icon: "info circle", type: "info" },
-  negative: { icon: "times circle", type: "negative" },
+  info: { icon: "info circle", type: "info" },
+  error: { icon: "times circle", type: "negative" },
   warning: { icon: "exclamation triangle", type: "warning" },
 };
 
 function getFlaggedErrors(formUIState) {
-  const result = {};
+  const flaggedClientErrors = {};
+  const flaggedClientWarnings = {};
+  const flaggedClientInfo = {};
   for (const entry of formUIState?.sectionErrorsFlagged ?? []) {
     for (const path of entry?.error_fields ?? []) {
-      _set(result, path, { severity: "error" });
+      flaggedClientErrors[path] = { severity: "error" };
     }
     for (const path of entry?.warning_fields ?? []) {
-      _set(result, path, { severity: "warning" });
+      flaggedClientWarnings[path] = { severity: "warning" };
     }
     for (const path of entry?.info_fields ?? []) {
-      _set(result, path, { severity: "info" });
+      flaggedClientInfo[path] = { severity: "info" };
     }
   }
-  return result;
+  return { flaggedClientErrors, flaggedClientWarnings, flaggedClientInfo };
 }
 
 function getNonValidationErrors(backendErrors) {
   if (_isEmpty(backendErrors)) return undefined;
   return Object.fromEntries(
-    Object.entries(backendErrors).filter(([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key))
+    Object.entries(backendErrors).filter(
+      ([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key),
+    ),
   );
 }
 
-function hasErrorSeverityInObject(obj) {
-  if (obj == null || typeof obj !== "object") return false;
-  if (typeof obj.severity === "string" && obj.severity === "error") return true;
-  return Object.values(obj).some((v) => hasErrorSeverityInObject(v));
+function getEffectiveActionState(
+  actionState,
+  flaggedClientErrors,
+  flaggedClientWarnings,
+  flaggedClientInfo,
+  nonValidationErrors,
+) {
+  if (!_isEmpty(flaggedClientErrors)) return CLIENT_VALIDATION_ERRORS;
+  if (
+    _isEmpty(nonValidationErrors) &&
+    !SUCCESS_ACTION_STATES.includes(actionState)
+  ) {
+    if (VISIBLE_ERROR_ACTION_STATES.includes(actionState)) {
+      const plainBackendActionState = WITH_VALIDATION_TO_PLAIN[actionState];
+      return plainBackendActionState ?? actionState;
+    } else if (!_isEmpty(flaggedClientWarnings)) {
+      return CLIENT_VALIDATION_WARNINGS;
+    } else if (!_isEmpty(flaggedClientInfo)) {
+      return CLIENT_VALIDATION_MESSAGES;
+    } else {
+      return "ERRORS_CLEARED";
+    }
+  }
+  const plainBackendActionState = WITH_VALIDATION_TO_PLAIN[actionState];
+  return plainBackendActionState ?? actionState;
+}
+
+function getHighestSeverityLevel(formUIState, initialFeedbackType) {
+  let highestClientSeverity = initialFeedbackType;
+  for (const severity of SEVERITY_ORDER) {
+    if (
+      (formUIState?.sectionErrorsFlagged ?? []).some(
+        (entry) => (entry?.[`${severity}_fields`]?.length ?? 0) > 0,
+      )
+    ) {
+      if (
+        SEVERITY_ORDER.indexOf(severity) >
+        SEVERITY_ORDER.indexOf(highestClientSeverity)
+      ) {
+        highestClientSeverity = severity;
+      }
+    }
+  }
+  return highestClientSeverity;
+}
+
+function noMessagesPresent(
+  actionState,
+  flaggedClientErrors,
+  flaggedClientWarnings,
+  flaggedClientInfo,
+  nonValidationErrors,
+) {
+  return (
+    !actionState &&
+    _isEmpty(flaggedClientErrors) &&
+    _isEmpty(flaggedClientWarnings) &&
+    _isEmpty(flaggedClientInfo) &&
+    _isEmpty(nonValidationErrors)
+  );
 }
 
 /**
@@ -175,59 +328,76 @@ function hasErrorSeverityInObject(obj) {
  */
 const FormFeedback = ({}) => {
   const store = useStore();
-  const { actionState, errors: backendErrors, config } = store.getState().deposit;
+  const {
+    actionState,
+    errors: backendErrors,
+    config,
+  } = store.getState().deposit;
   const sectionsConfig = config?.formSectionFields;
 
   const { formUIState } = useFormUIState();
-  const flaggedClientErrors = getFlaggedErrors(formUIState);
+  const { flaggedClientErrors, flaggedClientWarnings, flaggedClientInfo } =
+    getFlaggedErrors(formUIState);
   const nonValidationErrors = getNonValidationErrors(backendErrors);
 
-  // We don't display any message if there are no backend errors or flagged frontend errors.
-  if (!actionState && _isEmpty(flaggedClientErrors) && _isEmpty(nonValidationErrors)) {
+  if (
+    noMessagesPresent(
+      actionState,
+      flaggedClientErrors,
+      flaggedClientWarnings,
+      flaggedClientInfo,
+      nonValidationErrors,
+    )
+  ) {
     return null;
   }
 
-  // Update the actionState if there are new client-side validation errors or if
-  // we have cleared all of the validation errors.
-  let effectiveActionState = !_isEmpty(flaggedClientErrors)
-    ? "CLIENT_VALIDATION_ERRORS"
-    : _isEmpty(nonValidationErrors)
-      ? "ERRORS_CLEARED"
-      : actionState;
-  // Provide a sensical actionState if we've cleared validation errors client side, but there were also
-  // non-validation errors.
+  let effectiveActionState = getEffectiveActionState(
+    actionState,
+    flaggedClientErrors,
+    flaggedClientWarnings,
+    flaggedClientInfo,
+    nonValidationErrors,
+  );
+  // If the effective action state is not visible, return null.
   if (
-    _isEmpty(flaggedClientErrors) &&
-    !_isEmpty(nonValidationErrors) &&
-    WITH_VALIDATION_TO_PLAIN[actionState]
+    Object.keys(ACTIONS).includes(effectiveActionState) &&
+    !VISIBLE_ACTION_STATES.includes(effectiveActionState)
   ) {
-    effectiveActionState = WITH_VALIDATION_TO_PLAIN[actionState];
+    return null;
   }
 
-  const { feedback: initialFeedback, message: actionMessage } = _get(
+  const { feedback: initialFeedbackType, message: actionMessage } = _get(
     ACTIONS,
     effectiveActionState,
     {
       feedback: undefined,
       message: undefined,
-    }
+    },
   );
 
+  // If no action message is present, still pass any backend error message if it exists.
   const backendErrorMessage = backendErrors?.message || backendErrors?._schema;
   const displayMessage = actionMessage || backendErrorMessage;
-
   if (!displayMessage) {
     return null;
   }
 
-  const noSeverityChecksWithErrors =
-    !(formUIState?.sectionErrorsFlagged ?? []).some(
-      (entry) => (entry?.error_fields?.length ?? 0) > 0
-    ) || hasErrorSeverityInObject(nonValidationErrors);
+  // Get the highest client-side severity level if there is one
+  const highestClientSeverityLevel = getHighestSeverityLevel(
+    formUIState,
+    initialFeedbackType,
+  );
+  const feedbackType =
+    SEVERITY_ORDER[
+      Math.max(
+        SEVERITY_ORDER.indexOf(highestClientSeverityLevel),
+        SEVERITY_ORDER.indexOf(initialFeedbackType),
+      )
+    ];
 
-  const feedback = noSeverityChecksWithErrors ? "suggestive" : initialFeedback;
-
-  const { icon, type } = feedbackConfig[feedback] || feedbackConfig["warning"];
+  const { icon, type } =
+    feedbackConfig[feedbackType] || feedbackConfig["warning"];
 
   return (
     <Message
@@ -235,10 +405,13 @@ const FormFeedback = ({}) => {
       {...{ [type]: true }}
       className="flashed pb-10"
       id={type + "-feedback-div"}
-      error
     >
-      <MessageHeader className="rel-mt-1 rel-ml-1">{displayMessage}</MessageHeader>
-      {!_isEmpty(flaggedClientErrors) && (
+      <Message.Header className="rel-mt-1 rel-ml-1">
+        {displayMessage}
+      </Message.Header>
+      {(!_isEmpty(flaggedClientErrors) ||
+        !_isEmpty(flaggedClientWarnings) ||
+        !_isEmpty(flaggedClientInfo)) && (
         <Message.List className="mt-15 mb-10 rel-ml-1">
           <FormFeedbackSummary
             sectionsConfig={sectionsConfig}
