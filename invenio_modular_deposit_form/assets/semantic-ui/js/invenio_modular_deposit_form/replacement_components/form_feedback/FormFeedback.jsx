@@ -378,7 +378,7 @@ const FormFeedback = ({}) => {
       {(!_isEmpty(flaggedClientErrors) ||
         !_isEmpty(flaggedClientWarnings) ||
         !_isEmpty(flaggedClientInfo)) && (
-        <Message.List className="mt-15 mb-5 rel-ml-1">
+        <Message.List className="mt-15 mb-0 rel-ml-1">
           <FormFeedbackSummary
             sectionsConfig={sectionsConfig}
             currentResourceType={formUIState?.currentResourceType}
