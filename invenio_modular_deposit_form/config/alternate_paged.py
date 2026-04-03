@@ -55,265 +55,261 @@ _LANG_FIELD_DESCRIPTION = (
 _DATASET_DETAILS_PAGE_3 = {
     "label": "Dataset Details",
     "subsections": [
-    {
-        "section": "image_details",
-        "component": "FormSection",
-        "label": "Dataset Details",
-        "icon": "table",
-        "show_heading": True,
-        "subsections": [
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "sizes",
-                        "component": "SizesComponent",
-                        "label": "Record count",
-                        "placeholder": _(
-                            "e.g. 1.4M rows (press 'enter' to add)"
-                        ),
-                        "description": "",
-                    }
-                ],
-                "classnames": "equal width",
-            },
-        ],
-    },
-    {
-        "section": "alternate_identifiers",
-        "label": "Dataset URL and Other Identifiers",
-        "component": "AlternateIdentifiersComponent",
-        "wrapped": True,
-    },
-    {
-        "section": "language",
-        "label": "Languages",
-        "component": "LanguagesComponent",
-        "placeholder": _LANG_FIELD_PLACEHOLDER,
-        "description": _LANG_FIELD_DESCRIPTION,
-        "wrapped": True,
-    },
-],
+        {
+            "section": "image_details",
+            "component": "FormSection",
+            "label": "Dataset Details",
+            "icon": "table",
+            "show_heading": True,
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "sizes",
+                            "component": "SizesComponent",
+                            "label": "Record count",
+                            "placeholder": _("e.g. 1.4M rows (press 'enter' to add)"),
+                            "description": "",
+                        }
+                    ],
+                    "classnames": "equal width",
+                },
+            ],
+        },
+        {
+            "section": "alternate_identifiers",
+            "label": "Dataset URL and Other Identifiers",
+            "component": "AlternateIdentifiersComponent",
+            "wrapped": True,
+        },
+        {
+            "section": "language",
+            "label": "Languages",
+            "component": "LanguagesComponent",
+            "placeholder": _LANG_FIELD_PLACEHOLDER,
+            "description": _LANG_FIELD_DESCRIPTION,
+            "wrapped": True,
+        },
+    ],
 }
 
 _IMAGE_DETAILS_PAGE_3 = {
     "label": "Image Details",
     "subsections": [
-    {
-        "section": "image_details",
-        "component": "FormSection",
-        "label": "Image Details",
-        "icon": "picture",
-        "show_heading": True,
-        "subsections": [
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "sizes",
-                        "component": "SizesComponent",
-                        "label": "Dimensions",
-                        "placeholder": _(
-                            "e.g. 32 x 40 cm (press 'enter' to add)"
-                        ),
-                        "description": "",
-                    },
-                    {
-                        "section": "publication_location",
-                        "component": "PublicationLocationComponent",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-        ],
-    },
-    {
-        "section": "alternate_identifiers",
-        "label": "Image URL and Other Identifiers",
-        "component": "AlternateIdentifiersComponent",
-        "wrapped": True,
-    },
-    {
-        "section": "language",
-        "label": "Languages",
-        "component": "LanguagesComponent",
-        "placeholder": _LANG_FIELD_PLACEHOLDER,
-        "description": _LANG_FIELD_DESCRIPTION,
-        "wrapped": True,
-    },
-],
+        {
+            "section": "image_details",
+            "component": "FormSection",
+            "label": "Image Details",
+            "icon": "picture",
+            "show_heading": True,
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "sizes",
+                            "component": "SizesComponent",
+                            "label": "Dimensions",
+                            "placeholder": _("e.g. 32 x 40 cm (press 'enter' to add)"),
+                            "description": "",
+                        },
+                        {
+                            "section": "publication_location",
+                            "component": "PublicationLocationComponent",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+            ],
+        },
+        {
+            "section": "alternate_identifiers",
+            "label": "Image URL and Other Identifiers",
+            "component": "AlternateIdentifiersComponent",
+            "wrapped": True,
+        },
+        {
+            "section": "language",
+            "label": "Languages",
+            "component": "LanguagesComponent",
+            "placeholder": _LANG_FIELD_PLACEHOLDER,
+            "description": _LANG_FIELD_DESCRIPTION,
+            "wrapped": True,
+        },
+    ],
 }
 
 _VIDEO_DETAILS_PAGE_3 = {
     "label": "Media Details",
     "subsections": [
-    {
-        "section": "image_details",
-        "component": "FormSection",
-        "label": "Media Details",
-        "icon": "video",
-        "show_heading": True,
-        "subsections": [
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "sizes",
-                        "component": "SizesComponent",
-                        "label": "Duration",
-                        "placeholder": _("e.g. 30 min (press 'enter' to add)"),
-                        "description": "",
-                    },
-                    {
-                        "section": "publication_location",
-                        "component": "PublicationLocationComponent",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-        ],
-    },
-    {
-        "section": "alternate_identifiers",
-        "label": "Media URL and Other Identifiers",
-        "component": "AlternateIdentifiersComponent",
-        "wrapped": True,
-    },
-    {
-        "section": "language",
-        "label": "Languages",
-        "component": "LanguagesComponent",
-        "placeholder": _LANG_FIELD_PLACEHOLDER,
-        "description": _LANG_FIELD_DESCRIPTION,
-        "wrapped": True,
-    },
-],
+        {
+            "section": "image_details",
+            "component": "FormSection",
+            "label": "Media Details",
+            "icon": "video",
+            "show_heading": True,
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "sizes",
+                            "component": "SizesComponent",
+                            "label": "Duration",
+                            "placeholder": _("e.g. 30 min (press 'enter' to add)"),
+                            "description": "",
+                        },
+                        {
+                            "section": "publication_location",
+                            "component": "PublicationLocationComponent",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+            ],
+        },
+        {
+            "section": "alternate_identifiers",
+            "label": "Media URL and Other Identifiers",
+            "component": "AlternateIdentifiersComponent",
+            "wrapped": True,
+        },
+        {
+            "section": "language",
+            "label": "Languages",
+            "component": "LanguagesComponent",
+            "placeholder": _LANG_FIELD_PLACEHOLDER,
+            "description": _LANG_FIELD_DESCRIPTION,
+            "wrapped": True,
+        },
+    ],
 }
 
 _AUDIO_DETAILS_PAGE_3 = {
     "label": "Recording Details",
     "subsections": [
-    {
-        "section": "image_details",
-        "component": "FormSection",
-        "label": "Recording Details",
-        "icon": "headphones",
-        "show_heading": True,
-        "subsections": [
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "sizes",
-                        "component": "SizesComponent",
-                        "label": "Duration",
-                        "placeholder": _("e.g. 30 min (press 'enter' to add)"),
-                        "description": "",
-                    },
-                    {
-                        "section": "publication_location",
-                        "component": "PublicationLocationComponent",
-                        "label": "Recording location",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-        ],
-    },
-    {
-        "section": "alternate_identifiers",
-        "label": "Recording URL and Other Identifiers",
-        "component": "AlternateIdentifiersComponent",
-        "wrapped": True,
-    },
-    {
-        "section": "language",
-        "label": "Languages",
-        "component": "LanguagesComponent",
-        "placeholder": _LANG_FIELD_PLACEHOLDER,
-        "description": _LANG_FIELD_DESCRIPTION,
-        "wrapped": True,
-    },
-],
+        {
+            "section": "image_details",
+            "component": "FormSection",
+            "label": "Recording Details",
+            "icon": "headphones",
+            "show_heading": True,
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "sizes",
+                            "component": "SizesComponent",
+                            "label": "Duration",
+                            "placeholder": _("e.g. 30 min (press 'enter' to add)"),
+                            "description": "",
+                        },
+                        {
+                            "section": "publication_location",
+                            "component": "PublicationLocationComponent",
+                            "label": "Recording location",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+            ],
+        },
+        {
+            "section": "alternate_identifiers",
+            "label": "Recording URL and Other Identifiers",
+            "component": "AlternateIdentifiersComponent",
+            "wrapped": True,
+        },
+        {
+            "section": "language",
+            "label": "Languages",
+            "component": "LanguagesComponent",
+            "placeholder": _LANG_FIELD_PLACEHOLDER,
+            "description": _LANG_FIELD_DESCRIPTION,
+            "wrapped": True,
+        },
+    ],
 }
 
 _SOFTWARE_DETAILS_PAGE_3 = {
     "label": "Software Details",
     "subsections": [
-    {
-        "section": "image_details",
-        "component": "FormSection",
-        "label": "Software Details",
-        "icon": "group",
-        "show_heading": True,
-        "subsections": [
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "code_repository",
-                        "component": "CodeRepositoryComponent",
-                        "icon": "github",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "version",
-                        "component": "VersionComponent",
-                        "icon": "copy",
-                        "description": "",
-                    },
-                    {
-                        "section": "development_status",
-                        "component": "CodeDevelopmentStatusComponent",
-                        "icon": "heartbeat",
-                        "placeholder": "",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-            {
-                "component": "FormRow",
-                "subsections": [
-                    {
-                        "section": "sizes",
-                        "component": "SizesComponent",
-                        "label": "Size",
-                        "placeholder": _("e.g. 400 MB"),
-                        "icon": "database",
-                        "description": "",
-                    },
-                    {
-                        "section": "programming_language",
-                        "component": "CodeProgrammingLanguageComponent",
-                        "icon": "code",
-                        "label": "Programming languages",
-                        "placeholder": "e.g., Python, JavaScript, R",
-                    },
-                ],
-                "classnames": "equal width",
-            },
-        ],
-    },
-    {
-        "section": "alternate_identifiers",
-        "label": "Package URL and other identifiers",
-        "component": "AlternateIdentifiersComponent",
-        "wrapped": True,
-    },
-    {
-        "section": "language",
-        "label": "Natural (Human) Languages",
-        "component": "LanguagesComponent",
-        "placeholder": _LANG_FIELD_PLACEHOLDER,
-        "description": _LANG_FIELD_DESCRIPTION,
-        "wrapped": True,
-    },
-],
+        {
+            "section": "image_details",
+            "component": "FormSection",
+            "label": "Software Details",
+            "icon": "group",
+            "show_heading": True,
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "code_repository",
+                            "component": "CodeRepositoryComponent",
+                            "icon": "github",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "version",
+                            "component": "VersionComponent",
+                            "icon": "copy",
+                            "description": "",
+                        },
+                        {
+                            "section": "development_status",
+                            "component": "CodeDevelopmentStatusComponent",
+                            "icon": "heartbeat",
+                            "placeholder": "",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "sizes",
+                            "component": "SizesComponent",
+                            "label": "Size",
+                            "placeholder": _("e.g. 400 MB"),
+                            "icon": "database",
+                            "description": "",
+                        },
+                        {
+                            "section": "programming_language",
+                            "component": "CodeProgrammingLanguageComponent",
+                            "icon": "code",
+                            "label": "Programming languages",
+                            "placeholder": "e.g., Python, JavaScript, R",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+            ],
+        },
+        {
+            "section": "alternate_identifiers",
+            "label": "Package URL and other identifiers",
+            "component": "AlternateIdentifiersComponent",
+            "wrapped": True,
+        },
+        {
+            "section": "language",
+            "label": "Natural (Human) Languages",
+            "component": "LanguagesComponent",
+            "placeholder": _LANG_FIELD_PLACEHOLDER,
+            "description": _LANG_FIELD_DESCRIPTION,
+            "wrapped": True,
+        },
+    ],
 }
 
 
@@ -328,21 +324,43 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "file_upload",
-                    "label": "Upload Files",
-                    "component": "FileUploadComponent",
-                    "wrapped": True,
-                    "description": (
-                        "Very large files (200MB and larger) should be uploaded "
-                        "one at a time. Multiple smaller files may safely be "
-                        "uploaded at once."
-                    ),
-                },
-                {
-                    "section": "licenses",
-                    "label": "Licenses",
-                    "component": "LicensesComponent",
-                    "wrapped": True,
+                    "section": "files",
+                    "label": "Files and Rights",
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "resource_type",
+                            "label": "Resource Type",
+                            "component": "ResourceTypeSelectorComponent",
+                            "required": True,
+                            "classnames": "basic",
+                        },
+                        {
+                            "section": "file_upload",
+                            "label": "Upload Files",
+                            "component": "FileUploadComponent",
+                            "classnames": "basic",
+                            "show_heading": True,
+                            "description": (
+                                "Very large files (200MB and larger) should be uploaded "
+                                "one at a time. Multiple smaller files may safely be "
+                                "uploaded at once."
+                            ),
+                        },
+                        {
+                            "section": "copyright",
+                            "label": "Copyright",
+                            "component": "CopyrightsComponent",
+                            "classnames": "basic",
+                        },
+                        {
+                            "section": "licenses",
+                            "label": "Licenses",
+                            "component": "LicensesComponent",
+                            "classnames": "basic",
+                        },
+                    ],
                 },
             ],
         },
@@ -352,38 +370,35 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "resource_type",
-                    "label": "Resource Type",
-                    "component": "ResourceTypeComponent",
-                    "wrapped": True,
-                    "required": True,
-                },
-                {
-                    "section": "doi",
-                    "label": "Digital Object Identifier",
-                    "icon": "linkify",
-                    "component": "DoiComponent",
-                    "wrapped": True,
-                },
-                {
-                    "section": "combined_titles",
-                    "label": "Title",
-                    "component": "TitlesComponent",
-                    "wrapped": True,
-                    "icon": "book",
-                },
-                {
-                    "section": "combined_dates",
-                    "label": "Dates",
-                    "component": "CombinedDatesComponent",
-                    "wrapped": True,
-                    "helpText": "",
-                },
-                {
-                    "section": "abstract",
-                    "label": "Abstract or Description",
-                    "component": "AbstractComponent",
-                    "wrapped": True,
+                    "section": "basic",
+                    "label": "Basics",
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "doi",
+                            "label": "Digital Object Identifier",
+                            "icon": "linkify",
+                            "component": "DoiComponent",
+                        },
+                        {
+                            "section": "combined_titles",
+                            "label": "Title",
+                            "component": "TitlesComponent",
+                            "icon": "book",
+                        },
+                        {
+                            "section": "combined_dates",
+                            "label": "Dates",
+                            "component": "CombinedDatesComponent",
+                            "helpText": "",
+                        },
+                        {
+                            "section": "abstract",
+                            "label": "Abstract or Description",
+                            "component": "AbstractComponent",
+                        },
+                    ],
                 },
             ],
         },
