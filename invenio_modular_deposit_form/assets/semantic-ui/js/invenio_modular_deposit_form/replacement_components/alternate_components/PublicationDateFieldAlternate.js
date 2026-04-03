@@ -51,8 +51,7 @@ function composePublicationDate(
 ) {
   let newDateValue = [yearValue, monthValue, dayValue].filter((v) => !!v).join("-");
   if (endYearValue) {
-    newDateValue +=
-      "/" + [endYearValue, endMonthValue, endDayValue].filter((v) => !!v).join("-");
+    newDateValue += "/" + [endYearValue, endMonthValue, endDayValue].filter((v) => !!v).join("-");
   }
   return newDateValue;
 }
@@ -109,21 +108,17 @@ const PublicationDateFieldAlternate = ({
 
   const parsedInitial = parsePublicationDateString(publicationDateValue);
 
-  const [yearValue, setYearValue] = useState(
-    () => parsedInitial?.start.y ?? currentYear
-  );
-  const [monthValue, setMonthValue] = useState(
-    () => parsedInitial?.start.m ?? currentMonth
-  );
+  const [yearValue, setYearValue] = useState(() => parsedInitial?.start.y ?? currentYear);
+  const [monthValue, setMonthValue] = useState(() => parsedInitial?.start.m ?? currentMonth);
   const [dayValue, setDayValue] = useState(() => parsedInitial?.start.d ?? currentDay);
   const [endYearValue, setEndYearValue] = useState(() =>
-    parsedInitial?.useRange ? parsedInitial.end?.y ?? null : null
+    parsedInitial?.useRange ? (parsedInitial.end?.y ?? null) : null
   );
   const [endMonthValue, setEndMonthValue] = useState(() =>
-    parsedInitial?.useRange ? parsedInitial.end?.m ?? null : null
+    parsedInitial?.useRange ? (parsedInitial.end?.m ?? null) : null
   );
   const [endDayValue, setEndDayValue] = useState(() =>
-    parsedInitial?.useRange ? parsedInitial.end?.d ?? null : null
+    parsedInitial?.useRange ? (parsedInitial.end?.d ?? null) : null
   );
   const [useRange, setUseRange] = useState(() => !!parsedInitial?.useRange);
 
@@ -306,18 +301,13 @@ const PublicationDateFieldAlternate = ({
         {({ meta }) => {
           return (
             <Form.Field required={!!required} error={!!meta.error}>
-              <FieldLabel
-                htmlFor={fieldPath}
-                icon={icon}
-                label={label}
-                id={`${fieldPath}.label`}
-              />
+              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} id={`${fieldPath}.label`} />
               {description && (
-                <div id={`${fieldPath}.description`} className="helptext">
+                <div id={`${fieldPath}.description`} className="description rel-mt-1 rel-mb-1">
                   {i18next.t(description)}
                 </div>
               )}
-              <Form.Group>
+              <Form.Group className="invenio-group-field invenio-form-row mb-0 equal width">
                 {startDropdowns.map((dropdown, idx) => (
                   <DateDropdown
                     key={idx}
@@ -330,7 +320,7 @@ const PublicationDateFieldAlternate = ({
                     aria-describedby={`${fieldPath}.helptext`}
                   />
                 ))}
-                <div>
+                <Form.Field>
                   <Checkbox
                     label={i18next.t(`${!useRange ? "add" : "include"} end date`)}
                     id={`${fieldPath}.controls.useRange`}
@@ -340,10 +330,10 @@ const PublicationDateFieldAlternate = ({
                     }}
                     checked={useRange}
                   />
-                </div>
+                </Form.Field>
               </Form.Group>
               {!!useRange && (
-                <Form.Group>
+                <Form.Group className="invenio-group-field invenio-form-row mb-0 equal width">
                   {endDropdowns.map((dropdown, idx) => (
                     <DateDropdown
                       key={idx}
@@ -356,6 +346,7 @@ const PublicationDateFieldAlternate = ({
                       aria-describedby={`${fieldPath}.helptext`}
                     />
                   ))}
+                  <Form.Field></Form.Field>
                 </Form.Group>
               )}
               {meta.error && (
