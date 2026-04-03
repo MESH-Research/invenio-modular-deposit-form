@@ -4,6 +4,8 @@ This page lists the modules **re-exported** from `replacement_components/field_c
 
 For how these plug into layout/registry, see [Built-in field widget components](field_components.md).
 
+**Form feedback:** the modular deposit `FormFeedback` UI is **not** listed here; it lives in `replacement_components/alternate_components/FormFeedback.jsx` with `replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx` (paths relative to `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/`). See [Form feedback (errors and action state)](field_components.md#form-feedback-errors-and-action-state).
+
 ```{warning}
 Draft sections may evolve as upstream InvenioRDM changes. When in doubt, read the file header in each source module.
 ```

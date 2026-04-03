@@ -270,6 +270,7 @@
 <li><p>AdditionalDescriptionComponent</p></li>
 <li><p>AlternateIdentifiersComponent</p></li>
 <li><p>CommunitiesComponent</p></li>
+<li><p>CommunitiesAlternateComponent</p></li>
 <li><p>ContributorsComponent</p></li>
 <li><p>CopyrightsComponent</p></li>
 <li><p>CreatorsComponent</p></li>
@@ -314,7 +315,12 @@
 <section id="form-feedback-errors-and-action-state">
 <h3>Form feedback (errors and action state)<a class="headerlink" href="#form-feedback-errors-and-action-state" title="Link to this heading">¶</a></h3>
 <ul class="simple">
-<li><p><strong>FormFeedbackComponent</strong> — Standalone block that shows form feedback (validation errors, non-validation errors, and action state). It renders nothing when there is nothing to show. Use it as a <strong>separate subsection</strong> in the right sidebar (e.g. above SubmissionComponent) so feedback appears above the submit buttons without being part of the submit component itself. The default layout uses it that way.</p></li>
+<li><p><strong>FormFeedbackComponent</strong> — Standalone block that shows form feedback (validation errors, non-validation errors, and action state). It renders nothing when there is nothing to show. Use it as a <strong>separate subsection</strong> in the right sidebar (e.g. above SubmissionComponent) so feedback appears above the submit buttons without being part of the submit component itself. The default layout uses it that way.</p>
+<ul>
+<li><p><strong>Implementation (modular package):</strong> Renders <strong><code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code></strong> from <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/FormFeedback.jsx</span></code> (paths relative to <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/</span></code>). The per-section list inside the message comes from <strong><code class="docutils literal notranslate"><span class="pre">FormFeedbackSummary</span></code></strong> in <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">hideMessageIcon</span></code>:</strong> Optional prop forwarded to <code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code>. Default <strong><code class="docutils literal notranslate"><span class="pre">true</span></code></strong>: the Semantic UI <code class="docutils literal notranslate"><span class="pre">Message</span></code> has no leading icon (compact sidebar). Set <strong><code class="docutils literal notranslate"><span class="pre">false</span></code></strong> to show the severity icon from <code class="docutils literal notranslate"><span class="pre">feedbackConfig</span></code> (check / info / warning / times circle).</p></li>
+</ul>
+</li>
 </ul>
 </section>
 </section>
@@ -330,10 +336,10 @@
 <p>All of the stock form field components listed above can be overridden using the regular ReactOverridable mechanism. A sampling of override components, offering variations on the stock field widgets, are defined in <code class="docutils literal notranslate"><span class="pre">field_components/overridable/</span></code>:</p>
 <ul class="simple">
 <li><p><strong>OverrideAdditionalDatesComponent</strong> — uses DatesFieldAlternate</p></li>
-<li><p><strong>OverrideCommunitiesComponent</strong> — uses replacement CommunityField (optional <code class="docutils literal notranslate"><span class="pre">imagePlaceholderLink</span></code> prop)</p></li>
+<li><p><strong>CommunitiesAlternateComponent</strong> — <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>; <code class="docutils literal notranslate"><span class="pre">CommunityField</span></code>. For <code class="docutils literal notranslate"><span class="pre">CommunityHeader.container</span></code> mapping when the layout uses stock <code class="docutils literal notranslate"><span class="pre">CommunitiesComponent</span></code>, use <strong>CommunitiesAlternateField</strong> from the same module (inner field only).</p></li>
 <li><p><strong>OverrideDoiComponent</strong> — uses replacement PIDField</p></li>
 <li><p><strong>OverrideLanguagesComponent</strong> — uses replacement LanguagesField with state normalization (id/title_l10n)</p></li>
-<li><p><strong>OverrideResourceTypeComponent</strong> — uses ResourceTypeSelectorField (button-style)</p></li>
+<li><p><strong>ResourceTypeSelectorComponent</strong> — <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>; button-style resource type (<code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorField</span></code>). For the deposit overridable slot, map <code class="docutils literal notranslate"><span class="pre">ResourceTypeField.container</span></code> to <code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorField</span></code> (inner field only; layout still provides <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>).</p></li>
 <li><p><strong>OverrideSubmissionComponent</strong> — uses SubmitButtonModal and custom form feedback; same horizontal layout as HorizontalSubmissionComponent. See <strong>Multiple components for the same field or region</strong> (submit area) above.</p></li>
 </ul>
 <p>In your instance’s <code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code> file, you can import any of these components from <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/field_components/overridable</span></code>. See <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a> for slot ids.</p>

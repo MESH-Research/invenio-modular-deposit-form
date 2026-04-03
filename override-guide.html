@@ -300,36 +300,19 @@
 <tr class="row-odd"><td><p>File upload</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.FileUploader.container</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Funding</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.FundingField.container</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>Identifiers</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.IdentifiersField.container</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>License</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.LicenseField.container</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>Publication date</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.PublicationDateField.container</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>Publisher</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.PublisherField.container</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>Related works</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.RelatedWorksField.container</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>Subjects</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.SubjectsField.container</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>Titles</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.TitlesField.container</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>Version</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.VersionField.container</span></code></p></td>
-</tr>
 </tbody>
 </table>
 </div>
+<p><strong>Modular package default (paths relative to <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/</span></code>):</strong> the deposit <code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code> slot is filled by <strong><code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code></strong> in <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/FormFeedback.jsx</span></code>, with the section summary in <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx</span></code>. See <a class="reference internal" href="field_components.html#form-feedback-errors-and-action-state"><span class="std std-ref">Built-in field widget components</span></a> for the optional <strong><code class="docutils literal notranslate"><span class="pre">hideMessageIcon</span></code></strong> prop.
+| Funding | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.FundingField.container</span></code> |
+| Identifiers | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.IdentifiersField.container</span></code> |
+| License | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.LicenseField.container</span></code> |
+| Publication date | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.PublicationDateField.container</span></code> |
+| Publisher | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.PublisherField.container</span></code> |
+| Related works | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.RelatedWorksField.container</span></code> |
+| Subjects | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.SubjectsField.container</span></code> |
+| Titles | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.TitlesField.container</span></code> |
+| Version | <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.VersionField.container</span></code> |</p>
 <p><strong>Example:</strong> Replace the whole dates section with our alternate implementation:</p>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">overriddenComponents</span><span class="p">[</span><span class="s2">&quot;InvenioAppRdm.Deposit.DateField.container&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">OverrideAdditionalDatesComponent</span><span class="p">;</span>
 </pre></div>
