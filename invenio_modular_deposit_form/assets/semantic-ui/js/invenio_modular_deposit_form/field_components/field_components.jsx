@@ -36,7 +36,7 @@ import {
 import { useFormUIState } from "../FormUIStateManager.jsx";
 import { SyncFilesCountFromRedux } from "../helpers/SyncFilesCountFromRedux";
 import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
-import { FormFeedback as ModularFormFeedback } from "../replacement_components/form_feedback/FormFeedback";
+import { FormFeedback as ModularFormFeedback } from "../replacement_components/alternate_components/FormFeedback";
 import {
   CopyrightsField,
   CreatibutorsField,
@@ -126,7 +126,8 @@ const AccessRightsComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Additional dates field (metadata.dates). Replacement DatesField (`replacement_components`; local widgets). Overridable version in overridable/ uses DatesFieldAlternate.
+ * Additional dates field (metadata.dates). Replacement DatesField (`replacement_components`; local widgets).
+ * For dropdown-based additional dates use `AdditionalDatesAlternateComponent` (`alternate_components/DatesFieldAlternate`).
  * @overridable InvenioAppRdm.Deposit.DateField.container (via FieldComponentWrapper)
  */
 const AdditionalDatesComponent = ({ ...extraProps }) => {
@@ -168,7 +169,8 @@ const AlternateIdentifiersComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Community selection (no fieldPath). Uses stock CommunityHeader. Overridable version uses CommunityField.
+ * Community selection (no fieldPath). Uses stock CommunityHeader.
+ * For CommunityField UI use `CommunitiesAlternateComponent` (`field_components/alternate/`).
  * @overridable InvenioAppRdm.Deposit.CommunityHeader.container (stock does not use FieldComponentWrapper)
  */
 const CommunitiesComponent = ({ ...extraProps }) => {
@@ -315,8 +317,9 @@ const CreatorsComponentFlat = ({ ...extraProps }) => {
 };
 
 /**
- * Publication date (metadata.publication_date). Uses stock PublicationDateField.
- * Can be used alone or inside CombinedDatesComponent with AdditionalDatesComponent.
+ * Publication date (metadata.publication_date). Uses stock `PublicationDateField` from `@js/invenio_rdm_records`.
+ * Use in layouts that reference `PublicationDateComponent`. For dropdown-based publication date (and for
+ * `CombinedDatesComponent`), use `PublicationDateAlternateComponent` instead.
  * @overridable InvenioAppRdm.Deposit.PublicationDateField.container (via FieldComponentWrapper)
  */
 const PublicationDateComponent = ({ ...extraProps }) => {
@@ -738,17 +741,14 @@ const RelatedWorksComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Resource type (metadata.resource_type). Uses modular ResourceTypeField (replacement SelectField). Override version uses button-style ResourceTypeSelectorField.
+ * Resource type (metadata.resource_type). Uses modular ResourceTypeField (replacement SelectField).
+ * For button-style shortcuts + “Other” select, use `ResourceTypeSelectorComponent` in `field_components/alternate/`.
  * @overridable InvenioAppRdm.Deposit.ResourceTypeField.container (via FieldComponentWrapper; matches v14 stock id)
  */
 const ResourceTypeComponent = ({ ...extraProps }) => {
   const fieldPath = "metadata.resource_type";
   const options =
     useStore().getState().deposit?.config?.vocabularies?.metadata?.resource_type ?? [];
-  const formUIStateForDebug = useFormUIState();
-  const formikForDebug = useFormikContext();
-  console.log("form ui state:", formUIStateForDebug);
-  console.log("formik:", formikForDebug);
 
   return (
     <FieldComponentWrapper componentName="ResourceTypeField" {...extraProps} fieldPath={fieldPath}>
@@ -791,13 +791,15 @@ const SubjectsComponent = ({ ...extraProps }) => {
 /**
  * Standalone form feedback block for the sidebar. Renders only when there are
  * errors or action state. Use above SubmissionComponent in FormRightSidebar to
- * show save/publish feedback without bundling it into the submission component.
+ * show save/publish feedback.
+ * Forwards optional props (e.g. `hideMessageIcon`) to modular `FormFeedback`
+ * (`replacement_components/alternate_components/FormFeedback.jsx`).
  * @overridable InvenioAppRdm.Deposit.FormFeedback.container
  */
-const FormFeedbackComponent = () => {
+const FormFeedbackComponent = (props) => {
   return (
     <Overridable id="InvenioAppRdm.Deposit.FormFeedback.container" fieldPath="message">
-      <ModularFormFeedback fieldPath="message" />
+      <ModularFormFeedback {...props} fieldPath="message" />
     </Overridable>
   );
 };

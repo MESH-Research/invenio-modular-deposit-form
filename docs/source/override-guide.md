@@ -22,6 +22,8 @@
 | Descriptions | `InvenioAppRdm.Deposit.DescriptionsField.container` |
 | Form feedback | `InvenioAppRdm.Deposit.FormFeedback.container` |
 | File upload | `InvenioAppRdm.Deposit.FileUploader.container` |
+
+**Modular package default (paths relative to `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/`):** the deposit `FormFeedback` slot is filled by **`FormFeedback`** in `replacement_components/alternate_components/FormFeedback.jsx`, with the section summary in `replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx`. See [Built-in field widget components](field_components.md#form-feedback-errors-and-action-state) for the optional **`hideMessageIcon`** prop.
 | Funding | `InvenioAppRdm.Deposit.FundingField.container` |
 | Identifiers | `InvenioAppRdm.Deposit.IdentifiersField.container` |
 | License | `InvenioAppRdm.Deposit.LicenseField.container` |

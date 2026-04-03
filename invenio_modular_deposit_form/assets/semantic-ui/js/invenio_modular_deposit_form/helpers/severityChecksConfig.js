@@ -1,7 +1,8 @@
 /**
  * Severity labels and badge types for validation feedback (errors, warnings, recommendations).
  * Uses stock invenio-app-rdm severityChecksConfig (error, info); we extend with "warning".
- * Used by FormSection, FormStepper, FormSidebarPageMenu, and FormFeedbackSummary for labels and badge styling.
+ * Used by FormSection, FormStepper, FormSidebarPageMenu, and modular FormFeedbackSummary
+ * (replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx) for labels and badge styling.
  */
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -18,7 +19,7 @@ export const severityChecksConfig = {
 };
 
 /**
- * Semantic UI Label type (className) per severity. Single source for FormFeedbackSummary,
+ * Semantic UI Label type (className) per severity. Single source for modular FormFeedbackSummary,
  * FormSidebarPageMenu, and FormStepper badge styling.
  */
 export const SEVERITY_BADGE_TYPES = {

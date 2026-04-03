@@ -19,6 +19,7 @@ The package maintains a componentsRegistry that maps available field-level compo
 - AdditionalDescriptionComponent
 - AlternateIdentifiersComponent
 - CommunitiesComponent
+- CommunitiesAlternateComponent
 - ContributorsComponent
 - CopyrightsComponent
 - CreatorsComponent
@@ -60,6 +61,8 @@ Some fields or layout regions have two (or more) registered components. The layo
 ### Form feedback (errors and action state)
 
 - **FormFeedbackComponent** — Standalone block that shows form feedback (validation errors, non-validation errors, and action state). It renders nothing when there is nothing to show. Use it as a **separate subsection** in the right sidebar (e.g. above SubmissionComponent) so feedback appears above the submit buttons without being part of the submit component itself. The default layout uses it that way.
+  - **Implementation (modular package):** Renders **`FormFeedback`** from `replacement_components/alternate_components/FormFeedback.jsx` (paths relative to `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/`). The per-section list inside the message comes from **`FormFeedbackSummary`** in `replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx`.
+  - **`hideMessageIcon`:** Optional prop forwarded to `FormFeedback`. Default **`true`**: the Semantic UI `Message` has no leading icon (compact sidebar). Set **`false`** to show the severity icon from `feedbackConfig` (check / info / warning / times circle).
 
 ## Contrib components
 
@@ -72,10 +75,10 @@ Additional components are defined in `field_components/contrib/` for metadata fi
 All of the stock form field components listed above can be overridden using the regular ReactOverridable mechanism. A sampling of override components, offering variations on the stock field widgets, are defined in `field_components/overridable/`:
 
 - **OverrideAdditionalDatesComponent** — uses DatesFieldAlternate
-- **OverrideCommunitiesComponent** — uses replacement CommunityField (optional `imagePlaceholderLink` prop)
+- **CommunitiesAlternateComponent** — `field_components/alternate/`; `CommunityField`. For `CommunityHeader.container` mapping when the layout uses stock `CommunitiesComponent`, use **CommunitiesAlternateField** from the same module (inner field only).
 - **OverrideDoiComponent** — uses replacement PIDField
 - **OverrideLanguagesComponent** — uses replacement LanguagesField with state normalization (id/title_l10n)
-- **OverrideResourceTypeComponent** — uses ResourceTypeSelectorField (button-style)
+- **ResourceTypeSelectorComponent** — `field_components/alternate/`; button-style resource type (`ResourceTypeSelectorField`). For the deposit overridable slot, map `ResourceTypeField.container` to `ResourceTypeSelectorField` (inner field only; layout still provides `FieldComponentWrapper`).
 - **OverrideSubmissionComponent** — uses SubmitButtonModal and custom form feedback; same horizontal layout as HorizontalSubmissionComponent. See **Multiple components for the same field or region** (submit area) above.
 
 In your instance's `assets/js/invenio_app_rdm/overridableRegistry/mapping.js` file, you can import any of these components from `@js/invenio_modular_deposit_form/field_components/overridable`. See [Override guide](override-guide.md) for slot ids.

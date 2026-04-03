@@ -2,7 +2,8 @@
  * Builds a flat array of section entries for FormFeedback from config.common_fields and config.fields_by_type.
  * Each entry: { pageId, sectionId, pageLabel, sectionLabel, fields, resourceTypes }.
  * pageLabel is the common FormPage label when present, else pageId (type-specific stepper labels
- * live on form UI state `resolvedFormPages`, used by FormFeedbackSummary).
+ * live on form UI state `resolvedFormPages`, used by modular FormFeedbackSummary
+ * (`replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx`).
  * resourceTypes is an array of resource type ids that include this section in their overrides (empty for base-only).
  */
 

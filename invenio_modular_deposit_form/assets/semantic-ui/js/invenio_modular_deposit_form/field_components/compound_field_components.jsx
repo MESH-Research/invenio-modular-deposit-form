@@ -12,19 +12,15 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import React from "react";
-import _get from "lodash/get";
-import _isEmpty from "lodash/isEmpty";
-import {
-  AdditionalDatesComponent,
-  PublicationDateComponent,
-} from "./field_components";
+import { AdditionalDatesAlternateComponent } from "./alternate/AdditionalDatesAlternateComponent";
+import { PublicationDateAlternateComponent } from "./alternate/PublicationDateAlternateComponent";
 import { CustomField } from "./CustomField";
 
 const CombinedDatesComponent = ({ ...extraProps }) => {
   return (
     <>
-      <PublicationDateComponent {...extraProps} />
-      <AdditionalDatesComponent />
+      <PublicationDateAlternateComponent {...extraProps} />
+      <AdditionalDatesAlternateComponent {...extraProps} />
     </>
   );
 };

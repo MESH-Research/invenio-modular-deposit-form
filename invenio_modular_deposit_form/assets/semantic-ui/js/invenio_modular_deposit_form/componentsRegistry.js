@@ -1,4 +1,8 @@
 import { AccessRightField } from "@js/invenio_rdm_records";
+import { AdditionalDatesAlternateComponent } from "./field_components/alternate/AdditionalDatesAlternateComponent";
+import { CommunitiesAlternateComponent } from "./field_components/alternate/CommunitiesAlternateComponent";
+import { PublicationDateAlternateComponent } from "./field_components/alternate/PublicationDateAlternateComponent";
+import { ResourceTypeSelectorComponent } from "./field_components/alternate/ResourceTypeSelectorComponent";
 import {
   AbstractComponent,
   AccessRightsComponent,
@@ -72,6 +76,10 @@ const componentsRegistry = {
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
+  AdditionalDatesAlternateComponent: [
+    AdditionalDatesAlternateComponent,
+    ["metadata.dates"],
+  ],
   AlternateIdentifiersComponent: [
     AlternateIdentifiersComponent,
     ["metadata.identifiers"],
@@ -81,6 +89,7 @@ const componentsRegistry = {
     ["custom_fields.imprint:imprint.title"],
   ],
   CommunitiesComponent: [CommunitiesComponent, []],
+  CommunitiesAlternateComponent: [CommunitiesAlternateComponent, []],
   CodeDevelopmentStatusComponent: [
     CodeDevelopmentStatusComponent,
     ["custom_fields.code:developmentStatus"],
@@ -99,6 +108,10 @@ const componentsRegistry = {
   CreatorsComponent: [CreatorsComponent, ["metadata.creators"]],
   CreatorsComponentFlat: [CreatorsComponentFlat, ["metadata.creators"]],
   PublicationDateComponent: [PublicationDateComponent, ["metadata.publication_date"]],
+  PublicationDateAlternateComponent: [
+    PublicationDateAlternateComponent,
+    ["metadata.publication_date"],
+  ],
   DoiComponent: [DoiComponent, ["pids.doi"]],
   FundingComponent: [FundingComponent, ["metadata.funding"]],
   FormFeedbackComponent: [FormFeedbackComponent, []],
@@ -164,6 +177,10 @@ const componentsRegistry = {
     ["metadata.related_identifiers"],
   ],
   ResourceTypeComponent: [ResourceTypeComponent, ["metadata.resource_type"]],
+  ResourceTypeSelectorComponent: [
+    ResourceTypeSelectorComponent,
+    ["metadata.resource_type"],
+  ],
   SectionPagesComponent: [
     SectionPagesComponent,
     ["custom_fields.journal:journal.pages"],

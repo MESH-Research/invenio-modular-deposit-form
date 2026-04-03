@@ -10,16 +10,13 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React from "react";
-import PropTypes from "prop-types";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
-import _set from "lodash/set";
+import PropTypes from "prop-types";
+import React from "react";
 import { useStore } from "react-redux";
-import { Message } from "semantic-ui-react";
+import { Icon, Message } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { useFormUIState } from "../../FormUIStateManager.jsx";
-import { FormFeedbackSummary } from "./FormFeedbackSummary";
 import {
   DISCARD_PID_FAILED,
   DRAFT_DELETE_FAILED,
@@ -30,9 +27,9 @@ import {
   DRAFT_PUBLISH_FAILED,
   DRAFT_PUBLISH_FAILED_WITH_VALIDATION_ERRORS,
   DRAFT_PUBLISH_STARTED,
+  DRAFT_LOADED_WITH_VALIDATION_ERRORS,
   DRAFT_SAVE_FAILED,
   DRAFT_SAVE_SUCCEEDED,
-  DRAFT_LOADED_WITH_VALIDATION_ERRORS,
   DRAFT_SUBMIT_REVIEW_FAILED,
   DRAFT_SUBMIT_REVIEW_FAILED_WITH_VALIDATION_ERRORS,
   DRAFT_SUBMIT_REVIEW_STARTED,
@@ -41,6 +38,8 @@ import {
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
 import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
+import { useFormUIState } from "../../FormUIStateManager.jsx";
+import { FormFeedbackSummary } from "./form_feedback_components/FormFeedbackSummary";
 
 /** Synthetic FormFeedback action states (not a Redux deposit action type). */
 const CLIENT_VALIDATION_ERRORS = "CLIENT_VALIDATION_ERRORS";
@@ -306,8 +305,13 @@ function noMessagesPresent(
 
 /**
  * React component to display error and warning messages to the user as the form is filled.
+ *
+ * @param {object} props
+ * @param {string} [props.fieldPath] — Passed by Overridable / layout; unused here (sidebar message block).
+ * @param {boolean} [props.hideMessageIcon=true] — When false, shows the Semantic UI `Message` leading icon from `feedbackConfig` for the effective severity. When true (default), the icon is omitted for a compact sidebar.
+ * @param {object} [props.labels] — Reserved for custom error labels (align with stock API).
  */
-const FormFeedback = ({}) => {
+const FormFeedback = ({ fieldPath: _fieldPath, hideMessageIcon, labels: _labels }) => {
   const store = useStore();
   const { actionState, errors: backendErrors, config } = store.getState().deposit;
   const sectionsConfig = config?.formSectionFields;
@@ -373,7 +377,14 @@ const FormFeedback = ({}) => {
   const { icon, type } = feedbackConfig[feedbackType] || feedbackConfig["warning"];
 
   return (
-    <Message visible {...{ [type]: true }} className="flashed pb-15" id={type + "-feedback-div"}>
+    <Message
+      visible
+      {...{ [type]: true }}
+      className="flashed pb-15"
+      icon={!hideMessageIcon}
+      id={type + "-feedback-div"}
+    >
+      {!hideMessageIcon ? <Icon name={icon} /> : null}
       <Message.Header className="rel-mt-1 rel-ml-1">{displayMessage}</Message.Header>
       {(!_isEmpty(flaggedClientErrors) ||
         !_isEmpty(flaggedClientWarnings) ||
@@ -390,10 +401,14 @@ const FormFeedback = ({}) => {
 };
 
 FormFeedback.propTypes = {
+  fieldPath: PropTypes.string,
+  hideMessageIcon: PropTypes.bool,
   labels: PropTypes.object,
 };
 
 FormFeedback.defaultProps = {
+  fieldPath: undefined,
+  hideMessageIcon: true,
   labels: undefined,
 };
 

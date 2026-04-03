@@ -6,19 +6,18 @@
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
+import { CommunitySelectionModal } from "@js/invenio_rdm_records";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
+import GeoPattern from "geopattern";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
-import { useStore } from "react-redux";
-import { Trans } from "react-i18next";
 import { Image } from "react-invenio-forms";
-import { connect } from "react-redux";
+import { Trans } from "react-i18next";
+import { connect, useStore } from "react-redux";
 import Overridable from "react-overridable";
-import { Button, Icon, Form, Grid, Header, Message } from "semantic-ui-react";
-import GeoPattern from "geopattern";
+import { Button, Form, Grid, Header, Icon, Message } from "semantic-ui-react";
 
-import { CommunitySelectionModal } from "../CommunitySelectionModal/CommunitySelectionModal";
-import { getReadableFields } from "../../utils";
+import { getReadableFields } from "../utils";
 
 export const changeSelectedCommunity = (community) => {
   return async (dispatch) => {
@@ -66,13 +65,31 @@ const AddEditCommunityButton = ({
   modalOpen,
   selectionButtonDisabled,
   permissionsPerField,
+  record,
 }) => {
+  const trigger = (
+    <Overridable id="InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container">
+      <Button
+        className="community-field-button add-button"
+        disabled={selectionButtonDisabled}
+        onClick={() => setModalOpen(true)}
+        name="setting"
+        id="community-selector"
+        type="button"
+        floated={!community ? "left" : ""}
+      >
+        {community ? i18next.t("Change") : i18next.t("Select a collection")}
+      </Button>
+    </Overridable>
+  );
+
   return (
-    <CommunitySelectionModal
+    <Overridable
+      id="InvenioRdmRecords.CommunityHeader.CommunitySelectionModal"
       permissionsPerField={permissionsPerField}
       modalHeader={i18next.t("Select a collection")}
-      onCommunityChange={(community) => {
-        changeSelectedCommunity(community);
+      onCommunityChange={(c) => {
+        changeSelectedCommunity(c);
         focusAddButtonHandler();
         setModalOpen(false);
       }}
@@ -83,24 +100,28 @@ const AddEditCommunityButton = ({
       modalOpen={modalOpen}
       chosenCommunity={community}
       displaySelected
-      trigger={
-        <Overridable id="InvenioRdmRecords.CommunityHeader.CommunitySelectionButton.Container">
-          <Button
-            className="community-field-button add-button"
-            disabled={selectionButtonDisabled}
-            onClick={() => setModalOpen(true)}
-            name="setting"
-            // icon
-            id="community-selector"
-            type="button"
-            floated={!community ? "left" : ""}
-          >
-            {community ? i18next.t("Change") : i18next.t("Select a collection")}
-          </Button>
-        </Overridable>
-      }
-      focusAddButtonHandler={focusAddButtonHandler}
-    />
+      record={record}
+      trigger={trigger}
+    >
+      <CommunitySelectionModal
+        permissionsPerField={permissionsPerField}
+        modalHeader={i18next.t("Select a collection")}
+        onCommunityChange={(c) => {
+          changeSelectedCommunity(c);
+          focusAddButtonHandler();
+          setModalOpen(false);
+        }}
+        onModalChange={(value) => {
+          value === false && focusAddButtonHandler();
+          setModalOpen(value);
+        }}
+        modalOpen={modalOpen}
+        chosenCommunity={community}
+        displaySelected
+        record={record}
+        trigger={trigger}
+      />
+    </Overridable>
   );
 };
 
@@ -111,6 +132,8 @@ AddEditCommunityButton.propTypes = {
   setModalOpen: PropTypes.func.isRequired,
   modalOpen: PropTypes.bool.isRequired,
   selectionButtonDisabled: PropTypes.bool.isRequired,
+  permissionsPerField: PropTypes.object,
+  record: PropTypes.object.isRequired,
 };
 
 const RemoveCommunityButton = ({
@@ -355,6 +378,7 @@ const CommunityFieldComponent = ({
   disableCommunitySelectionButton,
   label = "Community submission",
   permissionsPerField = {},
+  record,
 }) => {
   const [modalOpen, setModalOpen] = useState();
   const store = useStore();
@@ -437,6 +461,7 @@ const CommunityFieldComponent = ({
                 modalOpen={modalOpen}
                 selectionButtonDisabled={selectionButtonDisabled}
                 permissionsPerField={permissionsPerField}
+                record={record}
               />
               {community && (
                 <RemoveCommunityButton
@@ -497,6 +522,7 @@ CommunityFieldComponent.propTypes = {
   permissionsPerField: PropTypes.object,
   showCommunitySelectionButton: PropTypes.bool.isRequired,
   showCommunityHeader: PropTypes.bool.isRequired,
+  record: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -507,13 +533,14 @@ const mapStateToProps = (state) => ({
     state.deposit.editorState.ui.showCommunitySelectionButton,
   showCommunityHeader: state.deposit.editorState.ui.showCommunityHeader,
   permissionsPerField: state.deposit.config?.permissions_per_field ?? {},
+  record: state.deposit.record,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   changeSelectedCommunity: (community) => dispatch(changeSelectedCommunity(community)),
 });
 
-export const CommunityFieldAlternate = connect(
+export const CommunityField = connect(
   mapStateToProps,
   mapDispatchToProps
 )(CommunityFieldComponent);

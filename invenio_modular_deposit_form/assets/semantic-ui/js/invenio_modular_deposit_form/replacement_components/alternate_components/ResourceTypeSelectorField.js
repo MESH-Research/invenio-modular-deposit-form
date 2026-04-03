@@ -9,13 +9,11 @@
 
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import _get from "lodash/get";
 import { Form } from "semantic-ui-react";
 import { FieldLabel, SelectField } from "react-invenio-forms";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { Field, useFormikContext } from "formik";
+import { Field, getIn, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
-import { set } from "lodash";
 import { useStore } from "react-redux";
 
 const ResourceTypeSelectorField = ({
@@ -33,7 +31,8 @@ const ResourceTypeSelectorField = ({
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? {};
   const options =
     optionsProp ?? vocabularies?.metadata?.resource_type ?? [];
-  const { values, errors, setFieldValue, initialValues } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
+  const currentTypeId = getIn(values, fieldPath);
   const [otherToggleActive, setOtherToggleActive] = useState(false);
 
   const buttonTypes = [
@@ -54,14 +53,14 @@ const ResourceTypeSelectorField = ({
 
   useEffect(() => {
     if (
-      values.metadata.resource_type &&
-      !buttonTypes.map((b) => b.id).includes(values.metadata.resource_type)
+      currentTypeId &&
+      !buttonTypes.map((b) => b.id).includes(currentTypeId)
     ) {
       setOtherToggleActive(true);
       // FIXME: this is a hack to get the formik validation not to complain
-      setFieldValue("metadata.resource_type", values.metadata.resource_type);
+      setFieldValue(fieldPath, currentTypeId);
     }
-  }, [values.metadata.resource_type]);
+  }, [currentTypeId, fieldPath, setFieldValue]);
 
   /**
    * Generate label value
@@ -97,23 +96,28 @@ const ResourceTypeSelectorField = ({
   const frontEndOptions = createOptions(options);
 
   const handleItemClick = (event) => {
-    setFieldValue(
-      "metadata.resource_type",
-      event.target.closest("button").name
-    );
+    const btn = event.target.closest("button");
+    if (!btn?.name) {
+      return;
+    }
+    setFieldValue(fieldPath, btn.name);
     setOtherToggleActive(false);
   };
 
   const handleOtherToggleClick = () => {
-    setFieldValue("metadata.resource_type", frontEndOptions[0].value);
+    if (frontEndOptions.length < 1) {
+      return;
+    }
+    setFieldValue(fieldPath, frontEndOptions[0].value);
     setOtherToggleActive(true);
 
+    const wrapperClass = `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`;
     setTimeout(() => {
       document
-        .querySelectorAll(
-          "#InvenioAppRdm\\.Deposit\\.resource_type\\.container .invenio-select-field input"
-        )[0]
-        .focus();
+        .querySelector(
+          `.invenio-field-wrapper.${wrapperClass} .invenio-select-field input`
+        )
+        ?.focus();
     }, 200);
   };
 
@@ -121,7 +125,7 @@ const ResourceTypeSelectorField = ({
     <Field id={fieldPath} name={fieldPath}>
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors, setFieldValue }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+        form: { touched, errors },
         meta,
       }) => (
         <Form.Field
@@ -140,9 +144,7 @@ const ResourceTypeSelectorField = ({
                 name={buttonType.id}
                 onClick={handleItemClick}
                 className={`ui button item ${
-                  values.metadata.resource_type === buttonType.id
-                    ? "active"
-                    : ""
+                  currentTypeId === buttonType.id ? "active" : ""
                 }`}
                 formNoValidate
                 type="button"
