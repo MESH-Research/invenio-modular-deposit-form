@@ -46,9 +46,16 @@ from ..custom_field_ui.thesis_fields import (
 )
 from .default import COMMON_FIELDS_DEFAULT_PAGED, FIELDS_BY_TYPE_DEFAULT_PAGED
 
-MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = False
+MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True
+"""When True, the validator.js validation schema will be used to validate 
+form field values prior to form submission. Whe False, form errors will 
+only be displayed after the form is submitted. (You must rebuild assets 
+for a change in this value to take effect.)"""
 
-MODULAR_DEPOSIT_FORM_USER_CONFIRM_MODAL = True
+MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL = False
+"""When True, a confirm modal will be displayed when a user tries to leave a 
+form page with a current error. When False, the errors on the page will be 
+flagged on page exit but no modal confirmation will be required."""
 
 MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "publication-article"
 
@@ -57,14 +64,14 @@ MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP = True
 banner (CommunityHeader) when the deposit state would show it (e.g. community 
 selected or selectable)."""
 
-MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_DEFAULT_PAGED
+MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_ALTERNATE_PAGED
 """Basic page and field layout for the deposit form. Other presets are included 
 in this package's config/ folder. If you wish to use an alternate default, or 
 to create a custom layout, override this variable in your instance invenio.cfg
 with your preferred layout.
 """
 
-MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = FIELDS_BY_TYPE_DEFAULT_PAGED
+MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE = FIELDS_BY_TYPE_ALTERNATE_PAGED
 """Page and field layout overrides for specific resource types. Other presets are included 
 in this package's config/ folder along with the matching 'COMMON_FIELDS' layouts. If you 
 wish to use an alternate preset, or to create a custom set of resource type layout overrides, 
