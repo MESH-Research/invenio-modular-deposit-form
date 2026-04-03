@@ -40,7 +40,6 @@ const FormUIStateManager = ({ children }) => {
   // Static layout and ui configuration
   const componentsRegistry = config?.componentsRegistry ?? {};
   const currentUserprofile = config?.current_user_profile ?? {};
-  const defaultResourceType = config?.default_resource_type;
   const formSectionFields = config?.formSectionFields;
   const fieldsByType = config?.fields_by_type ?? {};
   const formPagesConfig = store
@@ -55,15 +54,6 @@ const FormUIStateManager = ({ children }) => {
 
   // Dynamic form state
   const formik = useFormikContext();
-
-  // Align Formik with `default_resource_type` when the loaded record has no type yet
-  // (layout + ResourceTypeSelector both read `values.metadata.resource_type`).
-  useEffect(() => {
-    const current = formik.values?.metadata?.resource_type;
-    if (defaultResourceType !== current) {
-      formik.setFieldValue("metadata.resource_type", defaultResourceType, false);
-    }
-  }, [defaultResourceType, formik, formik.values?.metadata?.resource_type]);
 
   // Set up form UI state reducer
   const [state, dispatch] = useReducer(
