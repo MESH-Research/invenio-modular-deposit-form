@@ -10,7 +10,7 @@ import { useStore } from "react-redux";
 import { FormFeedback } from "@js/invenio_rdm_records";
 import { Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { SubmitButtonModal } from "../../replacement_components/PublishButton/SubmitButton";
+import { SubmitButtonModal } from "../../replacement_components/alternate_components/SubmitButton";
 import { useFormUIState } from "../../FormUIStateManager.jsx";
 import { DeleteComponent } from "../field_components";
 import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";

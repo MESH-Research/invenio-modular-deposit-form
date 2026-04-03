@@ -371,7 +371,7 @@ const ShareDraftButtonComponent = () => {
 };
 
 /**
- * DOI/identifier field(s). One stock PIDField per scheme in config.pids. Overridable version in overridable/ uses replacement PIDField.
+ * DOI/identifier field(s). One replacement PIDField per scheme in config.pids.
  * @overridable InvenioAppRdm.Deposit.PIDField.container (wrapped in Overridable here; not using FieldComponentWrapper)
  */
 const DoiComponent = ({ ...extraProps }) => {

@@ -17,7 +17,7 @@ import { connect, useStore } from "react-redux";
 import Overridable from "react-overridable";
 import { Button, Form, Grid, Header, Icon, Message } from "semantic-ui-react";
 
-import { getReadableFields } from "../utils";
+import { getReadableFields } from "../../utils";
 
 export const changeSelectedCommunity = (community) => {
   return async (dispatch) => {

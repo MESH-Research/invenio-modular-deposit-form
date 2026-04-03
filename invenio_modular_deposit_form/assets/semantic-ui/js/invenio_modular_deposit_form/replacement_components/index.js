@@ -1,6 +1,5 @@
 export * from "./alternate_components";
 export * from "./field_components";
-export * from "./PublishButton";
 // Top-level custom-field widget shims/adapters (stock ui_widget names):
 // - Input -> local TextField; passes `description` + `helpText` separately (above / below).
 export * from "./Input";

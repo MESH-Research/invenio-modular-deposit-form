@@ -76,8 +76,7 @@ All of the stock form field components listed above can be overridden using the 
 
 - **OverrideAdditionalDatesComponent** — uses DatesFieldAlternate
 - **CommunitiesAlternateComponent** — `field_components/alternate/`; `CommunityField`. For `CommunityHeader.container` mapping when the layout uses stock `CommunitiesComponent`, use **CommunitiesAlternateField** from the same module (inner field only).
-- **OverrideDoiComponent** — uses replacement PIDField
-- **OverrideLanguagesComponent** — uses replacement LanguagesField with state normalization (id/title_l10n)
+- **Languages** — default **`LanguagesComponent`** uses replacement **`LanguagesField`** (no separate **`OverrideLanguagesComponent`**; no `LanguagesField.container` entry in instance mapping unless you add one).
 - **ResourceTypeSelectorComponent** — `field_components/alternate/`; button-style resource type (`ResourceTypeSelectorField`). For the deposit overridable slot, map `ResourceTypeField.container` to `ResourceTypeSelectorField` (inner field only; layout still provides `FieldComponentWrapper`).
 - **OverrideSubmissionComponent** — uses SubmitButtonModal and custom form feedback; same horizontal layout as HorizontalSubmissionComponent. See **Multiple components for the same field or region** (submit area) above.
 
