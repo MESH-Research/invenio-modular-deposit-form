@@ -35,6 +35,9 @@ importers:
       formik:
         specifier: 2.1.0
         version: 2.1.0(react@16.13.0)
+      geopattern:
+        specifier: 1.2.3
+        version: 1.2.3
       i18next:
         specifier: 20.3.0
         version: 20.3.0
@@ -1413,6 +1416,9 @@ packages:
     resolution: {integrity: sha512-1zQrciTiQfRdo7qJM1uG4navm8DayFa2TgCSRlzUyNkhcJ6XUZF3hjnpkyr3VhAqPH7i/9GkG7Tv5abz6fqz0Q==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
+  extend@1.2.1:
+    resolution: {integrity: sha512-2/JwIYRpMBDSjbQjUUppNSrmc719crhFaWIdT+TRSVA8gE+6HEobQWqJ6VkPt/H8twS7h/0WWs7veh8wmp98Ng==}
+
   fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
 
@@ -1474,6 +1480,9 @@ packages:
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
+
+  geopattern@1.2.3:
+    resolution: {integrity: sha512-UzrR9D0xUrXx71ROZTKbTg1isWdcfcYAXsJrqtvhDkQV2JCsRyqws6TuqUdkBKncg5CPevb0vyXXUJrZpjGFXw==}
 
   get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
@@ -4366,6 +4375,8 @@ snapshots:
       jest-mock: 30.3.0
       jest-util: 30.3.0
 
+  extend@1.2.1: {}
+
   fast-json-stable-stringify@2.1.0: {}
 
   fb-watchman@2.0.2:
@@ -4427,6 +4438,10 @@ snapshots:
   functions-have-names@1.2.3: {}
 
   gensync@1.0.0-beta.2: {}
+
+  geopattern@1.2.3:
+    dependencies:
+      extend: 1.2.1
 
   get-caller-file@2.0.5: {}
 
