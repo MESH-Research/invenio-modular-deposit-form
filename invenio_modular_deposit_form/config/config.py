@@ -45,6 +45,10 @@ from ..custom_field_ui.thesis_fields import (
     THESIS_CUSTOM_FIELDS_UI,
 )
 from .default import COMMON_FIELDS_DEFAULT_PAGED, FIELDS_BY_TYPE_DEFAULT_PAGED
+from .alternate_paged import (
+    COMMON_FIELDS_ALTERNATE_PAGED,
+    FIELDS_BY_TYPE_ALTERNATE_PAGED,
+)
 
 MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True
 """When True, the validator.js validation schema will be used to validate 
