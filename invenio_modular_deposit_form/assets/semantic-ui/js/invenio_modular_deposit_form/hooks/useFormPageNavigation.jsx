@@ -45,6 +45,8 @@ import { collectLeafFieldPathsUnderRoot } from "../utils";
  * @param {boolean} recoveryAsked - Passed through to `focusFirstElement` (recovery modal gating)
  * @param {Object} formik - Formik context (`setFieldTouched` on leave-page)
  * @param {string|null} fileUploadPageId - Page id containing `FileUploadComponent` (focus workaround for `focusFirstElement`)
+ * @param {boolean} useConfirmModal - Flag to determine whether to open a confirm modal when leaving a page
+     with errors (default is true)
  * @returns {Object} `confirmingPageChange`, `nextFormPage`, `previousFormPage`, `handleFormPageChange`,
  *   `handlePageChangeCancel`, `handlePageChangeConfirm`
  */
@@ -55,7 +57,8 @@ const useFormPageNavigation = (
   focusFirstElement,
   recoveryAsked,
   formik,
-  fileUploadPageId
+  fileUploadPageId,
+  useConfirmModal = true
 ) => {
   const visibleFormPages = formUIState?.visibleFormPages ?? [];
   const visibleFormPagesRef = useRef(visibleFormPages);
@@ -199,7 +202,11 @@ const useFormPageNavigation = (
       }
 
       // Open confirm modal if origin page has errors, otherwise navigate.
-      if (pagesWithErrors[currentFormPage]?.length > 0 && !confirmingPageChange) {
+      if (
+        pagesWithErrors[currentFormPage]?.length > 0 &&
+        useConfirmModal &&
+        !confirmingPageChange
+      ) {
         setConfirmingPageChange(true);
         setDestFormPage(value);
         setTimeout(() => {

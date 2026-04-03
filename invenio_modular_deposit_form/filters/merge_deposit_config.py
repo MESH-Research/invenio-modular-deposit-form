@@ -38,6 +38,7 @@ _CONFIG_KEYS = [
         "MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP",
         "show_community_banner_at_top",
     ),
+    ("MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL", "use_confirm_modal"),
     ("RDM_RECORDS_PERMISSIONS_PER_FIELD", "permissions_per_field"),
 ]
 

@@ -51,6 +51,7 @@ const FormUIStateManager = ({ children }) => {
     () => findPageIdContainingComponent(formPagesCommon, "FileUploadComponent"),
     [formPagesCommon]
   );
+  const useConfirmModal = config?.use_confirm_modal ?? true;
 
   // Dynamic form state
   const formik = useFormikContext();
@@ -88,7 +89,8 @@ const FormUIStateManager = ({ children }) => {
     focusFirstElement,
     recovery.recoveryAsked,
     formik,
-    fileUploadPageId
+    fileUploadPageId,
+    useConfirmModal
   );
 
   // Manage updating of resource type
