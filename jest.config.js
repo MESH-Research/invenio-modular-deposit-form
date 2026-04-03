@@ -4,6 +4,8 @@ module.exports = {
   roots: ["<rootDir>/invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form"],
   moduleFileExtensions: ["js", "jsx", "json"],
   moduleNameMapper: {
+    "^react/jsx-dev-runtime$": "<rootDir>/__mocks__/react-jsx-runtime.js",
+    "^react/jsx-runtime$": "<rootDir>/__mocks__/react-jsx-runtime.js",
     "^axios$": "<rootDir>/__mocks__/axios.js",
     "^@js/invenio_app_rdm/deposit/config$": "<rootDir>/__mocks__/invenio_app_rdm_deposit_config.js",
     "^react-overridable$": "<rootDir>/__mocks__/react-overridable.js",
