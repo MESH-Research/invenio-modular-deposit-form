@@ -19,10 +19,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Must match package.json packageManager / engines.pnpm (engine-strict in .npmrc).
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.32.1
 
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
