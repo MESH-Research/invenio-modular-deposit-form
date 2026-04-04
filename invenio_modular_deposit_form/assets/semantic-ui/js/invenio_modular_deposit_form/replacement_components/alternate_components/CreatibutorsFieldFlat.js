@@ -154,7 +154,7 @@ const CreatibutorsFieldFlat = ({
   helpText,
   description,
   fieldPath,
-  label: initialLabel,
+  label,
   icon = "users",
   required: requiredProp,
   roleOptions,
@@ -163,7 +163,6 @@ const CreatibutorsFieldFlat = ({
   ...otherProps
 }) => {
   const required = requiredProp ?? schema === "creators";
-  const label = initialLabel ?? i18next.t(schema.charAt(0).toUpperCase() + schema.slice(1));
   const store = useStore();
   const config = store.getState().deposit.config;
   const currentUserprofile = config?.current_user_profile ?? {};
