@@ -298,7 +298,6 @@ const CreatorsComponentFlat = ({ ...extraProps }) => {
       fieldPath="metadata.creators"
       label={i18next.t("Creators")}
       labelIcon="user"
-      description=""
       {...extraProps}
     >
       <CreatibutorsFieldFlat

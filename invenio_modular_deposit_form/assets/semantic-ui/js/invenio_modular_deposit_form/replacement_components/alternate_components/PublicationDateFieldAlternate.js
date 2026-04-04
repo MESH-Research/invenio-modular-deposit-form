@@ -311,7 +311,7 @@ const PublicationDateFieldAlternate = ({
                 />
               ) : null}
               {description && (
-                <div id={`${fieldPath}.description`} className="description rel-mt-1 rel-mb-1">
+                <div id={`${fieldPath}.description`} className="description rel-mb-1">
                   {i18next.t(description)}
                 </div>
               )}

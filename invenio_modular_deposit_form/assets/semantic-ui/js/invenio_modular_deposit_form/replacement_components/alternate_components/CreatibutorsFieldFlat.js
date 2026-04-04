@@ -162,8 +162,7 @@ const CreatibutorsFieldFlat = ({
   ...otherProps
 }) => {
   const required = requiredProp ?? schema === "creators";
-  const label =
-    initialLabel ?? i18next.t(schema.charAt(0).toUpperCase() + schema.slice(1));
+  const label = initialLabel ?? i18next.t(schema.charAt(0).toUpperCase() + schema.slice(1));
   const store = useStore();
   const config = store.getState().deposit.config;
   const currentUserprofile = config?.current_user_profile ?? {};
@@ -269,7 +268,9 @@ const CreatibutorsFieldFlat = ({
         required={!!required}
         render={(arrayHelpers) => (
           <>
-            <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="mb-15" />
+            {label && (
+              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="mb-15" />
+            )}
             {description && (
               <span id={`${fieldPath}-field-description`} className="description mt-5 mb-5">
                 {helpText}
