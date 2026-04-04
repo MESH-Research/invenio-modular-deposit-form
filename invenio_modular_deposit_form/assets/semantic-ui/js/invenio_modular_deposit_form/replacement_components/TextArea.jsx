@@ -41,34 +41,24 @@ const TextArea = ({
         form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
-
         return (
           <Form.Field
             required={!!required}
             error={
-              !!meta.error && !!meta.touched ||
+              (!!meta.error && !!meta.touched) ||
               !!error ||
-              (field.value === meta.initialValue) && !!meta.initialError
+              (field.value === meta.initialValue && !!meta.initialError)
             }
             // (!!meta.touched && !!meta.errors) ||
             // (!meta.touched && meta.initialError)
-            className={`invenio-text-area-field ${
-              classnames ? classnames : ""
-            }`}
+            className={`invenio-text-area-field ${classnames ? classnames : ""}`}
             width={width}
           >
-            {showLabel && (
-              <FieldLabel
-                htmlFor={fieldPath}
-                icon={labelIcon}
-                label={label}
-              />
+            {showLabel && label && (
+              <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
             )}
             {description && description !== " " && (
-              <label
-                id={`${fieldPath}.helptext`}
-                className={`helptext label top`}
-              >
+              <label id={`${fieldPath}.helptext`} className={`helptext label top`}>
                 {i18next.t(description)}
               </label>
             )}
@@ -76,9 +66,7 @@ const TextArea = ({
               id={fieldPath}
               name={fieldPath}
               rows={rows}
-              {...(helpText
-                ? { "aria-describedby": `${fieldPath}.helptext` }
-                : {})}
+              {...(helpText ? { "aria-describedby": `${fieldPath}.helptext` } : {})}
               {...field}
               {...(onBlur && {
                 onBlur: (e) => {
@@ -93,10 +81,11 @@ const TextArea = ({
                 {i18next.t(helpText)}
               </div>
             )}
-            {(!!meta.error && !!meta.touched ||
+            {((!!meta.error && !!meta.touched) ||
               !!error ||
-              (field.value === meta.initialValue) && !!meta.initialError
-              ) && <ErrorLabel fieldPath={fieldPath} />}
+              (field.value === meta.initialValue && !!meta.initialError)) && (
+              <ErrorLabel fieldPath={fieldPath} />
+            )}
           </Form.Field>
         );
       }}

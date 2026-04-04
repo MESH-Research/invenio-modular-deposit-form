@@ -291,19 +291,18 @@ export class RequiredPIDField extends Component {
     const managedIdentifier = _isManagedSelected ? currentIdentifier : "";
     const hasManagedIdentifier = managedIdentifier !== "";
     const managedHelptextForDisplay =
-      hasManagedIdentifier && reservedHelpText != null
-        ? reservedHelpText
-        : managedHelpText;
+      hasManagedIdentifier && reservedHelpText != null ? reservedHelpText : managedHelpText;
     const unmanagedIdentifier = !_isManagedSelected ? currentIdentifier : "";
 
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
 
     return (
       <>
-        <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
-          <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
-        </Form.Field>
-
+        {fieldLabel && (
+          <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
+            <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
+          </Form.Field>
+        )}
         {this.canBeManagedAndUnmanaged && (
           <ManagedUnmanagedSwitch
             disabled={

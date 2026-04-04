@@ -64,7 +64,7 @@ const TextField = ({
             fluid={fluid.toString()}
             width={width}
           >
-            {showLabel && (
+            {showLabel && label && (
               <FieldLabel
                 id={`${fieldPath}.label`}
                 htmlFor={fieldPath}

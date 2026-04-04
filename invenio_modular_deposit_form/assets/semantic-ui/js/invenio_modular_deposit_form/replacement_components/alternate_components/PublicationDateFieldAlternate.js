@@ -301,7 +301,14 @@ const PublicationDateFieldAlternate = ({
         {({ meta }) => {
           return (
             <Form.Field required={!!required} error={!!meta.error}>
-              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} id={`${fieldPath}.label`} />
+              {label && (
+                <FieldLabel
+                  htmlFor={fieldPath}
+                  icon={icon}
+                  label={label}
+                  id={`${fieldPath}.label`}
+                />
+              )}
               {description && (
                 <div id={`${fieldPath}.description`} className="description rel-mt-1 rel-mb-1">
                   {i18next.t(description)}

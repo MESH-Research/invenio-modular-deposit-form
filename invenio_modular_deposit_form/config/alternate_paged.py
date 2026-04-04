@@ -149,18 +149,33 @@ _DATASET_DETAILS_PAGE = {
             ],
         },
         {
-            "section": "alternate_identifiers",
+            "section": "image_details",
+            "component": "FormSection",
             "label": _("Dataset URL and Other Identifiers"),
-            "component": "AlternateIdentifiersComponent",
-            "wrapped": True,
+            "show_heading": True,
+            "subsections": [
+                {
+                    "section": "alternate_identifiers",
+                    "label": None,
+                    "component": "AlternateIdentifiersComponent",
+                }
+            ],
         },
         {
-            "section": "language",
+            "section": "image_details",
+            "component": "FormSection",
             "label": _("Languages"),
-            "component": "LanguagesComponent",
-            "placeholder": _LANG_FIELD_PLACEHOLDER,
-            "description": _LANG_FIELD_DESCRIPTION,
-            "wrapped": True,
+            "show_heading": True,
+            "subsections": [
+                {
+                    "section": "language",
+                    "label": None,
+                    "component": "LanguagesComponent",
+                    "placeholder": _LANG_FIELD_PLACEHOLDER,
+                    "description": _LANG_FIELD_DESCRIPTION,
+                    "wrapped": True,
+                },
+            ],
         },
     ],
 }
@@ -394,14 +409,14 @@ _SOFTWARE_DETAILS_PAGE = {
 _JOURNAL_DETAILS_PAGE = {
     "section": "4",
     "component": "FormPage",
-    "label": "Journal details",
+    "label": _("Journal Details"),
     "subsections": [
         {
             "section": "journal_details",
             "component": "FormSection",
             "show_heading": True,
             "icon": "newspaper outline",
-            "label": "Journal details",
+            "label": _("Journal details"),
             "subsections": [
                 {
                     "component": "FormRow",
@@ -707,38 +722,60 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "basics",
-                    "label": _("Basics"),
+                    "section": "pids",
+                    "label": _("Digital Object Identifier"),
                     "component": "FormSection",
                     "classnames": "basic",
+                    "show_heading": True,
                     "subsections": [
                         {
                             "section": "doi",
-                            "label": _("Digital Object Identifier"),
+                            "label": None,
                             "icon": "linkify",
                             "component": "DoiComponent",
                         },
+                    ],
+                },
+                {
+                    "section": "titles",
+                    "label": _("Title"),
+                    "component": "FormSection",
+                    "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
                         {
                             "section": "combined_titles",
-                            "label": _("Title"),
+                            "label": None,
                             "component": "TitlesComponent",
                             "icon": "book",
-                        },
+                        }
+                    ],
+                },
+                {
+                    "section": "dates",
+                    "label": _("Dates"),
+                    "component": "FormSection",
+                    "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
                         {
                             "section": "combined_dates",
-                            "label": _("Dates"),
+                            "label": None,
                             "component": "CombinedDatesComponent",
                             "helpText": "",
                         },
-                        {
-                            "section": "publisher",
-                            "label": _("Publisher"),
-                            "component": "PublisherComponent",
-                            "description": "",
-                        },
+                    ],
+                },
+                {
+                    "section": "descriptions",
+                    "label": _("Abstract and Descriptions"),
+                    "component": "FormSection",
+                    "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
                         {
                             "section": "abstract",
-                            "label": _("Abstract or Description"),
+                            "label": None,
                             "component": "AbstractComponent",
                         },
                     ],
@@ -753,41 +790,63 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 {
                     "section": "creators",
                     "label": _("Primary Contributors"),
-                    "component": "CreatorsComponent",
-                    "wrapped": True,
-                    "addButtonLabel": "Add Contributor",
-                    "modal": {
-                        "addLabel": _("Add Contributor"),
-                        "editLabel": _("Edit Contributor"),
-                    },
-                    "description": (
-                        "These people will appear at the beginning of formatted "
-                        "citations and at the top of the record's detail page."
-                    ),
+                    "component": "FormSection",
+                    "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "creators_field",
+                            "label": None,
+                            "component": "CreatorsComponent",
+                            "addButtonLabel": "Add Contributor",
+                            "modal": {
+                                "addLabel": _("Add Contributor"),
+                                "editLabel": _("Edit Contributor"),
+                            },
+                            "description": (
+                                "These people will appear at the beginning of formatted "
+                                "citations and at the top of the record's detail page."
+                            ),
+                        },
+                    ],
                 },
                 {
                     "section": "contributors",
-                    "label": _("Secondary Contributors"),
-                    "component": "CreatorsComponent",
-                    "wrapped": True,
+                    "label": _("Other Contributors"),
+                    "component": "FormSection",
                     "show_heading": True,
-                    "addButtonLabel": "Add Contributor",
-                    "modal": {
-                        "addLabel": _("Add Contributor"),
-                        "editLabel": _("Edit Contributor"),
-                    },
-                    "description": (
-                        "These people may appear later on in formatted citations, "
-                        "depending on their role. They will be included in the full "
-                        "contributors list on the record detail page."
-                    ),
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "contributors",
+                            "label": None,
+                            "component": "CreatorsComponent",
+                            "addButtonLabel": "Add Contributor",
+                            "modal": {
+                                "addLabel": _("Add Contributor"),
+                                "editLabel": _("Edit Contributor"),
+                            },
+                            "description": (
+                                "These people may appear later on in formatted citations, "
+                                "depending on their role. They will be included in the full "
+                                "contributors list on the record detail page."
+                            ),
+                        },
+                    ],
                 },
                 {
                     "section": "funding",
-                    "label": _("Funding"),
-                    "component": "FundingComponent",
-                    "wrapped": True,
+                    "label": _("Funding and Awards"),
+                    "component": "FormSection",
                     "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "funding_field",
+                            "label": None,
+                            "component": "FundingComponent",
+                        },
+                    ],
                 },
             ],
         },
@@ -805,6 +864,12 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "wrapped": True,
                 },
                 {
+                    "section": "publisher",
+                    "label": _("Publisher"),
+                    "component": "PublisherComponent",
+                    "description": "",
+                },
+                {
                     "section": "alternate_identifiers",
                     "label": _("URL and Other Identifiers"),
                     "icon": "linkify",
@@ -819,60 +884,75 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "subjects",
-                    "label": "Subjects",
-                    "component": "SubjectsComponent",
-                    "description": (
-                        "Search using full words and press enter to select. "
-                        "(For best results, choose a subject category at right.)"
-                    ),
-                    "helpText": (
-                        "These formal subject headings let people find "
-                        "your work in subject searches."
-                    ),
-                    "placeholder": "e.g., Nelson Mandela, Genetics,Shakespeare",
-                    "wrapped": True,
-                },
-                {
                     "section": "communities",
-                    "label": _("Communities"),
+                    "label": _("Community submission"),
                     "component": "FormPage",
                     "subsections": [
                         {
                             "section": "communities",
-                            "label": "Collection submission",
+                            "label": None,
                             "component": "CommunitiesComponent",
-                            "wrapped": True,
                         },
                     ],
                 },
                 {
-                    "section": "related_works",
-                    "label": "Related Works",
-                    "component": "RelatedWorksComponent",
-                    "wrapped": True,
+                    "section": "contributors",
+                    "label": _("Subjects"),
+                    "component": "FormSection",
+                    "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "subjects_field",
+                            "label": None,
+                            "component": "SubjectsComponent",
+                            "description": (
+                                "Search using full words and press enter to select. "
+                                "(For best results, choose a subject category at right.)"
+                            ),
+                            "helpText": (
+                                "These formal subject headings let people find "
+                                "your work in subject searches."
+                            ),
+                            "placeholder": "e.g., Nelson Mandela, Genetics,Shakespeare",
+                        },
+                    ],
+                },
+                {
+                    "section": "contributors",
+                    "label": _("Related Works"),
+                    "component": "FormSection",
+                    "show_heading": True,
+                    "classnames": "basic",
+                    "subsections": [
+                        {
+                            "section": "related_works",
+                            "label": None,
+                            "component": "RelatedWorksComponent",
+                        },
+                    ],
                 },
             ],
         },
-        {
-            "section": "6",
-            "label": "Save & Publish",
-            "component": "FormPage",
-            "subsections": [
-                {
-                    "section": "submit_actions",
-                    "label": "Publish",
-                    "component": "SubmissionComponent",
-                    "wrapped": False,
-                },
-                {
-                    "section": "access",
-                    "label": "Access",
-                    "component": "AccessRightsComponent",
-                    "wrapped": True,
-                },
-            ],
-        },
+        # {
+        #     "section": "6",
+        #     "label": "Save & Publish",
+        #     "component": "FormPage",
+        #     "subsections": [
+        #         {
+        #             "section": "submit_actions",
+        #             "label": "Publish",
+        #             "component": "SubmissionComponent",
+        #             "wrapped": False,
+        #         },
+        #         {
+        #             "section": "access",
+        #             "label": "Access",
+        #             "component": "AccessRightsComponent",
+        #             "wrapped": True,
+        #         },
+        #     ],
+        # },
     ],
 }
 
@@ -939,11 +1019,11 @@ FIELDS_BY_TYPE_ALTERNATE_PAGED = {
     "publication-journal": {
         "4": copy.deepcopy(_JOURNAL_DETAILS_PAGE),
     },
+    "publication-thesis": {
+        "4": copy.deepcopy(_THESIS_DETAILS_PAGE),
+    },
     "software": {
         "4": copy.deepcopy(_SOFTWARE_DETAILS_PAGE),
-    },
-    "thesis": {
-        "4": copy.deepcopy(_THESIS_DETAILS_PAGE),
     },
     "video": {
         "4": copy.deepcopy(_VIDEO_DETAILS_PAGE),

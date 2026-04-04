@@ -114,7 +114,7 @@ const FormSection = ({
         .join(" ")}
     >
       {show_heading && (
-        <legend className="field-label-class title invenio-field-label rel-mb-1">
+        <legend className="field-label-class title invenio-field-label mb-10">
           {!!icon && <Icon name={icon} />} {label}
           {severityBadges}
         </legend>

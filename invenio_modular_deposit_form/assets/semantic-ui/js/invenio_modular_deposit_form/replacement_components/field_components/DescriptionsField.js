@@ -21,7 +21,7 @@ export class DescriptionsField extends Component {
           className="description-field rel-mb-1 rel-mt-2"
           fieldPath={fieldPath}
           editorConfig={editorConfig}
-          label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
+          label={label ? <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} /> : null}
           optimized
         />
         <AdditionalDescriptionsField
