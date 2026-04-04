@@ -797,7 +797,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                         {
                             "section": "creators_field",
                             "label": None,
-                            "component": "CreatorsComponent",
+                            "component": "CreatorsComponentFlat",
                             "addButtonLabel": "Add Contributor",
                             "modal": {
                                 "addLabel": _("Add Contributor"),
@@ -820,7 +820,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                         {
                             "section": "contributors",
                             "label": None,
-                            "component": "CreatorsComponent",
+                            "component": "ContributorsComponentFlat",
                             "addButtonLabel": "Add Contributor",
                             "modal": {
                                 "addLabel": _("Add Contributor"),

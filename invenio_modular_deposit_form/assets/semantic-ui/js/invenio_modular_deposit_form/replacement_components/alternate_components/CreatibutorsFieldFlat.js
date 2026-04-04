@@ -265,7 +265,7 @@ const CreatibutorsFieldFlat = ({
     <Form.Field id={fieldPath} required={required} error={creatibutorsError}>
       <FieldArray
         name={fieldPath}
-        className="creators"
+        className={schema}
         required={!!required}
         render={(arrayHelpers) => (
           <>
@@ -273,7 +273,7 @@ const CreatibutorsFieldFlat = ({
               <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="mb-15" />
             )}
             {description && (
-              <span id={`${fieldPath}-field-description`} className="description mt-5 mb-5">
+              <span id={`${fieldPath}-field-description`} className="description mt-0 rel-mb-1">
                 {description}
               </span>
             )}
