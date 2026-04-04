@@ -44,22 +44,19 @@ const defaultState = {
 };
 
 /**
- * Build initial form UI state from form pages config and resource type config.
- * resolvedFormPages / visibleFormPages stay empty until useCurrentResourceTypeFields dispatches
- * SET_FORM_PAGES_LAYOUT.
+ * Build initial form UI state from form pages config only.
+ * `currentResourceType`, `currentTypePageConfigs`, `resolvedFormPages`, `visibleFormPages`, and
+ * per-page field maps are filled on mount/update by {@link useCurrentResourceTypeFields} from
+ * Formik `metadata.resource_type` and Redux `fields_by_type`.
  * currentFormPage is the first configured page id (provisional until visibility sync effects run).
  *
  * @param {Array} formPages - form pages from deposit config (common_fields FormPages subsections)
- * @param {string} defaultResourceType - initial resource type id
- * @param {Object} fieldsByType - resource type id -> { [pageId]: page layout entry }
  * @returns {Object} initial state for formUIStateReducer
  */
-function getInitialFormUIState(formPages = [], defaultResourceType, fieldsByType = {}) {
+function getInitialFormUIState(formPages = []) {
   return {
     ...defaultState,
     currentFormPage: formPages[0]?.section ?? "",
-    currentResourceType: defaultResourceType ?? "",
-    currentTypePageConfigs: fieldsByType[defaultResourceType] ?? {},
   };
 }
 

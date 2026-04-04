@@ -55,10 +55,13 @@ const FormUIStateManager = ({ children }) => {
   // Dynamic form state
   const formik = useFormikContext();
 
-  // Set up form UI state reducer
+  // Initial UI state: first page id + empty type/layout (useCurrentResourceTypeFields fills type
+  // and layout after mount). Lazy init runs once on mount — avoids calling getInitialFormUIState
+  // on every re-render (React ignores the second arg after mount, but the expression would still run).
   const [state, dispatch] = useReducer(
     formUIStateReducer,
-    getInitialFormUIState(formPagesCommon, defaultResourceType, fieldsByType)
+    formPagesCommon,
+    getInitialFormUIState
   );
 
   // Keep client and server errors in sync and track which errors to display
