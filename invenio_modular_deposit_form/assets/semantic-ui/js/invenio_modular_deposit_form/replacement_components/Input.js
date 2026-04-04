@@ -43,7 +43,7 @@ class InputComponent extends Component {
         description={description}
         helpText={helpTextProp}
         disabled={disabled}
-        label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
+        label={label && <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
         placeholder={placeholder}
         type={type}
       />

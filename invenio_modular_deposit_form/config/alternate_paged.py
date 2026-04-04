@@ -730,7 +730,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "subsections": [
                         {
                             "section": "doi",
-                            "label": None,
+                            "fieldLabel": None,
                             "icon": "linkify",
                             "component": "DoiComponent",
                         },
