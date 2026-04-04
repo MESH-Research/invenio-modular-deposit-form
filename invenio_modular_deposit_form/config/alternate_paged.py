@@ -33,26 +33,83 @@ import copy
 
 from invenio_i18n import lazy_gettext as _
 
-from .default import (
-    _PAGED_FORM_FOOTER,
-    _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET,
-    _PAGED_FORM_LEFT_SIDEBAR,
-    _PAGED_FORM_RIGHT_SIDEBAR,
-    FIELDS_BY_TYPE_DEFAULT_PAGED,
-)
-
-_LANG_FIELD_PLACEHOLDER = "e.g., English, French, Swahili"
-_LANG_FIELD_DESCRIPTION = (
+_LANG_FIELD_PLACEHOLDER = _("e.g., English, French, Swahili")
+_LANG_FIELD_DESCRIPTION = _(
     "Search for the language(s) of the resource (e.g.,"
     ' "en", "fre", "Swahili"). Press enter to '
     "select each language."
 )
 
+_PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
+    "component": "FormHeader",
+    "classnames": "default-layout",
+    "subsections": [
+        {"component": "FormStepper", "classnames": "mobile tablet only"},
+    ],
+}
+
+_PAGED_FORM_HEADER_STEPPER_TOP = {
+    "component": "FormHeader",
+    "classnames": "default-layout",
+    "subsections": [{"component": "FormStepper"}],
+}
+
+_PAGED_FORM_LEFT_SIDEBAR = {
+    "component": "FormLeftSidebar",
+    "classnames": "default-layout",
+    # Sidebar widths
+    "computer": 3,
+    "largeScreen": 3,
+    "widescreen": 3,
+    "subsections": [
+        {
+            "component": "FormSidebarPageMenu",
+            "label": _("Steps"),
+            "classnames": "computer widescreen large-monitor only",
+        },
+    ],
+}
+
+_PAGED_FORM_RIGHT_SIDEBAR = {
+    "component": "FormRightSidebar",
+    "classnames": "default-layout",
+    # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
+    "mobile": 16,
+    "tablet": 16,
+    "computer": 5,
+    "largeScreen": 4,
+    "widescreen": 4,
+    "subsections": [
+        {
+            "section": "form_feedback",
+            "component": "FormFeedbackComponent",
+        },
+        {
+            "section": "submit_actions",
+            "label": "Publish",
+            "component": "SubmissionComponent",
+        },
+        {
+            "section": "access",
+            "label": "Visibility",
+            "component": "AccessRightsComponent",
+        },
+    ],
+}
+
+_PAGED_FORM_FOOTER = {
+    "component": "FormFooter",
+    "classnames": "basic default-layout",
+    "subsections": [
+        {"component": "FormPageNavigationBar"},
+    ],
+}
+
 # Page ``3`` layouts: details-step overrides, submodule registry components only.
 # Each constant is a full page dict; assign with ``copy.deepcopy`` so presets do not
 # alias module-level objects.
 
-_DATASET_DETAILS_PAGE_3 = {
+_DATASET_DETAILS_PAGE = {
     "label": "Dataset Details",
     "subsections": [
         {
@@ -94,7 +151,7 @@ _DATASET_DETAILS_PAGE_3 = {
     ],
 }
 
-_IMAGE_DETAILS_PAGE_3 = {
+_IMAGE_DETAILS_PAGE = {
     "label": "Image Details",
     "subsections": [
         {
@@ -140,7 +197,7 @@ _IMAGE_DETAILS_PAGE_3 = {
     ],
 }
 
-_VIDEO_DETAILS_PAGE_3 = {
+_VIDEO_DETAILS_PAGE = {
     "label": "Media Details",
     "subsections": [
         {
@@ -186,7 +243,7 @@ _VIDEO_DETAILS_PAGE_3 = {
     ],
 }
 
-_AUDIO_DETAILS_PAGE_3 = {
+_AUDIO_DETAILS_PAGE = {
     "label": "Recording Details",
     "subsections": [
         {
@@ -233,7 +290,7 @@ _AUDIO_DETAILS_PAGE_3 = {
     ],
 }
 
-_SOFTWARE_DETAILS_PAGE_3 = {
+_SOFTWARE_DETAILS_PAGE = {
     "label": "Software Details",
     "subsections": [
         {
@@ -366,36 +423,42 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
         },
         {
             "section": "2",
-            "label": "Type & Title",
+            "label": "Basics",
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "basic",
-                    "label": "Basics",
+                    "section": "basics",
+                    "label": _("Basics"),
                     "component": "FormSection",
                     "classnames": "basic",
                     "subsections": [
                         {
                             "section": "doi",
-                            "label": "Digital Object Identifier",
+                            "label": _("Digital Object Identifier"),
                             "icon": "linkify",
                             "component": "DoiComponent",
                         },
                         {
                             "section": "combined_titles",
-                            "label": "Title",
+                            "label": _("Title"),
                             "component": "TitlesComponent",
                             "icon": "book",
                         },
                         {
                             "section": "combined_dates",
-                            "label": "Dates",
+                            "label": _("Dates"),
                             "component": "CombinedDatesComponent",
                             "helpText": "",
                         },
                         {
+                            "section": "publisher",
+                            "label": _("Publisher"),
+                            "component": "PublisherComponent",
+                            "description": "",
+                        },
+                        {
                             "section": "abstract",
-                            "label": "Abstract or Description",
+                            "label": _("Abstract or Description"),
                             "component": "AbstractComponent",
                         },
                     ],
@@ -404,41 +467,12 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
         },
         {
             "section": "3",
-            "label": "Details",
-            "component": "FormPage",
-            "subsections": [
-                {
-                    "section": "publisher",
-                    "label": "Publisher",
-                    "component": "PublisherComponent",
-                    "wrapped": True,
-                    "description": "",
-                },
-                {
-                    "section": "language",
-                    "label": "Languages",
-                    "component": "LanguagesComponent",
-                    "placeholder": _LANG_FIELD_PLACEHOLDER,
-                    "description": _LANG_FIELD_DESCRIPTION,
-                    "wrapped": True,
-                },
-                {
-                    "section": "alternate_identifiers",
-                    "label": "URL and Other Identifiers",
-                    "icon": "linkify",
-                    "component": "AlternateIdentifiersComponent",
-                    "wrapped": True,
-                },
-            ],
-        },
-        {
-            "section": "4",
-            "label": "Contributors & Funding",
+            "label": _("Contributors & Funding"),
             "component": "FormPage",
             "subsections": [
                 {
                     "section": "creators",
-                    "label": "Creators and Contributors",
+                    "label": _("Primary Contributors"),
                     "component": "CreatorsComponent",
                     "wrapped": True,
                     "addButtonLabel": "Add Contributor",
@@ -446,6 +480,56 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                         "addLabel": _("Add Contributor"),
                         "editLabel": _("Edit Contributor"),
                     },
+                    "description": (
+                        "These people will appear at the beginning of formatted "
+                        "citations and at the top of the record's detail page."
+                    ),
+                },
+                {
+                    "section": "contributors",
+                    "label": _("Secondary Contributors"),
+                    "component": "CreatorsComponent",
+                    "wrapped": True,
+                    "show_heading": True,
+                    "addButtonLabel": "Add Contributor",
+                    "modal": {
+                        "addLabel": _("Add Contributor"),
+                        "editLabel": _("Edit Contributor"),
+                    },
+                    "description": (
+                        "These people may appear later on in formatted citations, "
+                        "depending on their role. They will be included in the full "
+                        "contributors list on the record detail page."
+                    ),
+                },
+                {
+                    "section": "funding",
+                    "label": _("Funding"),
+                    "component": "FundingComponent",
+                    "wrapped": True,
+                    "show_heading": True,
+                },
+            ],
+        },
+        {
+            "section": "4",
+            "label": _("Details"),
+            "component": "FormPage",
+            "subsections": [
+                {
+                    "section": "language",
+                    "label": _("Languages"),
+                    "component": "LanguagesComponent",
+                    "placeholder": _LANG_FIELD_PLACEHOLDER,
+                    "description": _LANG_FIELD_DESCRIPTION,
+                    "wrapped": True,
+                },
+                {
+                    "section": "alternate_identifiers",
+                    "label": _("URL and Other Identifiers"),
+                    "icon": "linkify",
+                    "component": "AlternateIdentifiersComponent",
+                    "wrapped": True,
                 },
             ],
         },
@@ -470,6 +554,19 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "wrapped": True,
                 },
                 {
+                    "section": "communities",
+                    "label": _("Communities"),
+                    "component": "FormPage",
+                    "subsections": [
+                        {
+                            "section": "communities",
+                            "label": "Collection submission",
+                            "component": "CommunitiesComponent",
+                            "wrapped": True,
+                        },
+                    ],
+                },
+                {
                     "section": "related_works",
                     "label": "Related Works",
                     "component": "RelatedWorksComponent",
@@ -479,25 +576,6 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
         },
         {
             "section": "6",
-            "label": "Collections & Access",
-            "component": "FormPage",
-            "subsections": [
-                {
-                    "section": "communities",
-                    "label": "Collection submission",
-                    "component": "CommunitiesComponent",
-                    "wrapped": True,
-                },
-                {
-                    "section": "access",
-                    "label": "Access",
-                    "component": "AccessRightsComponent",
-                    "wrapped": True,
-                },
-            ],
-        },
-        {
-            "section": "7",
             "label": "Save & Publish",
             "component": "FormPage",
             "subsections": [
@@ -507,6 +585,12 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "component": "SubmissionComponent",
                     "wrapped": False,
                 },
+                {
+                    "section": "access",
+                    "label": "Access",
+                    "component": "AccessRightsComponent",
+                    "wrapped": True,
+                },
             ],
         },
     ],
@@ -514,91 +598,63 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
 
 
 COMMON_FIELDS_ALTERNATE_PAGED = [
-    _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET,
+    _PAGED_FORM_HEADER_STEPPER_TOP,
     _PAGED_FORM_LEFT_SIDEBAR,
     _PAGED_FORM_RIGHT_SIDEBAR,
     _PAGED_FORM_FOOTER,
     _PAGED_FORM_PAGES_ALTERNATE_PAGED,
 ]
 
-
-def _remap_fields_by_type_page_keys(fields_by_type, old_key: str, new_key: str):
-    """Deep copy with page ids renamed (stock page ``4`` maps to page ``3`` here).
-
-    Returns:
-        New dict keyed by resource type id.
-    """
-    out = {}
-    for res_type, cfg in fields_by_type.items():
-        if cfg is None or not isinstance(cfg, dict):
-            out[res_type] = copy.deepcopy(cfg)
-            continue
-        new_cfg = {}
-        for page_key, page_val in cfg.items():
-            mapped_key = new_key if page_key == old_key else page_key
-            new_cfg[mapped_key] = copy.deepcopy(page_val)
-        out[res_type] = new_cfg
-    return out
-
-
-FIELDS_BY_TYPE_ALTERNATE_PAGED = _remap_fields_by_type_page_keys(
-    FIELDS_BY_TYPE_DEFAULT_PAGED,
-    "4",
-    "3",
-)
-
-# Publication / poster / presentation / lesson entries need no further changes.
-
-FIELDS_BY_TYPE_ALTERNATE_PAGED["dataset"] = {
-    "3": copy.deepcopy(_DATASET_DETAILS_PAGE_3),
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image"] = {
-    "3": copy.deepcopy(_IMAGE_DETAILS_PAGE_3),
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image-figure"] = {
-    "3": {
-        "same_as": "image",
-        "label": "Figure details",
+FIELDS_BY_TYPE_ALTERNATE_PAGED = {
+    "dataset": {
+        "4": copy.deepcopy(_DATASET_DETAILS_PAGE),
     },
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image-plot"] = {
-    "3": {
-        "same_as": "image",
-        "label": "Plot details",
+    "image": {
+        "4": copy.deepcopy(_IMAGE_DETAILS_PAGE),
     },
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image-drawing"] = {
-    "3": {
-        "same_as": "image",
-        "label": "Drawing details",
+    "image-figure": {
+        "4": {
+            "same_as": "image",
+            "label": "Figure details",
+        },
     },
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image-diagram"] = {
-    "3": {
-        "same_as": "image",
-        "label": "Diagram details",
+    "image-plot": {
+        "4": {
+            "same_as": "image",
+            "label": "Plot details",
+        },
     },
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image-photo"] = {
-    "3": {
-        "same_as": "image",
-        "label": "Photo details",
+    "image-drawing": {
+        "4": {
+            "same_as": "image",
+            "label": "Drawing details",
+        },
     },
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["image-other"] = {
-    "3": {
-        "same_as": "image",
-        "label": "Other image details",
+    "image-diagram": {
+        "4": {
+            "same_as": "image",
+            "label": "Diagram details",
+        },
     },
-}
-
-FIELDS_BY_TYPE_ALTERNATE_PAGED["video"] = {
-    "3": copy.deepcopy(_VIDEO_DETAILS_PAGE_3),
-}
-FIELDS_BY_TYPE_ALTERNATE_PAGED["audio"] = {
-    "3": copy.deepcopy(_AUDIO_DETAILS_PAGE_3),
-}
-
-FIELDS_BY_TYPE_ALTERNATE_PAGED["software"] = {
-    "3": copy.deepcopy(_SOFTWARE_DETAILS_PAGE_3),
+    "image-photo": {
+        "4": {
+            "same_as": "image",
+            "label": "Photo details",
+        },
+    },
+    "image-other": {
+        "4": {
+            "same_as": "image",
+            "label": "Other image details",
+        },
+    },
+    "video": {
+        "4": copy.deepcopy(_VIDEO_DETAILS_PAGE),
+    },
+    "audio": {
+        "4": copy.deepcopy(_AUDIO_DETAILS_PAGE),
+    },
+    "software": {
+        "4": copy.deepcopy(_SOFTWARE_DETAILS_PAGE),
+    },
 }
