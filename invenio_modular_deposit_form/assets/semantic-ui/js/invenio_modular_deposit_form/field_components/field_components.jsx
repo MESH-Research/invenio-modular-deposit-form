@@ -470,12 +470,12 @@ const FileUploadComponent = ({ ...extraProps }) => {
     ...(config.file_modification != null && { fileModification: config.file_modification }),
   };
 
-  const fileFieldLabel = extraProps.label ?? i18next.t("File upload");
+  const fileFieldLabel = extraProps.label;
   const fileFieldIcon = extraProps.icon ?? extraProps.labelIcon ?? "file";
 
   return (
     <>
-      {extraProps.show_heading && (
+      {fileFieldLabel && (
         <Form.Field>
           <FieldLabel htmlFor="files" icon={fileFieldIcon} label={fileFieldLabel} />
         </Form.Field>

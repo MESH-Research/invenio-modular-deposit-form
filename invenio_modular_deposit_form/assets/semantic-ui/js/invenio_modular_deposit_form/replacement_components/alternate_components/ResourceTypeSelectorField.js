@@ -29,8 +29,7 @@ const ResourceTypeSelectorField = ({
   ...uiProps
 }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? {};
-  const options =
-    optionsProp ?? vocabularies?.metadata?.resource_type ?? [];
+  const options = optionsProp ?? vocabularies?.metadata?.resource_type ?? [];
   const { values, setFieldValue } = useFormikContext();
   const currentTypeId = getIn(values, fieldPath);
   const [otherToggleActive, setOtherToggleActive] = useState(false);
@@ -52,10 +51,7 @@ const ResourceTypeSelectorField = ({
   ];
 
   useEffect(() => {
-    if (
-      currentTypeId &&
-      !buttonTypes.map((b) => b.id).includes(currentTypeId)
-    ) {
+    if (currentTypeId && !buttonTypes.map((b) => b.id).includes(currentTypeId)) {
       setOtherToggleActive(true);
       // FIXME: this is a hack to get the formik validation not to complain
       setFieldValue(fieldPath, currentTypeId);
@@ -69,10 +65,7 @@ const ResourceTypeSelectorField = ({
    * @returns {string} label
    */
   const _label = (option) => {
-    return (
-      option.type_name +
-      (option.subtype_name ? " / " + option.subtype_name : "")
-    );
+    return option.type_name + (option.subtype_name ? " / " + option.subtype_name : "");
   };
 
   /**
@@ -114,9 +107,7 @@ const ResourceTypeSelectorField = ({
     const wrapperClass = `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`;
     setTimeout(() => {
       document
-        .querySelector(
-          `.invenio-field-wrapper.${wrapperClass} .invenio-select-field input`
-        )
+        .querySelector(`.invenio-field-wrapper.${wrapperClass} .invenio-select-field input`)
         ?.focus();
     }, 200);
   };
@@ -128,11 +119,8 @@ const ResourceTypeSelectorField = ({
         form: { touched, errors },
         meta,
       }) => (
-        <Form.Field
-          required={!!required}
-          error={!!meta.error && !!meta.touched}
-        >
-          <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />
+        <Form.Field required={!!required} error={!!meta.error && !!meta.touched}>
+          {label && <FieldLabel htmlFor={fieldPath} icon={icon} label={label} />}
           {description && description !== " " && (
             <label className="helptext label top">{i18next.t(description)}</label>
           )}
@@ -143,9 +131,7 @@ const ResourceTypeSelectorField = ({
                 id={buttonType.id}
                 name={buttonType.id}
                 onClick={handleItemClick}
-                className={`ui button item ${
-                  currentTypeId === buttonType.id ? "active" : ""
-                }`}
+                className={`ui button item ${currentTypeId === buttonType.id ? "active" : ""}`}
                 formNoValidate
                 type="button"
               >
@@ -157,9 +143,7 @@ const ResourceTypeSelectorField = ({
               id={"otherToggle"}
               name={"otherToggle"}
               onClick={handleOtherToggleClick}
-              className={`ui button item ${
-                otherToggleActive === true ? "active" : ""
-              }`}
+              className={`ui button item ${otherToggleActive === true ? "active" : ""}`}
               formNoValidate
               type="button"
             >
