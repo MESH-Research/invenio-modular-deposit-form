@@ -84,6 +84,7 @@ const DateDropdown = ({
         onChange={handleDropdownChange}
         error={error}
         upward={false}
+        fluid
       />
     </Form.Field>
   );
@@ -301,14 +302,14 @@ const PublicationDateFieldAlternate = ({
         {({ meta }) => {
           return (
             <Form.Field required={!!required} error={!!meta.error}>
-              {label && (
+              {label ? (
                 <FieldLabel
                   htmlFor={fieldPath}
                   icon={icon}
                   label={label}
                   id={`${fieldPath}.label`}
                 />
-              )}
+              ) : null}
               {description && (
                 <div id={`${fieldPath}.description`} className="description rel-mt-1 rel-mb-1">
                   {i18next.t(description)}

@@ -24,7 +24,7 @@ export class TitlesField extends Component {
       <>
         <TextField
           fieldPath={fieldPath}
-          label={<FieldLabel htmlFor={fieldPath} icon="book" label={label} />}
+          label={label ? <FieldLabel htmlFor={fieldPath} icon="book" label={label} /> : null}
           required={required}
           className="title-field"
           optimized

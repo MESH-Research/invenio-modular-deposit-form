@@ -64,14 +64,14 @@ const TextField = ({
             fluid={fluid.toString()}
             width={width}
           >
-            {showLabel && label && (
+            {( showLabel && label ) ? && (
               <FieldLabel
                 id={`${fieldPath}.label`}
                 htmlFor={fieldPath}
                 icon={labelIcon}
                 label={label}
               />
-            )}
+            ) : null}
             {description && description !== " " && (
               <div className="description mb-5 mt-5" id={descriptionId}>
                 {React.isValidElement(description) ? description : description}
