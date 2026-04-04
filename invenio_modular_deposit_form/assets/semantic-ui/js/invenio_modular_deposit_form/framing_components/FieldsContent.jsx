@@ -37,7 +37,13 @@ const FormRow = ({ subsections, component, classnames, ...props }) => {
 
 const FieldsContent = ({ section, component, wrapped, index, ...props }) => {
   const componentsRegistry = useStore().getState().deposit?.config?.componentsRegistry ?? {};
-  const MyField = componentsRegistry[component][0];
+  const sections = componentsRegistry[component];
+
+  if (!Array.isArray(sections) || sections.length === 0) {
+    return null;
+  }
+
+  const MyField = sections[0];
 
   return !!wrapped ? (
     <FormSection

@@ -20,8 +20,8 @@ import { FormUIStateContext, useFormUIState } from "./FormUIStateManager.jsx";
  */
 function getColumnsConfig(commonFields) {
   const formPagesConfig = commonFields?.find((item) => item.component === "FormPages");
-  const leftSidebarConfig = commonFields.find((item) => item.component === "FormLeftSidebar");
-  const rightSidebarConfig = commonFields.find((item) => item.component === "FormRightSidebar");
+  const leftSidebarConfig = commonFields?.find((item) => item.component === "FormLeftSidebar");
+  const rightSidebarConfig = commonFields?.find((item) => item.component === "FormRightSidebar");
   const leftSidebarVisible = (leftSidebarConfig?.subsections?.length ?? 0) > 0;
   const rightSidebarVisible = (rightSidebarConfig?.subsections?.length ?? 0) > 0;
 
@@ -131,17 +131,20 @@ const FormLayoutContainer = () => {
             </Grid.Column>
           </Grid.Row>
 
-          <FormHeaderRegion subsections={formHeaderConfig?.subsections ?? []} />
-
+          {formHeaderConfig && (
+            <FormHeaderRegion subsections={formHeaderConfig?.subsections ?? []} />
+          )}
           <Grid.Row>
-            <FormLeftSidebar
-              subsections={leftSidebar.config?.subsections ?? []}
-              mobile={leftSidebar.config?.mobile}
-              tablet={leftSidebar.config?.tablet}
-              computer={leftSidebar.config?.computer}
-              largeScreen={leftSidebar.config?.largeScreen}
-              widescreen={leftSidebar.config?.widescreen}
-            />
+            {leftSidebar && (
+              <FormLeftSidebar
+                subsections={leftSidebar.config?.subsections ?? []}
+                mobile={leftSidebar.config?.mobile}
+                tablet={leftSidebar.config?.tablet}
+                computer={leftSidebar.config?.computer}
+                largeScreen={leftSidebar.config?.largeScreen}
+                widescreen={leftSidebar.config?.widescreen}
+              />
+            )}
             <Grid.Column
               computer={mainColumnWidths.computer}
               mobile={mainColumnWidths.mobile}
@@ -179,19 +182,23 @@ const FormLayoutContainer = () => {
                 })}
               </Transition.Group>
             </Grid.Column>
-            <FormRightSidebar
-              subsections={rightSidebar.config?.subsections ?? []}
-              mobile={rightSidebar.config?.mobile}
-              tablet={rightSidebar.config?.tablet}
-              computer={rightSidebar.config?.computer}
-              largeScreen={rightSidebar.config?.largeScreen}
-              widescreen={rightSidebar.config?.widescreen}
-            />
+            {rightSidebar && (
+              <FormRightSidebar
+                subsections={rightSidebar.config?.subsections ?? []}
+                mobile={rightSidebar.config?.mobile}
+                tablet={rightSidebar.config?.tablet}
+                computer={rightSidebar.config?.computer}
+                largeScreen={rightSidebar.config?.largeScreen}
+                widescreen={rightSidebar.config?.widescreen}
+              />
+            )}
           </Grid.Row>
 
-          <FormFooterRegion subsections={formFooterConfig?.subsections ?? []}>
-            <div id="sticky-footer-observation-target" ref={ctx.pageTargetRef} />
-          </FormFooterRegion>
+          {formFooterConfig && (
+            <FormFooterRegion subsections={formFooterConfig?.subsections ?? []}>
+              <div id="sticky-footer-observation-target" ref={ctx.pageTargetRef} />
+            </FormFooterRegion>
+          )}
         </Grid>
 
         <Confirm
