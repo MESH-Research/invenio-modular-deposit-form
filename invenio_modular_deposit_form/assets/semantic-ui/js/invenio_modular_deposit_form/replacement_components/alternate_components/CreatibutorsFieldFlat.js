@@ -151,6 +151,7 @@ const CreatibutorsFieldFlat = ({
     editLabel: i18next.t("Edit creator"),
   },
   cancelButtonLabel = i18next.t("Cancel"),
+  helpText,
   description,
   fieldPath,
   label: initialLabel,
@@ -273,7 +274,7 @@ const CreatibutorsFieldFlat = ({
             )}
             {description && (
               <span id={`${fieldPath}-field-description`} className="description mt-5 mb-5">
-                {helpText}
+                {description}
               </span>
             )}
 
@@ -358,7 +359,7 @@ const CreatibutorsFieldFlat = ({
               </Label>
             )}
 
-            {description && (
+            {helpText && (
               <div id={`${fieldPath}-field-helptext`} className="helptext">
                 {helpText}
               </div>
