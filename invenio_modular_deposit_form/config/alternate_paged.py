@@ -122,12 +122,14 @@ _PAGED_FORM_FOOTER = {
 # alias module-level objects.
 
 _DATASET_DETAILS_PAGE = {
-    "label": "Dataset Details",
+    "section": "4",
+    "label": _("Dataset Details"),
+    "component": "FormPage",
     "subsections": [
         {
             "section": "image_details",
             "component": "FormSection",
-            "label": "Dataset Details",
+            "label": _("Dataset Details"),
             "icon": "table",
             "show_heading": True,
             "subsections": [
@@ -137,7 +139,7 @@ _DATASET_DETAILS_PAGE = {
                         {
                             "section": "sizes",
                             "component": "SizesComponent",
-                            "label": "Record count",
+                            "label": _("Record count"),
                             "placeholder": _("e.g. 1.4M rows (press 'enter' to add)"),
                             "description": "",
                         }
@@ -148,13 +150,13 @@ _DATASET_DETAILS_PAGE = {
         },
         {
             "section": "alternate_identifiers",
-            "label": "Dataset URL and Other Identifiers",
+            "label": _("Dataset URL and Other Identifiers"),
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
         {
             "section": "language",
-            "label": "Languages",
+            "label": _("Languages"),
             "component": "LanguagesComponent",
             "placeholder": _LANG_FIELD_PLACEHOLDER,
             "description": _LANG_FIELD_DESCRIPTION,
@@ -164,12 +166,14 @@ _DATASET_DETAILS_PAGE = {
 }
 
 _IMAGE_DETAILS_PAGE = {
-    "label": "Image Details",
+    "section": "4",
+    "label": _("Image Details"),
+    "component": "FormPage",
     "subsections": [
         {
             "section": "image_details",
             "component": "FormSection",
-            "label": "Image Details",
+            "label": _("Image Details"),
             "icon": "picture",
             "show_heading": True,
             "subsections": [
@@ -210,7 +214,9 @@ _IMAGE_DETAILS_PAGE = {
 }
 
 _VIDEO_DETAILS_PAGE = {
-    "label": "Media Details",
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Media Details"),
     "subsections": [
         {
             "section": "image_details",
@@ -256,7 +262,9 @@ _VIDEO_DETAILS_PAGE = {
 }
 
 _AUDIO_DETAILS_PAGE = {
-    "label": "Recording Details",
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Recording Details"),
     "subsections": [
         {
             "section": "image_details",
@@ -303,7 +311,9 @@ _AUDIO_DETAILS_PAGE = {
 }
 
 _SOFTWARE_DETAILS_PAGE = {
-    "label": "Software Details",
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Software Details"),
     "subsections": [
         {
             "section": "image_details",
@@ -381,6 +391,247 @@ _SOFTWARE_DETAILS_PAGE = {
     ],
 }
 
+_JOURNAL_DETAILS_PAGE = {
+    "section": "4",
+    "component": "FormPage",
+    "label": "Journal details",
+    "subsections": [
+        {
+            "section": "journal_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "newspaper outline",
+            "label": "Journal details",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "journal_title",
+                            "component": "JournalTitleComponent",
+                            "label": "Journal title",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "journal_volume",
+                            "component": "JournalVolumeComponent",
+                        },
+                        {
+                            "section": "journal_issue",
+                            "component": "JournalIssueComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "journal_pages",
+                            "component": "SectionPagesComponent",
+                        },
+                        {
+                            "section": "journal_issn",
+                            "component": "JournalISSNComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
+_BOOK_IMPRINT_DETAILS_PAGE = {
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Publication Details"),
+    "subsections": [
+        {
+            "section": "publication_details",
+            "show_heading": True,
+            "icon": "file",
+            "label": "Publication Details",
+            "component": "FormSection",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "book_title",
+                            "component": "BookTitleComponent",
+                            "label": "Book Title",
+                            "icon": "book",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "location",
+                            "component": "PublicationLocationComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {"section": "book_pages", "component": "TotalPagesComponent"},
+                        {"section": "isbn", "component": "ISBNComponent"},
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
+_MEETING_DETAILS_PAGE = {
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Conference details"),
+    "subsections": [
+        {
+            "section": "conference_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "calendar",
+            "label": "Conference details",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_title",
+                            "component": "MeetingTitleComponent",
+                            "label": "Event title",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_acronym",
+                            "component": "MeetingAcronymComponent",
+                            "label": "Acronym",
+                        },
+                        {
+                            "section": "meeting_dates",
+                            "component": "MeetingDatesComponent",
+                            "label": "Dates",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_place",
+                            "component": "MeetingPlaceComponent",
+                            "label": "Location",
+                        },
+                        {
+                            "section": "meeting_url",
+                            "component": "MeetingURLComponent",
+                            "label": "Website",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_session",
+                            "component": "MeetingSessionComponent",
+                        },
+                        {
+                            "section": "meeting_session_part",
+                            "component": "MeetingSessionPartComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "meeting_identifiers",
+                            "component": "MeetingIdentifiersComponent",
+                            "label": "Conference identifiers",
+                            "icon": "barcode",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
+_THESIS_DETAILS_PAGE = {
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Thesis details"),
+    "subsections": [
+        {
+            "section": "thesis_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "graduation",
+            "label": "Thesis details",
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "thesis_university",
+                            "component": "UniversityComponent",
+                        },
+                        {
+                            "section": "thesis_department",
+                            "component": "ThesisDepartmentComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {"section": "thesis_type", "component": "ThesisTypeComponent"},
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "thesis_date_submitted",
+                            "component": "ThesisDateSubmittedComponent",
+                        },
+                        {
+                            "section": "thesis_date_defended",
+                            "component": "ThesisDateDefendedComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+    ],
+}
+
 
 _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
     "section": "pages",
@@ -389,43 +640,60 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
     "subsections": [
         {
             "section": "1",
-            "label": "Files",
+            "label": _("Files and Rights"),
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "files",
-                    "label": "Files and Rights",
+                    "section": "resource_type",
+                    "label": "Resource Type",
                     "component": "FormSection",
                     "classnames": "basic",
+                    "show_heading": True,
                     "subsections": [
                         {
                             "section": "resource_type",
-                            "label": "Resource Type",
+                            "label": None,
                             "component": "ResourceTypeSelectorComponent",
                             "required": True,
                             "classnames": "basic",
                         },
+                    ],
+                },
+                {
+                    "section": "files",
+                    "label": _("File Upload"),
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "show_heading": True,
+                    "subsections": [
                         {
                             "section": "file_upload",
-                            "label": "Upload Files",
+                            "label": "",
                             "component": "FileUploadComponent",
-                            "classnames": "basic",
-                            "show_heading": True,
                             "description": (
                                 "Very large files (200MB and larger) should be uploaded "
                                 "one at a time. Multiple smaller files may safely be "
                                 "uploaded at once."
                             ),
                         },
+                    ],
+                },
+                {
+                    "section": "rights",
+                    "label": _("Rights and Permissions"),
+                    "component": "FormSection",
+                    "classnames": "basic",
+                    "show_heading": True,
+                    "subsections": [
                         {
                             "section": "copyright",
-                            "label": "Copyright",
+                            "label": _("Copyright"),
                             "component": "CopyrightsComponent",
                             "classnames": "basic",
                         },
                         {
                             "section": "licenses",
-                            "label": "Licenses",
+                            "label": _("Licenses"),
                             "component": "LicensesComponent",
                             "classnames": "basic",
                         },
@@ -611,13 +879,15 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
 
 COMMON_FIELDS_ALTERNATE_PAGED = [
     _PAGED_FORM_HEADER_STEPPER_TOP,
-    _PAGED_FORM_LEFT_SIDEBAR_EMPTY,
     _PAGED_FORM_RIGHT_SIDEBAR,
     _PAGED_FORM_FOOTER,
     _PAGED_FORM_PAGES_ALTERNATE_PAGED,
 ]
 
 FIELDS_BY_TYPE_ALTERNATE_PAGED = {
+    "audio": {
+        "4": copy.deepcopy(_AUDIO_DETAILS_PAGE),
+    },
     "dataset": {
         "4": copy.deepcopy(_DATASET_DETAILS_PAGE),
     },
@@ -627,46 +897,55 @@ FIELDS_BY_TYPE_ALTERNATE_PAGED = {
     "image-figure": {
         "4": {
             "same_as": "image",
-            "label": "Figure details",
+            "label": _("Figure details"),
         },
     },
     "image-plot": {
         "4": {
             "same_as": "image",
-            "label": "Plot details",
+            "label": _("Plot details"),
         },
     },
     "image-drawing": {
         "4": {
             "same_as": "image",
-            "label": "Drawing details",
+            "label": _("Drawing details"),
         },
     },
     "image-diagram": {
         "4": {
             "same_as": "image",
-            "label": "Diagram details",
+            "label": _("Diagram details"),
         },
     },
     "image-photo": {
         "4": {
             "same_as": "image",
-            "label": "Photo details",
+            "label": _("Photo details"),
         },
     },
     "image-other": {
         "4": {
             "same_as": "image",
-            "label": "Other image details",
+            "label": _("Image details"),
         },
     },
-    "video": {
-        "4": copy.deepcopy(_VIDEO_DETAILS_PAGE),
+    "publication-article": {
+        "4": copy.deepcopy(_JOURNAL_DETAILS_PAGE),
     },
-    "audio": {
-        "4": copy.deepcopy(_AUDIO_DETAILS_PAGE),
+    "publication-book": {
+        "4": copy.deepcopy(_BOOK_IMPRINT_DETAILS_PAGE),
+    },
+    "publication-journal": {
+        "4": copy.deepcopy(_JOURNAL_DETAILS_PAGE),
     },
     "software": {
         "4": copy.deepcopy(_SOFTWARE_DETAILS_PAGE),
+    },
+    "thesis": {
+        "4": copy.deepcopy(_THESIS_DETAILS_PAGE),
+    },
+    "video": {
+        "4": copy.deepcopy(_VIDEO_DETAILS_PAGE),
     },
 }
