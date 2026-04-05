@@ -67,6 +67,7 @@ import {
   CombinedThesisComponent,
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
+import { SpacerColumn } from "./framing_components/SpacerColumn";
 import { FormStepper } from "./nav_components/FormStepper";
 import { FormPageNavigationBar } from "./nav_components/FormPageNavigationBar";
 import { FormSidebarPageMenu } from "./nav_components/FormSidebarPageMenu";
@@ -76,28 +77,16 @@ const componentsRegistry = {
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
-  AdditionalDatesAlternateComponent: [
-    AdditionalDatesAlternateComponent,
-    ["metadata.dates"],
-  ],
-  AlternateIdentifiersComponent: [
-    AlternateIdentifiersComponent,
-    ["metadata.identifiers"],
-  ],
-  BookTitleComponent: [
-    BookTitleComponent,
-    ["custom_fields.imprint:imprint.title"],
-  ],
+  AdditionalDatesAlternateComponent: [AdditionalDatesAlternateComponent, ["metadata.dates"]],
+  AlternateIdentifiersComponent: [AlternateIdentifiersComponent, ["metadata.identifiers"]],
+  BookTitleComponent: [BookTitleComponent, ["custom_fields.imprint:imprint.title"]],
   CommunitiesComponent: [CommunitiesComponent, []],
   CommunitiesAlternateComponent: [CommunitiesAlternateComponent, []],
   CodeDevelopmentStatusComponent: [
     CodeDevelopmentStatusComponent,
     ["custom_fields.code:developmentStatus"],
   ],
-  CodeRepositoryComponent: [
-    CodeRepositoryComponent,
-    ["custom_fields.code:codeRepository"],
-  ],
+  CodeRepositoryComponent: [CodeRepositoryComponent, ["custom_fields.code:codeRepository"]],
   CodeProgrammingLanguageComponent: [
     CodeProgrammingLanguageComponent,
     ["custom_fields.code:programmingLanguage"],
@@ -116,53 +105,23 @@ const componentsRegistry = {
   FundingComponent: [FundingComponent, ["metadata.funding"]],
   FormFeedbackComponent: [FormFeedbackComponent, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
-  JournalISSNComponent: [
-    JournalISSNComponent,
-    ["custom_fields.journal:journal.issn"],
-  ],
-  JournalIssueComponent: [
-    JournalIssueComponent,
-    ["custom_fields.journal:journal.issue"],
-  ],
-  JournalTitleComponent: [
-    JournalTitleComponent,
-    ["custom_fields.journal:journal.title"],
-  ],
-  JournalVolumeComponent: [
-    JournalVolumeComponent,
-    ["custom_fields.journal:journal.volume"],
-  ],
+  JournalISSNComponent: [JournalISSNComponent, ["custom_fields.journal:journal.issn"]],
+  JournalIssueComponent: [JournalIssueComponent, ["custom_fields.journal:journal.issue"]],
+  JournalTitleComponent: [JournalTitleComponent, ["custom_fields.journal:journal.title"]],
+  JournalVolumeComponent: [JournalVolumeComponent, ["custom_fields.journal:journal.volume"]],
   FileUploadComponent: [FileUploadComponent, ["files"]],
   LanguagesComponent: [LanguagesComponent, ["metadata.languages"]],
   LicensesComponent: [LicensesComponent, ["metadata.rights"]],
-  MeetingAcronymComponent: [
-    MeetingAcronymComponent,
-    ["custom_fields.meeting:meeting.acronym"],
-  ],
-  MeetingDatesComponent: [
-    MeetingDatesComponent,
-    ["custom_fields.meeting:meeting.dates"],
-  ],
-  MeetingPlaceComponent: [
-    MeetingPlaceComponent,
-    ["custom_fields.meeting:meeting.place"],
-  ],
-  MeetingSessionComponent: [
-    MeetingSessionComponent,
-    ["custom_fields.meeting:meeting.session"],
-  ],
+  MeetingAcronymComponent: [MeetingAcronymComponent, ["custom_fields.meeting:meeting.acronym"]],
+  MeetingDatesComponent: [MeetingDatesComponent, ["custom_fields.meeting:meeting.dates"]],
+  MeetingPlaceComponent: [MeetingPlaceComponent, ["custom_fields.meeting:meeting.place"]],
+  MeetingSessionComponent: [MeetingSessionComponent, ["custom_fields.meeting:meeting.session"]],
   MeetingSessionPartComponent: [
     MeetingSessionPartComponent,
     ["custom_fields.meeting:meeting.session_part"],
   ],
-  MeetingTitleComponent: [
-    MeetingTitleComponent,
-    ["custom_fields.meeting:meeting.title"],
-  ],
-  MeetingURLComponent: [
-    MeetingURLComponent,
-    ["custom_fields.meeting:meeting.url"],
-  ],
+  MeetingTitleComponent: [MeetingTitleComponent, ["custom_fields.meeting:meeting.title"]],
+  MeetingURLComponent: [MeetingURLComponent, ["custom_fields.meeting:meeting.url"]],
   MeetingIdentifiersComponent: [
     MeetingIdentifiersComponent,
     ["custom_fields.meeting:meeting.identifiers"],
@@ -172,38 +131,20 @@ const componentsRegistry = {
     PublicationLocationComponent,
     ["custom_fields.imprint:imprint.place"],
   ],
-  RelatedWorksComponent: [
-    RelatedWorksComponent,
-    ["metadata.related_identifiers"],
-  ],
+  RelatedWorksComponent: [RelatedWorksComponent, ["metadata.related_identifiers"]],
   ResourceTypeComponent: [ResourceTypeComponent, ["metadata.resource_type"]],
-  ResourceTypeSelectorComponent: [
-    ResourceTypeSelectorComponent,
-    ["metadata.resource_type"],
-  ],
-  SectionPagesComponent: [
-    SectionPagesComponent,
-    ["custom_fields.journal:journal.pages"],
-  ],
+  ResourceTypeSelectorComponent: [ResourceTypeSelectorComponent, ["metadata.resource_type"]],
+  SectionPagesComponent: [SectionPagesComponent, ["custom_fields.journal:journal.pages"]],
   SizesComponent: [SizesComponent, ["metadata.sizes"]],
   SubjectsComponent: [SubjectsComponent, ["metadata.subjects"]],
   TitlesComponent: [TitlesComponent, ["metadata.title", "metadata.additional_titles"]],
-  TotalPagesComponent: [
-    TotalPagesComponent,
-    ["custom_fields.imprint:imprint.pages"],
-  ],
-  UniversityComponent: [
-    UniversityComponent,
-    ["custom_fields.thesis:thesis.university"],
-  ],
+  TotalPagesComponent: [TotalPagesComponent, ["custom_fields.imprint:imprint.pages"]],
+  UniversityComponent: [UniversityComponent, ["custom_fields.thesis:thesis.university"]],
   ThesisDepartmentComponent: [
     ThesisDepartmentComponent,
     ["custom_fields.thesis:thesis.department"],
   ],
-  ThesisTypeComponent: [
-    ThesisTypeComponent,
-    ["custom_fields.thesis:thesis.type"],
-  ],
+  ThesisTypeComponent: [ThesisTypeComponent, ["custom_fields.thesis:thesis.type"]],
   ThesisDateSubmittedComponent: [
     ThesisDateSubmittedComponent,
     ["custom_fields.thesis:thesis.date_submitted"],
@@ -214,26 +155,11 @@ const componentsRegistry = {
   ],
   VersionComponent: [VersionComponent, ["metadata.version"]],
   // below are composite field components
-  CombinedDatesComponent: [
-    CombinedDatesComponent,
-    ["metadata.publication_date", "metadata.dates"],
-  ],
-  CombinedJournalComponent: [
-    CombinedJournalComponent,
-    ["custom_fields.journal:journal"],
-  ],
-  CombinedImprintComponent: [
-    CombinedImprintComponent,
-    ["custom_fields.imprint:imprint"],
-  ],
-  CombinedMeetingComponent: [
-    CombinedMeetingComponent,
-    ["custom_fields.meeting:meeting"],
-  ],
-  CombinedThesisComponent: [
-    CombinedThesisComponent,
-    ["custom_fields.thesis:thesis"],
-  ],
+  CombinedDatesComponent: [CombinedDatesComponent, ["metadata.publication_date", "metadata.dates"]],
+  CombinedJournalComponent: [CombinedJournalComponent, ["custom_fields.journal:journal"]],
+  CombinedImprintComponent: [CombinedImprintComponent, ["custom_fields.imprint:imprint"]],
+  CombinedMeetingComponent: [CombinedMeetingComponent, ["custom_fields.meeting:meeting"]],
+  CombinedThesisComponent: [CombinedThesisComponent, ["custom_fields.thesis:thesis"]],
   DeleteComponent: [DeleteComponent, []],
   FormRow: [FormRow, []],
   ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
@@ -243,6 +169,7 @@ const componentsRegistry = {
   FormStepper: [FormStepper, []],
   FormPageNavigationBar: [FormPageNavigationBar, []],
   FormSidebarPageMenu: [FormSidebarPageMenu, []],
+  SpacerColumn: [SpacerColumn, []],
 };
 
 const extras = require(`@js/invenio_modular_deposit_form_components`);

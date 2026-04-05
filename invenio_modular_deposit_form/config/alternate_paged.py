@@ -5,18 +5,10 @@
 # and/or modify it under the terms of the MIT License; see LICENSE file for
 # more details.
 
-"""Alternate multi-page deposit layout (files-first step, seven main pages).
+"""Alternate multi-page deposit layout.
 
-Compared to the package default
-:data:`COMMON_FIELDS_DEFAULT_PAGED` in ``config.default``:
-
-- **Files first**: upload + licenses on page ``1``.
-- **Registry-only field components**: instance-specific component names are
-  omitted or replaced (e.g. ``FileUploadComponent`` / ``TitlesComponent``).
 - **Stock resource type vocabulary**: ``FIELDS_BY_TYPE`` keys match
   :data:`~invenio_modular_deposit_form.config.default.FIELDS_BY_TYPE_DEFAULT_PAGED`.
-  Stock overrides that use page ``4`` in the default preset are remapped to
-  page ``3`` (Details) to match this layout’s page ids.
 
 To enable in your instance::
 
@@ -50,8 +42,16 @@ _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
 
 _PAGED_FORM_HEADER_STEPPER_TOP = {
     "component": "FormHeader",
-    "classnames": "default-layout",
-    "subsections": [{"component": "FormStepper"}],
+    "subsections": [
+        {
+            "component": "FormRow",
+            "subsections" [
+                {"component": "SpacerColumn"},
+                {"component": "FormStepper"}
+                {"component": "SpacerColumn"},
+            ]
+        }
+    ],
 }
 
 _PAGED_FORM_LEFT_SIDEBAR_MENU = {
@@ -295,7 +295,7 @@ _AUDIO_DETAILS_PAGE = {
                             "section": "sizes",
                             "component": "SizesComponent",
                             "label": "Duration",
-                            "placeholder": _("e.g. 30 min (press 'enter' to add)"),
+                            "placeholder": D("e.g. 30 min (press 'enter' to add)"),
                             "description": "",
                         },
                         {
@@ -605,7 +605,8 @@ _THESIS_DETAILS_PAGE = {
             "component": "FormSection",
             "show_heading": True,
             "icon": "graduation",
-            "label": "Thesis details",
+            "label": "Thesis Details",
+            "classnames": "basic",
             "subsections": [
                 {
                     "component": "FormRow",
@@ -977,37 +978,37 @@ FIELDS_BY_TYPE_ALTERNATE_PAGED = {
     "image-figure": {
         "4": {
             "same_as": "image",
-            "label": _("Figure details"),
+            "label": _("Figure Details"),
         },
     },
     "image-plot": {
         "4": {
             "same_as": "image",
-            "label": _("Plot details"),
+            "label": _("Plot Details"),
         },
     },
     "image-drawing": {
         "4": {
             "same_as": "image",
-            "label": _("Drawing details"),
+            "label": _("Drawing Details"),
         },
     },
     "image-diagram": {
         "4": {
             "same_as": "image",
-            "label": _("Diagram details"),
+            "label": _("Diagram Details"),
         },
     },
     "image-photo": {
         "4": {
             "same_as": "image",
-            "label": _("Photo details"),
+            "label": _("Photo Details"),
         },
     },
     "image-other": {
         "4": {
             "same_as": "image",
-            "label": _("Image details"),
+            "label": _("Image Details"),
         },
     },
     "publication-article": {
