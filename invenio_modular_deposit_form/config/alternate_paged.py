@@ -284,7 +284,7 @@ _AUDIO_DETAILS_PAGE = {
         {
             "section": "image_details",
             "component": "FormSection",
-            "label": "Recording Details",
+            "label": _("Recording Details"),
             "icon": "headphones",
             "show_heading": True,
             "subsections": [
@@ -294,14 +294,14 @@ _AUDIO_DETAILS_PAGE = {
                         {
                             "section": "sizes",
                             "component": "SizesComponent",
-                            "label": "Duration",
-                            "placeholder": D("e.g. 30 min (press 'enter' to add)"),
+                            "label": _("Duration"),
+                            "placeholder": _("e.g. 30 min (press 'enter' to add)"),
                             "description": "",
                         },
                         {
                             "section": "publication_location",
                             "component": "PublicationLocationComponent",
-                            "label": "Recording location",
+                            "label": _("Recording location"),
                         },
                     ],
                     "classnames": "equal width",
@@ -310,13 +310,13 @@ _AUDIO_DETAILS_PAGE = {
         },
         {
             "section": "alternate_identifiers",
-            "label": "Recording URL and Other Identifiers",
+            "label": _("Recording URL and Other Identifiers"),
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
         {
             "section": "language",
-            "label": "Languages",
+            "label": _("Languages"),
             "component": "LanguagesComponent",
             "placeholder": _LANG_FIELD_PLACEHOLDER,
             "description": _LANG_FIELD_DESCRIPTION,
@@ -333,7 +333,7 @@ _SOFTWARE_DETAILS_PAGE = {
         {
             "section": "image_details",
             "component": "FormSection",
-            "label": "Software Details",
+            "label": _("Software Details"),
             "icon": "group",
             "show_heading": True,
             "subsections": [
@@ -372,7 +372,7 @@ _SOFTWARE_DETAILS_PAGE = {
                         {
                             "section": "sizes",
                             "component": "SizesComponent",
-                            "label": "Size",
+                            "label": _("Size"),
                             "placeholder": _("e.g. 400 MB"),
                             "icon": "database",
                             "description": "",
@@ -381,8 +381,8 @@ _SOFTWARE_DETAILS_PAGE = {
                             "section": "programming_language",
                             "component": "CodeProgrammingLanguageComponent",
                             "icon": "code",
-                            "label": "Programming languages",
-                            "placeholder": "e.g., Python, JavaScript, R",
+                            "label": _("Programming languages"),
+                            "placeholder": _("e.g., Python, JavaScript, R"),
                         },
                     ],
                     "classnames": "equal width",
@@ -391,13 +391,13 @@ _SOFTWARE_DETAILS_PAGE = {
         },
         {
             "section": "alternate_identifiers",
-            "label": "Package URL and other identifiers",
+            "label": _("Package URL and other identifiers"),
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
         {
             "section": "language",
-            "label": "Natural (Human) Languages",
+            "label": _("Natural (Human) Languages"),
             "component": "LanguagesComponent",
             "placeholder": _LANG_FIELD_PLACEHOLDER,
             "description": _LANG_FIELD_DESCRIPTION,
@@ -425,7 +425,7 @@ _JOURNAL_DETAILS_PAGE = {
                         {
                             "section": "journal_title",
                             "component": "JournalTitleComponent",
-                            "label": "Journal title",
+                            "label": _("Journal title"),
                         },
                     ],
                 },
@@ -471,7 +471,7 @@ _BOOK_IMPRINT_DETAILS_PAGE = {
             "section": "publication_details",
             "show_heading": True,
             "icon": "file",
-            "label": "Publication Details",
+            "label": _("Publication Details"),
             "component": "FormSection",
             "subsections": [
                 {
@@ -481,7 +481,7 @@ _BOOK_IMPRINT_DETAILS_PAGE = {
                         {
                             "section": "book_title",
                             "component": "BookTitleComponent",
-                            "label": "Book Title",
+                            "label": _("Book Title"),
                             "icon": "book",
                         },
                     ],
@@ -519,7 +519,7 @@ _MEETING_DETAILS_PAGE = {
             "component": "FormSection",
             "show_heading": True,
             "icon": "calendar",
-            "label": "Conference details",
+            "label": _("Conference details"),
             "subsections": [
                 {
                     "component": "FormRow",
@@ -528,7 +528,7 @@ _MEETING_DETAILS_PAGE = {
                         {
                             "section": "meeting_title",
                             "component": "MeetingTitleComponent",
-                            "label": "Event title",
+                            "label": _("Event title"),
                         },
                     ],
                 },
@@ -539,12 +539,12 @@ _MEETING_DETAILS_PAGE = {
                         {
                             "section": "meeting_acronym",
                             "component": "MeetingAcronymComponent",
-                            "label": "Acronym",
+                            "label": _("Acronym"),
                         },
                         {
                             "section": "meeting_dates",
                             "component": "MeetingDatesComponent",
-                            "label": "Dates",
+                            "label": _("Dates"),
                         },
                     ],
                 },
@@ -555,12 +555,12 @@ _MEETING_DETAILS_PAGE = {
                         {
                             "section": "meeting_place",
                             "component": "MeetingPlaceComponent",
-                            "label": "Location",
+                            "label": _("Location"),
                         },
                         {
                             "section": "meeting_url",
                             "component": "MeetingURLComponent",
-                            "label": "Website",
+                            "label": _("Website"),
                         },
                     ],
                 },
@@ -585,7 +585,7 @@ _MEETING_DETAILS_PAGE = {
                         {
                             "section": "meeting_identifiers",
                             "component": "MeetingIdentifiersComponent",
-                            "label": "Conference identifiers",
+                            "label": _("Conference identifiers"),
                             "icon": "barcode",
                         },
                     ],
@@ -605,7 +605,7 @@ _THESIS_DETAILS_PAGE = {
             "component": "FormSection",
             "show_heading": True,
             "icon": "graduation",
-            "label": "Thesis Details",
+            "label": _("Thesis Details"),
             "classnames": "basic",
             "subsections": [
                 {
@@ -661,7 +661,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "subsections": [
                 {
                     "section": "resource_type",
-                    "label": "Resource Type",
+                    "label": _("Resource Type"),
                     "component": "FormSection",
                     "classnames": "basic",
                     "show_heading": True,
@@ -684,9 +684,9 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "subsections": [
                         {
                             "section": "file_upload",
-                            "label": "",
+                            "label": None,
                             "component": "FileUploadComponent",
-                            "description": (
+                            "description": _(
                                 "Very large files (200MB and larger) should be uploaded "
                                 "one at a time. Multiple smaller files may safely be "
                                 "uploaded at once."
@@ -719,7 +719,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
         },
         {
             "section": "2",
-            "label": "Basics",
+            "label": _("Basics"),
             "component": "FormPage",
             "subsections": [
                 {
@@ -799,12 +799,12 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                             "section": "creators_field",
                             "label": None,
                             "component": "CreatorsComponentFlat",
-                            "addButtonLabel": "Add Contributor",
+                            "addButtonLabel": _("Add Contributor"),
                             "modal": {
                                 "addLabel": _("Add Contributor"),
                                 "editLabel": _("Edit Contributor"),
                             },
-                            "description": (
+                            "description": _(
                                 "These people will appear at the beginning of formatted "
                                 "citations and at the top of the record's detail page."
                             ),
@@ -827,7 +827,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                                 "addLabel": _("Add Contributor"),
                                 "editLabel": _("Edit Contributor"),
                             },
-                            "description": (
+                            "description": _(
                                 "These people may appear later on in formatted citations, "
                                 "depending on their role. They will be included in the full "
                                 "contributors list on the record detail page."
@@ -881,7 +881,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
         },
         {
             "section": "5",
-            "label": "Make It Findable",
+            "label": _("Make It Findable"),
             "component": "FormPage",
             "subsections": [
                 {
@@ -907,15 +907,17 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                             "section": "subjects_field",
                             "label": None,
                             "component": "SubjectsComponent",
-                            "description": (
+                            "description": _(
                                 "Search using full words and press enter to select. "
                                 "(For best results, choose a subject category at right.)"
                             ),
-                            "helpText": (
+                            "helpText": _(
                                 "These formal subject headings let people find "
                                 "your work in subject searches."
                             ),
-                            "placeholder": "e.g., Nelson Mandela, Genetics,Shakespeare",
+                            "placeholder": _(
+                                "e.g., Nelson Mandela, Genetics,Shakespeare"
+                            ),
                         },
                     ],
                 },
