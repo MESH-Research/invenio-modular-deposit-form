@@ -10,14 +10,22 @@ import { SubsectionsRenderer } from "./SubsectionsRenderer";
 const FormFooterRegion = ({ subsections = [], children }) => {
   if (!subsections?.length && !children) return null;
   return (
-    <Grid.Row className="form-footer-region" id="rdm-deposit-form-footer">
-      <Grid.Column width={16}>
+    <Overridable
+      id="InvenioModularDepositForm.footerRegion.container"
+      subsections={subsections}
+      {...props}
+    >
+      <>
         {children}
         {subsections?.length > 0 && (
-          <SubsectionsRenderer subsections={subsections} />
+          <SubsectionsRenderer
+            className={`form-footer-region row ${props?.classnames ? props.classnames : ""}`}
+            id="rdm-deposit-form-footer"
+            subsections={subsections}
+          />
         )}
-      </Grid.Column>
-    </Grid.Row>
+      </>
+    </Overridable>
   );
 };
 

@@ -43,14 +43,9 @@ _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
 _PAGED_FORM_HEADER_STEPPER_TOP = {
     "component": "FormHeader",
     "subsections": [
-        {
-            "component": "FormRow",
-            "subsections": [
-                {"component": "SpacerColumn"},
-                {"component": "FormStepper"},
-                {"component": "SpacerColumn"},
-            ],
-        }
+        {"component": "SpacerColumn", "computer": 3, "largeScreen": 3, "widescreen": 3},
+        {"component": "FormStepper", "classnames": "column ten wide"},
+        {"component": "SpacerColumn"},
     ],
 }
 

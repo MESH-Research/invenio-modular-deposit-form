@@ -8,8 +8,8 @@
 import React from "react";
 import { Column } from "semantic-ui-react";
 
-const SpacerColumn = ({ classnames }) => {
-  return <Column className={classnames}></Column>;
+const SpacerColumn = ({ classnames, ...props }) => {
+  return <Column className={classnames} {...props}></Column>;
 };
 
 export { SpacerColumn };
