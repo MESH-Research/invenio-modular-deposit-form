@@ -4,12 +4,11 @@
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-// @ts-ignore
 import React from "react";
-import { Column } from "semantic-ui-react";
+import { Grid } from "semantic-ui-react";
 
 const SpacerColumn = ({ classnames, ...props }) => {
-  return <Column className={classnames} {...props}></Column>;
+  return <Grid.Column className={classnames} {...props}></Grid.Column>;
 };
 
 export { SpacerColumn };

@@ -1,13 +1,19 @@
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2026, MESH Research
+//
+// Invenio-Modular-Deposit-Form is free software; you can redistribute it and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import React from "react";
-import { Grid } from "semantic-ui-react";
 import PropTypes from "prop-types";
+import Overridable from "react-overridable";
 import { SubsectionsRenderer } from "./SubsectionsRenderer";
 
 /**
  * Full-width grid row: form footer region. Renders children (e.g. observation target)
  * then config-defined subsections via the component registry.
  */
-const FormFooterRegion = ({ subsections = [], children }) => {
+const FormFooterRegion = ({ subsections = [], children, ...props }) => {
   if (!subsections?.length && !children) return null;
   return (
     <Overridable
