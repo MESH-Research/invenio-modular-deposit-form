@@ -45,11 +45,11 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
     "subsections": [
         {
             "component": "FormRow",
-            "subsections" [
+            "subsections": [
                 {"component": "SpacerColumn"},
-                {"component": "FormStepper"}
+                {"component": "FormStepper"},
                 {"component": "SpacerColumn"},
-            ]
+            ],
         }
     ],
 }
