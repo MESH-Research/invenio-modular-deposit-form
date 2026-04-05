@@ -97,7 +97,7 @@ const PublicationDateFieldAlternate = ({
   label = i18next.t("Publication Date"),
   icon = "calendar",
   required = true,
-  ...extraProps
+  // ...extraProps
 }) => {
   const { setFieldValue, values, setFieldTouched, validateForm } = useFormikContext();
   const publicationDateValue = getIn(values, fieldPath) ?? "";
@@ -223,7 +223,7 @@ const PublicationDateFieldAlternate = ({
   const daysInSelectedMonth = selectedMonth ? selectedMonth.days : 31;
   const slicedDayOptions = dayOptions.slice(0, daysInSelectedMonth + 1);
 
-  const handleDropdownChange = (e, { name, value }) => {
+  const handleDropdownChange = (_e, { name, value }) => {
     const setters = {
       startYear: setYearValue,
       startMonth: setMonthValue,
@@ -332,7 +332,7 @@ const PublicationDateFieldAlternate = ({
                   <Checkbox
                     label={i18next.t(`${!useRange ? "add" : "include"} end date`)}
                     id={`${fieldPath}.controls.useRange`}
-                    onChange={(e, data) => {
+                    onChange={(_e, data) => {
                       setUseRange(data.checked);
                       setFieldTouched(fieldPath, true);
                     }}
