@@ -26,7 +26,7 @@ const FormStepper = ({ classnames, ...props }) => {
   const handleFormPageChange = ctx.handleFormPageChange;
   if (!formPages?.length) return null;
   return (
-    <Grid.Column className={classnames ?? ""}>
+    <Grid.Column className={classnames ?? ""} {...props}>
       <Step.Group widths={formPages.length} className="upload-form-pager" fluid={true} size="small">
         {formPages.map(({ section, label }) => {
           const counts = pageCounts[section];
