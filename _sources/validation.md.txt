@@ -8,7 +8,7 @@ To enable client-side form validation, set the `MODULAR_DEPOSIT_FORM_USE_CLIENT_
 
 ## Prerequisites
 
-Before client-side validation can work, you will also need to patch your installed invenio-rdm-records package, since that package does not currently pass the `validator` or `validationSchema` props through to Formik. Run the patch script from your instance root as described in the [Installation](installation.md) section.
+Before client-side validation can work, you will also need to patch your installed invenio-rdm-records package, since that package does not currently pass the `validator` or `validationSchema` props through to Formik. Run the patch script from your instance root as described in the [Installation](./installation.md) section.
 
 ## Configuring the validator
 
