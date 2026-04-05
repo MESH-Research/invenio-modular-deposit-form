@@ -5,7 +5,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import React, { useMemo } from "react";
-import { Button, Label, Step } from "semantic-ui-react";
+import { Button, Grid, Label, Step } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { useFormUIState } from "../FormUIStateManager.jsx";
@@ -26,7 +26,7 @@ const FormStepper = ({ classnames, ...props }) => {
   const handleFormPageChange = ctx.handleFormPageChange;
   if (!formPages?.length) return null;
   return (
-    <div className={classnames ?? undefined}>
+    <Grid.Column className={classnames ?? ""}>
       <Step.Group widths={formPages.length} className="upload-form-pager" fluid={true} size="small">
         {formPages.map(({ section, label }) => {
           const counts = pageCounts[section];
@@ -89,7 +89,7 @@ const FormStepper = ({ classnames, ...props }) => {
           );
         })}
       </Step.Group>
-    </div>
+    </Grid.Column>
   );
 };
 

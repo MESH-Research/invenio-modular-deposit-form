@@ -43,11 +43,30 @@ _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
 _PAGED_FORM_HEADER_STEPPER_TOP = {
     "component": "FormHeader",
     "subsections": [
-        {"component": "SpacerColumn", "computer": 3, "largeScreen": 3, "widescreen": 3},
-        {"component": "FormStepper", "classnames": "column ten wide"},
-        {"component": "SpacerColumn"},
+        {
+            "component": "SpacerColumn",
+            "largeScreen": 1,
+            "widescreen": 3,
+            "only": "large screen",
+        },
+        {
+            "component": "FormStepper",
+            "classnames": "column",
+            "computer": 11,
+            "widescreen": 10,
+            "mobile": 16,
+            "tablet": 16,
+        },
+        {
+            "component": "SpacerColumn",
+            "computer": 5,
+            "largeScreen": 4,
+            "widescreen": 4,
+            "only": "computer",
+        },
     ],
 }
+
 
 _PAGED_FORM_LEFT_SIDEBAR_MENU = {
     "component": "FormLeftSidebar",
