@@ -13,12 +13,14 @@ import { CommunityHeader } from "@js/invenio_rdm_records";
 import { FormPage } from "./framing_components/FormPage";
 import { FormFooterRegion } from "./framing_components/FormFooterRegion";
 import { FormHeaderRegion } from "./framing_components/FormHeaderRegion";
+import { FormTitleRegion } from "./framing_components/FormTitleRegion";
 import { FormLeftSidebar } from "./framing_components/FormLeftSidebar";
 import { FormRightSidebar } from "./framing_components/FormRightSidebar";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
 import { focusFirstElement } from "./utils";
 import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 import { SIDEBAR_DEFAULTS_WIDTHS } from "./constants";
+import { makeFormHeading, makeSelectedCommunityLabel } from "./helpers/depositFormTitleText";
 import { FormUIStateContext, useFormUIState } from "./FormUIStateManager.jsx";
 
 /* Observe Semantic-UI "only" props to infer zero widths.
@@ -119,30 +121,6 @@ function getColumnsConfig(commonFields) {
   };
 }
 
-/* Adapt community header label based on title content
- */
-function makeSelectedCommunityLabel(selectedCommunity) {
-  let selectedCommunityLabel = selectedCommunity?.metadata?.title;
-  if (!!selectedCommunityLabel && !selectedCommunityLabel?.toLowerCase().includes("community")) {
-    selectedCommunityLabel = `the "${selectedCommunityLabel}" community`;
-  }
-  return selectedCommunityLabel;
-}
-
-const makeFormHeading = (record) => {
-  const isNewVersionDraft = record?.status === "new_version_draft";
-  const recordState =
-    record?.id != null
-      ? isNewVersionDraft
-        ? i18next.t("New Version of ")
-        : i18next.t("Updating ")
-      : i18next.t("New ");
-  const recordType = ["draft", "draft_with_review"].includes(record?.status)
-    ? i18next.t("Draft Record")
-    : i18next.t("Published Record");
-  return `${recordState} ${recordType}`;
-};
-
 /*
 FormLayoutContainer component to provide layout and UI state management.
 */
@@ -153,6 +131,7 @@ const FormLayoutContainer = () => {
   const state = ctx.formUIState;
 
   const commonFields = config?.common_fields ?? [];
+  const formTitleConfig = commonFields.find((item) => item.component === "FormTitle");
   const formHeaderConfig = commonFields.find((item) => item.component === "FormHeader");
   const formFooterConfig = commonFields.find((item) => item.component === "FormFooter");
 
@@ -182,16 +161,23 @@ const FormLayoutContainer = () => {
       )}
       <Container id="rdm-deposit-form" className="rel-mt-1">
         <Grid>
-          <Grid.Row className="deposit-form-title">
-            <Grid.Column width={16}>
-              <h1 className="ui header">{makeFormHeading(record)}</h1>
-              {!!selectedCommunityLabel && !config?.show_community_banner_at_top && (
-                <h2 className="ui header preselected-community-header">
-                  for {selectedCommunityLabel}
-                </h2>
-              )}
-            </Grid.Column>
-          </Grid.Row>
+          {formTitleConfig ? (
+            <FormTitleRegion
+              subsections={formTitleConfig?.subsections ?? []}
+              classnames={formTitleConfig?.classnames}
+            />
+          ) : (
+            <Grid.Row className="deposit-form-title">
+              <Grid.Column width={16}>
+                <h1 className="ui header">{makeFormHeading(record)}</h1>
+                {!!selectedCommunityLabel && !config?.show_community_banner_at_top && (
+                  <h2 className="ui header preselected-community-header">
+                    for {selectedCommunityLabel}
+                  </h2>
+                )}
+              </Grid.Column>
+            </Grid.Row>
+          )}
 
           {formHeaderConfig && (
             <FormHeaderRegion subsections={formHeaderConfig?.subsections ?? []} />

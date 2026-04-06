@@ -7,7 +7,7 @@ import { FieldsContent } from "./FieldsContent";
  * Renders a list of subsection configs (section, component, subsections, ...) using
  * the component registry. Handles SectionWrapper (with inner subsections) and
  * single field components via FieldsContent. Used by FormPage and by layout
- * regions (FormHeader, FormLeftSidebar, FormRightSidebar, FormFooter).
+ * regions (FormTitle, FormHeader, FormLeftSidebar, FormRightSidebar, FormFooter).
  * Only when isFormPagesRegion is true are top-level fields forced into a SectionWrapper.
  */
 const SubsectionsRenderer = ({ subsections = [], className, id, isFormPagesRegion = false }) => (

@@ -20,7 +20,10 @@ MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_ZENODO_PAGED
 To use the non-paged version, use COMMON_FIELD_ZENODO_UNPAGED instead.
 """
 
+from invenio_modular_deposit_form.config.default import _PAGED_FORM_TITLE
+
 COMMON_FIELDS_ZENODO_PAGED = [
+    _PAGED_FORM_TITLE,
     {
         "component": "FormHeader",
         "subsections": [

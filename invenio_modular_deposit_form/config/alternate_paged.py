@@ -25,6 +25,8 @@ import copy
 
 from invenio_i18n import lazy_gettext as _
 
+from invenio_modular_deposit_form.config.default import _PAGED_FORM_TITLE
+
 _LANG_FIELD_PLACEHOLDER = _("e.g., English, French, Swahili")
 _LANG_FIELD_DESCRIPTION = _(
     "Search for the language(s) of the resource (e.g.,"
@@ -974,6 +976,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
 
 
 COMMON_FIELDS_ALTERNATE_PAGED = [
+    _PAGED_FORM_TITLE,
     _PAGED_FORM_HEADER_STEPPER_TOP,
     _PAGED_FORM_LEFT_SIDEBAR_EMPTY,
     _PAGED_FORM_RIGHT_SIDEBAR,

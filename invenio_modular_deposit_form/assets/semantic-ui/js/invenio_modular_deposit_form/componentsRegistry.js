@@ -67,6 +67,7 @@ import {
   CombinedThesisComponent,
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
+import { FormTitle } from "./framing_components/FormTitle";
 import { SpacerColumn } from "./framing_components/SpacerColumn";
 import { FormStepper } from "./nav_components/FormStepper";
 import { FormPageNavigationBar } from "./nav_components/FormPageNavigationBar";
@@ -169,6 +170,7 @@ const componentsRegistry = {
   FormStepper: [FormStepper, []],
   FormPageNavigationBar: [FormPageNavigationBar, []],
   FormSidebarPageMenu: [FormSidebarPageMenu, []],
+  FormTitle: [FormTitle, []],
   SpacerColumn: [SpacerColumn, []],
 };
 

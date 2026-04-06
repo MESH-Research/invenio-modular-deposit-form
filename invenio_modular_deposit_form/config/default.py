@@ -25,6 +25,21 @@ To use the non-paged version, use COMMON_FIELD_DEFAULT_UNPAGED instead.
 
 import copy
 
+_PAGED_FORM_TITLE = {
+    "component": "FormTitle",
+    "classnames": "default-layout",
+    "subsections": [
+        {
+            "component": "FormTitle",
+            "mobile": 16,
+            "tablet": 16,
+            "computer": 16,
+            "largeScreen": 16,
+            "widescreen": 16,
+        },
+    ],
+}
+
 _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
     "component": "FormHeader",
     "classnames": "default-layout",
@@ -255,6 +270,7 @@ _PAGED_FORM_PAGES = {
 }
 
 COMMON_FIELDS_DEFAULT_PAGED = [
+    _PAGED_FORM_TITLE,
     _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET,
     _PAGED_FORM_LEFT_SIDEBAR,
     _PAGED_FORM_RIGHT_SIDEBAR,
@@ -263,6 +279,7 @@ COMMON_FIELDS_DEFAULT_PAGED = [
 ]
 
 COMMON_FIELDS_DEFAULT_PAGED_TOP_STEPPER = [
+    _PAGED_FORM_TITLE,
     _PAGED_FORM_HEADER_STEPPER_TOP,
     _PAGED_FORM_RIGHT_SIDEBAR,
     _PAGED_FORM_FOOTER,
@@ -270,6 +287,7 @@ COMMON_FIELDS_DEFAULT_PAGED_TOP_STEPPER = [
 ]
 
 COMMON_FIELDS_DEFAULT_SINGLE = [
+    _PAGED_FORM_TITLE,
     {
         "component": "FormHeader",
         "classnames": "default-layout",
