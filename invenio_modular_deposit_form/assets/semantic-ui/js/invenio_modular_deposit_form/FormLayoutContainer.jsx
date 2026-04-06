@@ -69,6 +69,16 @@ function fillWidthsFromDefaults(configRaw) {
   return config;
 }
 
+/** Drop width keys that are 0 so Grid.Column is not given invalid widths; `only` handles hide. */
+function omitZeroSidebarWidthsForGrid(mergedSidebarConfig) {
+  const widthKeys = new Set(Object.keys(SIDEBAR_DEFAULTS_WIDTHS));
+  return Object.fromEntries(
+    Object.entries(mergedSidebarConfig).filter(
+      ([key, val]) => !(widthKeys.has(key) && val === 0)
+    )
+  );
+}
+
 /* Get sidebar configs and calculate form column visibility and widths.
  * @param {object} commonFields
  */
@@ -98,11 +108,11 @@ function getColumnsConfig(commonFields) {
 
   return {
     leftSidebar: {
-      config: { ...leftSidebarConfig, ...left },
+      config: omitZeroSidebarWidthsForGrid({ ...leftSidebarConfig, ...left }),
       visible: leftSidebarVisible,
     },
     rightSidebar: {
-      config: { ...rightSidebarConfig, ...right },
+      config: omitZeroSidebarWidthsForGrid({ ...rightSidebarConfig, ...right }),
       visible: rightSidebarVisible,
     },
     mainColumnWidths,
