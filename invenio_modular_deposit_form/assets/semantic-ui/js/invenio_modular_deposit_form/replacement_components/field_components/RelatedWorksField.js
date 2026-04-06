@@ -44,11 +44,9 @@ export class RelatedWorksField extends Component {
           defaultNewValue={emptyRelatedWork}
           fieldPath={fieldPath}
           label={
-            <FieldLabel
-              htmlFor={fieldPath}
-              icon={labelIcon}
-              label={label}
-            />
+            label ? (
+              <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+            ) : null
           }
           required={required}
           showEmptyValue={showEmptyValue}

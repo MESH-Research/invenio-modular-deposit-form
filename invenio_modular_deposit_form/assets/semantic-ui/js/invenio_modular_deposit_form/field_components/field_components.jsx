@@ -30,7 +30,6 @@ import {
   PublishButton,
   ReferencesField,
   SaveButton,
-  SubjectsField,
   UppyUploader,
 } from "@js/invenio_rdm_records";
 import { useFormUIState } from "../FormUIStateManager.jsx";
@@ -47,6 +46,7 @@ import {
   PublisherField,
   RelatedWorksField,
   ResourceTypeField,
+  SubjectsField,
   TitlesField,
   VersionField,
 } from "../replacement_components/field_components";
@@ -757,7 +757,7 @@ const ResourceTypeComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Subjects (metadata.subjects). Uses stock SubjectsField.
+ * Subjects (metadata.subjects). Replacement `SubjectsField` (omits header when `label` is unset).
  * @overridable InvenioAppRdm.Deposit.SubjectsField.container (via FieldComponentWrapper)
  */
 const SubjectsComponent = ({ ...extraProps }) => {

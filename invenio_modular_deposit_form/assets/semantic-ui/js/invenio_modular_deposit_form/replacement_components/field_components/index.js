@@ -65,6 +65,11 @@
 // RelatedWorksField.js
 //   Fork of upstream `deposit/fields/RelatedWorksField/RelatedWorksField.js`. Local `TextField` /
 //   `SelectField`; row `ResourceTypeField` from this folder; `emptyRelatedWork` from `@js/...`.
+//   Array header `FieldLabel` only when `label` is truthy (hide when config sets label null).
+//
+// SubjectsField.js
+//   Fork of upstream `deposit/fields/SubjectsField/SubjectsField.js`. Same visibility rule for
+//   `label` / `labelIcon` as replacement `TextField`.
 //
 // Any new non–import-only divergence must be summarized in this header and in
 // docs/source/replacement_field_components.md.
@@ -80,5 +85,6 @@ export { PIDField } from "./PIDField";
 export { PublisherField } from "./PublisherField";
 export { RelatedWorksField } from "./RelatedWorksField";
 export { ResourceTypeField } from "./ResourceTypeField";
+export { SubjectsField } from "./SubjectsField";
 export { TitlesField } from "./TitlesField";
 export { VersionField } from "./VersionField";
