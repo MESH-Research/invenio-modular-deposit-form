@@ -246,7 +246,11 @@ const FormLayoutContainer = () => {
 
           {formFooterConfig && (
             <FormFooterRegion subsections={formFooterConfig?.subsections ?? []}>
-              <div id="sticky-footer-observation-target" ref={ctx.pageTargetRef} />
+              <div
+                id="sticky-footer-observation-target"
+                ref={ctx.pageTargetRefCallback}
+                style={{ minHeight: 1 }}
+              />
             </FormFooterRegion>
           )}
         </Grid>

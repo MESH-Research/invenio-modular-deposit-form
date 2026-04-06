@@ -1,27 +1,23 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 
-/*
-A helper hook to determine if a target element is in the viewport.
-*/
-function useIsInViewport(ref) {
+/**
+ * Viewport intersection for a DOM node. Pass the element (e.g. from a callback ref);
+ * effects do not re-run when only ref.current is assigned, so a RefObject is unreliable.
+ */
+function useIsInViewport(element) {
   const [isIntersecting, setIsIntersecting] = useState(false);
 
-  const observer = useMemo(
-    () =>
-      new IntersectionObserver(([entry]) =>
-        setIsIntersecting(entry.isIntersecting)
-      ),
-    []
-  );
-
   useEffect(() => {
-    const el = ref?.current;
-    if (!el) return;
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-    };
-  }, [ref, observer]);
+    if (!element) {
+      setIsIntersecting(false);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsIntersecting(entry.isIntersecting);
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [element]);
 
   return isIntersecting;
 }

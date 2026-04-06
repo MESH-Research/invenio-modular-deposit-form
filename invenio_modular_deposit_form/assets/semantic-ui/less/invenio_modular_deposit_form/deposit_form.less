@@ -15,22 +15,23 @@
 /* Light border: built-in modification (no custom @negativeBorderColorLight). */
 @negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
 
+/* Footer nav: fixed when IO marks sentinel out of view (standalone selector if markup shifts). */
+#rdm-deposit-form .sticky-footer-fixed,
+.sticky-footer-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
+}
+
 #rdm-deposit-form {
   /* Error tooltips */
   .ui[class*="pointing above"].label {
     margin-bottom: 0.5em;
     line-height: 1.25em;
-  }
-
-  /* Sticky footer */
-  .sticky-footer-fixed {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: #fff;
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
   }
 
   // #rdm-deposit-form .sticky-footer-static {

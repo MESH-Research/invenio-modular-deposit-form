@@ -4,7 +4,16 @@
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 
@@ -99,7 +108,12 @@ const FormUIStateManager = ({ children }) => {
   useCurrentResourceTypeFields(formik, dispatch, fieldsByType, componentsRegistry);
 
   const pageTargetRef = useRef(null);
-  const pageTargetInViewport = useIsInViewport(pageTargetRef);
+  const [pageTargetElement, setPageTargetElement] = useState(null);
+  const pageTargetRefCallback = useCallback((node) => {
+    pageTargetRef.current = node;
+    setPageTargetElement(node);
+  }, []);
+  const pageTargetInViewport = useIsInViewport(pageTargetElement);
 
   // Set up form UI context for provider
   const contextValue = useMemo(
@@ -117,11 +131,21 @@ const FormUIStateManager = ({ children }) => {
       previousFormPage: navigation.previousFormPage,
       nextFormPage: navigation.nextFormPage,
       pageTargetRef,
+      pageTargetRefCallback,
       pageTargetInViewport,
       recoveryAsked: recovery.recoveryAsked,
       storageDataPresent: recovery.storageDataPresent,
     }),
-    [navigation, state, dispatch, fileUploadPageId, pageTargetRef, pageTargetInViewport, recovery]
+    [
+      navigation,
+      state,
+      dispatch,
+      fileUploadPageId,
+      pageTargetRef,
+      pageTargetRefCallback,
+      pageTargetInViewport,
+      recovery,
+    ]
   );
 
   return <FormUIStateContext.Provider value={contextValue}>{children}</FormUIStateContext.Provider>;

@@ -21,16 +21,13 @@ const FormFooterRegion = ({ subsections = [], children, ...props }) => {
       subsections={subsections}
       {...props}
     >
-      <>
+      <div
+        className={`form-footer-region row ${props?.classnames ? props.classnames : ""}`}
+        id="rdm-deposit-form-footer"
+      >
         {children}
-        {subsections?.length > 0 && (
-          <SubsectionsRenderer
-            className={`form-footer-region row ${props?.classnames ? props.classnames : ""}`}
-            id="rdm-deposit-form-footer"
-            subsections={subsections}
-          />
-        )}
-      </>
+        {subsections?.length > 0 && <SubsectionsRenderer subsections={subsections} />}
+      </div>
     </Overridable>
   );
 };
