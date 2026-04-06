@@ -1,3 +1,9 @@
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2026, MESH Research
+//
+// Invenio-Modular-Deposit-Form is free software; you can redistribute it and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import React from "react";
 import { Grid } from "semantic-ui-react";
 import PropTypes from "prop-types";
@@ -10,25 +16,10 @@ import { SubsectionsRenderer } from "./SubsectionsRenderer";
  */
 const DEFAULTS = { computer: 3, mobile: 16 };
 
-const FormLeftSidebar = ({
-  subsections = [],
-  mobile,
-  tablet,
-  computer,
-  largeScreen,
-  widescreen,
-}) => {
+const FormLeftSidebar = ({ subsections = [], ...props }) => {
   if (!subsections?.length) return null;
-  const columnProps = {
-    ...DEFAULTS,
-    ...(mobile != null && { mobile }),
-    ...(tablet != null && { tablet }),
-    ...(computer != null && { computer }),
-    ...(largeScreen != null && { largeScreen }),
-    ...(widescreen != null && { widescreen }),
-  };
   return (
-    <Grid.Column {...columnProps} className="deposit-left-sidebar deposit-sidebar">
+    <Grid.Column {...props} className="deposit-left-sidebar deposit-sidebar">
       <SubsectionsRenderer subsections={subsections} />
     </Grid.Column>
   );
@@ -36,11 +27,6 @@ const FormLeftSidebar = ({
 
 FormLeftSidebar.propTypes = {
   subsections: PropTypes.array,
-  mobile: PropTypes.number,
-  tablet: PropTypes.number,
-  computer: PropTypes.number,
-  largeScreen: PropTypes.number,
-  widescreen: PropTypes.number,
 };
 
 export { FormLeftSidebar };

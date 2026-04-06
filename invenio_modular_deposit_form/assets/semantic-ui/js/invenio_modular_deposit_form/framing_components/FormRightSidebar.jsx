@@ -1,33 +1,18 @@
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2026, MESH Research
+//
+// Invenio-Modular-Deposit-Form is free software; you can redistribute it and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import React from "react";
 import { Grid } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { SubsectionsRenderer } from "./SubsectionsRenderer";
 
-/**
- * Right sidebar column. Optional responsive column widths from config
- * override the defaults (computer=3, mobile=16).
- */
-const DEFAULTS = { computer: 3, mobile: 16 };
-
-const FormRightSidebar = ({
-  subsections = [],
-  mobile,
-  tablet,
-  computer,
-  largeScreen,
-  widescreen,
-}) => {
+const FormRightSidebar = ({ subsections = [], ...props }) => {
   if (!subsections?.length) return null;
-  const columnProps = {
-    ...DEFAULTS,
-    ...(mobile != null && { mobile }),
-    ...(tablet != null && { tablet }),
-    ...(computer != null && { computer }),
-    ...(largeScreen != null && { largeScreen }),
-    ...(widescreen != null && { widescreen }),
-  };
   return (
-    <Grid.Column {...columnProps} className="deposit-right-sidebar deposit-sidebar">
+    <Grid.Column {...props} className="deposit-right-sidebar deposit-sidebar">
       <SubsectionsRenderer subsections={subsections} />
     </Grid.Column>
   );
@@ -35,11 +20,6 @@ const FormRightSidebar = ({
 
 FormRightSidebar.propTypes = {
   subsections: PropTypes.array,
-  mobile: PropTypes.number,
-  tablet: PropTypes.number,
-  computer: PropTypes.number,
-  largeScreen: PropTypes.number,
-  widescreen: PropTypes.number,
 };
 
 export { FormRightSidebar };

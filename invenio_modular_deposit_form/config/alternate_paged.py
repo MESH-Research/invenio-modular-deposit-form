@@ -46,7 +46,7 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         {
             "component": "SpacerColumn",
             "largeScreen": 1,
-            "widescreen": 3,
+            "widescreen": 2,
             "only": "large screen",
         },
         {
@@ -87,10 +87,9 @@ _PAGED_FORM_LEFT_SIDEBAR_MENU = {
 _PAGED_FORM_LEFT_SIDEBAR_EMPTY = {
     "component": "FormLeftSidebar",
     "classnames": "default-layout",
-    # Sidebar widths
-    "computer": 3,
-    "largeScreen": 3,
-    "widescreen": 3,
+    "largeScreen": 1,
+    "widescreen": 2,
+    "only": "large screen",
     "subsections": [
         {},
     ],
@@ -976,6 +975,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
 
 COMMON_FIELDS_ALTERNATE_PAGED = [
     _PAGED_FORM_HEADER_STEPPER_TOP,
+    _PAGED_FORM_LEFT_SIDEBAR_EMPTY,
     _PAGED_FORM_RIGHT_SIDEBAR,
     _PAGED_FORM_FOOTER,
     _PAGED_FORM_PAGES_ALTERNATE_PAGED,

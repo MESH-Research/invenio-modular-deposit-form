@@ -1,3 +1,9 @@
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2026, MESH Research
+//
+// Invenio-Modular-Deposit-Form is free software; you can redistribute it and/or modify it
+// under the terms of the MIT License; see LICENSE file for more details.
+
 import React, { useMemo } from "react";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -15,38 +21,88 @@ import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 import { SIDEBAR_DEFAULTS_WIDTHS } from "./constants";
 import { FormUIStateContext, useFormUIState } from "./FormUIStateManager.jsx";
 
+/* Observe Semantic-UI "only" props to infer zero widths.
+ * @param {object} sidebarConfig
+ */
+function setZeroWidths(sidebarConfigRaw, sidebarVisible) {
+  let sidebarConfig = { ...sidebarConfigRaw };
+  let bigBreakpoints = ["computer", "largeScreen", "widescreen"];
+  let smallBreakpoints = ["mobile", "tablet"];
+  let zeroBreakpoints = [];
+
+  if (!sidebarVisible) {
+    zeroBreakpoints = smallBreakpoints.concat(bigBreakpoints);
+  } else if (Object.keys(sidebarConfig).includes("only")) {
+    let only = sidebarConfig.only.replace(/\blarge screen\b/gi, "largeScreen");
+    const onlyTerms = only.split(" ");
+    const bigIndex = Math.max(...onlyTerms.map((t) => bigBreakpoints.indexOf(t)));
+    if (bigIndex >= 0) {
+      zeroBreakpoints = smallBreakpoints.concat(bigBreakpoints.slice(0, bigIndex));
+    } else {
+      zeroBreakpoints = bigBreakpoints;
+      const onlyTerms = only.split(" ");
+      for (const term of onlyTerms) {
+        if (smallBreakpoints.includes(term)) {
+          zeroBreakpoints.push(term);
+        }
+      }
+    }
+  }
+
+  for (const zeroKey of zeroBreakpoints) {
+    sidebarConfig[zeroKey] = 0;
+  }
+
+  return sidebarConfig;
+}
+
+function fillWidthsFromDefaults(configRaw) {
+  let config = { ...configRaw };
+  if (!config) {
+    return config;
+  }
+  for (const [key, val] of Object.entries(SIDEBAR_DEFAULTS_WIDTHS)) {
+    if (config[key] === undefined) {
+      config[key] = val;
+    }
+  }
+  return config;
+}
+
 /* Get sidebar configs and calculate form column visibility and widths.
  * @param {object} commonFields
  */
 function getColumnsConfig(commonFields) {
-  const formPagesConfig = commonFields?.find((item) => item.component === "FormPages");
-  const leftSidebarConfig = commonFields?.find((item) => item.component === "FormLeftSidebar");
-  const rightSidebarConfig = commonFields?.find((item) => item.component === "FormRightSidebar");
-  const leftSidebarVisible = (leftSidebarConfig?.subsections?.length ?? 0) > 0;
-  const rightSidebarVisible = (rightSidebarConfig?.subsections?.length ?? 0) > 0;
+  const formPagesConfig = commonFields?.find((item) => item.component === "FormPages") ?? {};
+  const leftSidebarConfig =
+    commonFields?.find((item) => item.component === "FormLeftSidebar") ?? {};
+  const rightSidebarConfig =
+    commonFields?.find((item) => item.component === "FormRightSidebar") ?? {};
+  const leftSidebarVisible = leftSidebarConfig.component !== undefined;
+  const rightSidebarVisible = rightSidebarConfig.component !== undefined;
 
-  const left = (key) =>
-    leftSidebarVisible ? (leftSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS_WIDTHS[key]) : 0;
-  const right = (key) =>
-    rightSidebarVisible ? (rightSidebarConfig?.[key] ?? SIDEBAR_DEFAULTS_WIDTHS[key]) : 0;
+  const leftZeroedConfig = setZeroWidths(leftSidebarConfig, leftSidebarVisible);
+  const rightZeroedConfig = setZeroWidths(rightSidebarConfig, rightSidebarVisible);
+
+  const left = fillWidthsFromDefaults(leftZeroedConfig);
+  const right = fillWidthsFromDefaults(rightZeroedConfig);
 
   const mainColumnWidths = {
     mobile: formPagesConfig?.mobile ?? 16,
     tablet: formPagesConfig?.tablet ?? 16,
-    computer: formPagesConfig?.computer ?? Math.max(1, 16 - left("computer") - right("computer")),
+    computer: formPagesConfig?.computer ?? Math.max(1, 16 - left.computer - right.computer),
     largeScreen:
-      formPagesConfig?.largeScreen ?? Math.max(1, 16 - left("largeScreen") - right("largeScreen")),
-    widescreen:
-      formPagesConfig?.widescreen ?? Math.max(1, 16 - left("widescreen") - right("widescreen")),
+      formPagesConfig?.largeScreen ?? Math.max(1, 16 - left.largeScreen - right.largeScreen),
+    widescreen: formPagesConfig?.widescreen ?? Math.max(1, 16 - left.widescreen - right.widescreen),
   };
 
   return {
     leftSidebar: {
-      config: leftSidebarConfig,
+      config: { ...leftSidebarConfig, ...left },
       visible: leftSidebarVisible,
     },
     rightSidebar: {
-      config: rightSidebarConfig,
+      config: { ...rightSidebarConfig, ...right },
       visible: rightSidebarVisible,
     },
     mainColumnWidths,
@@ -114,11 +170,7 @@ const FormLayoutContainer = () => {
           </Grid.Row>
         </Grid>
       )}
-      <Container
-        text={!leftSidebar.visible && !rightSidebar.visible}
-        id="rdm-deposit-form"
-        className="rel-mt-1"
-      >
+      <Container id="rdm-deposit-form" className="rel-mt-1">
         <Grid>
           <Grid.Row className="deposit-form-title">
             <Grid.Column width={16}>
@@ -143,6 +195,7 @@ const FormLayoutContainer = () => {
                 computer={leftSidebar.config?.computer}
                 largeScreen={leftSidebar.config?.largeScreen}
                 widescreen={leftSidebar.config?.widescreen}
+                {...(leftSidebar.config?.only ? { only: leftSidebar.config?.only } : {})}
               />
             )}
             <Grid.Column
@@ -190,6 +243,7 @@ const FormLayoutContainer = () => {
                 computer={rightSidebar.config?.computer}
                 largeScreen={rightSidebar.config?.largeScreen}
                 widescreen={rightSidebar.config?.widescreen}
+                {...(rightSidebar.config?.only ? { only: rightSidebar.config?.only } : {})}
               />
             )}
           </Grid.Row>
