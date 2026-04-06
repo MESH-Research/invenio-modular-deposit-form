@@ -143,7 +143,7 @@ const ResourceTypeSelectorField = ({
               id={"otherToggle"}
               name={"otherToggle"}
               onClick={handleOtherToggleClick}
-              className={`ui button item ${otherToggleActive === true ? "active" : ""}`}
+              className={`ui button item pt-25 pb-25 ${otherToggleActive === true ? "active" : ""}`}
               formNoValidate
               type="button"
             >
