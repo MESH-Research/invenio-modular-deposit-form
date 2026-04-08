@@ -56,7 +56,7 @@ function composePublicationDate(
   return newDateValue;
 }
 
-const DateDropdown = ({
+const DateDropdowns = ({
   name,
   unit,
   value,
@@ -66,9 +66,10 @@ const DateDropdown = ({
   fieldPath,
   handleDropdownChange,
   error,
+  classnames,
 }) => {
   return (
-    <Form.Field>
+    <Form.Field className={classnames}>
       <FieldLabel
         htmlFor={`${fieldPath}.inputs.${name}`}
         label={`${useRange ? i18next.t(position) + " " : ""}${i18next.t(unit)}`}
@@ -317,7 +318,7 @@ const PublicationDateFieldAlternate = ({
               )}
               <Form.Group className="invenio-group-field invenio-form-row mb-0 equal width">
                 {startDropdowns.map((dropdown, idx) => (
-                  <DateDropdown
+                  <DateDropdowns
                     key={idx}
                     {...dropdown}
                     position={"Start"}
@@ -343,7 +344,7 @@ const PublicationDateFieldAlternate = ({
               {!!useRange && (
                 <Form.Group className="invenio-group-field invenio-form-row mb-0 equal width">
                   {endDropdowns.map((dropdown, idx) => (
-                    <DateDropdown
+                    <DateDropdowns
                       key={idx}
                       {...dropdown}
                       position={"End"}
@@ -352,6 +353,7 @@ const PublicationDateFieldAlternate = ({
                       handleDropdownChange={handleDropdownChange}
                       error={!!meta.error}
                       aria-describedby={`${fieldPath}.helptext`}
+                      classnames="mt-10"
                     />
                   ))}
                   <Form.Field></Form.Field>
