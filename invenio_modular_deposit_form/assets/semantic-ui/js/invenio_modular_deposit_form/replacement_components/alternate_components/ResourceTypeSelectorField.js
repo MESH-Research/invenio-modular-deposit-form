@@ -127,7 +127,7 @@ const ResourceTypeSelectorField = ({
           {description && description !== " " && (
             <label className="helptext label top">{i18next.t(description)}</label>
           )}
-          <div className="ui compact fluid icon labeled menu resource-type-shortcut-menu">
+          <div className="ui compact fluid icon labeled six item menu">
             {shortcutButtons.map((buttonType) => (
               <button
                 key={buttonType.id}
