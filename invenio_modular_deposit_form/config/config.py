@@ -61,7 +61,19 @@ MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL = False
 form page with a current error. When False, the errors on the page will be 
 flagged on page exit but no modal confirmation will be required."""
 
-MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE = "publication-article"
+MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES: tuple[str, ...] = (
+    "publication-article",
+    "publication-peerreview",
+    "publication-book",
+    "publication-section",
+    "lesson",
+)
+"""Ordered vocabulary ids for ``ResourceTypeSelectorField`` shortcut buttons.
+
+Only the **first five** entries are shown as buttons (plus a fixed “Other…” control
+that opens the full vocabulary select). Additional ids in the tuple or in an
+instance override are ignored for the button row; list more-specific types first.
+"""
 
 MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP = True
 """When True, a full-width region above the form title shows the stock community 

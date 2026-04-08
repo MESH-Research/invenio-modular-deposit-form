@@ -32,7 +32,10 @@ _CONFIG_KEYS = [
     ("MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", "default_field_values"),
     ("MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", "priority_field_values"),
     ("MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", "extra_required_fields"),
-    ("MODULAR_DEPOSIT_FORM_DEFAULT_RESOURCE_TYPE", "default_resource_type"),
+    (
+        "MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES",
+        "priority_resource_types",
+    ),
     ("MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
     (
         "MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP",
