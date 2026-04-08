@@ -7,7 +7,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -15,7 +15,8 @@ import { SelectField } from "../SelectField";
 import { FieldLabel } from "../FieldLabel";
 import { Field, getIn, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
-import { useStore } from "react-redux";
+
+const EMPTY_RESOURCE_TYPES = [];
 
 const RADIO_GROUP_NAV_KEYS = new Set([
   "ArrowDown",
@@ -26,7 +27,27 @@ const RADIO_GROUP_NAV_KEYS = new Set([
   "End",
 ]);
 
-const ResourceTypeSelectorField = ({
+/**
+ * Convert back-end options to front-end options.
+ *
+ * @param {array} propsOptions - back-end options
+ * @returns {array} front-end options
+ */
+const createOptions = (propsOptions) => {
+  return propsOptions
+    .map((o) => ({
+      value: o.id,
+      icon: o.icon,
+      text: i18next.t(
+        o.subtype_name != null && String(o.subtype_name).trim() !== ""
+          ? o.subtype_name
+          : o.type_name
+      ),
+    }))
+    .sort((a, b) => a.text.localeCompare(b.text));
+};
+
+function ResourceTypeSelectorFieldInner({
   classnames = undefined,
   description = undefined,
   fieldPath,
@@ -39,12 +60,11 @@ const ResourceTypeSelectorField = ({
   showLabel = true,
   shortcutResourceTypeIds: shortcutResourceTypeIdsProp,
   ...uiProps
-}) => {
+}) {
   const shortcutResourceTypeIds = Array.isArray(shortcutResourceTypeIdsProp)
     ? shortcutResourceTypeIdsProp
     : [];
-  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? {};
-  const options = optionsProp ?? vocabularies?.metadata?.resource_type ?? [];
+  const options = optionsProp ?? EMPTY_RESOURCE_TYPES;
   const { values, setFieldValue } = useFormikContext();
   const currentTypeId = getIn(values, fieldPath);
   const [otherToggleActive, setOtherToggleActive] = useState(false);
@@ -86,26 +106,9 @@ const ResourceTypeSelectorField = ({
     }
   }, [currentTypeId, fieldPath, setFieldValue, shortcutResourceTypeIds]);
 
-  /**
-   * Convert back-end options to front-end options.
-   *
-   * @param {array} propsOptions - back-end options
-   * @returns {array} front-end options
-   */
-  const createOptions = (propsOptions) => {
-    return propsOptions
-      .map((o) => ({
-        value: o.id,
-        icon: o.icon,
-        text: i18next.t(
-          o.subtype_name != null && String(o.subtype_name).trim() !== ""
-            ? o.subtype_name
-            : o.type_name
-        ),
-      }))
-      .sort((a, b) => a.text.localeCompare(b.text));
-  };
-  const frontEndOptions = createOptions(options);
+  const otherDropdownOptions = useMemo(() => {
+    return createOptions(options).filter((opt) => !shortcutResourceTypeIds.includes(opt.value));
+  }, [options, shortcutResourceTypeIds, i18next.language]);
 
   const safeFieldId = fieldPath.replaceAll(".", "-").replaceAll(":", "-");
   const labelElementId = `${fieldPath}.label`;
@@ -137,10 +140,10 @@ const ResourceTypeSelectorField = ({
         setOtherToggleActive(false);
         queueMicrotask(() => radioRefs.current[i]?.focus());
       } else {
-        if (frontEndOptions.length < 1) {
+        if (otherDropdownOptions.length < 1) {
           return;
         }
-        setFieldValue(fieldPath, frontEndOptions[0].value);
+        setFieldValue(fieldPath, otherDropdownOptions[0].value);
         setOtherToggleActive(true);
         queueMicrotask(() => {
           radioRefs.current[shortcutButtons.length]?.focus();
@@ -148,7 +151,14 @@ const ResourceTypeSelectorField = ({
         });
       }
     },
-    [fieldPath, focusOtherSelectInput, frontEndOptions, radioCount, setFieldValue, shortcutButtons]
+    [
+      fieldPath,
+      focusOtherSelectInput,
+      otherDropdownOptions,
+      radioCount,
+      setFieldValue,
+      shortcutButtons,
+    ]
   );
 
   const handleRadioGroupKeyDown = useCallback(
@@ -225,10 +235,10 @@ const ResourceTypeSelectorField = ({
   };
 
   const handleOtherToggleClick = () => {
-    if (frontEndOptions.length < 1) {
+    if (otherDropdownOptions.length < 1) {
       return;
     }
-    setFieldValue(fieldPath, frontEndOptions[0].value);
+    setFieldValue(fieldPath, otherDropdownOptions[0].value);
     setOtherToggleActive(true);
     focusOtherSelectInput();
   };
@@ -310,6 +320,7 @@ const ResourceTypeSelectorField = ({
                 aria-haspopup="listbox"
                 aria-expanded={otherToggleActive}
                 aria-controls={otherListId}
+                disabled={otherDropdownOptions.length < 1}
                 onClick={handleOtherToggleClick}
                 className={`ui button item pt-25 pb-25 ${otherToggleActive ? "active" : ""}`}
                 formNoValidate
@@ -324,7 +335,7 @@ const ResourceTypeSelectorField = ({
                 fieldPath={fieldPath}
                 label=""
                 optimized
-                options={frontEndOptions}
+                options={otherDropdownOptions}
                 selectOnBlur={true}
                 selectOnNavigation={true}
                 search={true}
@@ -352,7 +363,10 @@ const ResourceTypeSelectorField = ({
       }}
     </Field>
   );
-};
+}
+
+const ResourceTypeSelectorField = memo(ResourceTypeSelectorFieldInner);
+ResourceTypeSelectorField.displayName = "ResourceTypeSelectorField";
 
 ResourceTypeSelectorField.propTypes = {
   description: PropTypes.string,

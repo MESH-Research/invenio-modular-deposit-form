@@ -4,7 +4,7 @@
 // Alternate resource type UI: button shortcuts + “Other” vocabulary select
 // (`replacement_components/alternate_components/ResourceTypeSelectorField`).
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useStore } from "react-redux";
 import ResourceTypeSelectorField from "../../replacement_components/alternate_components/ResourceTypeSelectorField";
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
@@ -12,20 +12,31 @@ import { FieldComponentWrapper } from "../FieldComponentWrapper";
 /** Five shortcut buttons plus “Other…”. */
 const MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS = 5;
 
+const EMPTY_RESOURCE_TYPES = [];
+const EMPTY_PRIORITY_TYPES = [];
+
 /**
  * Resource type (metadata.resource_type). Uses ResourceTypeSelectorField (button-style shortcuts).
  */
-const ResourceTypeSelectorComponent = ({
+function ResourceTypeSelectorComponent({
   fieldPath = "metadata.resource_type",
   options: optionsProp,
   shortcutResourceTypeIds: shortcutResourceTypeIdsProp,
   ...extraProps
-}) => {
-  const depositConfig = useStore().getState().deposit?.config ?? {};
-  const options = optionsProp ?? depositConfig?.vocabularies?.metadata?.resource_type ?? [];
-  const fromConfig = depositConfig.priority_resource_types;
-  const rawIds = shortcutResourceTypeIdsProp ?? (Array.isArray(fromConfig) ? fromConfig : []);
-  const shortcutResourceTypeIds = rawIds.slice(0, MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS);
+}) {
+  const store = useStore();
+  const config = store.getState().deposit?.config ?? {};
+  const resourceTypeVocabulary =
+    config?.vocabularies?.metadata?.resource_type ?? EMPTY_RESOURCE_TYPES;
+  const rawPriority = config?.priority_resource_types;
+  const priorityResourceTypes = Array.isArray(rawPriority) ? rawPriority : EMPTY_PRIORITY_TYPES;
+
+  const options = optionsProp ?? resourceTypeVocabulary;
+
+  const shortcutResourceTypeIds = useMemo(() => {
+    const rawIds = shortcutResourceTypeIdsProp ?? priorityResourceTypes;
+    return rawIds.slice(0, MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS);
+  }, [shortcutResourceTypeIdsProp, priorityResourceTypes]);
 
   return (
     <FieldComponentWrapper componentName="ResourceTypeField" fieldPath={fieldPath} {...extraProps}>
@@ -37,6 +48,6 @@ const ResourceTypeSelectorComponent = ({
       />
     </FieldComponentWrapper>
   );
-};
+}
 
 export { ResourceTypeSelectorComponent };
