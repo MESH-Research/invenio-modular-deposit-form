@@ -18,11 +18,10 @@
 /* Set outside #rdm-deposit-form to catch modal widgets */
 .ui.radio.checkbox,
 .ui.checkbox {
-  &:focus-within {
-    input:checked ~ label {
-      &:before {
-        border-width: 2px; // a11y
-      }
+  input:focus-within ~ label,
+  input:focus ~ label {
+    &:before {
+      border: 2px solid @secondaryColor; // a11y
     }
   }
 }
@@ -222,13 +221,13 @@
           font-weight: 400 !important;
         }
       }
-      &.files-field .storage-col {
-        .ui.horizontal.list > .item:last-child {
-          @media all and (min-width: @largestTabletScreen) and (max-width: @largestSmallMonitor) {
-            margin-left: 0;
-          }
-        }
-      }
+      // &.files-field .storage-col {
+      //   .ui.horizontal.list > .item:last-child {
+      //     @media all and (min-width: @largestTabletScreen) and (max-width: @largestSmallMonitor) {
+      //       margin-left: 0;
+      //     }
+      //   }
+      // }
       &.metadata-title-field {
         .field.additional-titles {
           > .fields > .field.mt-15:has(button) {
