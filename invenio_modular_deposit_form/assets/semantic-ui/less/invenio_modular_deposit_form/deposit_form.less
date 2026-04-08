@@ -15,6 +15,18 @@
 /* Light border: built-in modification (no custom @negativeBorderColorLight). */
 @negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
 
+/* Set outside #rdm-deposit-form to catch modal widgets */
+.ui.radio.checkbox,
+.ui.checkbox {
+  &:focus-within {
+    input:checked ~ label {
+      &:before {
+        border-width: 2px; // a11y
+      }
+    }
+  }
+}
+
 /* Footer nav: fixed when IO marks sentinel out of view (standalone selector if markup shifts). */
 #rdm-deposit-form .sticky-footer-fixed,
 .sticky-footer-fixed {
@@ -210,7 +222,7 @@
           font-weight: 400 !important;
         }
       }
-      &.files-field {
+      &.files-field .storage-col {
         .ui.horizontal.list > .item:last-child {
           @media all and (min-width: @largestTabletScreen) and (max-width: @largestSmallMonitor) {
             margin-left: 0;
