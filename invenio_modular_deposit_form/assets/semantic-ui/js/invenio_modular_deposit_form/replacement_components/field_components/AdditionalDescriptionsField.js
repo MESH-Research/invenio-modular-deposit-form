@@ -6,11 +6,15 @@
 //
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
+//
+// Modular fork: local `ArrayField` fork with onAfterAdd/onAfterRemove; TinyMCE focus
+// helpers live in this file (RichInputField uses `id={fieldPath}` on Form.Field).
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Button, Form, Grid, Icon } from "semantic-ui-react";
-import { ArrayField, RichInputField } from "react-invenio-forms";
+import { RichInputField } from "react-invenio-forms";
+import { ArrayField } from "../ArrayField";
 import { emptyAdditionalDescription } from "@js/invenio_rdm_records/src/deposit/fields/DescriptionsField/components/initialValues";
 import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
@@ -18,15 +22,57 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { LanguagesField } from "./LanguagesField";
 import { SelectField } from "../SelectField";
 
+const FOCUS_ATTEMPTS_MAX = 48;
+
+/** TinyMCE (RichEditor) mounts async; focus the iframe and matching editor once it exists. */
+function scheduleFocusRichDescriptionField(descriptionFieldPath) {
+  const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+  void (async () => {
+    await frame();
+    await frame();
+    for (let i = 0; i < FOCUS_ATTEMPTS_MAX; i++) {
+      const root = document.getElementById(descriptionFieldPath);
+      const iframe =
+        root?.querySelector(".tox-edit-area__iframe") ?? root?.querySelector("iframe");
+      if (iframe?.contentWindow) {
+        iframe.focus();
+        iframe.contentWindow.focus();
+        try {
+          iframe.contentDocument?.body?.focus();
+        } catch {
+          /* iframe document not readable yet */
+        }
+        const ed = window.tinymce?.editors?.find((e) => {
+          try {
+            return e.getContainer()?.contains(iframe);
+          } catch {
+            return false;
+          }
+        });
+        ed?.focus();
+        return;
+      }
+      await frame();
+    }
+  })();
+}
+
 export class AdditionalDescriptionsField extends Component {
   render() {
     const { fieldPath, options, recordUI, editorConfig } = this.props;
     return (
       <ArrayField
         addButtonLabel={i18next.t("Add description")}
+        className="additional-descriptions"
         defaultNewValue={emptyAdditionalDescription}
         fieldPath={fieldPath}
-        className="additional-descriptions"
+        onAfterAdd={({ index }) =>
+          scheduleFocusRichDescriptionField(`${fieldPath}.${index}.description`)
+        }
+        onAfterRemove={({ removedIndex }) => {
+          const targetRow = removedIndex > 0 ? removedIndex - 1 : 0;
+          scheduleFocusRichDescriptionField(`${fieldPath}.${targetRow}.description`);
+        }}
       >
         {({ arrayHelpers, indexPath }) => {
           const fieldPathPrefix = `${fieldPath}.${indexPath}`;

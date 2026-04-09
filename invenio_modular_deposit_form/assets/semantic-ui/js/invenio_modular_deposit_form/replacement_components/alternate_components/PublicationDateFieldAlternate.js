@@ -1,15 +1,8 @@
-// This file is part of Invenio-RDM-Records
-// Copyright (C) 2020-2023 CERN.
-// Copyright (C) 2020-2022 Northwestern University.
-// Copyright (C) 2021 Graz University of Technology.
+// Part of invenio-modular-deposit-form
+// Copyright (C) 2023-2026, MESH Research
 //
-// Invenio-RDM-Records is free software; you can redistribute it and/or modify it
+// Invenio-Modular-Deposit-Form is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
-//
-// Modular fork: `getIn(values, fieldPath)` instead of hard-coded metadata path;
-// i18n via invenio_modular_deposit_form; Formik value sync avoids clobbering loaded
-// records and skips redundant `setFieldValue` when the composed string already matches.
-// Named *Alternate alongside DatesFieldAlternate (dropdown-based UX).
 
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
