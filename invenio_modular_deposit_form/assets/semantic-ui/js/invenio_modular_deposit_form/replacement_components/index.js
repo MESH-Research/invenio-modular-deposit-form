@@ -5,7 +5,8 @@ export * from "./field_components";
 // full changelog; this file is the barrel + a **short** index. Longer narrative:
 // docs/source/replacement_field_components.md
 //
-// ArrayField — optional `onAfterAdd` / `onAfterRemove` (after Formik push / wrapped `remove`);
+// ArrayField — `hasFieldError` adds touched awareness like TextField; optional `onAfterAdd` /
+// `onAfterRemove` (after Formik push / wrapped `remove`);
 // `FieldLabel` from `react-invenio-forms` (fork lives outside the package). See ArrayField.js.
 //
 // AutocompleteDropdown — local `FieldLabel`; renders replacement `RemoteSelectField`; `description` /
@@ -24,6 +25,8 @@ export * from "./field_components";
 //
 // RemoteSelectField — builds on replacement `SelectField`; `ui.<fieldPath>` sync, search ref +
 // debounced fetch + cancel, optional blur commit / focus-after-select, etc. See RemoteSelectField.js.
+//
+// RichInputField - same error display rule as TextArea; imports pull subcomponents from stock package.
 //
 // SelectField — `classnames` merged into `className` on `Form.Dropdown`; shared helpers imported from
 // the `react-invenio-forms` package root (no `utils` subpath). **When errors show:** `error` prop if

@@ -13,7 +13,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Button, Form, Grid, Icon } from "semantic-ui-react";
-import { RichInputField } from "react-invenio-forms";
+import { RichInputField } from "../RichInputField";
 import { ArrayField } from "../ArrayField";
 import { emptyAdditionalDescription } from "@js/invenio_rdm_records/src/deposit/fields/DescriptionsField/components/initialValues";
 import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
@@ -32,8 +32,7 @@ function scheduleFocusRichDescriptionField(descriptionFieldPath) {
     await frame();
     for (let i = 0; i < FOCUS_ATTEMPTS_MAX; i++) {
       const root = document.getElementById(descriptionFieldPath);
-      const iframe =
-        root?.querySelector(".tox-edit-area__iframe") ?? root?.querySelector("iframe");
+      const iframe = root?.querySelector(".tox-edit-area__iframe") ?? root?.querySelector("iframe");
       if (iframe?.contentWindow) {
         iframe.focus();
         iframe.contentWindow.focus();

@@ -7,6 +7,8 @@
 //
 // invenio-modular-deposit-form fork (otherwise matches upstream):
 // - Import `FieldLabel` from `"react-invenio-forms"` instead of `./FieldLabel`.
+// - Make hasGroupErrors sensitive to touched state and relationship of current value to
+//   any initial value and initial errors.
 // - Optional `onAfterRemove`: shallow-clone `arrayHelpers`, wrap `remove` to call Formik’s `remove`
 //   then `onAfterRemove({ removedIndex })` when provided; `children` still receive the same arg key
 //   order as upstream, with `arrayHelpers` replaced by the clone.
@@ -33,12 +35,16 @@ export class ArrayField extends Component {
     };
   }
 
-  hasGroupErrors = (errors) => {
-    const { fieldPath } = this.props;
-    for (const field in errors) {
-      if (field.startsWith(fieldPath)) {
-        return true;
-      }
+  hasGroupErrors = (errors, touched, values, initialValues, initialErrors) => {
+    const { fieldPath, error: errorProp } = this.props;
+    const error = getIn(errors, fieldPath);
+    const value = getIn(values, fieldPath);
+    const touched = getIn(touched, fieldPath);
+    const initialValue = getIn(initialValues, fieldPath);
+    const initialError = getIn(initialErrors, fieldPath);
+    if ((error && touched) || !!errorProp || (value === initialValue && !!initialError)) {
+      console.log("errors!");
+      return true;
     }
     return false;
   };
@@ -54,21 +60,13 @@ export class ArrayField extends Component {
     const { hasBeenShown } = this.state;
     const existingValues = getIn(values, fieldPath, []);
 
-    if (
-      !hasBeenShown &&
-      _isEmpty(requiredOptions) &&
-      _isEmpty(existingValues) &&
-      showEmptyValue
-    ) {
+    if (!hasBeenShown && _isEmpty(requiredOptions) && _isEmpty(existingValues) && showEmptyValue) {
       existingValues.push({ __key: existingValues.length, ...defaultNewValue });
       this.setState({ hasBeenShown: true });
     }
 
     for (const requiredOption of requiredOptions) {
-      const valuesMatchingRequiredOption = _filter(
-        existingValues,
-        _matches(requiredOption)
-      );
+      const valuesMatchingRequiredOption = _filter(existingValues, _matches(requiredOption));
       if (valuesMatchingRequiredOption.length === 0) {
         existingValues.push({ __key: existingValues.length, ...requiredOption });
       }
@@ -78,7 +76,7 @@ export class ArrayField extends Component {
 
   renderFormField = (props) => {
     const {
-      form: { values, errors },
+      form: { errors, initialErrors, initialValues, touched, values },
       ...arrayHelpers
     } = props;
     const {
@@ -96,9 +94,12 @@ export class ArrayField extends Component {
       onAfterRemove,
       ...uiProps
     } = this.props;
-    const hasError = this.hasGroupErrors(errors) ? { error: {} } : {};
+    const hasError = this.hasGroupErrors(errors, touched, values, initialValues, initialErrors)
+      ? { error: {} }
+      : {};
     const { nextKey } = this.state;
     const valuesToDisplay = this.getValues(values, fieldPath);
+    console.log(arrayHelpers);
 
     const wrappedArrayHelpers = {
       ...arrayHelpers,
