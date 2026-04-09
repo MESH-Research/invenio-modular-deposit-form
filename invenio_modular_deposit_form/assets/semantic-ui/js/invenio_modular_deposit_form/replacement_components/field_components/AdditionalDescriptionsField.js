@@ -33,22 +33,15 @@ function scheduleFocusRichDescriptionField(descriptionFieldPath) {
     for (let i = 0; i < FOCUS_ATTEMPTS_MAX; i++) {
       const root = document.getElementById(descriptionFieldPath);
       const iframe = root?.querySelector(".tox-edit-area__iframe") ?? root?.querySelector("iframe");
-      if (iframe?.contentWindow) {
-        iframe.focus();
-        iframe.contentWindow.focus();
-        try {
-          iframe.contentDocument?.body?.focus();
-        } catch {
-          /* iframe document not readable yet */
-        }
-        const ed = window.tinymce?.editors?.find((e) => {
-          try {
-            return e.getContainer()?.contains(iframe);
-          } catch {
-            return false;
-          }
-        });
-        ed?.focus();
+      const editorId =
+        root.querySelector(".invenio-rich-input-field textarea")?.id ||
+        iframe?.id.replace(/_ifr/, "");
+      const editor = window.tinymce?.get(editorId);
+      if (editor?.initialized) {
+        editor.execCommand("mceFocus", false, false);
+        return;
+      } else if (editor) {
+        editor.on("init", () => editor.execCommand("mceFocus", false, false));
         return;
       }
       await frame();

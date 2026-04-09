@@ -304,7 +304,9 @@
       color: #c7c7c7;
     }
   }
-  .field.error fieldset:not(.error) .field:not(.error) {
+  // Array/group .field.error must not paint siblings until their own .field.error
+  .field.error fieldset:not(.error) .field:not(.error),
+  .field.error.additional-descriptions .field:not(.error) {
     & > .input input:not(.error),
     label:not(.error),
     .ui.dropdown:not(.error) {
