@@ -74,7 +74,6 @@ import { FormPageNavigationBar } from "./nav_components/FormPageNavigationBar";
 import { FormSidebarPageMenu } from "./nav_components/FormSidebarPageMenu";
 
 const componentsRegistry = {
-  AbstractComponent: [AbstractComponent, ["metadata.description"]],
   AccessComponent: [AccessRightField, ["access"]],
   AccessRightsComponent: [AccessRightsComponent, ["access"]],
   AdditionalDatesComponent: [AdditionalDatesComponent, ["metadata.dates"]],
@@ -97,11 +96,6 @@ const componentsRegistry = {
   CopyrightsComponent: [CopyrightsComponent, ["metadata.copyright"]],
   CreatorsComponent: [CreatorsComponent, ["metadata.creators"]],
   CreatorsComponentFlat: [CreatorsComponentFlat, ["metadata.creators"]],
-  PublicationDateComponent: [PublicationDateComponent, ["metadata.publication_date"]],
-  PublicationDateAlternateComponent: [
-    PublicationDateAlternateComponent,
-    ["metadata.publication_date"],
-  ],
   DoiComponent: [DoiComponent, ["pids.doi"]],
   FundingComponent: [FundingComponent, ["metadata.funding"]],
   FormFeedbackComponent: [FormFeedbackComponent, []],
@@ -128,6 +122,11 @@ const componentsRegistry = {
     ["custom_fields.meeting:meeting.identifiers"],
   ],
   PublisherComponent: [PublisherComponent, ["metadata.publisher"]],
+  PublicationDateComponent: [PublicationDateComponent, ["metadata.publication_date"]],
+  PublicationDateAlternateComponent: [
+    PublicationDateAlternateComponent,
+    ["metadata.publication_date"],
+  ],
   PublicationLocationComponent: [
     PublicationLocationComponent,
     ["custom_fields.imprint:imprint.place"],
@@ -156,17 +155,20 @@ const componentsRegistry = {
   ],
   VersionComponent: [VersionComponent, ["metadata.version"]],
   // below are composite field components
+  AbstractComponent: [
+    AbstractComponent,
+    ["metadata.description", "metadata.additional_descriptions"],
+  ],
   CombinedDatesComponent: [CombinedDatesComponent, ["metadata.publication_date", "metadata.dates"]],
   CombinedJournalComponent: [CombinedJournalComponent, ["custom_fields.journal:journal"]],
   CombinedImprintComponent: [CombinedImprintComponent, ["custom_fields.imprint:imprint"]],
   CombinedMeetingComponent: [CombinedMeetingComponent, ["custom_fields.meeting:meeting"]],
   CombinedThesisComponent: [CombinedThesisComponent, ["custom_fields.thesis:thesis"]],
   DeleteComponent: [DeleteComponent, []],
-  FormRow: [FormRow, []],
-  ISBNComponent: [ISBNComponent, ["custom_fields.imprint:imprint.isbn"]],
   HorizontalSubmissionComponent: [HorizontalSubmissionComponent, []],
   SubmissionComponent: [SubmissionComponent, []],
   // Layout / page navigation (no field paths; registered for config-driven regions)
+  FormRow: [FormRow, []],
   FormStepper: [FormStepper, []],
   FormPageNavigationBar: [FormPageNavigationBar, []],
   FormSidebarPageMenu: [FormSidebarPageMenu, []],

@@ -8,6 +8,7 @@
 //
 // Modified for Invenio-Modular-Deposit-Form
 // - Add touched awareness to gating for error message display.
+// - Make error label display depend on error being active and visible.
 // - Modify imports to pull subcomponents from stock package.
 
 import { FastField, Field, getIn } from "formik";
@@ -54,7 +55,7 @@ export class RichInputField extends Component {
             disabled={disabled}
           />
         )}
-        <ErrorLabel fieldPath={fieldPath} />
+        {error && <ErrorLabel fieldPath={fieldPath} />}
       </Form.Field>
     );
   };
