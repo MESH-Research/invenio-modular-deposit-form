@@ -10,11 +10,13 @@
 // - Make hasGroupErrors sensitive to touched state and relationship of current value to
 //   any initial value and initial errors.
 // - Optional `onAfterRemove`: shallow-clone `arrayHelpers`, wrap `remove` to call Formik’s `remove`
-//   then `onAfterRemove({ removedIndex })` when provided; `children` still receive the same arg key
+//   then `onAfterRemove({ removedIndex, isNowEmpty })` when provided (`isNowEmpty` true if that remove
+//   cleared the array); `children` still receive the same arg key
 //   order as upstream, with `arrayHelpers` replaced by the clone.
 // - Optional `onAfterAdd`: after the stock add-button `push` and `setState`, call
 //   `onAfterAdd({ index })` with `valuesToDisplay.length` before `push`.
-// - `PropTypes` / `defaultProps`: `onAfterAdd`, `onAfterRemove`.
+// - Optional `addButtonRef`: ref to the add-row button (e.g. focus after last row removed).
+// - `PropTypes` / `defaultProps`: `onAfterAdd`, `onAfterRemove`, `addButtonRef`.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -80,6 +82,7 @@ export class ArrayField extends Component {
       ...arrayHelpers
     } = props;
     const {
+      addButtonRef,
       addButtonLabel,
       addButtonClassName,
       children,
@@ -104,9 +107,11 @@ export class ArrayField extends Component {
     const wrappedArrayHelpers = {
       ...arrayHelpers,
       remove: (indexPath) => {
+        const len = getIn(arrayHelpers.form.values, fieldPath, []).length;
+        const isNowEmpty = len === 1;
         arrayHelpers.remove(indexPath);
         if (typeof onAfterRemove === "function") {
-          onAfterRemove({ removedIndex: indexPath });
+          onAfterRemove({ isNowEmpty, removedIndex: indexPath });
         }
       },
     };
@@ -138,6 +143,7 @@ export class ArrayField extends Component {
 
         <Form.Group>
           <Form.Button
+            ref={addButtonRef}
             type="button"
             icon
             className={addButtonClassName}
@@ -176,6 +182,10 @@ export class ArrayField extends Component {
 }
 
 ArrayField.propTypes = {
+  addButtonRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   addButtonLabel: PropTypes.string,
   addButtonClassName: PropTypes.string,
   children: PropTypes.func.isRequired,
@@ -191,6 +201,7 @@ ArrayField.propTypes = {
 };
 
 ArrayField.defaultProps = {
+  addButtonRef: undefined,
   addButtonLabel: "Add new row",
   addButtonClassName: "align-self-end mt-15",
   helpText: "",

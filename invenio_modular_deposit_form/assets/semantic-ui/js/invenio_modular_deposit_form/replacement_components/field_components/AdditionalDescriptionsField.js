@@ -49,11 +49,23 @@ function scheduleFocusRichDescriptionField(descriptionFieldPath) {
   })();
 }
 
+function focusAddDescriptionButton(buttonRef) {
+  requestAnimationFrame(() => {
+    const el = buttonRef?.current;
+    if (el && typeof el.focus === "function") {
+      el.focus();
+    }
+  });
+}
+
 export class AdditionalDescriptionsField extends Component {
+  addDescriptionAddButtonRef = React.createRef();
+
   render() {
     const { fieldPath, options, recordUI, editorConfig } = this.props;
     return (
       <ArrayField
+        addButtonRef={this.addDescriptionAddButtonRef}
         addButtonLabel={i18next.t("Add description")}
         className="additional-descriptions"
         defaultNewValue={emptyAdditionalDescription}
@@ -61,7 +73,11 @@ export class AdditionalDescriptionsField extends Component {
         onAfterAdd={({ index }) =>
           scheduleFocusRichDescriptionField(`${fieldPath}.${index}.description`)
         }
-        onAfterRemove={({ removedIndex }) => {
+        onAfterRemove={({ isNowEmpty, removedIndex }) => {
+          if (isNowEmpty) {
+            focusAddDescriptionButton(this.addDescriptionAddButtonRef);
+            return;
+          }
           const targetRow = removedIndex > 0 ? removedIndex - 1 : 0;
           scheduleFocusRichDescriptionField(`${fieldPath}.${targetRow}.description`);
         }}
