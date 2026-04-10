@@ -9,11 +9,10 @@ version = "0.3.4-dev0"
 description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
 readme = "README.md"
 keywords = ["deposit-form", "extensions", "invenio", "inveniordm", "ui"]
-
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Mesh Research", email = "scottia4@msu.edu" }]
 requires-python = ">=3.12"
-
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python :: 3 :: Only",
@@ -27,7 +26,6 @@ dependencies = [
   "marshmallow-utils>=0.12",
   "setuptools>=61,<82",
 ]
-
 optional-dependencies.docs = [
   "furo>=2023",
   "linkify-it-py>=0.2",
@@ -37,7 +35,6 @@ optional-dependencies.docs = [
   "sphinx-design>=0.3",
   "uc-micro-py>=1",
 ]
-
 optional-dependencies.tests = [
   "mypy>=1.8",
   "pytest>=7.3.2",
@@ -51,13 +48,12 @@ optional-dependencies.tests = [
   "ruff>=0.3",
   "selenium",
 ]
-
 urls.Homepage = "https://github.com/MESH-Research/invenio-modular-deposit-form"
 entry-points."invenio_assets.webpack".invenio_modular_deposit_form_theme = "invenio_modular_deposit_form.webpack:theme"
+entry-points."invenio_base.api_finalize_app".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:api_finalize_app"
 entry-points."invenio_base.apps".invenio_modular_deposit_form = "invenio_modular_deposit_form:InvenioModularDepositForm"
 entry-points."invenio_base.blueprints".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:create_blueprint"
 entry-points."invenio_base.finalize_app".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:finalize_app"
-entry-points."invenio_base.api_finalize_app".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:api_finalize_app"
 entry-points."invenio_i18n.translations".messages = "invenio_modular_deposit_form"
 
 [dependency-groups]
@@ -84,22 +80,20 @@ tests = [
   "selenium",
 ]
 
-[tool.setuptools.package-data]
-invenio_modular_deposit_form = [
+[tool.setuptools]
+package-data.invenio_modular_deposit_form = [
   "assets/**",
   "patches/**",
   "scripts/**",
   "templates/**",
   "translations/**",
 ]
-"*" = ["*.po", "*.pot", "*.mo"]
+package-data."*" = ["*.po", "*.pot", "*.mo"]
+packages.find.include = ["invenio_modular_deposit_form*"]
+packages.find.exclude = ["tests*", "docs*", "scripts*", "node_modules*"]
 
-[tool.setuptools.packages.find]
-include = ["invenio_modular_deposit_form*"]
-exclude = ["tests*", "docs*", "scripts*"]
-
-[tool.uv.sources]
-invenio-modular-deposit-form = { path = ".", editable = true }
+[tool.uv]
+sources.invenio-modular-deposit-form = { path = ".", editable = true }
 
 [tool.ruff]
 target-version = "py312"
@@ -173,23 +167,6 @@ ignore = [
   ".vscode/*",
 ]
 
-[tool.pytest.ini_options]
-testpaths = ["tests", "invenio_modular_deposit_form"]
-addopts = """
---ruff --doctest-modules
---log-cli-level=DEBUG
---ignore=app_data
---ignore=docs
---ignore=node_modules
---ignore=scripts
---ignore=tests/helpers
---cov=invenio_modular_deposit_form 
---cov-report=term-missing
-"""
-norecursedirs = []
-log_cli_level = "DEBUG"
-isort_show_files = true
-
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
@@ -205,26 +182,24 @@ warn_no_return = false
 ignore_missing_imports = true
 follow_imports = "skip"
 allow_untyped_globals = true
-exclude = ['^tests/']
+exclude = ["^tests/"]
 
-[tool.babel.compile_catalog]
-directory = "invenio_modular_deposit_form/translations/"
-use-fuzzy = true
-
-[tool.babel.extract_messages]
-copyright_holder = "Mesh Research"
-msgid_bugs_address = "scottia4@msu.edu"
-mapping-file = "babel.ini"
-output-file = "invenio_modular_deposit_form/translations/messages.pot"
-add-comments = "NOTE"
-
-[tool.babel.init_catalog]
-# input-file = "invenio_modular_deposit_form/translations/messages.pot"
-output-dir = "invenio_modular_deposit_form/translations/"
-
-[tool.babel.update_catalog]
-input-file = "invenio_modular_deposit_form/translations/messages.pot"
-output-dir = "invenio_modular_deposit_form/translations/"
+[tool.pytest]
+ini_options.testpaths = ["tests", "invenio_modular_deposit_form"]
+ini_options.addopts = """
+--ruff --doctest-modules
+--log-cli-level=DEBUG
+--ignore=app_data
+--ignore=docs
+--ignore=node_modules
+--ignore=scripts
+--ignore=tests/helpers
+--cov=invenio_modular_deposit_form
+--cov-report=term-missing
+"""
+ini_options.norecursedirs = []
+ini_options.log_cli_level = "DEBUG"
+ini_options.isort_show_files = true
 
 [tool.bumpver]
 current_version = "0.3.4-dev0"
@@ -237,9 +212,25 @@ post_commit_hook = ""
 commit = false
 tag = false
 push = false
+file_patterns."pyproject.toml" = [
+  '^version = "{version}"',
+  '^current_version = "{version}"',
+]
+file_patterns."README.md" = ["^Version {version}"]
+file_patterns.VERSION = ['^"{version}"']
+file_patterns."invenio_modular_deposit_form/__init__.py" = [
+  '^__version__ = "{version}"',
+]
 
-[tool.bumpver.file_patterns]
-"pyproject.toml" = ['^version = "{version}"', '^current_version = "{version}"']
-"README.md" = ['^Version {version}']
-VERSION = ['^"{version}"']
-"invenio_modular_deposit_form/__init__.py" = ['^__version__ = "{version}"']
+[tool.babel]
+compile_catalog.directory = "invenio_modular_deposit_form/translations/"
+compile_catalog.use-fuzzy = true
+extract_messages.copyright_holder = "Mesh Research"
+extract_messages.msgid_bugs_address = "scottia4@msu.edu"
+extract_messages.mapping-file = "babel.ini"
+extract_messages.output-file = "invenio_modular_deposit_form/translations/messages.pot"
+extract_messages.add-comments = "NOTE"
+# input-file = "invenio_modular_deposit_form/translations/messages.pot"
+init_catalog.output-dir = "invenio_modular_deposit_form/translations/"
+update_catalog.input-file = "invenio_modular_deposit_form/translations/messages.pot"
+update_catalog.output-dir = "invenio_modular_deposit_form/translations/"
