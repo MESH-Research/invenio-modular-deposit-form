@@ -1,6 +1,5 @@
 import { AccessRightField } from "@js/invenio_rdm_records";
 import { AdditionalDatesAlternateComponent } from "./field_components/alternate/AdditionalDatesAlternateComponent";
-import { CommunitiesAlternateComponent } from "./field_components/alternate/CommunitiesAlternateComponent";
 import { PublicationDateAlternateComponent } from "./field_components/alternate/PublicationDateAlternateComponent";
 import { ResourceTypeSelectorComponent } from "./field_components/alternate/ResourceTypeSelectorComponent";
 import {
@@ -81,7 +80,6 @@ const componentsRegistry = {
   AlternateIdentifiersComponent: [AlternateIdentifiersComponent, ["metadata.identifiers"]],
   BookTitleComponent: [BookTitleComponent, ["custom_fields.imprint:imprint.title"]],
   CommunitiesComponent: [CommunitiesComponent, []],
-  CommunitiesAlternateComponent: [CommunitiesAlternateComponent, []],
   CodeDevelopmentStatusComponent: [
     CodeDevelopmentStatusComponent,
     ["custom_fields.code:developmentStatus"],
