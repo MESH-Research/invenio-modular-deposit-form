@@ -19,20 +19,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Must match package.json packageManager / engines.pnpm (engine-strict in .npmrc).
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.32.1
-
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
 
+      - name: Enable Corepack (pnpm from package.json packageManager)
+        run: corepack enable
+
       - name: Install JavaScript dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Lint JavaScript
+        run: pnpm run lint
 
       - name: Run JavaScript tests
         run: |

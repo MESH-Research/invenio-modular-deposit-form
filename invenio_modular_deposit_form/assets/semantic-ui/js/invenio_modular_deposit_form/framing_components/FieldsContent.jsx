@@ -45,7 +45,7 @@ const FieldsContent = ({ section, component, wrapped, index, ...props }) => {
 
   const MyField = sections[0];
 
-  return !!wrapped ? (
+  return wrapped ? (
     <FormSection
       sectionName={section}
       icon={props.icon}

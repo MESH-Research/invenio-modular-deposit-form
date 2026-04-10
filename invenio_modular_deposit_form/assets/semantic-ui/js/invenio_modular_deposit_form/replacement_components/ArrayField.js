@@ -37,11 +37,11 @@ export class ArrayField extends Component {
     };
   }
 
-  hasGroupErrors = (errors, touched, values, initialValues, initialErrors) => {
+  hasGroupErrors = (errors, formTouched, values, initialValues, initialErrors) => {
     const { fieldPath, error: errorProp } = this.props;
     const error = getIn(errors, fieldPath);
     const value = getIn(values, fieldPath);
-    const touched = getIn(touched, fieldPath);
+    const touched = getIn(formTouched, fieldPath);
     const initialValue = getIn(initialValues, fieldPath);
     const initialError = getIn(initialErrors, fieldPath);
     if ((error && touched) || !!errorProp || (value === initialValue && !!initialError)) {

@@ -63,7 +63,7 @@ const DatesFieldAlternate = ({
   };
 
   useEffect(() => {
-    if ( !!haveChangedNumber ) {
+    if ( haveChangedNumber ) {
       if ( datesLength < 0 ) {
         document.getElementById(`${fieldPath}.add-button`)?.focus();
       } else {

@@ -84,8 +84,7 @@ const SubmitButtonComponent = ({
   const firstButtonRefPublish = React.useRef(null);
   useEffect(() => {
     window.setTimeout(() => {
-      if (noFilesOpen) {
-      } else if (publishConfirmOpen && !showSubmitForReviewButton) {
+      if (!noFilesOpen && publishConfirmOpen && !showSubmitForReviewButton) {
         firstButtonRefPublish.current.focus();
       }
     }, 20);

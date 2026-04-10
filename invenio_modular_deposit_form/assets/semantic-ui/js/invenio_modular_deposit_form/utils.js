@@ -460,7 +460,7 @@ function isNearViewportBottom(el, offset = 0) {
   return (
     (bottom + offset) >= window.innerHeight
   );
-};
+}
 
 /**
  * Make sure first page element is focused when navigating
