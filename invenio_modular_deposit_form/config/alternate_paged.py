@@ -25,14 +25,20 @@ import copy
 
 from invenio_i18n import lazy_gettext as _
 
-from invenio_modular_deposit_form.config.default import _PAGED_FORM_TITLE
-
-_LANG_FIELD_PLACEHOLDER = _("e.g., English, French, Swahili")
-_LANG_FIELD_DESCRIPTION = _(
-    "Search for the language(s) of the resource (e.g.,"
-    ' "en", "fre", "Swahili"). Press enter to '
-    "select each language."
-)
+_PAGED_FORM_TITLE = {
+    "component": "FormTitle",
+    "classnames": "default-layout",
+    "subsections": [
+        {
+            "component": "FormTitle",
+            "mobile": 16,
+            "tablet": 16,
+            "computer": 16,
+            "largeScreen": 16,
+            "widescreen": 16,
+        },
+    ],
+}
 
 _PAGED_FORM_HEADER_STEPPER_MOBILE_TABLET = {
     "component": "FormHeader",
@@ -186,8 +192,12 @@ _DATASET_DETAILS_PAGE = {
                     "section": "language",
                     "label": None,
                     "component": "LanguagesComponent",
-                    "placeholder": _LANG_FIELD_PLACEHOLDER,
-                    "description": _LANG_FIELD_DESCRIPTION,
+                    "placeholder": _("e.g., English, French, Swahili"),
+                    "description": _(
+                        "Search for the language(s) of the resource (e.g.,"
+                        ' "en", "fre", "Swahili"). Press enter to '
+                        "select each language."
+                    ),
                     "wrapped": True,
                 },
             ],
