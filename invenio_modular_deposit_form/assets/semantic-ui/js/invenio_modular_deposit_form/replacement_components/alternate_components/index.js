@@ -1,4 +1,3 @@
-export * from "./CommunityField";
 export * from "./CreatibutorsFieldFlat";
 export * from "./DatesFieldAlternate";
 export * from "./FormFeedback";
