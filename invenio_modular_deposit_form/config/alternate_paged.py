@@ -138,6 +138,28 @@ _PAGED_FORM_FOOTER = {
     ],
 }
 
+_LANGUAGE_FIELD = {
+    "section": "language",
+    "label": _("Languages"),
+    "component": "LanguagesComponent",
+    "placeholder": _("e.g., English, French, Swahili"),
+    "description": _(
+        "Search for the language(s) of the resource (e.g.,"
+        ' "en", "fre", "Swahili"). Press enter to '
+        "select each language."
+    ),
+}
+
+_LANGUAGE_SECTION = {
+    "section": "language_section",
+    "component": "FormSection",
+    "label": _("Languages"),
+    "show_heading": True,
+    "subsections": [
+        _LANGUAGE_FIELD,
+    ],
+}
+
 # Page ``3`` layouts: details-step overrides, submodule registry components only.
 # Each constant is a full page dict; assign with ``copy.deepcopy`` so presets do not
 # alias module-level objects.
@@ -182,26 +204,7 @@ _DATASET_DETAILS_PAGE = {
                 }
             ],
         },
-        {
-            "section": "image_details",
-            "component": "FormSection",
-            "label": _("Languages"),
-            "show_heading": True,
-            "subsections": [
-                {
-                    "section": "language",
-                    "label": None,
-                    "component": "LanguagesComponent",
-                    "placeholder": _("e.g., English, French, Swahili"),
-                    "description": _(
-                        "Search for the language(s) of the resource (e.g.,"
-                        ' "en", "fre", "Swahili"). Press enter to '
-                        "select each language."
-                    ),
-                    "wrapped": True,
-                },
-            ],
-        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -242,14 +245,7 @@ _IMAGE_DETAILS_PAGE = {
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
-        {
-            "section": "language",
-            "label": "Languages",
-            "component": "LanguagesComponent",
-            "placeholder": _LANG_FIELD_PLACEHOLDER,
-            "description": _LANG_FIELD_DESCRIPTION,
-            "wrapped": True,
-        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -290,14 +286,7 @@ _VIDEO_DETAILS_PAGE = {
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
-        {
-            "section": "language",
-            "label": "Languages",
-            "component": "LanguagesComponent",
-            "placeholder": _LANG_FIELD_PLACEHOLDER,
-            "description": _LANG_FIELD_DESCRIPTION,
-            "wrapped": True,
-        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -339,14 +328,7 @@ _AUDIO_DETAILS_PAGE = {
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
-        {
-            "section": "language",
-            "label": _("Languages"),
-            "component": "LanguagesComponent",
-            "placeholder": _LANG_FIELD_PLACEHOLDER,
-            "description": _LANG_FIELD_DESCRIPTION,
-            "wrapped": True,
-        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -420,14 +402,7 @@ _SOFTWARE_DETAILS_PAGE = {
             "component": "AlternateIdentifiersComponent",
             "wrapped": True,
         },
-        {
-            "section": "language",
-            "label": _("Natural (Human) Languages"),
-            "component": "LanguagesComponent",
-            "placeholder": _LANG_FIELD_PLACEHOLDER,
-            "description": _LANG_FIELD_DESCRIPTION,
-            "wrapped": True,
-        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -881,14 +856,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "label": _("Details"),
             "component": "FormPage",
             "subsections": [
-                {
-                    "section": "language",
-                    "label": _("Languages"),
-                    "component": "LanguagesComponent",
-                    "placeholder": _LANG_FIELD_PLACEHOLDER,
-                    "description": _LANG_FIELD_DESCRIPTION,
-                    "wrapped": True,
-                },
+                _LANGUAGE_SECTION,
                 {
                     "section": "publisher",
                     "label": _("Publisher"),
