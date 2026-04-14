@@ -42,7 +42,7 @@ const FormSidebarPageMenu = ({ classnames, label, showBadgeLabels, ...props }) =
           role="navigation"
           aria-label={effectiveLabel}
         >
-          {formPages.map(({ section, label }) => {
+          {formPages.map(({ section, label, menuItemClasses }) => {
             const counts = pageCounts[section];
             const severityClass = counts?.severity ? `has-${counts.severity}` : "";
             const hasBadges =
@@ -55,7 +55,7 @@ const FormSidebarPageMenu = ({ classnames, label, showBadgeLabels, ...props }) =
                 formNoValidate
                 name={section}
                 active={currentFormPage === section}
-                className={[severityClass, "fluid"].filter(Boolean).join(" ")}
+                className={[menuItemClasses, severityClass, "fluid"].filter(Boolean).join(" ")}
                 aria-current={currentFormPage === section ? "page" : undefined}
                 onClick={(e) => handleFormPageChange(e, { value: section })}
               >

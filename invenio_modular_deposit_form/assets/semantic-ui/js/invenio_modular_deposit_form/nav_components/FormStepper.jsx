@@ -27,8 +27,8 @@ const FormStepper = ({ classnames, ...props }) => {
   if (!formPages?.length) return null;
   return (
     <Grid.Column className={classnames ?? ""} {...props}>
-      <Step.Group widths={formPages.length} className="upload-form-pager" fluid={true} size="small">
-        {formPages.map(({ section, label }) => {
+      <Step.Group className="upload-form-pager" fluid={true} size="small">
+        {formPages.map(({ section, label, menuItemClasses }) => {
           const counts = pageCounts[section];
           const severityClass = counts?.severity ? `has-${counts.severity}` : "";
           return (
@@ -40,7 +40,7 @@ const FormStepper = ({ classnames, ...props }) => {
               onClick={handleFormPageChange}
               value={section}
               formNoValidate
-              className={`ui button upload-form-stepper-step ${section} ${severityClass}`}
+              className={["ui button upload-form-stepper-step", section, severityClass, menuItemClasses].filter(Boolean).join(" ")}
               type="button"
             >
               <Step.Content>
