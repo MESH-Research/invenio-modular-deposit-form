@@ -9,10 +9,8 @@ import {
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,
-  ContributorsComponentFlat,
   CopyrightsComponent,
   CreatorsComponent,
-  CreatorsComponentFlat,
   DeleteComponent,
   DoiComponent,
   FileUploadComponent,
@@ -29,8 +27,10 @@ import {
   TitlesComponent,
   VersionComponent,
 } from "./field_components/field_components";
+import { ContributorsComponentFlat } from "./field_components/alternate/ContributorsComponentFlat";
+import { CreatorsComponentFlat } from "./field_components/alternate/CreatorsComponentFlat";
 import { HorizontalSubmissionComponent } from "./field_components/alternate/HorizontalSubmissionComponent";
-import { SizesComponent } from "./field_components/contrib";
+import { SizesComponent } from "./field_components/alternate/SizesComponent";
 import {
   BookTitleComponent,
   CodeDevelopmentStatusComponent,

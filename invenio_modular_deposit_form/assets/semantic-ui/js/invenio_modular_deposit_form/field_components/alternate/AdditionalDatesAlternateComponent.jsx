@@ -5,7 +5,7 @@
 
 import React from "react";
 import { useStore } from "react-redux";
-import { DatesFieldAlternate } from "../../replacement_components/alternate_components/DatesFieldAlternate";
+import { DatesFieldAlternate } from "./field_inputs/DatesFieldAlternate";
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
 
 /**

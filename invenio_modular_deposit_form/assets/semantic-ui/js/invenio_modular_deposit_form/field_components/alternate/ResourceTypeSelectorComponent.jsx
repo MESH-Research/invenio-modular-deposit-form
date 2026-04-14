@@ -6,7 +6,7 @@
 
 import React, { useMemo } from "react";
 import { useStore } from "react-redux";
-import ResourceTypeSelectorField from "../../replacement_components/alternate_components/ResourceTypeSelectorField";
+import ResourceTypeSelectorField from "./field_inputs/ResourceTypeSelectorField";
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
 
 /** Five shortcut buttons plus “Other…”. */

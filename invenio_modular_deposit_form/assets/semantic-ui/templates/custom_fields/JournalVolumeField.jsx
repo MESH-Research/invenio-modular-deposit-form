@@ -7,7 +7,7 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import { TextField } from "@js/invenio_modular_deposit_form/replacement_components/TextField";
+import { TextField } from "@js/invenio_modular_deposit_form/replacement_components/input_controls/TextField";
 
 const JournalVolumeField = ({
   fieldPath, // injected by the custom field loader via the `field` config property

@@ -5,7 +5,7 @@
 // (`replacement_components/alternate_components/PublicationDateFieldAlternate`).
 
 import React from "react";
-import { PublicationDateFieldAlternate } from "../../replacement_components/alternate_components/PublicationDateFieldAlternate";
+import { PublicationDateFieldAlternate } from "./field_inputs/PublicationDateFieldAlternate";
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
 
 /**

@@ -29,7 +29,7 @@ import {
 import { useFormUIState } from "../FormUIStateManager.jsx";
 import { SyncFilesCountFromRedux } from "../helpers/SyncFilesCountFromRedux";
 import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
-import { FormFeedback as ModularFormFeedback } from "../replacement_components/alternate_components/FormFeedback";
+import { FormFeedback as ModularFormFeedback } from "./alternate/field_inputs/FormFeedback";
 import {
   CopyrightsField,
   CreatibutorsField,
@@ -44,7 +44,7 @@ import {
   TitlesField,
   VersionField,
 } from "../replacement_components/field_components";
-import { CreatibutorsFieldFlat } from "../replacement_components/alternate_components";
+import { CreatibutorsFieldFlat } from "./alternate/field_inputs";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Card, Form, Grid } from "semantic-ui-react";
@@ -237,67 +237,6 @@ const CreatorsComponent = ({ ...extraProps }) => {
         autocompleteNames={config.autocomplete_names}
         required
         config={config}
-        addButtonLabel={i18next.t("Add creator")}
-        modal={{
-          addLabel: i18next.t("Add creator"),
-          editLabel: i18next.t("Edit creator"),
-        }}
-      />
-    </FieldComponentWrapper>
-  );
-};
-
-/**
- * Contributors using flat inline editing (metadata.contributors). Uses CreatibutorsFieldFlat.
- * @overridable InvenioAppRdm.Deposit.ContributorsField.container (via FieldComponentWrapper)
- */
-const ContributorsComponentFlat = ({ ...extraProps }) => {
-  const config = useStore().getState().deposit.config;
-  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
-
-  return (
-    <FieldComponentWrapper
-      componentName="ContributorsField"
-      fieldPath="metadata.contributors"
-      label={i18next.t("Contributors")}
-      labelIcon="user plus"
-      {...extraProps}
-    >
-      <CreatibutorsFieldFlat
-        addButtonLabel={i18next.t("Add contributor")}
-        roleOptions={vocabularies.metadata.contributors?.role}
-        schema="contributors"
-        autocompleteNames={config.autocomplete_names}
-        modal={{
-          addLabel: i18next.t("Add contributor"),
-          editLabel: i18next.t("Edit contributor"),
-        }}
-      />
-    </FieldComponentWrapper>
-  );
-};
-
-/**
- * Creators using flat inline editing (metadata.creators). Uses CreatibutorsFieldFlat.
- * @overridable InvenioAppRdm.Deposit.CreatorsField.container (via FieldComponentWrapper)
- */
-const CreatorsComponentFlat = ({ ...extraProps }) => {
-  const config = useStore().getState().deposit.config;
-  const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
-
-  return (
-    <FieldComponentWrapper
-      componentName="CreatorsField"
-      fieldPath="metadata.creators"
-      label={i18next.t("Creators")}
-      labelIcon="user"
-      {...extraProps}
-    >
-      <CreatibutorsFieldFlat
-        roleOptions={vocabularies.metadata.creators?.role}
-        schema="creators"
-        autocompleteNames={config.autocomplete_names}
-        required
         addButtonLabel={i18next.t("Add creator")}
         modal={{
           addLabel: i18next.t("Add creator"),
@@ -908,10 +847,8 @@ export {
   AlternateIdentifiersComponent,
   CommunitiesComponent,
   ContributorsComponent,
-  ContributorsComponentFlat,
   CopyrightsComponent,
   CreatorsComponent,
-  CreatorsComponentFlat,
   PublicationDateComponent,
   DeleteComponent,
   DoiComponent,
@@ -924,6 +861,7 @@ export {
   ReferencesComponent,
   RelatedWorksComponent,
   ResourceTypeComponent,
+  ShareDraftButtonComponent,
   SubjectsComponent,
   SubmissionComponent,
   TitlesComponent,

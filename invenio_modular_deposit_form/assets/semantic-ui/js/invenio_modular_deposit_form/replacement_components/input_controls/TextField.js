@@ -5,7 +5,7 @@ import { FastField, Field } from "formik";
 import { Form } from "semantic-ui-react";
 import { FieldLabel } from "./FieldLabel";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { getTouchedParent } from "../utils";
+import { getTouchedParent } from "../../utils";
 
 const TextField = ({
   classnames,

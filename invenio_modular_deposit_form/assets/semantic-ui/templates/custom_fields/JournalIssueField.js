@@ -9,7 +9,7 @@ import React, { Component } from "react";
 
 import { FieldLabel, Input } from "react-invenio-forms";
 
-import { TextField } from "@js/invenio_modular_deposit_form/replacement_components/TextField";
+import { TextField } from "@js/invenio_modular_deposit_form/replacement_components/input_controls/TextField";
 
 import PropTypes from "prop-types";
 

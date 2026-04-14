@@ -2,7 +2,7 @@ import React from "react";
 import { Field, FastField, getIn } from "formik";
 import { Form } from "semantic-ui-react";
 import { ErrorLabel, FieldLabel } from "react-invenio-forms";
-import { getTouchedParent } from "../utils";
+import { getTouchedParent } from "../../utils";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
 const TextArea = ({
