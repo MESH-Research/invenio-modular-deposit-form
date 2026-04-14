@@ -20,6 +20,7 @@ import { useStore } from "react-redux";
 import { findPageIdContainingComponent, focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
 import { formUIStateReducer, getInitialFormUIState } from "./helpers/formUIStateReducer";
+import { useFormSubmissionTransformer } from "../../helpers/FormSubmissionTransformer";
 import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFields";
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
 import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";
@@ -67,11 +68,7 @@ const FormUIStateManager = ({ children }) => {
   // Initial UI state: first page id + empty type/layout (useCurrentResourceTypeFields fills type
   // and layout after mount). Lazy init runs once on mount — avoids calling getInitialFormUIState
   // on every re-render (React ignores the second arg after mount, but the expression would still run).
-  const [state, dispatch] = useReducer(
-    formUIStateReducer,
-    formPagesCommon,
-    getInitialFormUIState
-  );
+  const [state, dispatch] = useReducer(formUIStateReducer, formPagesCommon, getInitialFormUIState);
 
   // Keep client and server errors in sync and track which errors to display
   useEffect(() => {
@@ -91,6 +88,9 @@ const FormUIStateManager = ({ children }) => {
     state.currentFormPage,
     fileUploadPageId
   );
+
+  // Perform any desired record data transformations before submission
+  useFormSubmissionTransformer();
 
   // Set up form page navigation and url parameter handling
   const navigation = useFormPageNavigation(

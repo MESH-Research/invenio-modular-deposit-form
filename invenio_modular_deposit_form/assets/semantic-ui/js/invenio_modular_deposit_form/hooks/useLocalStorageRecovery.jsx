@@ -17,11 +17,14 @@ import { areDeeplyEqual, focusFirstElement } from "../utils";
  * @returns {Object} recoveryAsked, confirmModalRef, recoveredStorageValues, storageDataPresent
  */
 function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUploadPageId) {
+  const user = currentUserprofile.id;
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const confirmModalRef = useRef();
   const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
   const [storageDataPresent, setStorageDataPresent] = useState(false);
-  const { values, initialValues, setValues, setInitialValues, resetForm } = useFormikContext();
+  const { values, initialValues, isSubmitting, setValues, setInitialValues, resetForm } =
+    useFormikContext();
+  const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
 
   // handler for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
@@ -30,7 +33,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     focusFirstElement(currentFormPage, true, fileUploadPageId);
   }, [currentFormPage, fileUploadPageId]);
 
-  //keep changed form values in local storage
+  // keep changed form values in local storage
   useEffect(() => {
     if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
       window.localStorage.setItem(
@@ -41,10 +44,8 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     }
   }, [values]);
 
-  //recover form values from local storage
+  // recover form values from local storage
   useEffect(() => {
-    const user = currentUserprofile.id;
-    const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
     const storageValues = window.localStorage.getItem(storageValuesKey);
     const storageValuesObj = JSON.parse(storageValues);
     console.log("Checking if storageValuesObj is equal to values");
@@ -68,6 +69,13 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
       setRecoveryAsked(true);
     }
   }, []);
+
+  // clear local storage when form submits
+  useEffect(() => {
+    if (isSubmitting && storageDataPresent) {
+      window.localStorage.removeItem(storageValuesKey);
+    }
+  }, [isSubmitting]);
 
   const handleStorageData = useCallback(
     (recover) => {

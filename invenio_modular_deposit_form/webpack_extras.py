@@ -20,6 +20,7 @@ from flask import current_app
 
 _GROUP_VALIDATOR = "invenio_modular_deposit_form.validator"
 _GROUP_COMPONENTS_REGISTRY = "invenio_modular_deposit_form.components_registry"
+_GROUP_TRANSFORMATIONS = "invenio_modular_deposit_form.transformations"
 _STUBS_PATH = "./js/invenio_modular_deposit_form/stubs"
 
 
@@ -82,4 +83,17 @@ def get_components_registry_path():
     return (
         _resolve_path(_GROUP_COMPONENTS_REGISTRY)
         or _STUBS_PATH + "/componentsRegistry.js"
+    )
+
+
+def get_transformations_path() -> str:
+    """Return the path for transformations.js.
+
+    Resolves the first entry point in ``invenio_modular_deposit_form.transformations``.
+    The callable must return the absolute path to a transformations.js file that
+    exports ``{ transformations: [fn, ...] }``.
+    """
+    return (
+        _resolve_path(_GROUP_TRANSFORMATIONS)
+        or _STUBS_PATH + "/transformations.js"
     )

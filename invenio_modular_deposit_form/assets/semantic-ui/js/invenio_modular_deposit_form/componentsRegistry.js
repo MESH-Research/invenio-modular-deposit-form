@@ -18,7 +18,6 @@ import {
   FileUploadComponent,
   FormFeedbackComponent,
   FundingComponent,
-  HorizontalSubmissionComponent,
   LanguagesComponent,
   LicensesComponent,
   PublisherComponent,
@@ -30,6 +29,7 @@ import {
   TitlesComponent,
   VersionComponent,
 } from "./field_components/field_components";
+import { HorizontalSubmissionComponent } from "./field_components/alternate/HorizontalSubmissionComponent";
 import { SizesComponent } from "./field_components/contrib";
 import {
   BookTitleComponent,

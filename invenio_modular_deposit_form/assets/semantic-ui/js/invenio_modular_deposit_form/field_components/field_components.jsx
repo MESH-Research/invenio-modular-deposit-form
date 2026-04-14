@@ -1,12 +1,6 @@
 // Part of the Knowledge Commons Repository
 // Copyright (C) 2023 MESH Research
 //
-// based on portions of InvenioRDM
-// Copyright (C) 2020-2022 CERN.
-// Copyright (C) 2020-2022 Northwestern University.
-// Copyright (C) 2021-2022 Graz University of Technology.
-// Copyright (C) 2022-2023 KTH Royal Institute of Technology.
-//
 // The Knowledge Commons Repository and Invenio App RDM are both free software;
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
@@ -55,9 +49,8 @@ import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Card, Form, Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { getTouchedParent, moveToArrayStart } from "../utils";
+import { getTouchedParent } from "../utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
-import { RECORD_FIELD_ERROR_ROOTS } from "../constants";
 
 /**
  * Main description/abstract field (metadata.description). Replacement DescriptionsField (field_components).
@@ -803,110 +796,6 @@ const FormFeedbackComponent = (props) => {
   );
 };
 
-// OVERRIDDEN
-/**
- * HorizontalSubmissionComponent displays the submission buttons and form feedback
- * in a horizontal two-column layout (buttons + helptext).
- *
- * Note: the `clientErrors` variable is an alias for the Formik client-side
- * error state. The `errors` variable comes from the Redux store and represents
- * the error state after the last form submission OR on first page render.
- *
- * Uses stock SaveButton, PreviewButton, PublishButton, FormFeedback, DeleteButton
- * from @js/invenio_rdm_records.
- * @overridable InvenioAppRdm.Deposit.CardDepositStatusBox.container (outer); InvenioAppRdm.Deposit.FormFeedback.container (form feedback block).
- * Override (field_components/overridable/SubmissionComponent.jsx) uses SubmitButtonModal (save/preview/publish) with
- * missing-files confirmation and "no files" flow; stock uses separate buttons and
- * PublishButton disables when files enabled but none uploaded (no confirm modal for that).
- */
-const HorizontalSubmissionComponent = () => {
-  const { errors: clientErrors } = useFormikContext();
-  const store = useStore();
-
-  const { actionState, config, errors, record, permissions } = store.getState().deposit;
-
-  // errors not related to validation, following a different format {status:.., message:..}
-  let nonValidationErrors;
-  if (!_isEmpty(errors)) {
-    nonValidationErrors = Object.fromEntries(
-      Object.entries(errors).filter(([key]) => !RECORD_FIELD_ERROR_ROOTS.includes(key))
-    );
-  }
-
-  const getAlertClass = () => {
-    let alertClass = "";
-    if (actionState?.includes("SUCCEEDED")) {
-      alertClass = "positive";
-    } else if (actionState?.includes("FAILED") || !_isEmpty(nonValidationErrors)) {
-      alertClass = "negative";
-    } else if (actionState?.includes("ERROR") && !_isEmpty(clientErrors)) {
-      alertClass = "warning";
-    } else if (!_isEmpty(clientErrors)) {
-      alertClass = "negative";
-    }
-    return alertClass;
-  };
-
-  return (
-    <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
-      <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
-        <Grid.Row>
-          <Grid.Column computer="8" tablet="6">
-            {(actionState || !_isEmpty(clientErrors) || !_isEmpty(nonValidationErrors)) && (
-              <Overridable
-                id="InvenioAppRdm.Deposit.FormFeedback.container"
-                labels={config.custom_fields.error_labels}
-                fieldPath="message"
-              >
-                <FormFeedback
-                  fieldPath="message"
-                  labels={config.custom_fields.error_labels}
-                  clientErrors={clientErrors}
-                  nonValidationErrors={nonValidationErrors}
-                />
-              </Overridable>
-            )}
-
-            <SaveButton fluid aria-describedby="save-button-description" />
-            <PreviewButton fluid aria-describedby="preview-button-description" />
-            <PublishButton
-              fluid
-              aria-describedby="publish-button-description"
-              id="deposit-form-publish-button"
-            />
-            {(record?.is_draft === null || permissions?.can_manage) && (
-              <ShareDraftButtonComponent />
-            )}
-            <DeleteComponent
-              permissions={permissions}
-              record={record}
-              aria-describedby="delete-button-description"
-              icon="trash alternate outline"
-            />
-            {/* RecordDeletionComponent (v14): import from v14_components.jsx, register in instance, add to layout */}
-          </Grid.Column>
-          <Grid.Column tablet="10" computer="8" id="save-button-description" className="helptext">
-            <p>
-              <b>Draft deposits</b> can be edited
-              {permissions?.can_delete_draft && ", deleted,"} and the files can be added or changed.
-            </p>
-            <p>
-              <b>Published deposits</b> can still be edited, but you will no longer be able to{" "}
-              {permissions?.can_delete_draft && "delete the deposit or "}change the attached files.
-              To add or change files for a published deposit you must create a new version of the
-              record.
-            </p>
-            <p>
-              Deposits can only be <b>deleted while they are drafts</b>. Once you publish your
-              deposit, you can only restrict access and/or create a new version.
-            </p>
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
-    </Overridable>
-  );
-};
-
 /**
  * SubmissionComponent matches the stock invenio-app-rdm deposit sidebar layout:
  * Card with DepositStatusBox, then Card.Content with Save | Preview, Publish, Share,
@@ -1029,7 +918,6 @@ export {
   FileUploadComponent,
   FormFeedbackComponent,
   FundingComponent,
-  HorizontalSubmissionComponent,
   LanguagesComponent,
   LicensesComponent,
   PublisherComponent,
