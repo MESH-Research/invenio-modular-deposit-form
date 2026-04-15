@@ -12,7 +12,7 @@ import { connect } from "react-redux";
 import {
   DepositFormSubmitActions,
   DepositFormSubmitContext,
-} from "./DepositFormSubmitContext";
+} from "@js/invenio_rdm_records/src/deposit/api/DepositFormSubmitContext";
 import {
   delete_,
   discardPID,
@@ -21,8 +21,8 @@ import {
   reservePID,
   save,
   submitReview as submitReviewAction,
-} from "../state/actions";
-import { scrollTop } from "../utils";
+} from "@js/invenio_rdm_records/src/deposit/state/actions";
+import { scrollTop } from "@js/invenio_rdm_records/src/deposit/utils";
 
 class DepositBootstrapComponent extends Component {
   componentDidMount() {

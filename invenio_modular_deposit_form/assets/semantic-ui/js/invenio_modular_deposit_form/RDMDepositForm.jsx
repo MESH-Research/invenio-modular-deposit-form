@@ -12,7 +12,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import React, { useMemo } from "react";
-import { DepositFormApp } from "@js/invenio_rdm_records";
+import { DepositFormApp } from "./replacement_components/patched_rdm/deposit/DepositFormApp";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { componentsRegistry } from "./componentsRegistry";
