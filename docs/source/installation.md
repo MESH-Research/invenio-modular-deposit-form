@@ -26,6 +26,3 @@ Client-side validation is opt-in. Set the following in your `invenio.cfg`:
 MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True
 ```
 
-Then rebuild your front-end assets. The package includes replacement versions
-of `DepositFormApp` and `DepositBootstrap` that accept the `validationSchema`
-prop; no patching of `invenio-rdm-records` is required.

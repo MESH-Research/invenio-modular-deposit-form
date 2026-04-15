@@ -23,7 +23,7 @@ Stock InvenioRDM remains responsible for:
 - **Redux store** — holding static configuration accessible to all components
 
 The package adds a layer on top of that foundation that handles everything
-related to *how* the form is displayed and navigated.
+related to _how_ the form is displayed and navigated.
 
 ```{figure} _static/modular-deposit-form-1.jpg
 :alt: The custom template merges layout config into the stock form config and passes it to the React app
@@ -236,10 +236,8 @@ validation state as the form is filled in.
 Client-side validation is opt-in:
 
 1. Set `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True` in `invenio.cfg`
-2. Run the included patch script against your installed `invenio-rdm-records`
-   package (the patch enables the `validationSchema` prop in the stock form
-   bootstrap components)
-3. Rebuild front-end assets
+   (set `False` to rely on server-side validation only until submit).
+2. Rebuild front-end assets so the change is picked up.
 
 ### The default schema
 
@@ -351,7 +349,10 @@ webpack request string) to your `transformations.js` module:
 export const transformations = [
   (values) => ({
     ...values,
-    metadata: { ...values.metadata, publisher: values.metadata.publisher || "My Repository" },
+    metadata: {
+      ...values.metadata,
+      publisher: values.metadata.publisher || "My Repository",
+    },
   }),
   (values) => stripEmptyArrays(values),
 ];
