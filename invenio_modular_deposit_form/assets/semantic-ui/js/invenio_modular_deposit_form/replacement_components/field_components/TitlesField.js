@@ -13,7 +13,7 @@ import PropTypes from "prop-types";
 
 import { AdditionalTitlesField } from "./AdditionalTitlesField";
 import { FieldLabel } from "react-invenio-forms";
-import { TextField } from "../TextField";
+import { TextField } from "../../replacement_components/input_controls/TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class TitlesField extends Component {

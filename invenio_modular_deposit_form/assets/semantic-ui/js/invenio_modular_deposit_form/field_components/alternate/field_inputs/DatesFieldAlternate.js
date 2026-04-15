@@ -8,8 +8,8 @@
 
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { TextField } from "../TextField";
-import { SelectField } from "../SelectField";
+import { TextField } from "../../../replacement_components/input_controls/TextField";
+import { SelectField } from "../../../replacement_components/input_controls/SelectField";
 import { Button, Form, Icon } from "semantic-ui-react";
 import _isEmpty from "lodash/isEmpty";
 import _matches from "lodash/matches";
@@ -26,7 +26,6 @@ export const emptyDate = {
   type: "",
 };
 
-
 /** Alternate Dates field component (replacement for stock DatesField) */
 /**
  * Returns the required option if the current value passed does match it
@@ -35,18 +34,18 @@ export const emptyDate = {
  * @return {Object} The required option if any
  */
 const DatesFieldAlternate = ({
-  addButtonLabel=i18next.t("Add another date"),
-  classnames=undefined,
+  addButtonLabel = i18next.t("Add another date"),
+  classnames = undefined,
   fieldPath,
-  label=i18next.t("Dates"),
-  icon="calendar",
+  label = i18next.t("Dates"),
+  icon = "calendar",
   options,
-  placeholderDate=i18next.t("YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"),
-  required=false,
-  requiredOptions=[],
-  showEmptyValue=false,
+  placeholderDate = i18next.t("YYYY-MM-DD or YYYY-MM-DD/YYYY-MM-DD"),
+  required = false,
+  requiredOptions = [],
+  showEmptyValue = false,
   ...uiProps
-} ) => {
+}) => {
   const { values } = useFormikContext();
   const [datesLength, setDatesLength] = useState(-1);
   const [haveChangedNumber, setHaveChangedNumber] = useState(false);
@@ -63,8 +62,8 @@ const DatesFieldAlternate = ({
   };
 
   useEffect(() => {
-    if ( haveChangedNumber ) {
-      if ( datesLength < 0 ) {
+    if (haveChangedNumber) {
+      if (datesLength < 0) {
         document.getElementById(`${fieldPath}.add-button`)?.focus();
       } else {
         document.getElementById(`${fieldPath}.${datesLength}.date`)?.focus();
@@ -76,13 +75,13 @@ const DatesFieldAlternate = ({
     setHaveChangedNumber(true);
     arrayHelpers.push(newItem);
     setDatesLength(datesLength + 1);
-  }
+  };
 
   const handleRemove = (arrayHelpers, index) => {
     setHaveChangedNumber(true);
     arrayHelpers.remove(index);
     setDatesLength(datesLength - 1);
-  }
+  };
 
   return (
     <FieldArray
@@ -95,73 +94,74 @@ const DatesFieldAlternate = ({
       required={required}
       requiredOptions={requiredOptions}
       showEmptyValue={showEmptyValue}
-      {...( !!classnames && {className: classnames})}
-      render={arrayHelpers => (
-      <>
-        { values.metadata.dates.map((value, index) => {
-        const fieldPathPrefix = `${fieldPath}.${index}`;
-        const requiredOption = getRequiredOption(value, values.metadata.dates);
-        const hasRequiredDateValue = _has(requiredOption, "date");
-        const hasRequiredTypeValue = _has(requiredOption, "type");
-        const hasRequiredDescriptionValue = _has(requiredOption, "description");
-        return (
-          <Form.Group key={index} optimized>
-            <TextField
-              fieldPath={`${fieldPathPrefix}.date`}
-              id={`${fieldPathPrefix}.date`}
-              label={i18next.t("Date")}
-              placeholder={placeholderDate}
-              disabled={hasRequiredDateValue}
-              required
-              width={5}
-            />
-            <SelectField
-              fieldPath={`${fieldPathPrefix}.type`}
-              id={`${fieldPathPrefix}.type`}
-              label={i18next.t("Type")}
-              options={sortOptions(options.type)}
-              disabled={hasRequiredTypeValue}
-              required
-              width={5}
-              optimized
-            />
-            <TextField
-              fieldPath={`${fieldPathPrefix}.description`}
-              id={`${fieldPathPrefix}.description`}
-              label={i18next.t("Description")}
-              disabled={hasRequiredDescriptionValue}
-              width={5}
-            />
-            <Form.Field>
-              <Button
-                aria-label={i18next.t("Remove item")}
-                className="close-btn no-label"
-                disabled={!_isEmpty(requiredOption)}
-                icon
-                onClick={() => handleRemove(arrayHelpers, index)}
-                type="button"
-              >
-                <Icon name="close" />
-              </Button>
-            </Form.Field>
-          </Form.Group>
-          )})}
-            <Button
-                type="button"
-                onClick={() => handleAddNew(arrayHelpers, emptyDate)}
-                icon
-                className="align-self-end add-btn"
-                labelPosition="left"
-                id={`${fieldPath}.add-button`}
-            >
-                <Icon name="add" />
-                {addButtonLabel}
-            </Button>
+      {...(!!classnames && { className: classnames })}
+      render={(arrayHelpers) => (
+        <>
+          {values.metadata.dates.map((value, index) => {
+            const fieldPathPrefix = `${fieldPath}.${index}`;
+            const requiredOption = getRequiredOption(value, values.metadata.dates);
+            const hasRequiredDateValue = _has(requiredOption, "date");
+            const hasRequiredTypeValue = _has(requiredOption, "type");
+            const hasRequiredDescriptionValue = _has(requiredOption, "description");
+            return (
+              <Form.Group key={index} optimized>
+                <TextField
+                  fieldPath={`${fieldPathPrefix}.date`}
+                  id={`${fieldPathPrefix}.date`}
+                  label={i18next.t("Date")}
+                  placeholder={placeholderDate}
+                  disabled={hasRequiredDateValue}
+                  required
+                  width={5}
+                />
+                <SelectField
+                  fieldPath={`${fieldPathPrefix}.type`}
+                  id={`${fieldPathPrefix}.type`}
+                  label={i18next.t("Type")}
+                  options={sortOptions(options.type)}
+                  disabled={hasRequiredTypeValue}
+                  required
+                  width={5}
+                  optimized
+                />
+                <TextField
+                  fieldPath={`${fieldPathPrefix}.description`}
+                  id={`${fieldPathPrefix}.description`}
+                  label={i18next.t("Description")}
+                  disabled={hasRequiredDescriptionValue}
+                  width={5}
+                />
+                <Form.Field>
+                  <Button
+                    aria-label={i18next.t("Remove item")}
+                    className="close-btn no-label"
+                    disabled={!_isEmpty(requiredOption)}
+                    icon
+                    onClick={() => handleRemove(arrayHelpers, index)}
+                    type="button"
+                  >
+                    <Icon name="close" />
+                  </Button>
+                </Form.Field>
+              </Form.Group>
+            );
+          })}
+          <Button
+            type="button"
+            onClick={() => handleAddNew(arrayHelpers, emptyDate)}
+            icon
+            className="align-self-end add-btn"
+            labelPosition="left"
+            id={`${fieldPath}.add-button`}
+          >
+            <Icon name="add" />
+            {addButtonLabel}
+          </Button>
         </>
       )}
     />
-  )
-}
+  );
+};
 
 DatesFieldAlternate.propTypes = {
   classnames: PropTypes.string,

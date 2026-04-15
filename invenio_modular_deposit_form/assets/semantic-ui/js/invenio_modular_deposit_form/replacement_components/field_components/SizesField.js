@@ -10,7 +10,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import MultiInput from "../MultiInput";
+import MultiInput from "../../replacement_components/input_controls/MultiInput";
 
 const SizesField = ({
   classnames = undefined,

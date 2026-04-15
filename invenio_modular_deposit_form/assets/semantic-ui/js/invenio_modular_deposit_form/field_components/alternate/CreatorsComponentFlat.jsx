@@ -7,7 +7,7 @@
 import React from "react";
 import { useStore } from "react-redux";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import FieldComponentWrapper from "../FieldComponentWrapper";
+import { FieldComponentWrapper } from "../FieldComponentWrapper";
 import { CreatibutorsFieldFlat } from "./field_inputs/CreatibutorsFieldFlat";
 
 /**

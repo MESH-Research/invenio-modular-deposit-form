@@ -11,8 +11,8 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "
 import PropTypes from "prop-types";
 import { Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { SelectField } from "../SelectField";
-import { FieldLabel } from "../FieldLabel";
+import { SelectField } from "../../../replacement_components/input_controls/SelectField";
+import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel";
 import { Field, getIn, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
 

@@ -17,20 +17,13 @@ import { Button, Form, Icon } from "semantic-ui-react";
 import { emptyRelatedWork } from "@js/invenio_rdm_records/src/deposit/fields/RelatedWorksField/initialValues";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
-import { SelectField } from "../SelectField";
-import { TextField } from "../TextField";
+import { SelectField } from "../../replacement_components/input_controls/SelectField";
+import { TextField } from "../../replacement_components/input_controls/TextField";
 import { ResourceTypeField } from "./ResourceTypeField";
 
 export class RelatedWorksField extends Component {
   render() {
-    const {
-      fieldPath,
-      label,
-      labelIcon,
-      required,
-      options,
-      showEmptyValue,
-    } = this.props;
+    const { fieldPath, label, labelIcon, required, options, showEmptyValue } = this.props;
 
     return (
       <>
@@ -43,11 +36,7 @@ export class RelatedWorksField extends Component {
           addButtonLabel={i18next.t("Add related work")}
           defaultNewValue={emptyRelatedWork}
           fieldPath={fieldPath}
-          label={
-            label ? (
-              <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-            ) : null
-          }
+          label={label ? <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} /> : null}
           required={required}
           showEmptyValue={showEmptyValue}
         >

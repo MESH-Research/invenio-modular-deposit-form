@@ -4,5 +4,3 @@ export * from "./FormFeedback";
 export * from "./PublicationDateFieldAlternate";
 export * from "./ResourceTypeSelectorField";
 export * from "./SizesField";
-export * from "./SubmitButton";
-export * from "./SubmitReviewModal";

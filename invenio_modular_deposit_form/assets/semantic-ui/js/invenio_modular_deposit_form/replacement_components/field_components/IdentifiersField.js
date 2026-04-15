@@ -20,33 +20,20 @@ import { Button, Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { emptyIdentifier } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/initialValues";
 
-import { SelectField } from "../SelectField";
-import { TextField } from "../TextField";
+import { SelectField } from "../../replacement_components/input_controls/SelectField";
+import { TextField } from "../../replacement_components/input_controls/TextField";
 
 /** Identifiers array component (modular fork; see file header). */
 export class IdentifiersField extends Component {
   render() {
-    const {
-      fieldPath,
-      label,
-      labelIcon,
-      required,
-      schemeOptions,
-      showEmptyValue,
-    } = this.props;
+    const { fieldPath, label, labelIcon, required, schemeOptions, showEmptyValue } = this.props;
 
     return (
       <ArrayField
         addButtonLabel={i18next.t("Add identifier")}
         defaultNewValue={emptyIdentifier}
         fieldPath={fieldPath}
-        label={
-          <FieldLabel
-            htmlFor={fieldPath}
-            icon={labelIcon}
-            label={label}
-          />
-        }
+        label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
         required={required}
         showEmptyValue={showEmptyValue}
       >

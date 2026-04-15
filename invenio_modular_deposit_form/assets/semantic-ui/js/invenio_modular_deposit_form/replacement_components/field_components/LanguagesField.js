@@ -11,7 +11,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FieldLabel } from "react-invenio-forms";
-import { RemoteSelectField } from "../RemoteSelectField";
+import { RemoteSelectField } from "../../replacement_components/input_controls/RemoteSelectField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class LanguagesField extends Component {
@@ -74,9 +74,7 @@ LanguagesField.defaultProps = {
   labelIcon: "globe",
   multiple: true,
   clearable: true,
-  placeholder: i18next.t(
-    'Search for a language by name (e.g "eng", "fr" or "Polish")'
-  ),
+  placeholder: i18next.t('Search for a language by name (e.g "eng", "fr" or "Polish")'),
   required: false,
   initialOptions: undefined,
   serializeSuggestions: undefined,

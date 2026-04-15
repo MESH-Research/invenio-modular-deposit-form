@@ -14,9 +14,9 @@ import _isEmpty from "lodash/isEmpty";
 import PropTypes from "prop-types";
 import React, { useMemo } from "react";
 import { Button, Label, List } from "semantic-ui-react";
-import { useFormUIState } from "../../../FormUIStateManager.jsx";
-import { getSeverityBadgeType, getSeverityLabel } from "../../../helpers/severityChecksConfig";
-import { getFormSectionElementId } from "../../../utils";
+import { useFormUIState } from "../../../../FormUIStateManager.jsx";
+import { getSeverityBadgeType, getSeverityLabel } from "../../../../helpers/severityChecksConfig";
+import { getFormSectionElementId } from "../../../../utils";
 
 /**
  * Section list and counts from formUIState.sectionErrorsFlagged (FormErrorManager), so badges

@@ -23,8 +23,8 @@ import { emptyDate } from "@js/invenio_rdm_records/src/deposit/fields/DatesField
 import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
-import { SelectField } from "../SelectField";
-import { TextField } from "../TextField";
+import { SelectField } from "../../replacement_components/input_controls/SelectField";
+import { TextField } from "../../replacement_components/input_controls/TextField";
 
 export class DatesField extends Component {
   getRequiredOption = (currentValue, arrayOfValues) => {

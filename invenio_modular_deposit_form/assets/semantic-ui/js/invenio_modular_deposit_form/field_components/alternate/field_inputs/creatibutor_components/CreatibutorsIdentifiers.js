@@ -14,8 +14,8 @@ import PropTypes from "prop-types";
 import { FieldLabel } from "react-invenio-forms";
 import _get from "lodash/get";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import { TextField } from "../../TextField";
-import { SelectField } from "../../SelectField";
+import { TextField } from "../../../../replacement_components/input_controls/TextField";
+import { SelectField } from "../../../../replacement_components/input_controls/SelectField";
 import { FieldArray } from "formik";
 
 const newIdentifier = { scheme: "", identifier: "" };

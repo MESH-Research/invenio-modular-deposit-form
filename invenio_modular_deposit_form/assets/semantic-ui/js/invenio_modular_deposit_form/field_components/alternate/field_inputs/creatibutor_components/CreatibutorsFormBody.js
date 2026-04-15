@@ -21,9 +21,9 @@ import { Form } from "semantic-ui-react";
 import _get from "lodash/get";
 import Overridable from "react-overridable";
 import { RadioField } from "react-invenio-forms";
-import { RemoteSelectField } from "../../RemoteSelectField";
-import { TextField } from "../../TextField";
-import { SelectField } from "../../SelectField";
+import { RemoteSelectField } from "../../../../replacement_components/input_controls/RemoteSelectField";
+import { TextField } from "../../../../replacement_components/input_controls/TextField";
+import { SelectField } from "../../../../replacement_components/input_controls/SelectField";
 import { AffiliationsField } from "@js/invenio_rdm_records/src/deposit/fields/AffiliationsField/AffiliationsField";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
@@ -58,8 +58,7 @@ const CreatibutorsFormBody = ({
   const store = useStore();
   // RDMDepositForm nests merged vocabs under vocabularies.metadata.* (same as stock payload shape).
   const personorg_schemes =
-    store.getState().deposit.config.vocabularies?.metadata?.creators?.identifiers
-      ?.scheme ?? [];
+    store.getState().deposit.config.vocabularies?.metadata?.creators?.identifiers?.scheme ?? [];
   const personorg_scheme_labels = personorg_schemes.map((s) => s.title_l10n);
 
   const namesAutocompleteOn = autocompleteNames !== NamesAutocompleteOptions.OFF;

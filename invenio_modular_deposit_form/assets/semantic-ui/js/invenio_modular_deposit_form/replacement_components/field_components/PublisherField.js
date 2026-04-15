@@ -9,7 +9,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { TextField } from "../TextField";
+import { TextField } from "../../replacement_components/input_controls/TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class PublisherField extends Component {

@@ -14,8 +14,8 @@ import { Button, Form, Icon } from "semantic-ui-react";
 import { ArrayField, GroupField } from "react-invenio-forms";
 import { emptyAdditionalTitle } from "@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues";
 import { LanguagesField } from "./LanguagesField";
-import { SelectField } from "../SelectField";
-import { TextField } from "../TextField";
+import { SelectField } from "../../replacement_components/input_controls/SelectField";
+import { TextField } from "../../replacement_components/input_controls/TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class AdditionalTitlesField extends Component {
@@ -56,8 +56,7 @@ export class AdditionalTitlesField extends Component {
                   }))
                 }
                 initialOptions={
-                  recordUI?.additional_titles &&
-                  recordUI.additional_titles[indexPath]?.lang
+                  recordUI?.additional_titles && recordUI.additional_titles[indexPath]?.lang
                     ? [recordUI.additional_titles[indexPath].lang]
                     : []
                 }

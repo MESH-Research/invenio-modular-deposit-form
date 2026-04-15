@@ -13,14 +13,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Button, Form, Grid, Icon } from "semantic-ui-react";
-import { RichInputField } from "../RichInputField";
-import { ArrayField } from "../ArrayField";
+import { RichInputField } from "../../replacement_components/input_controls/RichInputField";
+import { ArrayField } from "../../replacement_components/input_controls/ArrayField";
 import { emptyAdditionalDescription } from "@js/invenio_rdm_records/src/deposit/fields/DescriptionsField/components/initialValues";
 import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 import { LanguagesField } from "./LanguagesField";
-import { SelectField } from "../SelectField";
+import { SelectField } from "../../replacement_components/input_controls/SelectField";
 
 const FOCUS_ATTEMPTS_MAX = 48;
 

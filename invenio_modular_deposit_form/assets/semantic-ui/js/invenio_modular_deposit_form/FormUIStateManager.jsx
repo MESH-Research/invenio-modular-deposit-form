@@ -20,7 +20,7 @@ import { useStore } from "react-redux";
 import { findPageIdContainingComponent, focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
 import { formUIStateReducer, getInitialFormUIState } from "./helpers/formUIStateReducer";
-import { useFormSubmissionTransformer } from "../../helpers/FormSubmissionTransformer";
+import { useFormSubmissionTransformer } from "./hooks/useFormSubmissionTransformer";
 import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFields";
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
 import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";

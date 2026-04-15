@@ -21,7 +21,7 @@ import PropTypes from "prop-types";
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import { getFamilyName, getGivenName } from "../../helpers/names";
+import { getFamilyName, getGivenName } from "../../../helpers/names";
 
 function sortOptions(options) {
   return options.sort((o1, o2) => o1.text.localeCompare(o2.text));

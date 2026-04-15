@@ -12,7 +12,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import { FieldLabel } from "react-invenio-forms";
-import { SelectField } from "../SelectField";
+import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class ResourceTypeField extends Component {

@@ -37,8 +37,8 @@ import {
   FILE_UPLOAD_SAVE_DRAFT_FAILED,
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
-import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
-import { useFormUIState } from "../../FormUIStateManager.jsx";
+import { RECORD_FIELD_ERROR_ROOTS } from "../../../constants";
+import { useFormUIState } from "../../../FormUIStateManager.jsx";
 import { FormFeedbackSummary } from "./form_feedback_components/FormFeedbackSummary";
 
 /** Synthetic FormFeedback action states (not a Redux deposit action type). */
