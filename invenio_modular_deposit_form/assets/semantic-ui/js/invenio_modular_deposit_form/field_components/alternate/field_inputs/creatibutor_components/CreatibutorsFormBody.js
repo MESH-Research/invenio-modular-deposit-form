@@ -249,26 +249,28 @@ const CreatibutorsFormBody = ({
       )}
 
       {(_get(values, typeFieldPath) === CREATIBUTOR_TYPE.ORGANIZATION ||
-        (personDetailsExpanded && _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON)) && (
-        <Overridable
-          id="InvenioRDMRecords.CreatibutorsFlat.RoleSelectField.container"
-          fieldPath={roleFieldPath}
-          roleOptions={roleOptions}
-          isCreator={isCreator}
-        >
-          <SelectField
+        (personDetailsExpanded && _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON)) &&
+        Array.isArray(roleOptions) &&
+        roleOptions.length > 0 && (
+          <Overridable
+            id="InvenioRDMRecords.CreatibutorsFlat.RoleSelectField.container"
             fieldPath={roleFieldPath}
-            label={i18next.t("Role")}
-            options={roleOptions}
-            placeholder={i18next.t("Select role")}
-            {...(isCreator && { clearable: true })}
-            required={!isCreator}
-            optimized
-            scrolling
-            search
-          />
-        </Overridable>
-      )}
+            roleOptions={roleOptions}
+            isCreator={isCreator}
+          >
+            <SelectField
+              fieldPath={roleFieldPath}
+              label={i18next.t("Role")}
+              options={roleOptions}
+              placeholder={i18next.t("Select role")}
+              {...(isCreator && { clearable: true })}
+              required={!isCreator}
+              optimized
+              scrolling
+              search
+            />
+          </Overridable>
+        )}
     </>
   );
 };
@@ -284,7 +286,7 @@ CreatibutorsFormBody.propTypes = {
   onPersonSearchChange: PropTypes.func.isRequired,
   onOrganizationSearchChange: PropTypes.func.isRequired,
   onPersonOrgToggle: PropTypes.func.isRequired,
-  roleOptions: PropTypes.array.isRequired,
+  roleOptions: PropTypes.array,
   serializeSuggestions: PropTypes.func,
   personDetailsExpanded: PropTypes.bool,
   values: PropTypes.object.isRequired,

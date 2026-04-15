@@ -113,7 +113,8 @@ const pidEntrySchema = yupObject()
 /**
  * Build the validation schema from deposit config.
  * Uses config.max_title_length and, under config.vocabularies.metadata,
- * creators.identifiers.scheme, identifiers.scheme (record / related / references),
+ * creators.identifiers.scheme, creators.role, contributors.role, identifiers.scheme
+ * (record / related / references),
  * locations.identifiers.scheme, plus optional metadata.dates.type (and titles.type)
  * for oneOf. Paths match the Redux deposit config shape after RDMDepositForm.
  *
@@ -137,6 +138,48 @@ function buildValidationSchema(config = {}) {
   const dateTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.dates?.type ?? config?.vocabularies?.dates?.type
   );
+  const creatorRoleValues = getVocabOptionValues(config?.vocabularies?.metadata?.creators?.role);
+  const contributorRoleValues = getVocabOptionValues(
+    config?.vocabularies?.metadata?.contributors?.role
+  );
+
+  // Creators: `role` is optional, but when present it must match the configured vocabulary;
+  // when no vocabulary is configured, `role` must be empty (matches UI: no role field).
+  const creatorRoleSchema =
+    creatorRoleValues.length > 0
+      ? yupString().test(
+          "creator-role-vocabulary",
+          i18next.t("Creator role must match a configured role value."),
+          (value) =>
+            value == null ||
+            String(value).trim() === "" ||
+            creatorRoleValues.includes(value)
+        )
+      : yupString().test(
+          "creator-role-without-vocab",
+          i18next.t(
+            "A creator role is not allowed when no creator role vocabulary is configured."
+          ),
+          (value) => value == null || String(value).trim() === ""
+        );
+
+  // Contributors: `role` is required when a vocabulary exists; it must be one of the allowed values.
+  // When no vocabulary is configured, `role` must be empty (matches UI: no role field).
+  const contributorRoleSchema =
+    contributorRoleValues.length > 0
+      ? yupString()
+          .required(i18next.t("A role is required for each contributor."))
+          .oneOf(
+            contributorRoleValues,
+            i18next.t("Contributor role must match a configured role value.")
+          )
+      : yupString().test(
+          "contributor-role-without-vocab",
+          i18next.t(
+            "A contributor role is not allowed when no contributor role vocabulary is configured."
+          ),
+          (value) => value == null || String(value).trim() === ""
+        );
 
   // `scheme` is optional when the identifier string alone matches a supported scheme
   // (see inferCreatorIdentifierScheme in identifierSchemeValidators); the modal also
@@ -239,8 +282,7 @@ function buildValidationSchema(config = {}) {
         )
     ),
     person_or_org: personOrOrgShape,
-    // Creators: role optional in UI (matches stock CreatibutorsModal for schema "creators").
-    role: yupString(),
+    role: creatorRoleSchema,
   });
 
   const contributorRowShape = yupObject().shape({
@@ -257,7 +299,7 @@ function buildValidationSchema(config = {}) {
         )
     ),
     person_or_org: personOrOrgShape,
-    role: yupString().required(i18next.t("A role is required for each contributor")),
+    role: contributorRoleSchema,
   });
 
   const additionalTitleTypeSchema = titleTypeValues.length

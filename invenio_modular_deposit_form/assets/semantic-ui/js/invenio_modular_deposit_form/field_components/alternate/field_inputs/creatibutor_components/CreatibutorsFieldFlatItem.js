@@ -93,7 +93,7 @@ const CreatibutorsFieldFlatItem = ({
 
   const renderRole = (role) => {
     if (role) {
-      const friendlyRole = roleOptions.find(({ value }) => value === role)?.text ?? role;
+      const friendlyRole = roleOptions?.find(({ value }) => value === role)?.text ?? role;
       return <Label>{friendlyRole}</Label>;
     }
     return null;
@@ -247,7 +247,7 @@ CreatibutorsFieldFlatItem.propTypes = {
   itemError: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   removeCreatibutor: PropTypes.func.isRequired,
   moveCreatibutor: PropTypes.func.isRequired,
-  roleOptions: PropTypes.array.isRequired,
+  roleOptions: PropTypes.array,
   schema: PropTypes.string.isRequired,
   serializeSuggestions: PropTypes.func,
   showEditForms: PropTypes.array.isRequired,

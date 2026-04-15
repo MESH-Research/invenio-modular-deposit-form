@@ -78,7 +78,7 @@ const creatibutorNameDisplay = (value) => {
   return `${name}${affiliation}`;
 };
 
-const emptyCreatibutor = {
+const emptyCreatibutorTemplate = {
   person_or_org: {
     family_name: "",
     given_name: "",
@@ -86,11 +86,23 @@ const emptyCreatibutor = {
     type: "personal",
     identifiers: [],
   },
-  role: "author",
   affiliations: [],
 };
 
-const makeSelfCreatibutor = (currentUserprofile) => {
+/** Default `role` for a new row: only values from the active role vocabulary. */
+const defaultRoleForNewRow = (schema, orderedRoleOptions) => {
+  const opts = orderedRoleOptions ?? [];
+  if (!opts.length) {
+    return "";
+  }
+  if (schema === "creators") {
+    const authorOpt = opts.find((o) => o.value === "author");
+    return authorOpt?.value ?? opts[0]?.value ?? "";
+  }
+  return opts[0]?.value ?? "";
+};
+
+const makeSelfCreatibutor = (currentUserprofile, schema, orderedRoleOptions) => {
   const myAffiliations =
     typeof currentUserprofile.affiliations === "string" && currentUserprofile.affiliations !== ""
       ? [currentUserprofile.affiliations]
@@ -128,7 +140,7 @@ const makeSelfCreatibutor = (currentUserprofile) => {
       type: "personal",
       identifiers: myIdentifiers,
     },
-    role: "author",
+    role: defaultRoleForNewRow(schema, orderedRoleOptions),
     affiliations:
       myAffiliations?.length > 0
         ? myAffiliations.map((affiliation) => ({
@@ -199,7 +211,7 @@ const CreatibutorsFieldFlat = ({
     const filteredEditForms = showEditForms.filter((elem) => elem !== index);
 
     if (action === "saveAndContinue") {
-      handleAddNew(pushFunc, emptyCreatibutor, filteredEditForms);
+      handleAddNew(pushFunc, buildEmptyCreatibutor(), filteredEditForms);
     } else {
       setShowEditForms(filteredEditForms);
       setNewItemIndex(-1);
@@ -255,10 +267,16 @@ const CreatibutorsFieldFlat = ({
     }
   };
 
-  const orderedRoleOptions = orderOptions(
-    roleOptions ?? [],
-    config.vocabularies?.metadata?.contributors?.role ?? []
-  );
+  const baseRoles = roleOptions ?? [];
+  const orderedRoleOptions =
+    schema === "creators"
+      ? moveCommonRolesToTop(sortOptions([...baseRoles]))
+      : orderOptions(baseRoles, config.vocabularies?.metadata?.contributors?.role ?? []);
+
+  const buildEmptyCreatibutor = () => ({
+    ...emptyCreatibutorTemplate,
+    role: defaultRoleForNewRow(schema, orderedRoleOptions),
+  });
 
   return (
     <Form.Field id={fieldPath} required={required} error={creatibutorsError}>
@@ -328,7 +346,7 @@ const CreatibutorsFieldFlat = ({
                   aria-labelledby={`${fieldPath}-field-description`}
                   onClick={() => {
                     setAddingSelf(false);
-                    handleAddNew(arrayHelpers.push, emptyCreatibutor);
+                    handleAddNew(arrayHelpers.push, buildEmptyCreatibutor());
                   }}
                 >
                   <Icon name="add" />
@@ -343,7 +361,10 @@ const CreatibutorsFieldFlat = ({
                   aria-labelledby={`${fieldPath}-field-description`}
                   onClick={() => {
                     setAddingSelf(true);
-                    handleAddNew(arrayHelpers.push, makeSelfCreatibutor(currentUserprofile));
+                    handleAddNew(
+                      arrayHelpers.push,
+                      makeSelfCreatibutor(currentUserprofile, schema, orderedRoleOptions)
+                    );
                   }}
                 >
                   <Icon name="add" />
