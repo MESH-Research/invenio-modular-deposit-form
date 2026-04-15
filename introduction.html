@@ -253,40 +253,84 @@
 <h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h1>
 <p><span class="sd-sphinx-override sd-badge sd-bg-warning sd-bg-text-warning">Beta</span></p>
 <p><strong>Beta version</strong> — Usage and configuration may change.</p>
-<p>Invenio Modular Deposit Form is an InvenioRDM extension that adds modular, configurable layout and client-side validation to the record deposit form.</p>
-<p>Copyright © 2023-2026 Mesh Research. Licensed under the MIT License. See <code class="docutils literal notranslate"><span class="pre">LICENSE</span></code> file for details.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>This package is currently under heavy development to improve its portability and to support InvenioRDM versions 13 and 14. <strong>As of 2026-03-06 the package is temporarily broken</strong>, but this will be resolved shortly. Check back soon for updates!</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This documentation is in rough draft form and is currently being edited. Check back shortly for updates.</p>
-</div>
+<p>Invenio Modular Deposit Form is an InvenioRDM extension that adds a
+configurable layout and navigation layer, resource-type-driven field
+adaptations, client-side validation, in-browser autosave, and
+submission-time metadata transformations to the InvenioRDM record deposit
+form — all controllable from <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> without requiring custom React
+development.</p>
+<p>Copyright © 2023-2026 Mesh Research. Licensed under the MIT License. See
+<code class="docutils literal notranslate"><span class="pre">LICENSE</span></code> file for details.</p>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
-<p>This extension provides a flexible, extensible layout and validation layer for the InvenioRDM deposit form that allows:</p>
+<p>This extension provides a flexible, extensible layout and validation layer for
+the InvenioRDM deposit form that allows:</p>
 <ul class="simple">
 <li><p><strong>Flexible customization of deposit form layout via config variables</strong></p>
 <ul>
-<li><p>Stepped <strong>multi-page</strong> form flow</p></li>
-<li><p>Form customization <strong>without touching React</strong></p></li>
-<li><p>Extensible with custom React components, overrides, and custom fields</p></li>
+<li><p>Deep form customization <strong>just from <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code></strong></p></li>
+<li><p>Optional stepped <strong>multi-page</strong> form flow</p></li>
+<li><p>Navigation components: page stepper, sidebar page menu, and bottom
+navigation bar — all displaying live severity-aware error badge counts</p></li>
+<li><p>Extensible via custom React components, ReactOverridable overrides, and
+custom fields</p></li>
 </ul>
 </li>
 <li><p><strong>Form UI changes based on resource type</strong></p>
 <ul>
-<li><p>Field visibility</p></li>
-<li><p>Alternate layouts</p></li>
-<li><p>Widget properties (labels, icons, placeholders, etc.)</p></li>
+<li><p>Field visibility and page layout</p></li>
+<li><p>Page/step visibility and title</p></li>
+<li><p>Widget properties (labels, icons, placeholders, help text, etc.)</p></li>
+<li><p>Alternate component variants (e.g. flat creatibutors layout, alternate
+resource-type selector) selectable per resource type</p></li>
 </ul>
 </li>
-<li><p><strong>Integration of custom fields</strong> freely into the main form layout</p></li>
-<li><p><strong>Autosave</strong> of unsubmitted form values to browser storage</p></li>
-<li><p><strong>Client-side form validation</strong> harmonized with InvenioRDM’s server-side validation</p></li>
-<li><p><strong>Custom preprocessing</strong> of form data before submission</p></li>
+<li><p><strong>Integration of custom fields</strong> freely into the main form layout</p>
+<ul>
+<li><p>Custom fields can be placed on any page and laid out alongside core fields</p></li>
 </ul>
-<p>The goal of this package is to augment and expand on the existing InvenioRDM deposit form, not to replace it. Wherever possible, it relies on the stock components and logic provided by invenio-rdm-records, and aims to provide additional flexibility and functionality that might otherwise require extensive bespoke development.</p>
+</li>
+<li><p><strong>Client-side form validation</strong></p>
+<ul>
+<li><p>Driven by a customizable <a class="reference external" href="https://github.com/jquense/yup">Yup</a> schema</p></li>
+<li><p>Closely mirrors InvenioRDM’s server-side field schemas, including
+per-scheme identifier format validation (ORCID, ROR, DOI, arXiv, and
+others) and vocabulary-constrained roles and types</p></li>
+<li><p>Schema is built at form initialisation from the instance’s configured
+vocabularies and settings, so constraints automatically reflect what the
+instance permits</p></li>
+<li><p>Schema can be fully replaced or extended via a Python entry point</p></li>
+</ul>
+</li>
+<li><p><strong>Autosave</strong> of unsubmitted form values to browser local storage, with a
+restore modal on return</p></li>
+<li><p><strong>Submission-time metadata transformations</strong> via a configurable chain of
+pure functions applied to form values before they are sent to the backend</p></li>
+</ul>
+</section>
+<section id="aims">
+<h2>Aims<a class="headerlink" href="#aims" title="Link to this heading">¶</a></h2>
+<p>The goal of this package is to augment and expand on the existing InvenioRDM
+deposit form, not to replace it. The core submission pipeline, API
+communication, Formik form state management, and the majority of field widgets
+come unchanged from <code class="docutils literal notranslate"><span class="pre">invenio-rdm-records</span></code>; this package adds a configuration
+and layout layer on top. The aim is to provide flexibility and functionality
+that would otherwise require extensive bespoke per-instance development.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The package bundles replacement versions of a number of stock
+<code class="docutils literal notranslate"><span class="pre">invenio_rdm_records</span></code> field components and <code class="docutils literal notranslate"><span class="pre">react-invenio-forms</span></code> input
+controls. These replacements implement touched-aware error display (errors
+become visible only after a field has been interacted with) and are used
+unconditionally — they are not specific to the client-side validation feature.</p>
+<p>The package also provides its own versions of <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> and
+<code class="docutils literal notranslate"><span class="pre">DepositBootstrap</span></code> (the root components that bootstrap the deposit form),
+exposing the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> prop that the stock versions do not yet support.
+This allows client-side validation to work without patching the installed
+<code class="docutils literal notranslate"><span class="pre">invenio-rdm-records</span></code> package.</p>
+<p>The goal is to upstream the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> prop support so these
+replacement components are no longer necessary.</p>
+</div>
 </section>
 </section>
 
@@ -354,6 +398,7 @@
             <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
 <li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#aims">Aims</a></li>
 </ul>
 </li>
 </ul>
