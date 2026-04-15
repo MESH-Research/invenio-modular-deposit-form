@@ -138,26 +138,18 @@ _PAGED_FORM_FOOTER = {
     ],
 }
 
-_LANGUAGE_FIELD = {
-    "section": "language",
+# Top-level languages row (FormPage auto-wraps in FormSection; no extra FormSection wrapper).
+_LANGUAGE_SECTION = {
+    "section": "language_section",
     "label": _("Languages"),
     "component": "LanguagesComponent",
+    "classnames": "basic prominent-field-label",
     "placeholder": _("e.g., English, French, Swahili"),
     "description": _(
         "Search for the language(s) of the resource (e.g.,"
         ' "en", "fre", "Swahili"). Press enter to '
         "select each language."
     ),
-}
-
-_LANGUAGE_SECTION = {
-    "section": "language_section",
-    "component": "FormSection",
-    "label": _("Languages"),
-    "show_heading": True,
-    "subsections": [
-        _LANGUAGE_FIELD,
-    ],
 }
 
 # Page ``3`` layouts: details-step overrides, submodule registry components only.
@@ -192,17 +184,10 @@ _DATASET_DETAILS_PAGE = {
             ],
         },
         {
-            "section": "image_details",
-            "component": "FormSection",
+            "section": "alternate_identifiers",
             "label": _("Dataset URL and Other Identifiers"),
-            "show_heading": True,
-            "subsections": [
-                {
-                    "section": "alternate_identifiers",
-                    "label": None,
-                    "component": "AlternateIdentifiersComponent",
-                }
-            ],
+            "component": "AlternateIdentifiersComponent",
+            "classnames": "basic prominent-field-label",
         },
         _LANGUAGE_SECTION,
     ],
@@ -243,7 +228,7 @@ _IMAGE_DETAILS_PAGE = {
             "section": "alternate_identifiers",
             "label": "Image URL and Other Identifiers",
             "component": "AlternateIdentifiersComponent",
-            "wrapped": True,
+            "classnames": "basic prominent-field-label",
         },
         _LANGUAGE_SECTION,
     ],
@@ -284,7 +269,7 @@ _VIDEO_DETAILS_PAGE = {
             "section": "alternate_identifiers",
             "label": "Media URL and Other Identifiers",
             "component": "AlternateIdentifiersComponent",
-            "wrapped": True,
+            "classnames": "basic prominent-field-label",
         },
         _LANGUAGE_SECTION,
     ],
@@ -326,7 +311,7 @@ _AUDIO_DETAILS_PAGE = {
             "section": "alternate_identifiers",
             "label": _("Recording URL and Other Identifiers"),
             "component": "AlternateIdentifiersComponent",
-            "wrapped": True,
+            "classnames": "basic prominent-field-label",
         },
         _LANGUAGE_SECTION,
     ],
@@ -400,7 +385,7 @@ _SOFTWARE_DETAILS_PAGE = {
             "section": "alternate_identifiers",
             "label": _("Package URL and other identifiers"),
             "component": "AlternateIdentifiersComponent",
-            "wrapped": True,
+            "classnames": "basic prominent-field-label",
         },
         _LANGUAGE_SECTION,
     ],
@@ -662,37 +647,20 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 {
                     "section": "resource_type",
                     "label": _("Resource Type"),
-                    "component": "FormSection",
-                    "classnames": "basic",
-                    "show_heading": True,
-                    "subsections": [
-                        {
-                            "section": "resource_type",
-                            "label": None,
-                            "component": "ResourceTypeSelectorComponent",
-                            "required": True,
-                            "classnames": "basic",
-                        },
-                    ],
+                    "component": "ResourceTypeSelectorComponent",
+                    "required": True,
+                    "classnames": "basic prominent-field-label",
                 },
                 {
                     "section": "files",
                     "label": _("File Upload"),
-                    "component": "FormSection",
-                    "classnames": "basic",
-                    "show_heading": True,
-                    "subsections": [
-                        {
-                            "section": "file_upload",
-                            "label": None,
-                            "component": "FileUploadComponent",
-                            "description": _(
-                                "Very large files (200MB and larger) should be uploaded "
-                                "one at a time. Multiple smaller files may safely be "
-                                "uploaded at once."
-                            ),
-                        },
-                    ],
+                    "component": "FileUploadComponent",
+                    "classnames": "basic prominent-field-label",
+                    "description": _(
+                        "Very large files (200MB and larger) should be uploaded "
+                        "one at a time. Multiple smaller files may safely be "
+                        "uploaded at once."
+                    ),
                 },
                 {
                     "section": "rights",
@@ -725,61 +693,29 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 {
                     "section": "pids",
                     "label": _("Digital Object Identifier"),
-                    "component": "FormSection",
-                    "classnames": "basic",
-                    "show_heading": True,
-                    "subsections": [
-                        {
-                            "section": "doi",
-                            "fieldLabel": None,
-                            "icon": "linkify",
-                            "component": "DoiComponent",
-                        },
-                    ],
+                    "icon": "linkify",
+                    "component": "DoiComponent",
+                    "classnames": "basic prominent-field-label",
                 },
                 {
                     "section": "titles",
                     "label": _("Title"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "combined_titles",
-                            "label": None,
-                            "component": "TitlesComponent",
-                            "icon": "book",
-                        }
-                    ],
+                    "component": "TitlesComponent",
+                    "icon": "book",
+                    "classnames": "basic prominent-field-label",
                 },
                 {
                     "section": "dates",
                     "label": _("Dates"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "combined_dates",
-                            "label": None,
-                            "component": "CombinedDatesComponent",
-                            "helpText": "",
-                        },
-                    ],
+                    "component": "CombinedDatesComponent",
+                    "classnames": "basic prominent-field-label",
+                    "helpText": "",
                 },
                 {
                     "section": "descriptions",
                     "label": _("Abstract and Descriptions"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "abstract",
-                            "label": None,
-                            "component": "AbstractComponent",
-                        },
-                    ],
+                    "component": "AbstractComponent",
+                    "classnames": "basic prominent-field-label",
                 },
             ],
         },
@@ -791,63 +727,39 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 {
                     "section": "creators",
                     "label": _("Primary Contributors"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "creators_field",
-                            "label": None,
-                            "component": "CreatorsComponentFlat",
-                            "addButtonLabel": _("Add Contributor"),
-                            "modal": {
-                                "addLabel": _("Add Contributor"),
-                                "editLabel": _("Edit Contributor"),
-                            },
-                            "description": _(
-                                "These people will appear at the beginning of formatted "
-                                "citations and at the top of the record's detail page."
-                            ),
-                        },
-                    ],
+                    "component": "CreatorsComponentFlat",
+                    "classnames": "basic prominent-field-label",
+                    "addButtonLabel": _("Add Contributor"),
+                    "modal": {
+                        "addLabel": _("Add Contributor"),
+                        "editLabel": _("Edit Contributor"),
+                    },
+                    "description": _(
+                        "These people will appear at the beginning of formatted "
+                        "citations and at the top of the record's detail page."
+                    ),
                 },
                 {
                     "section": "contributors",
                     "label": _("Other Contributors"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "contributors",
-                            "label": None,
-                            "component": "ContributorsComponentFlat",
-                            "addButtonLabel": "Add Contributor",
-                            "modal": {
-                                "addLabel": _("Add Contributor"),
-                                "editLabel": _("Edit Contributor"),
-                            },
-                            "description": _(
-                                "These people may appear later on in formatted citations, "
-                                "depending on their role. They will be included in the full "
-                                "contributors list on the record detail page."
-                            ),
-                        },
-                    ],
+                    "component": "ContributorsComponentFlat",
+                    "classnames": "basic prominent-field-label",
+                    "addButtonLabel": "Add Contributor",
+                    "modal": {
+                        "addLabel": _("Add Contributor"),
+                        "editLabel": _("Edit Contributor"),
+                    },
+                    "description": _(
+                        "These people may appear later on in formatted citations, "
+                        "depending on their role. They will be included in the full "
+                        "contributors list on the record detail page."
+                    ),
                 },
                 {
                     "section": "funding",
                     "label": _("Funding and Awards"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "funding_field",
-                            "label": None,
-                            "component": "FundingComponent",
-                        },
-                    ],
+                    "component": "FundingComponent",
+                    "classnames": "basic prominent-field-label",
                 },
             ],
         },
@@ -868,7 +780,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "label": _("URL and Other Identifiers"),
                     "icon": "linkify",
                     "component": "AlternateIdentifiersComponent",
-                    "wrapped": True,
+                    "classnames": "basic prominent-field-label",
                 },
             ],
         },
@@ -880,53 +792,31 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 {
                     "section": "communities",
                     "label": _("Community submission"),
-                    "component": "FormPage",
-                    "subsections": [
-                        {
-                            "section": "communities",
-                            "label": None,
-                            "component": "CommunitiesComponent",
-                        },
-                    ],
+                    "component": "CommunitiesComponent",
+                    "classnames": "basic prominent-field-label",
                 },
                 {
-                    "section": "contributors",
+                    "section": "subjects",
                     "label": _("Subjects"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "subjects_field",
-                            "label": None,
-                            "component": "SubjectsComponent",
-                            "description": _(
-                                "Search using full words and press enter to select. "
-                                "(For best results, choose a subject category at right.)"
-                            ),
-                            "helpText": _(
-                                "These formal subject headings let people find "
-                                "your work in subject searches."
-                            ),
-                            "placeholder": _(
-                                "e.g., Nelson Mandela, Genetics,Shakespeare"
-                            ),
-                        },
-                    ],
+                    "component": "SubjectsComponent",
+                    "classnames": "basic prominent-field-label",
+                    "description": _(
+                        "Search using full words and press enter to select. "
+                        "(For best results, choose a subject category at right.)"
+                    ),
+                    "helpText": _(
+                        "These formal subject headings let people find "
+                        "your work in subject searches."
+                    ),
+                    "placeholder": _(
+                        "e.g., Nelson Mandela, Genetics,Shakespeare"
+                    ),
                 },
                 {
-                    "section": "contributors",
+                    "section": "related_works_section",
                     "label": _("Related Works"),
-                    "component": "FormSection",
-                    "show_heading": True,
-                    "classnames": "basic",
-                    "subsections": [
-                        {
-                            "section": "related_works",
-                            "label": None,
-                            "component": "RelatedWorksComponent",
-                        },
-                    ],
+                    "component": "RelatedWorksComponent",
+                    "classnames": "basic prominent-field-label",
                 },
             ],
         },

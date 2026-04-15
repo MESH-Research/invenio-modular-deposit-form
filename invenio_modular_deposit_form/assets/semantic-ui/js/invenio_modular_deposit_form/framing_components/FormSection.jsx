@@ -14,6 +14,7 @@ const FormSection = ({
   sectionName,
   label,
   show_heading = false,
+  wrappedFieldset = false,
   collapsible = false,
   startExpanded = true,
   classnames,
@@ -40,7 +41,10 @@ const FormSection = ({
   const severityClass =
     errorCount > 0 ? "error" : warningCount > 0 ? "warning" : infoCount > 0 ? "info" : "";
 
-  const severityBadges = hasAny && (
+  const showVisibleLegend = !wrappedFieldset && show_heading;
+  const showSeverityBadges = hasAny && !wrappedFieldset;
+
+  const severityBadges = showSeverityBadges && (
     <span className="form-section-severity-badges">
       {errorCount > 0 && (
         <Label size="tiny" circular className={getSeverityBadgeType("error")} key="error">
@@ -62,6 +66,10 @@ const FormSection = ({
       )}
     </span>
   );
+
+  const srLegendText = typeof label === "string" ? label.trim() : "";
+  const showSrOnlyLegend =
+    !collapsible && srLegendText.length > 0 && (wrappedFieldset || !show_heading);
 
   const sectionElementId = getFormSectionElementId(sectionName);
   const content = collapsible ? (
@@ -113,7 +121,10 @@ const FormSection = ({
         .filter(Boolean)
         .join(" ")}
     >
-      {show_heading && (
+      {showSrOnlyLegend && (
+        <legend className="sr-only">{srLegendText}</legend>
+      )}
+      {showVisibleLegend && (
         <legend className="field-label-class title invenio-field-label">
           {!!icon && <Icon name={icon} />} {label}
           {severityBadges}
@@ -138,6 +149,7 @@ const FormSection = ({
       icon={icon}
       collapsible={collapsible}
       show_heading={show_heading}
+      wrappedFieldset={wrappedFieldset}
       classnames={classnames}
     >
       {content}

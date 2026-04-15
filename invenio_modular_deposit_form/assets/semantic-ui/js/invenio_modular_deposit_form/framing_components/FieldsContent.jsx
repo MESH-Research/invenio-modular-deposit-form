@@ -50,7 +50,8 @@ const FieldsContent = ({ section, component, wrapped, index, ...props }) => {
       sectionName={section}
       icon={props.icon}
       label={props.label}
-      show_heading={props.show_heading}
+      show_heading={false}
+      wrappedFieldset
       classnames={props.classnames}
     >
       <MyField key={index} section={section} {...props} />

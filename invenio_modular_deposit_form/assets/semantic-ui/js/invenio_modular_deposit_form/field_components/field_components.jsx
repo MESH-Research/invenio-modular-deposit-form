@@ -302,43 +302,41 @@ const ShareDraftButtonComponent = () => {
 };
 
 /**
- * DOI/identifier field(s). One replacement PIDField per scheme in config.pids.
- * @overridable InvenioAppRdm.Deposit.PIDField.container (wrapped in Overridable here; not using FieldComponentWrapper)
+ * DOI field (pids.doi) using replacement PIDField.
+ * @overridable InvenioAppRdm.Deposit.PIDField.container (via FieldComponentWrapper)
  */
 const DoiComponent = ({ ...extraProps }) => {
   const store = useStore();
   const { config, record } = store.getState().deposit;
   const pids = Array.isArray(config?.pids) ? config.pids : [];
+  const doiPid = pids.find((pid) => pid?.scheme === "doi");
+
+  if (!doiPid) {
+    return null;
+  }
 
   return (
-    <Overridable id="InvenioAppRdm.Deposit.PIDField.container">
-      <Fragment>
-        {pids.map((pid) => (
-          <Fragment key={pid.scheme}>
-            <ReplacementPIDField
-              btnLabelDiscardPID={pid.btn_label_discard_pid}
-              btnLabelGetPID={pid.btn_label_get_pid}
-              canBeManaged={pid.can_be_managed}
-              canBeUnmanaged={pid.can_be_unmanaged}
-              doiDefaultSelection={pid.default_selected}
-              optionalDOItransitions={pid.optional_doi_transitions ?? {}}
-              fieldPath={`pids.${pid.scheme}`}
-              fieldLabel={pid.field_label}
-              isEditingPublishedRecord={record?.is_published === true}
-              managedHelpText={pid.managed_help_text}
-              pidLabel={pid.pid_label}
-              pidPlaceholder={pid.pid_placeholder}
-              pidType={pid.scheme}
-              record={record ?? {}}
-              required={config?.is_doi_required ?? true}
-              reservedHelpText={pid.reserved_help_text}
-              unmanagedHelpText={pid.unmanaged_help_text}
-              {...extraProps}
-            />
-          </Fragment>
-        ))}
-      </Fragment>
-    </Overridable>
+    <FieldComponentWrapper componentName="PIDField" {...extraProps} fieldPath="pids.doi">
+      <ReplacementPIDField
+        btnLabelDiscardPID={doiPid.btn_label_discard_pid}
+        btnLabelGetPID={doiPid.btn_label_get_pid}
+        canBeManaged={doiPid.can_be_managed}
+        canBeUnmanaged={doiPid.can_be_unmanaged}
+        doiDefaultSelection={doiPid.default_selected}
+        optionalDOItransitions={doiPid.optional_doi_transitions ?? {}}
+        fieldPath="pids.doi"
+        fieldLabel={doiPid.field_label}
+        isEditingPublishedRecord={record?.is_published === true}
+        managedHelpText={doiPid.managed_help_text}
+        pidLabel={doiPid.pid_label}
+        pidPlaceholder={doiPid.pid_placeholder}
+        pidType={doiPid.scheme}
+        record={record ?? {}}
+        required={config?.is_doi_required ?? true}
+        reservedHelpText={doiPid.reserved_help_text}
+        unmanagedHelpText={doiPid.unmanaged_help_text}
+      />
+    </FieldComponentWrapper>
   );
 };
 

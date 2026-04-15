@@ -15,7 +15,6 @@ const formPages = [
               "section": "resource_type",
               "label": "Resource Type",
               "component": "ResourceTypeComponent",
-              "wrapped": true,
               "required": true,
           },
           {
@@ -23,27 +22,23 @@ const formPages = [
               "label": "Digital Object Identifier",
               "icon": "linkify",
               "component": "DoiComponent",
-              "wrapped": true,
           },
           {
               "section": "combined_titles",
               "label": "Title",
               "component": "TitlesComponent",
-              "wrapped": true,
               "icon": "book",
           },
           {
               "section": "combined_dates",
               "label": "Dates",
               "component": "CombinedDatesComponent",
-              "wrapped": true,
               "helpText": "",
           },
           {
               "section": "abstract",
               "label": "Abstract or Description",
               "component": "AbstractComponent",
-              "wrapped": true,
           },
       ],
   },
@@ -55,7 +50,6 @@ const formPages = [
               "section": "publisher",
               "label": "Publisher",
               "component": "PublisherComponent",
-              "wrapped": true,
               "description": "",
           },
           {
@@ -66,14 +60,12 @@ const formPages = [
               "description": "Search for the language(s) of the resource (e.g.," +
                   ' "en", "fre", "Swahili"). Press enter to ' +
                   "select each language.",
-              "wrapped": true,
           },
           {
               "section": "alternate_identifiers",
               "label": "URL and Other Identifiers",
               "icon": "linkify",
               "component": "AlternateIdentifiersComponent",
-              "wrapped": true,
           },
       ],
   },
@@ -85,7 +77,6 @@ const formPages = [
               "section": "creators",
               "label": "Creators and Contributors",
               "component": "CreatorsComponent",
-              "wrapped": true,
               "addButtonLabel": "Add Contributor",
               "modal": {
                   "addLabel": "Add Contributor",
@@ -97,7 +88,6 @@ const formPages = [
               "label": "AI Use",
               "component": "AIComponent",
               "icon": "microchip",
-              "wrapped": true,
               "description": (
                   "Briefly describe how generative artificial " +
                   "intelligence tools (e.g., ChatGPT, MS Copilot, " +
