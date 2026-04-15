@@ -251,69 +251,336 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h1>
-<section id="wrapping-the-inveniordm-deposit-form">
-<h2>Wrapping the InvenioRDM deposit form<a class="headerlink" href="#wrapping-the-inveniordm-deposit-form" title="Link to this heading">¶</a></h2>
-<p>The package provides a custom Jinja template that renders a custom version of the top-level <code class="docutils literal notranslate"><span class="pre">RDMDepositForm</span></code> component. This is a thin wrapper that renders the stock <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> as its one child. The modular form layout and configuration are merged into the stock deposit form’s config data by the template (using a custom filter) and passed into the stock form’s Redux store.</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="_images/modular-deposit-form-1.jpg"><img alt="Custom template and wrapper component" src="_images/modular-deposit-form-1.jpg" style="width: 100%;" />
-</a>
-</figure>
-<p>The stock invenio-rdm-records component retains responsibility for:</p>
+<p>Invenio Modular Deposit Form augments the stock InvenioRDM deposit form with a
+configurable layout and UI layer, client-side validation, and autosave — all
+without replacing InvenioRDM’s core form machinery. This page gives a
+conceptual picture of how those capabilities fit together. For implementation
+details see <a class="reference internal" href="architecture.html"><span class="std std-doc">Architecture</span></a>; for the full configuration
+reference see <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a>.</p>
+<section id="how-the-package-fits-into-inveniordm">
+<h2>How the package fits into InvenioRDM<a class="headerlink" href="#how-the-package-fits-into-inveniordm" title="Link to this heading">¶</a></h2>
+<p>The package installs a custom Jinja template that replaces InvenioRDM’s default
+deposit form template. The replacement template merges the package’s layout and
+customization settings into the existing form configuration and passes the
+combined data to the React app. From there, a thin wrapper component inserts a
+layout and UI-state management layer between the stock <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> and the
+individual field components.</p>
+<p>Stock InvenioRDM remains responsible for:</p>
 <ul class="simple">
-<li><p>Creation and management of <strong>Formik form state</strong> (monitoring input values and “touched” states)</p></li>
-<li><p>Communication between the form and the <strong>backend API</strong></p></li>
-<li><p>Creation and management of the <strong>Redux store</strong> that handles static data and configuration</p></li>
+<li><p><strong>Formik form state</strong> — tracking field values and “touched” state</p></li>
+<li><p><strong>Backend API communication</strong> — saving drafts, publishing, file uploads</p></li>
+<li><p><strong>Redux store</strong> — holding static configuration accessible to all components</p></li>
 </ul>
-</section>
-<section id="inserting-the-layout-layer">
-<h2>Inserting the layout layer<a class="headerlink" href="#inserting-the-layout-layer" title="Link to this heading">¶</a></h2>
-<p>The second role of the custom <code class="docutils literal notranslate"><span class="pre">RDMDepositForm</span></code> is to insert a new custom layout layer between the <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> and its children (the individual form field components). The wrapper component renders <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> with one child: the new <code class="docutils literal notranslate"><span class="pre">FormLayoutContainer</span></code> component.</p>
+<p>The package adds a layer on top of that foundation that handles everything
+related to <em>how</em> the form is displayed and navigated.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/modular-deposit-form-2.jpg"><img alt="Inserting layout container layer" src="_images/modular-deposit-form-2.jpg" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/modular-deposit-form-1.jpg"><img alt="The custom template merges layout config into the stock form config and passes it to the React app" src="_images/modular-deposit-form-1.jpg" style="width: 100%;" />
 </a>
 </figure>
-<p>This layout layer (and its children) has access to the Redux store and Formik state but does not manage them.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">FormLayoutContainer</span></code> is responsible for:</p>
+</section>
+<section id="layout-configuration">
+<h2>Layout configuration<a class="headerlink" href="#layout-configuration" title="Link to this heading">¶</a></h2>
+<section id="layout-defined-in-python-config">
+<h3>Layout defined in Python config<a class="headerlink" href="#layout-defined-in-python-config" title="Link to this heading">¶</a></h3>
+<p>The entire visual structure of the form is controlled by a single Python config
+variable, <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code>, set in your instance’s
+<code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. Its value is a list of Python dictionaries, each representing a
+React component in the form. The tree of nested dictionaries describes the
+page regions, pages, sections, and individual field widgets that make up the
+form — no JSX or template editing required.</p>
+<p>Each dictionary specifies at minimum:</p>
 <ul class="simple">
-<li><p>Creation and management of dynamic form UI state (via a dedicated Reducer), including the selected resource_type for selective per-type field display</p></li>
-<li><p>Handling client-side autosave of form data</p></li>
-<li><p>Managing page navigation through the form (for multi-page layouts)</p></li>
-<li><p>Monitoring form error states and displaying them on the page (including merging server-side errors with client-side validation errors)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;component&quot;</span></code> — the name of a React component from the registry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;section&quot;</span></code> — a unique string id for this node in the tree</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;subsections&quot;</span></code> — an ordered list of child component dictionaries</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;label&quot;</span></code> — a human-readable label used in navigation and headings</p></li>
 </ul>
-<p>The registry of available form field components and their visual arrangement (including pagination) is provided via the Redux store. The <code class="docutils literal notranslate"><span class="pre">FormLayoutContainer</span></code> renders the top-level <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> elements. If the configured layout includes multiple pages, it also renders a stepper component above the form page and a footer with forward and back buttons.</p>
+<p>Field components also accept <code class="docutils literal notranslate"><span class="pre">description</span></code>, <code class="docutils literal notranslate"><span class="pre">helpText</span></code>, <code class="docutils literal notranslate"><span class="pre">placeholder</span></code>, <code class="docutils literal notranslate"><span class="pre">icon</span></code>,
+<code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">required</span></code>, <code class="docutils literal notranslate"><span class="pre">classnames</span></code>, and any additional keys, which are passed
+through as props to the React component.</p>
+<p>The top-level list defines the form’s <strong>regions</strong>: a required <code class="docutils literal notranslate"><span class="pre">FormPages</span></code> region
+containing the form pages, and optional <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">FormLeftSidebar</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FormRightSidebar</span></code>, and <code class="docutils literal notranslate"><span class="pre">FormFooter</span></code> regions for surrounding content. The
+<code class="docutils literal notranslate"><span class="pre">FormPages</span></code> region holds one <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> per step of the form; each page holds
+one or more sections containing field components.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/modular-deposit-form-2.jpg"><img alt="The layout layer sits between DepositFormApp and the individual field components" src="_images/modular-deposit-form-2.jpg" style="width: 100%;" />
+</a>
+</figure>
+<p>See <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a> for the full layout schema, responsive
+column widths, collapsible sections, <code class="docutils literal notranslate"><span class="pre">FormRow</span></code> for horizontal layouts, and a
+worked example.</p>
 </section>
-<section id="rendering-form-fields-in-the-layout">
-<h2>Rendering form fields in the layout<a class="headerlink" href="#rendering-form-fields-in-the-layout" title="Link to this heading">¶</a></h2>
-<p>Following the configured layout, the <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> elements render the individual form field components. These can be the stock field components supplied by invenio-rdm-records or new custom components; both can be included in the layout configuration.</p>
+<section id="navigation-components">
+<h3>Navigation components<a class="headerlink" href="#navigation-components" title="Link to this heading">¶</a></h3>
+<p>Three navigation components are available in the component registry and can be
+placed anywhere in the layout by including them in a region’s <code class="docutils literal notranslate"><span class="pre">subsections</span></code>:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">FormStepper</span></code></strong> — a horizontal row of step tabs, typically placed in
+<code class="docutils literal notranslate"><span class="pre">FormHeader</span></code>. At tablet widths it is common to show this and hide the sidebar
+menu using CSS visibility classes.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">FormSidebarPageMenu</span></code></strong> — a vertical stacked menu, typically placed in
+<code class="docutils literal notranslate"><span class="pre">FormLeftSidebar</span></code>. Shown on wider screens where there is sidebar space.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">FormPageNavigationBar</span></code></strong> — previous/next buttons with an autosave status
+note, typically placed in <code class="docutils literal notranslate"><span class="pre">FormFooter</span></code>.</p></li>
+</ul>
+<p>All three components display <strong>severity-aware badges</strong>: when the form has
+been validated, each page’s nav item shows a count of errors, warnings, and
+informational notices on that page, and the item receives a CSS class
+(<code class="docutils literal notranslate"><span class="pre">has-error</span></code>, <code class="docutils literal notranslate"><span class="pre">has-warning</span></code>, or <code class="docutils literal notranslate"><span class="pre">has-info</span></code>) so the badge colour can be styled
+accordingly.</p>
+<p>None of these components are injected automatically. They appear only where the
+layout config includes them.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/modular-deposit-form-3.jpg"><img alt="Rendering form fields in the layout" src="_images/modular-deposit-form-3.jpg" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/modular-deposit-form-3.jpg"><img alt="Rendering form fields in the layout following the configured page structure" src="_images/modular-deposit-form-3.jpg" style="width: 100%;" />
 </a>
 </figure>
 </section>
-<section id="combining-a-variety-of-field-component-sources">
-<h2>Combining a variety of field component sources<a class="headerlink" href="#combining-a-variety-of-field-component-sources" title="Link to this heading">¶</a></h2>
-<p>This package maintains a file-based registry of components available for use in the configured layout. That registry can also be expanded via an additional registry in your local InvenioRDM instance folder, supplied to invenio-modular-deposit-form through a Python entry point.</p>
-<p>All of the stock field components are present in the combined registry by default. The stock components can also be overridden via the usual <code class="docutils literal notranslate"><span class="pre">ReactOverridable</span></code> method from your local instance directory. You can use your local instance component registry to add completely new custom form field components (e.g. compound components that combine multiple form fields in a single widget, or multiple components linked to the same underlying metadata field).</p>
-<p>It is also possible to include any custom fields in any location in your layout. This package provides individual components for all of the built-in custom fields that invenio-rdm-records provides for journals, theses, etc. If you create your own custom fields using the standard custom_fields approach, you can include field components for those custom fields through your instance’s component registry.</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="_images/modular-deposit-form-fields.jpg"><img alt="Combining a variety of field component sources" src="_images/modular-deposit-form-fields.jpg" style="width: 100%;" />
-</a>
-</figure>
+<section id="adapting-the-form-to-the-selected-resource-type">
+<h3>Adapting the form to the selected resource type<a class="headerlink" href="#adapting-the-form-to-the-selected-resource-type" title="Link to this heading">¶</a></h3>
+<p>The form can present different pages, sections, and field properties depending
+on which resource type the depositor selects.</p>
+<p><strong>Layout changes</strong> are controlled by <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> in
+<code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. Its keys are resource type ids; its values describe which pages
+should be replaced for that type. When a resource type is selected, the form
+merges that type’s page definitions over the common layout — pages not mentioned
+fall back to the common definition. A page can also inherit another type’s
+layout using <code class="docutils literal notranslate"><span class="pre">same_as</span></code>. This means, for example, that a “journal article” type
+can show an extra “Journal details” page that is hidden for other types, while
+all other pages remain as configured in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code>.</p>
+<p><strong>Field-level changes</strong> are controlled by a family of modification config
+variables that each map resource type ids to field paths and new values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</span></code> — field labels</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</span></code> — label icons</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</span></code> — input placeholders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</span></code> — field descriptions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</span></code> — help text</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</span></code> — pre-filled default values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</span></code> — values that override user input</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</span></code> — fields made required per type</p></li>
+</ul>
+<p>All changes take effect immediately when the resource type is changed, with no
+page reload.</p>
+<p>See <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a> for syntax and examples.</p>
 </section>
-<section id="how-form-fields-are-inserted">
-<h2>How form fields are inserted<a class="headerlink" href="#how-form-fields-are-inserted" title="Link to this heading">¶</a></h2>
-<p>The stock InvenioRDM deposit form uses a static layout in which required props and configuration are passed directly from the <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> into each field component. To insert these field components into a flexible layout layer, the extension uses an outer wrapper component for each field that retrieves and fetches the props the field would normally receive from its parent (the record, list options, rich text editor settings, etc.).</p>
-<p>In addition, the field component is wrapped in an inner <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> higher-order component. This retrieves any configured properties for the form field UI (label, <strong>labelIcon</strong> for the field label icon, placeholder, etc.), modified as necessary for the currently selected resource_type, so that field widgets can adapt to the resource_type on the fly without page reloads.</p>
+<section id="field-components-and-the-registry">
+<h3>Field components and the registry<a class="headerlink" href="#field-components-and-the-registry" title="Link to this heading">¶</a></h3>
+<p>The package maintains a built-in registry mapping component names to React
+components and their associated metadata field paths. The layout config
+references components by name; the registry resolves those names at render time.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/modular-deposit-form-widgets.jpg"><img alt="How form fields are inserted" src="_images/modular-deposit-form-widgets.jpg" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/modular-deposit-form-fields.jpg"><img alt="Field components drawn from the built-in registry, instance overrides, and custom fields" src="_images/modular-deposit-form-fields.jpg" style="width: 100%;" />
 </a>
 </figure>
-<p>For custom fields (built-in or user-created), the field’s React component requires props prepared by a dedicated field template. Custom fields also have their UI configuration embedded in form UI sections, displayed in the stock form as tabs at the bottom of the form.</p>
-<p>To free up custom field widgets for more flexible placement, use the <strong>CustomField</strong> component. It looks up the field’s widget and props from the same custom field UI configuration that is part of the regular InvenioRDM custom fields system (see <strong>Handling custom fields</strong> in <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>), does not mutate that config, and wraps the result in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>. This allows the field’s UI properties to be modified from the layout config and lets the widget adapt to the selected resource type.</p>
+<p>The built-in registry includes:</p>
+<ul class="simple">
+<li><p>Wrappers for all stock InvenioRDM field widgets</p></li>
+<li><p>Alternative implementations for several fields (see below)</p></li>
+<li><p>Compound components that group related fields into a single layout section</p></li>
+<li><p>Components for the built-in InvenioRDM contrib custom fields (journal,
+imprint, meeting, thesis, codemeta/software)</p></li>
+<li><p>The navigation and framing components described above</p></li>
+</ul>
+<p>Instance packages can extend the registry by providing their own
+<code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> file, referenced via a Python entry point. Their
+registry object is merged over the built-in one at build time, so instance
+keys override built-ins with the same name. See <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p>
+<p>Stock field widgets can also be replaced using the standard InvenioRDM
+<code class="docutils literal notranslate"><span class="pre">ReactOverridable</span></code> mechanism from the instance’s <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> file, without
+touching the registry. See <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a>.</p>
+</section>
+<section id="alternate-component-variants">
+<h3>Alternate component variants<a class="headerlink" href="#alternate-component-variants" title="Link to this heading">¶</a></h3>
+<p>For several fields, the registry includes more than one component. The
+operator selects between them by using the desired component name in the
+layout config.</p>
+<p>Notable alternates:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">CreatorsComponentFlat</span></code> / <code class="docutils literal notranslate"><span class="pre">ContributorsComponentFlat</span></code></strong> — inline editing
+panels instead of a modal dialog; keyboard-accessible reordering; “Add
+myself” button; identifiers edited as explicit scheme/value rows</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorComponent</span></code></strong> — button-style shortcut row for the most
+common types, replacing the dropdown <code class="docutils literal notranslate"><span class="pre">ResourceTypeComponent</span></code></p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">PublicationDateAlternateComponent</span></code></strong> — a compact alternate date input</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">AdditionalDatesAlternateComponent</span></code></strong> — alternate date-range input</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">HorizontalSubmissionComponent</span></code></strong> — two-column layout combining form
+feedback and submission buttons, as an alternative to the sidebar
+<code class="docutils literal notranslate"><span class="pre">SubmissionComponent</span></code> + <code class="docutils literal notranslate"><span class="pre">FormFeedbackComponent</span></code> pair</p></li>
+</ul>
+<p>See <a class="reference internal" href="field_components.html"><span class="std std-doc">Built-in field components</span></a> for the full list and
+guidance on when to use each.</p>
+</section>
+<section id="how-each-field-widget-receives-its-props">
+<h3>How each field widget receives its props<a class="headerlink" href="#how-each-field-widget-receives-its-props" title="Link to this heading">¶</a></h3>
+<p>Stock InvenioRDM hard-wires each field component’s props at the top level of
+the form. This package instead assembles each field’s props at render time,
+reading from the Redux config and the current resource type, so the layout
+layer can place any field anywhere without needing to know its data requirements
+in advance.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/modular-deposit-form-custom-field.jpg"><img alt="How custom fields are inserted" src="_images/modular-deposit-form-custom-field.jpg" style="width: 100%;" />
+<a class="reference internal image-reference" href="_images/modular-deposit-form-widgets.jpg"><img alt="Each field component is wrapped at render time to receive the props it needs from the store" src="_images/modular-deposit-form-widgets.jpg" style="width: 100%;" />
 </a>
 </figure>
+<p>Each field component is wrapped in a <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> that:</p>
+<ul class="simple">
+<li><p>Reads record data, vocabulary options, and other field-specific data from the
+Redux store</p></li>
+<li><p>Applies any label, icon, placeholder, or other modifications for the
+currently selected resource type</p></li>
+<li><p>Exposes an <code class="docutils literal notranslate"><span class="pre">Overridable</span></code> slot so the inner widget can be replaced via
+<code class="docutils literal notranslate"><span class="pre">ReactOverridable</span></code></p></li>
+</ul>
+<p>This is internal detail; operators do not interact with <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>
+directly.</p>
+</section>
+<section id="custom-fields">
+<h3>Custom fields<a class="headerlink" href="#custom-fields" title="Link to this heading">¶</a></h3>
+<p>InvenioRDM’s custom fields system normally displays custom field widgets in
+fixed tab sections at the bottom of the form. This package frees those widgets
+for placement anywhere in the layout.</p>
+<p>The package ships individual components for all the built-in InvenioRDM contrib
+custom fields (journal, imprint, meeting, thesis, codemeta). To use them, add
+the corresponding component name to your layout config and ensure the field is
+registered in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span></code> and <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>.</p>
+<p>For your own custom fields, use the <strong><code class="docutils literal notranslate"><span class="pre">CustomField</span></code></strong> component. It looks up
+the field’s widget and props from <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>, applies any
+resource-type modifications, and wraps the result in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="_images/modular-deposit-form-custom-field.jpg"><img alt="The CustomField component resolves a custom field widget from RDM_CUSTOM_FIELDS_UI and inserts it into the layout" src="_images/modular-deposit-form-custom-field.jpg" style="width: 100%;" />
+</a>
+</figure>
+<p>See <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a> for a full walkthrough of adding custom fields
+to the layout.</p>
+</section>
+</section>
+<section id="client-side-validation">
+<h2>Client-side validation<a class="headerlink" href="#client-side-validation" title="Link to this heading">¶</a></h2>
+<p>The package supports optional in-browser validation using a
+<a class="reference external" href="https://github.com/jquense/yup">Yup</a> schema. When enabled, fields are
+validated as the depositor works through the form and errors are shown
+immediately on each field rather than only after submission. The
+severity-aware badges on the navigation components reflect the running
+validation state as the form is filled in.</p>
+<p>Client-side validation is opt-in:</p>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="pre">=</span> <span class="pre">True</span></code> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code></p></li>
+<li><p>Run the included patch script against your installed <code class="docutils literal notranslate"><span class="pre">invenio-rdm-records</span></code>
+package (the patch enables the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> prop in the stock form
+bootstrap components)</p></li>
+<li><p>Rebuild front-end assets</p></li>
+</ol>
+<section id="the-default-schema">
+<h3>The default schema<a class="headerlink" href="#the-default-schema" title="Link to this heading">¶</a></h3>
+<p>The package ships a default validation schema that closely mirrors
+InvenioRDM’s server-side field schemas, so that errors the backend would
+reject are surfaced to the depositor in the browser before submission.
+Coverage includes:</p>
+<ul class="simple">
+<li><p><strong>Required fields</strong> — title, resource type, at least one creator, publication
+date, access level, and others that the backend enforces</p></li>
+<li><p><strong>Date formats</strong> — publication date and additional dates validated against
+EDTF; embargo date against ISO 8601; sequential-date constraints (e.g. end
+date must follow start date)</p></li>
+<li><p><strong>Title length</strong> — enforced against the instance’s <code class="docutils literal notranslate"><span class="pre">RDM_RECORDS_MAX_TITLE_LENGTH</span></code>
+setting (read from the deposit config at schema-build time)</p></li>
+<li><p><strong>Vocabulary membership</strong> — creator and contributor roles validated against
+the configured vocabulary options; additional title and date types similarly
+constrained</p></li>
+<li><p><strong>Identifier format validation</strong> — identifiers for creators, contributors,
+record alternate identifiers, related works, location identifiers, and DOIs
+are validated against per-scheme format rules (ORCID, ROR, ISNI, GND, DOI,
+arXiv, ISBN, ISSN, URL, and others). The set of allowed schemes for each
+context is read from the instance’s configured vocabularies at schema-build
+time, so validation automatically reflects the schemes the instance permits.
+Scheme-specific error messages identify the scheme by name.</p></li>
+<li><p><strong>Custom fields</strong> — the schema for contrib custom field sections (journal,
+imprint, meeting, thesis, codemeta) is built dynamically from the instance’s
+<code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code> configuration</p></li>
+</ul>
+<p>The schema is built as a function <code class="docutils literal notranslate"><span class="pre">buildValidationSchema(config)</span></code> that receives
+the full deposit config (including vocabularies, title length, and custom field
+UI config) at form initialisation, so all constraints are instance-aware
+without hardcoding values.</p>
+</section>
+<section id="overriding-the-schema">
+<h3>Overriding the schema<a class="headerlink" href="#overriding-the-schema" title="Link to this heading">¶</a></h3>
+<p>Instances can replace the validation schema entirely, extend it, or replace
+only portions of it by providing their own <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> via the
+<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.validator</span></code> Python entry point.</p>
+<p>The module exported by <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> may be:</p>
+<ul class="simple">
+<li><p><strong>A function</strong> <code class="docutils literal notranslate"><span class="pre">(config)</span> <span class="pre">=&gt;</span> <span class="pre">yupSchema</span></code> — called at form initialisation with
+the full deposit config, allowing the schema to read vocabulary options,
+length limits, and custom field UI config just as the default does. This is
+the recommended form.</p></li>
+<li><p><strong>A static schema object</strong> — used as-is without access to config.</p></li>
+</ul>
+<p>To extend rather than replace the default schema, import
+<code class="docutils literal notranslate"><span class="pre">buildValidationSchema</span></code> from the package’s
+<code class="docutils literal notranslate"><span class="pre">validation/validator.js</span></code> in your own validator module, call it with the
+config, and use Yup’s <code class="docutils literal notranslate"><span class="pre">.concat()</span></code> or <code class="docutils literal notranslate"><span class="pre">.shape()</span></code> to merge your additional rules
+on top.</p>
+<p>See <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a> for a full guide and <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>
+for how to register the entry point.</p>
+<div class="admonition-placeholder-validation-flow-diagram admonition">
+<p class="admonition-title">Placeholder — validation flow diagram</p>
+<p>A diagram showing: user input → Yup schema → Formik errors → per-field error
+display + FormFeedbackComponent + nav badge counts would go here.</p>
+</div>
+</section>
+</section>
+<section id="autosave">
+<h2>Autosave<a class="headerlink" href="#autosave" title="Link to this heading">¶</a></h2>
+<p>Unsubmitted form values are automatically saved to browser local storage as the
+depositor fills in the form. When the user returns to the form with locally
+stored values that have not yet been saved to the backend, a modal offers to
+restore them. A brief status note in the <code class="docutils literal notranslate"><span class="pre">FormPageNavigationBar</span></code> indicates when
+local values are stored.</p>
+<p>No configuration is needed; autosave is active by default and requires no
+changes to <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>.</p>
+</section>
+<section id="metadata-transformations-on-submit">
+<h2>Metadata transformations on submit<a class="headerlink" href="#metadata-transformations-on-submit" title="Link to this heading">¶</a></h2>
+<p>Before the form’s values are sent to the backend on submission, the package
+runs them through a chain of <strong>transformation functions</strong>. Each function
+receives the current Formik values object and returns a new modified copy;
+the output of each transformation is passed as input to the next:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>values → transform1(values) → transform2(values) → … → payload to backend
+</pre></div>
+</div>
+<p>This allows instances to manipulate the submitted metadata — normalising
+formats, stripping or coercing empty values, supplying derived defaults, or
+reshaping fields — without patching InvenioRDM’s submission logic.</p>
+<section id="providing-custom-transformations">
+<h3>Providing custom transformations<a class="headerlink" href="#providing-custom-transformations" title="Link to this heading">¶</a></h3>
+<p>Transformation functions are registered via the
+<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.transformations</span></code> Python entry point. The entry
+point must point to a callable that returns (or <em>is</em>) a JavaScript module
+whose default export (or <code class="docutils literal notranslate"><span class="pre">transformations</span></code> named export) is an <strong>array of
+functions</strong>, each with the signature <code class="docutils literal notranslate"><span class="pre">(values)</span> <span class="pre">=&gt;</span> <span class="pre">newValues</span></code>. Functions in the
+array are applied in order; each receives the output of the previous one.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># pyproject.toml (or setup.cfg) of your instance package</span>
+<span class="p">[</span><span class="n">project</span><span class="o">.</span><span class="n">entry</span><span class="o">-</span><span class="n">points</span><span class="o">.</span><span class="s2">&quot;invenio_modular_deposit_form.transformations&quot;</span><span class="p">]</span>
+<span class="n">my_instance</span> <span class="o">=</span> <span class="s2">&quot;my_instance.webpack:get_transformations_path&quot;</span>
+</pre></div>
+</div>
+<p>The callable <code class="docutils literal notranslate"><span class="pre">get_transformations_path</span></code> should return the filesystem path (or
+webpack request string) to your <code class="docutils literal notranslate"><span class="pre">transformations.js</span></code> module:</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_instance/assets/js/transformations.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">transformations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">values</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">    </span><span class="p">...</span><span class="nx">values</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">metadata</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">,</span><span class="w"> </span><span class="nx">publisher</span><span class="o">:</span><span class="w"> </span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">.</span><span class="nx">publisher</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;My Repository&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">values</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">stripEmptyArrays</span><span class="p">(</span><span class="nx">values</span><span class="p">),</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>If no entry point is registered, the default stub provides an empty array and
+no transformations are applied — the values are submitted unchanged.</p>
+<p>See <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a> for full registration details.</p>
+</section>
 </section>
 </section>
 
@@ -380,11 +647,27 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Overview</a><ul>
-<li><a class="reference internal" href="#wrapping-the-inveniordm-deposit-form">Wrapping the InvenioRDM deposit form</a></li>
-<li><a class="reference internal" href="#inserting-the-layout-layer">Inserting the layout layer</a></li>
-<li><a class="reference internal" href="#rendering-form-fields-in-the-layout">Rendering form fields in the layout</a></li>
-<li><a class="reference internal" href="#combining-a-variety-of-field-component-sources">Combining a variety of field component sources</a></li>
-<li><a class="reference internal" href="#how-form-fields-are-inserted">How form fields are inserted</a></li>
+<li><a class="reference internal" href="#how-the-package-fits-into-inveniordm">How the package fits into InvenioRDM</a></li>
+<li><a class="reference internal" href="#layout-configuration">Layout configuration</a><ul>
+<li><a class="reference internal" href="#layout-defined-in-python-config">Layout defined in Python config</a></li>
+<li><a class="reference internal" href="#navigation-components">Navigation components</a></li>
+<li><a class="reference internal" href="#adapting-the-form-to-the-selected-resource-type">Adapting the form to the selected resource type</a></li>
+<li><a class="reference internal" href="#field-components-and-the-registry">Field components and the registry</a></li>
+<li><a class="reference internal" href="#alternate-component-variants">Alternate component variants</a></li>
+<li><a class="reference internal" href="#how-each-field-widget-receives-its-props">How each field widget receives its props</a></li>
+<li><a class="reference internal" href="#custom-fields">Custom fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#client-side-validation">Client-side validation</a><ul>
+<li><a class="reference internal" href="#the-default-schema">The default schema</a></li>
+<li><a class="reference internal" href="#overriding-the-schema">Overriding the schema</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#autosave">Autosave</a></li>
+<li><a class="reference internal" href="#metadata-transformations-on-submit">Metadata transformations on submit</a><ul>
+<li><a class="reference internal" href="#providing-custom-transformations">Providing custom transformations</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -1,78 +1,363 @@
 # Overview
 
-## Wrapping the InvenioRDM deposit form
+Invenio Modular Deposit Form augments the stock InvenioRDM deposit form with a
+configurable layout and UI layer, client-side validation, and autosave — all
+without replacing InvenioRDM's core form machinery. This page gives a
+conceptual picture of how those capabilities fit together. For implementation
+details see [Architecture](architecture.md); for the full configuration
+reference see [Configuration](configuration.md).
 
-The package provides a custom Jinja template that renders a custom version of the top-level `RDMDepositForm` component. This is a thin wrapper that renders the stock `DepositFormApp` as its one child. The modular form layout and configuration are merged into the stock deposit form's config data by the template (using a custom filter) and passed into the stock form's Redux store.
+## How the package fits into InvenioRDM
+
+The package installs a custom Jinja template that replaces InvenioRDM's default
+deposit form template. The replacement template merges the package's layout and
+customization settings into the existing form configuration and passes the
+combined data to the React app. From there, a thin wrapper component inserts a
+layout and UI-state management layer between the stock `DepositFormApp` and the
+individual field components.
+
+Stock InvenioRDM remains responsible for:
+
+- **Formik form state** — tracking field values and "touched" state
+- **Backend API communication** — saving drafts, publishing, file uploads
+- **Redux store** — holding static configuration accessible to all components
+
+The package adds a layer on top of that foundation that handles everything
+related to *how* the form is displayed and navigated.
 
 ```{figure} _static/modular-deposit-form-1.jpg
-:alt: Custom template and wrapper component
+:alt: The custom template merges layout config into the stock form config and passes it to the React app
 :width: 100%
 ```
 
-The stock invenio-rdm-records component retains responsibility for:
+## Layout configuration
 
-- Creation and management of **Formik form state** (monitoring input values and "touched" states)
-- Communication between the form and the **backend API**
-- Creation and management of the **Redux store** that handles static data and configuration
+### Layout defined in Python config
 
-## Inserting the layout layer
+The entire visual structure of the form is controlled by a single Python config
+variable, `MODULAR_DEPOSIT_FORM_COMMON_FIELDS`, set in your instance's
+`invenio.cfg`. Its value is a list of Python dictionaries, each representing a
+React component in the form. The tree of nested dictionaries describes the
+page regions, pages, sections, and individual field widgets that make up the
+form — no JSX or template editing required.
 
-The second role of the custom `RDMDepositForm` is to insert a new custom layout layer between the `DepositFormApp` and its children (the individual form field components). The wrapper component renders `DepositFormApp` with one child: the new `FormLayoutContainer` component.
+Each dictionary specifies at minimum:
+
+- `"component"` — the name of a React component from the registry
+- `"section"` — a unique string id for this node in the tree
+- `"subsections"` — an ordered list of child component dictionaries
+- `"label"` — a human-readable label used in navigation and headings
+
+Field components also accept `description`, `helpText`, `placeholder`, `icon`,
+`label`, `required`, `classnames`, and any additional keys, which are passed
+through as props to the React component.
+
+The top-level list defines the form's **regions**: a required `FormPages` region
+containing the form pages, and optional `FormHeader`, `FormLeftSidebar`,
+`FormRightSidebar`, and `FormFooter` regions for surrounding content. The
+`FormPages` region holds one `FormPage` per step of the form; each page holds
+one or more sections containing field components.
 
 ```{figure} _static/modular-deposit-form-2.jpg
-:alt: Inserting layout container layer
+:alt: The layout layer sits between DepositFormApp and the individual field components
 :width: 100%
 ```
 
-This layout layer (and its children) has access to the Redux store and Formik state but does not manage them.
+See [Configuration](configuration.md) for the full layout schema, responsive
+column widths, collapsible sections, `FormRow` for horizontal layouts, and a
+worked example.
 
-The `FormLayoutContainer` is responsible for:
+### Navigation components
 
-- Creation and management of dynamic form UI state (via a dedicated Reducer), including the selected resource_type for selective per-type field display
-- Handling client-side autosave of form data
-- Managing page navigation through the form (for multi-page layouts)
-- Monitoring form error states and displaying them on the page (including merging server-side errors with client-side validation errors)
+Three navigation components are available in the component registry and can be
+placed anywhere in the layout by including them in a region's `subsections`:
 
-The registry of available form field components and their visual arrangement (including pagination) is provided via the Redux store. The `FormLayoutContainer` renders the top-level `FormPage` elements. If the configured layout includes multiple pages, it also renders a stepper component above the form page and a footer with forward and back buttons.
+- **`FormStepper`** — a horizontal row of step tabs, typically placed in
+  `FormHeader`. At tablet widths it is common to show this and hide the sidebar
+  menu using CSS visibility classes.
+- **`FormSidebarPageMenu`** — a vertical stacked menu, typically placed in
+  `FormLeftSidebar`. Shown on wider screens where there is sidebar space.
+- **`FormPageNavigationBar`** — previous/next buttons with an autosave status
+  note, typically placed in `FormFooter`.
 
-## Rendering form fields in the layout
+All three components display **severity-aware badges**: when the form has
+been validated, each page's nav item shows a count of errors, warnings, and
+informational notices on that page, and the item receives a CSS class
+(`has-error`, `has-warning`, or `has-info`) so the badge colour can be styled
+accordingly.
 
-Following the configured layout, the `FormPage` elements render the individual form field components. These can be the stock field components supplied by invenio-rdm-records or new custom components; both can be included in the layout configuration.
+None of these components are injected automatically. They appear only where the
+layout config includes them.
 
 ```{figure} _static/modular-deposit-form-3.jpg
-:alt: Rendering form fields in the layout
+:alt: Rendering form fields in the layout following the configured page structure
 :width: 100%
 ```
 
-## Combining a variety of field component sources
+### Adapting the form to the selected resource type
 
-This package maintains a file-based registry of components available for use in the configured layout. That registry can also be expanded via an additional registry in your local InvenioRDM instance folder, supplied to invenio-modular-deposit-form through a Python entry point.
+The form can present different pages, sections, and field properties depending
+on which resource type the depositor selects.
 
-All of the stock field components are present in the combined registry by default. The stock components can also be overridden via the usual `ReactOverridable` method from your local instance directory. You can use your local instance component registry to add completely new custom form field components (e.g. compound components that combine multiple form fields in a single widget, or multiple components linked to the same underlying metadata field).
+**Layout changes** are controlled by `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` in
+`invenio.cfg`. Its keys are resource type ids; its values describe which pages
+should be replaced for that type. When a resource type is selected, the form
+merges that type's page definitions over the common layout — pages not mentioned
+fall back to the common definition. A page can also inherit another type's
+layout using `same_as`. This means, for example, that a "journal article" type
+can show an extra "Journal details" page that is hidden for other types, while
+all other pages remain as configured in `MODULAR_DEPOSIT_FORM_COMMON_FIELDS`.
 
-It is also possible to include any custom fields in any location in your layout. This package provides individual components for all of the built-in custom fields that invenio-rdm-records provides for journals, theses, etc. If you create your own custom fields using the standard custom_fields approach, you can include field components for those custom fields through your instance's component registry.
+**Field-level changes** are controlled by a family of modification config
+variables that each map resource type ids to field paths and new values:
+
+- `MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS` — field labels
+- `MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS` — label icons
+- `MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS` — input placeholders
+- `MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS` — field descriptions
+- `MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS` — help text
+- `MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES` — pre-filled default values
+- `MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES` — values that override user input
+- `MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS` — fields made required per type
+
+All changes take effect immediately when the resource type is changed, with no
+page reload.
+
+See [Configuration](configuration.md) for syntax and examples.
+
+### Field components and the registry
+
+The package maintains a built-in registry mapping component names to React
+components and their associated metadata field paths. The layout config
+references components by name; the registry resolves those names at render time.
 
 ```{figure} _static/modular-deposit-form-fields.jpg
-:alt: Combining a variety of field component sources
+:alt: Field components drawn from the built-in registry, instance overrides, and custom fields
 :width: 100%
 ```
 
-## How form fields are inserted
+The built-in registry includes:
 
-The stock InvenioRDM deposit form uses a static layout in which required props and configuration are passed directly from the `DepositFormApp` into each field component. To insert these field components into a flexible layout layer, the extension uses an outer wrapper component for each field that retrieves and fetches the props the field would normally receive from its parent (the record, list options, rich text editor settings, etc.).
+- Wrappers for all stock InvenioRDM field widgets
+- Alternative implementations for several fields (see below)
+- Compound components that group related fields into a single layout section
+- Components for the built-in InvenioRDM contrib custom fields (journal,
+  imprint, meeting, thesis, codemeta/software)
+- The navigation and framing components described above
 
-In addition, the field component is wrapped in an inner `FieldComponentWrapper` higher-order component. This retrieves any configured properties for the form field UI (label, **labelIcon** for the field label icon, placeholder, etc.), modified as necessary for the currently selected resource_type, so that field widgets can adapt to the resource_type on the fly without page reloads.
+Instance packages can extend the registry by providing their own
+`componentsRegistry.js` file, referenced via a Python entry point. Their
+registry object is merged over the built-in one at build time, so instance
+keys override built-ins with the same name. See [Extending](extending.md).
+
+Stock field widgets can also be replaced using the standard InvenioRDM
+`ReactOverridable` mechanism from the instance's `mapping.js` file, without
+touching the registry. See [Override guide](override-guide.md).
+
+### Alternate component variants
+
+For several fields, the registry includes more than one component. The
+operator selects between them by using the desired component name in the
+layout config.
+
+Notable alternates:
+
+- **`CreatorsComponentFlat` / `ContributorsComponentFlat`** — inline editing
+  panels instead of a modal dialog; keyboard-accessible reordering; "Add
+  myself" button; identifiers edited as explicit scheme/value rows
+- **`ResourceTypeSelectorComponent`** — button-style shortcut row for the most
+  common types, replacing the dropdown `ResourceTypeComponent`
+- **`PublicationDateAlternateComponent`** — a compact alternate date input
+- **`AdditionalDatesAlternateComponent`** — alternate date-range input
+- **`HorizontalSubmissionComponent`** — two-column layout combining form
+  feedback and submission buttons, as an alternative to the sidebar
+  `SubmissionComponent` + `FormFeedbackComponent` pair
+
+See [Built-in field components](field_components.md) for the full list and
+guidance on when to use each.
+
+### How each field widget receives its props
+
+Stock InvenioRDM hard-wires each field component's props at the top level of
+the form. This package instead assembles each field's props at render time,
+reading from the Redux config and the current resource type, so the layout
+layer can place any field anywhere without needing to know its data requirements
+in advance.
 
 ```{figure} _static/modular-deposit-form-widgets.jpg
-:alt: How form fields are inserted
+:alt: Each field component is wrapped at render time to receive the props it needs from the store
 :width: 100%
 ```
 
-For custom fields (built-in or user-created), the field's React component requires props prepared by a dedicated field template. Custom fields also have their UI configuration embedded in form UI sections, displayed in the stock form as tabs at the bottom of the form.
+Each field component is wrapped in a `FieldComponentWrapper` that:
 
-To free up custom field widgets for more flexible placement, use the **CustomField** component. It looks up the field's widget and props from the same custom field UI configuration that is part of the regular InvenioRDM custom fields system (see **Handling custom fields** in [Extending](extending.md)), does not mutate that config, and wraps the result in `FieldComponentWrapper`. This allows the field's UI properties to be modified from the layout config and lets the widget adapt to the selected resource type.
+- Reads record data, vocabulary options, and other field-specific data from the
+  Redux store
+- Applies any label, icon, placeholder, or other modifications for the
+  currently selected resource type
+- Exposes an `Overridable` slot so the inner widget can be replaced via
+  `ReactOverridable`
+
+This is internal detail; operators do not interact with `FieldComponentWrapper`
+directly.
+
+### Custom fields
+
+InvenioRDM's custom fields system normally displays custom field widgets in
+fixed tab sections at the bottom of the form. This package frees those widgets
+for placement anywhere in the layout.
+
+The package ships individual components for all the built-in InvenioRDM contrib
+custom fields (journal, imprint, meeting, thesis, codemeta). To use them, add
+the corresponding component name to your layout config and ensure the field is
+registered in `RDM_CUSTOM_FIELDS` and `RDM_CUSTOM_FIELDS_UI`.
+
+For your own custom fields, use the **`CustomField`** component. It looks up
+the field's widget and props from `RDM_CUSTOM_FIELDS_UI`, applies any
+resource-type modifications, and wraps the result in `FieldComponentWrapper`.
 
 ```{figure} _static/modular-deposit-form-custom-field.jpg
-:alt: How custom fields are inserted
+:alt: The CustomField component resolves a custom field widget from RDM_CUSTOM_FIELDS_UI and inserts it into the layout
 :width: 100%
 ```
+
+See [Extending](extending.md) for a full walkthrough of adding custom fields
+to the layout.
+
+## Client-side validation
+
+The package supports optional in-browser validation using a
+[Yup](https://github.com/jquense/yup) schema. When enabled, fields are
+validated as the depositor works through the form and errors are shown
+immediately on each field rather than only after submission. The
+severity-aware badges on the navigation components reflect the running
+validation state as the form is filled in.
+
+Client-side validation is opt-in:
+
+1. Set `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True` in `invenio.cfg`
+2. Run the included patch script against your installed `invenio-rdm-records`
+   package (the patch enables the `validationSchema` prop in the stock form
+   bootstrap components)
+3. Rebuild front-end assets
+
+### The default schema
+
+The package ships a default validation schema that closely mirrors
+InvenioRDM's server-side field schemas, so that errors the backend would
+reject are surfaced to the depositor in the browser before submission.
+Coverage includes:
+
+- **Required fields** — title, resource type, at least one creator, publication
+  date, access level, and others that the backend enforces
+- **Date formats** — publication date and additional dates validated against
+  EDTF; embargo date against ISO 8601; sequential-date constraints (e.g. end
+  date must follow start date)
+- **Title length** — enforced against the instance's `RDM_RECORDS_MAX_TITLE_LENGTH`
+  setting (read from the deposit config at schema-build time)
+- **Vocabulary membership** — creator and contributor roles validated against
+  the configured vocabulary options; additional title and date types similarly
+  constrained
+- **Identifier format validation** — identifiers for creators, contributors,
+  record alternate identifiers, related works, location identifiers, and DOIs
+  are validated against per-scheme format rules (ORCID, ROR, ISNI, GND, DOI,
+  arXiv, ISBN, ISSN, URL, and others). The set of allowed schemes for each
+  context is read from the instance's configured vocabularies at schema-build
+  time, so validation automatically reflects the schemes the instance permits.
+  Scheme-specific error messages identify the scheme by name.
+- **Custom fields** — the schema for contrib custom field sections (journal,
+  imprint, meeting, thesis, codemeta) is built dynamically from the instance's
+  `RDM_CUSTOM_FIELDS_UI` configuration
+
+The schema is built as a function `buildValidationSchema(config)` that receives
+the full deposit config (including vocabularies, title length, and custom field
+UI config) at form initialisation, so all constraints are instance-aware
+without hardcoding values.
+
+### Overriding the schema
+
+Instances can replace the validation schema entirely, extend it, or replace
+only portions of it by providing their own `validator.js` via the
+`invenio_modular_deposit_form.validator` Python entry point.
+
+The module exported by `validator.js` may be:
+
+- **A function** `(config) => yupSchema` — called at form initialisation with
+  the full deposit config, allowing the schema to read vocabulary options,
+  length limits, and custom field UI config just as the default does. This is
+  the recommended form.
+- **A static schema object** — used as-is without access to config.
+
+To extend rather than replace the default schema, import
+`buildValidationSchema` from the package's
+`validation/validator.js` in your own validator module, call it with the
+config, and use Yup's `.concat()` or `.shape()` to merge your additional rules
+on top.
+
+See [Validation](validation.md) for a full guide and [Extending](extending.md)
+for how to register the entry point.
+
+```{admonition} Placeholder — validation flow diagram
+A diagram showing: user input → Yup schema → Formik errors → per-field error
+display + FormFeedbackComponent + nav badge counts would go here.
+```
+
+## Autosave
+
+Unsubmitted form values are automatically saved to browser local storage as the
+depositor fills in the form. When the user returns to the form with locally
+stored values that have not yet been saved to the backend, a modal offers to
+restore them. A brief status note in the `FormPageNavigationBar` indicates when
+local values are stored.
+
+No configuration is needed; autosave is active by default and requires no
+changes to `invenio.cfg`.
+
+## Metadata transformations on submit
+
+Before the form's values are sent to the backend on submission, the package
+runs them through a chain of **transformation functions**. Each function
+receives the current Formik values object and returns a new modified copy;
+the output of each transformation is passed as input to the next:
+
+```
+values → transform1(values) → transform2(values) → … → payload to backend
+```
+
+This allows instances to manipulate the submitted metadata — normalising
+formats, stripping or coercing empty values, supplying derived defaults, or
+reshaping fields — without patching InvenioRDM's submission logic.
+
+### Providing custom transformations
+
+Transformation functions are registered via the
+`invenio_modular_deposit_form.transformations` Python entry point. The entry
+point must point to a callable that returns (or _is_) a JavaScript module
+whose default export (or `transformations` named export) is an **array of
+functions**, each with the signature `(values) => newValues`. Functions in the
+array are applied in order; each receives the output of the previous one.
+
+```python
+# pyproject.toml (or setup.cfg) of your instance package
+[project.entry-points."invenio_modular_deposit_form.transformations"]
+my_instance = "my_instance.webpack:get_transformations_path"
+```
+
+The callable `get_transformations_path` should return the filesystem path (or
+webpack request string) to your `transformations.js` module:
+
+```js
+// my_instance/assets/js/transformations.js
+export const transformations = [
+  (values) => ({
+    ...values,
+    metadata: { ...values.metadata, publisher: values.metadata.publisher || "My Repository" },
+  }),
+  (values) => stripEmptyArrays(values),
+];
+```
+
+If no entry point is registered, the default stub provides an empty array and
+no transformations are applied — the values are submitted unchanged.
+
+See [Extending](extending.md) for full registration details.
