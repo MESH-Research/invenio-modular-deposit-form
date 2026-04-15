@@ -44,14 +44,16 @@ sphinx-autobuild source build
 - `source/` — Source files for the documentation
   - `index.md` — Main documentation index
   - `introduction.md` — Project introduction and features
-  - `overview.md` — Architecture overview and diagrams
-  - `installation.md` — Installation and patch script
+  - `overview.md` — Conceptual overview and diagrams
+  - `installation.md` — Installation and enabling client-side validation
+  - `using.md` — Maintainer guide: defaults, first-run behaviour, customization entry points
   - `configuration.md` — Configuration and form layout
   - `field_components.md` — Built-in field components
   - `extending.md` — Entry points, registry, and custom components
   - `validation.md` — Client-side validation
   - `architecture.md` — Architecture and form state
   - `override-guide.md` — Overridable slots reference
+  - `replacement_field_components.md` — Replacement field widget notes
 - `build/` — Built documentation (generated)
 - `Makefile` — Build automation
 
