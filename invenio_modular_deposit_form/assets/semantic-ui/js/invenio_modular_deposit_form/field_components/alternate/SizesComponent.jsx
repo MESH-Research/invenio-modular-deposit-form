@@ -6,7 +6,7 @@
 
 import React from "react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { SizesField } from "./field_inputs/SizesField";
+import { SizesFieldAlternate as SizesField } from "./field_inputs/SizesField";
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
 
 /**
