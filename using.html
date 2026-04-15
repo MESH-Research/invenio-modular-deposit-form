@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
-        <title>Using Invenio-Modular-Deposit-Form - Invenio Modular Deposit Form 0.3.4-dev0 documentation</title>
+        <title>Using Invenio Modular Deposit Form - Invenio Modular Deposit Form 0.3.4-dev0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -250,86 +250,155 @@
         </div>
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="using-invenio-modular-deposit-form">
-<h1>Using Invenio-Modular-Deposit-Form<a class="headerlink" href="#using-invenio-modular-deposit-form" title="Link to this heading">¶</a></h1>
-<p>To add the package’s functionality to your own instance’s upload form, simply
-<a class="reference internal" href="installation.html"><span class="std std-doc">install the package</span></a> in your InvenioRDM instance, rebuild
-the front-end assets using <code class="docutils literal notranslate"><span class="pre">invenio-cli</span> <span class="pre">assets</span> <span class="pre">build</span></code>, and restart the instance.
-If you have not enabled the built-in invenio-rdm-records custom fields and wish
-to use them in your layout, you will also need to run <code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">rdm-records</span> <span class="pre">custom-fields</span> <span class="pre">init</span></code>.</p>
-<section id="initial-defaults">
-<h2>Initial Defaults<a class="headerlink" href="#initial-defaults" title="Link to this heading">¶</a></h2>
-<p>When you have first installed the extension and visit your deposit form, you
-will see the default configuration active. (The default config is defined in the
-package file <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/config/default.py</span></code>.) This default
-setup includes:</p>
-<section id="the-default-multi-page-form-layout">
-<h3>The default multi-page form layout<a class="headerlink" href="#the-default-multi-page-form-layout" title="Link to this heading">¶</a></h3>
-<p>The form will be laid out with a left-hand sidebar menu and right-hand sidebar
-with the form save and visibility widgets. In the middle column you will see the
-current page’s field inputs. A sticky footer bar includes forward/backward
-form page navigation buttons as well as a message when form values are backed up
-locally.</p>
-<p>The pages follow the section divisions in the stock InvenioRDM deposit form, one
-form page per section. If your instance has activated the built-in
-invenio-rdm-records custom fields, these fields will appear on an extra form
-page that is visible only when the relevant resource type is selected.</p>
-<p>Changing the resource type will also produce other small changes to field
-properties, primarily to the field labels. E.g., when you change the resource
-type to <code class="docutils literal notranslate"><span class="pre">publication-journal</span></code>, the field label for <code class="docutils literal notranslate"><span class="pre">metadata.title</span></code> will change
-to “Journal Title”.</p>
-<p>This layout is responsive. At tablet widths the left-hand menu sidebar
-disappears and is replaced by a stepper component above the form pages. The
-right-hand sidebar (with submission and access widgets) will move to the bottom
-and be visible below the fields for each form page.</p>
+<h1>Using Invenio Modular Deposit Form<a class="headerlink" href="#using-invenio-modular-deposit-form" title="Link to this heading">¶</a></h1>
+<p>To use this package in your InvenioRDMRecords instance, <a class="reference internal" href="installation.html"><span class="std std-doc">install
+it</span></a>, rebuild front-end assets (<code class="docutils literal notranslate"><span class="pre">invenio-cli</span> <span class="pre">assets</span> <span class="pre">build</span></code>), and
+restart the instance. If you rely on the built-in <code class="docutils literal notranslate"><span class="pre">invenio-rdm-records</span></code> contrib
+custom fields in the layout but have not initialized them yet, run <code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">rdm-records</span> <span class="pre">custom-fields</span> <span class="pre">init</span></code>.</p>
+<section id="where-bundled-defaults-come-from">
+<h2>Where bundled defaults come from<a class="headerlink" href="#where-bundled-defaults-come-from" title="Link to this heading">¶</a></h2>
+<p>The layout defaults your instance gets <strong>out of the box</strong> are
+whatever <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> and
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> are set to in the package’s
+<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/config/config.py</span></code>. By default that file imports a
+preset layout from another file in the same <code class="docutils literal notranslate"><span class="pre">config/</span></code> folder (e.g.,
+<code class="docutils literal notranslate"><span class="pre">alternate_paged.py</span></code> or <code class="docutils literal notranslate"><span class="pre">default.py</span></code>).</p>
+<p>To change behaviour for your instance, override those variables (and any other
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_*</span></code> settings) in your own <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. For details about
+the layout configuration format and other settings, see
+<a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a>.</p>
 </section>
-<section id="client-side-validation-active">
-<h3>Client-side validation active<a class="headerlink" href="#client-side-validation-active" title="Link to this heading">¶</a></h3>
-<p>When you enter an invalid value in a form field and then move away–either with
-<code class="docutils literal notranslate"><span class="pre">tab</span></code> or with a mouse click–an error notification will immediately appear on
-the field widget. Additionally, the sidebar menu (or top stepper) item for the
-page with the error will be highlighted in pink, and a small red badge will
-display the current number of errors on that page. An error feedback message
-will also appear in the right sidebar above the submission widget, listing
-fields with errors and providing links that jump to the page and section for
-each error.</p>
-<p>The default validation schema mirrors back-end (service layer) InvenioRDM
-validation. It includes alerts if required fields remain empty, alerts for
-invalid date formats, alerts for invalid identifiers (e.g., invalid URL or DOI
-identifiers), and other field-specific constraints (like constraints on title
-length). This picks up your instance’s settings for things like allowed
-identifier schemes.</p>
-<p>Where appropriate, the default schema also includes validation for built-in
-custom fields (journal, imprint, thesis, meeting, codemeta). Invalid ISBN, ISSN,
-and URL identifiers (among others) are flagged.</p>
+<section id="what-you-will-see-first">
+<h2>What you will see first<a class="headerlink" href="#what-you-will-see-first" title="Link to this heading">¶</a></h2>
+<p>After install, the deposit template from this extension is used automatically
+(<code class="docutils literal notranslate"><span class="pre">APP_RDM_DEPOSIT_FORM_TEMPLATE</span></code>). The bundled preset is a <strong>multi-page</strong> flow:
+a main column for the active page’s fields, <strong>navigation</strong> (for example a
+sidebar page menu and/or a header stepper, depending on viewport—see your active
+preset), a sidebar region preconfigured with submission and access controls, and
+a <strong>footer bar</strong> with previous/next navigation and room for an autosave status
+line.</p>
+<p>Pages and sections in the <code class="docutils literal notranslate"><span class="pre">default</span></code> preset follow the same information
+architecture as stock InvenioRDM, with one stock form section per page. If
+contrib custom fields are enabled, extra pages or sections for those fields
+usually appear when the user picks a matching <strong>resource type</strong>.</p>
+<p>Changing the resource type can <strong>immediately</strong> adjust labels, icons,
+placeholders, and other field properties according to your instance’s
+modification settings, and can swap in different <strong>pages</strong> when you use per-type
+layout overrides. Some of these per-type adaptations are part of the package
+default, so you can try changing the selected resource type and watch things
+like the menu items and metadata.title field label. See
+<a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a> for more about
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> and the <code class="docutils literal notranslate"><span class="pre">*_MODIFICATIONS</span></code> / keys.</p>
 </section>
-<section id="autosave-in-local-browser-storage-active">
-<h3>Autosave in local browser storage active<a class="headerlink" href="#autosave-in-local-browser-storage-active" title="Link to this heading">¶</a></h3>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- A note displayed in the navigation footer when values are stored locally.
-- A modal message will ask to restore the backed-up values when refreshing
-  the browser or returning to the form (when autosaved values have not been
-  saved to the back-end yet).
-</pre></div>
-</div>
+<section id="client-side-validation-optional">
+<h2>Client-side validation (optional)<a class="headerlink" href="#client-side-validation-optional" title="Link to this heading">¶</a></h2>
+<p>By default, this package activates an in-browser form validation that flags
+problems in form values as the user goes along, without first having to submit
+the form. Client-side validation can be turned on or off with
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code> flag in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> Set this
+<code class="docutils literal notranslate"><span class="pre">False</span></code> if you only want errors to be flagged after form submission. (You will
+need to rebuild assets after changing the flag).</p>
+<p>Whith client-side validation on, any problems in a given form field will be
+signalled after clicking or tabbing away from the field (on blur). The standard
+InvenioRDM error messages are immediately displayed above or below the affected
+form inputs. Also, navigation elements (stepper, sidebar menu) and visible
+section headings will display badges with error counts. An error message, with
+jump links to affected pages/sections, will appear where the layout includes
+<code class="docutils literal notranslate"><span class="pre">FormFeedbackComponent</span></code> (by default above the submission buttons).</p>
+<p>The bundled validation schema mirrors server-side rules as closely as practical.
+This includes validation for the same identifier types handled by stock
+InvenioRDM. The validation schema also respects your instance’s configuration
+for things like allowed identifier types. You can replace or extend the
+validation schema via the <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.validator</span></code> entry
+point. See <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a> and <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p>
+<p>Since field errors are not flagged until a user touches (and leaves) each field
+input, it is possible to leave a form page (using the form menu or stepper)
+before all of the errors have been flagged. (E.g., if some required fields have
+not been touched.) By default, the form will allow the user to move on, but will
+immediately validate all of the fields on the page that was left. If any errors
+were left behind, they will be flagged in the form menu and submission feedback
+message. Setting the <strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code></strong> flag to <code class="docutils literal notranslate"><span class="pre">True</span></code>
+in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> will enable a confirmation modal that appears before the user
+leaves a page with errors. Details and related behaviour are described with the
+rest of the layout and UI flags in <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a>.</p>
 </section>
-<section id="modal-warning-messages-on-page-change-disabled">
-<h3>Modal warning messages on page change <em>disabled</em><a class="headerlink" href="#modal-warning-messages-on-page-change-disabled" title="Link to this heading">¶</a></h3>
-</section>
-</section>
-<section id="customizing-the-form">
-<h2>Customizing the form<a class="headerlink" href="#customizing-the-form" title="Link to this heading">¶</a></h2>
-<section id="alternate-pre-built-form-layouts">
-<h3>Alternate pre-built form layouts<a class="headerlink" href="#alternate-pre-built-form-layouts" title="Link to this heading">¶</a></h3>
-<p>The</p>
+<section id="autosave-browser-local-storage">
+<h2>Autosave (browser local storage)<a class="headerlink" href="#autosave-browser-local-storage" title="Link to this heading">¶</a></h2>
+<p>Values are written to the browser’s local storage as the user edits. By default
+a short status note appears in the footer navigation when local backup exists.
+This backup is cleared whenever a draft is saved or published. When refreshing
+the page or returning to the form, a modal dialog will offer to restore*locally
+stored values.</p>
+<p>No <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> keys are required for this behaviour.</p>
 </section>
 <section id="customizing-the-form-layout">
-<h3>Customizing the form layout<a class="headerlink" href="#customizing-the-form-layout" title="Link to this heading">¶</a></h3>
+<h2>Customizing the form layout<a class="headerlink" href="#customizing-the-form-layout" title="Link to this heading">¶</a></h2>
+<section id="alternate-bundled-presets">
+<h3>Alternate bundled presets<a class="headerlink" href="#alternate-bundled-presets" title="Link to this heading">¶</a></h3>
+<p>Alternate full preset layouts live under <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/config/</span></code> beside
+<code class="docutils literal notranslate"><span class="pre">config.py</span></code>. To adopt one, assign <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> and the
+matching <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> to the symbols
+exported from the preset module you want. See <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a>.</p>
+</section>
+<section id="creating-custom-layouts">
+<h3>Creating custom layouts<a class="headerlink" href="#creating-custom-layouts" title="Link to this heading">¶</a></h3>
+<p>You can also create your own custom layouts and assign them to the same
+variables, <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> and
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code>. Layouts are Python dictionaries
+structured like a tree of nodes, with each node naming a <code class="docutils literal notranslate"><span class="pre">component</span></code> from the
+invenio_modular_deposit_form <code class="docutils literal notranslate"><span class="pre">componentsRegistry</span></code>. Nodes can also include nested
+<code class="docutils literal notranslate"><span class="pre">subsections</span></code> as well as other settings to be passed into the components. Start
+from a bundled preset, then add/remove/reorder nodes. Component names and
+variants are listed in <a class="reference internal" href="field_components.html"><span class="std std-doc">Built-in field components</span></a>. See
+<a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a> for regions, responsive columns, and <code class="docutils literal notranslate"><span class="pre">FormRow</span></code>
+/ collapsible sections.</p>
+</section>
+<section id="resource-type-specific-pages-and-field-tweaks">
+<h3>Resource-type-specific pages and field tweaks<a class="headerlink" href="#resource-type-specific-pages-and-field-tweaks" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Different pages or sections per type:</strong> <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code>
+(and optional <code class="docutils literal notranslate"><span class="pre">same_as</span></code> inheritance between types).</p></li>
+<li><p><strong>Labels, icons, placeholders, help text, defaults, extra required fields:</strong>
+the <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_*_MODIFICATIONS</span></code> and related maps in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>.</p></li>
+</ul>
+<p>See <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a>.</p>
+</section>
+<section id="new-react-components-vs-stock-overrides">
+<h3>New React components vs stock overrides<a class="headerlink" href="#new-react-components-vs-stock-overrides" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Registry:</strong> add or override <code class="docutils literal notranslate"><span class="pre">component</span></code> names by merging a local
+<code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> resolved through the
+<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.components_registry</span></code> entry point. See
+<a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p></li>
+<li><p><strong>Stock slots:</strong> keep using InvenioRDM <code class="docutils literal notranslate"><span class="pre">ReactOverridable</span></code> ids from your
+instance’s <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> where appropriate. See <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a>.</p></li>
+</ul>
+</section>
+<section id="custom-fields-in-the-layout">
+<h3>Custom fields in the layout<a class="headerlink" href="#custom-fields-in-the-layout" title="Link to this heading">¶</a></h3>
+<p>Register fields in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span></code> / <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>, then reference
+<code class="docutils literal notranslate"><span class="pre">CustomField</span></code> or the bundled contrib section components by name in your layout
+dicts. See <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p>
+</section>
 </section>
 <section id="customizing-the-validation-schema">
-<h3>Customizing the validation schema<a class="headerlink" href="#customizing-the-validation-schema" title="Link to this heading">¶</a></h3>
+<h2>Customizing the validation schema<a class="headerlink" href="#customizing-the-validation-schema" title="Link to this heading">¶</a></h2>
+<p>If you have enabled client-side validation by settings
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code>, you can then optionally
+register your own validation schema. Replace or wrap the default
+<code class="docutils literal notranslate"><span class="pre">buildValidationSchema</span></code> function to produce a dynamic validation schema based on
+your instance’s config settings. Register the file path to your validator via
+the <code class="docutils literal notranslate"><span class="pre">invenio_.invenio_modular_deposit_form.validator</span></code> entry point. See
+<a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a> and <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a> for more details.</p>
 </section>
-<section id="customizing-form-adaptations-to-resource-types">
-<h3>Customizing form adaptations to resource types<a class="headerlink" href="#customizing-form-adaptations-to-resource-types" title="Link to this heading">¶</a></h3>
-</section>
+<section id="metadata-transformations-on-submit">
+<h2>Metadata transformations on submit<a class="headerlink" href="#metadata-transformations-on-submit" title="Link to this heading">¶</a></h2>
+<p>This extension provides a built-in mechanism for transforming and modifying the
+form metadata immediately before it is submitted. But it does not provide any
+default transformations. You can supply an ordered list of pure <code class="docutils literal notranslate"><span class="pre">(values)</span> <span class="pre">=&gt;</span> <span class="pre">nextValues</span></code> functions via the <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.transformations</span></code>
+entry point if you need to normalize or reshape the payload before the data is
+sent to the server. See <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a> and the overview section on
+transformations in <a class="reference internal" href="overview.html"><span class="std std-doc">Overview</span></a>.</p>
 </section>
 </section>
 
@@ -377,21 +446,21 @@ and URL identifiers (among others) are flagged.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Using Invenio-Modular-Deposit-Form</a><ul>
-<li><a class="reference internal" href="#initial-defaults">Initial Defaults</a><ul>
-<li><a class="reference internal" href="#the-default-multi-page-form-layout">The default multi-page form layout</a></li>
-<li><a class="reference internal" href="#client-side-validation-active">Client-side validation active</a></li>
-<li><a class="reference internal" href="#autosave-in-local-browser-storage-active">Autosave in local browser storage active</a></li>
-<li><a class="reference internal" href="#modal-warning-messages-on-page-change-disabled">Modal warning messages on page change <em>disabled</em></a></li>
+<li><a class="reference internal" href="#">Using Invenio Modular Deposit Form</a><ul>
+<li><a class="reference internal" href="#where-bundled-defaults-come-from">Where bundled defaults come from</a></li>
+<li><a class="reference internal" href="#what-you-will-see-first">What you will see first</a></li>
+<li><a class="reference internal" href="#client-side-validation-optional">Client-side validation (optional)</a></li>
+<li><a class="reference internal" href="#autosave-browser-local-storage">Autosave (browser local storage)</a></li>
+<li><a class="reference internal" href="#customizing-the-form-layout">Customizing the form layout</a><ul>
+<li><a class="reference internal" href="#alternate-bundled-presets">Alternate bundled presets</a></li>
+<li><a class="reference internal" href="#creating-custom-layouts">Creating custom layouts</a></li>
+<li><a class="reference internal" href="#resource-type-specific-pages-and-field-tweaks">Resource-type-specific pages and field tweaks</a></li>
+<li><a class="reference internal" href="#new-react-components-vs-stock-overrides">New React components vs stock overrides</a></li>
+<li><a class="reference internal" href="#custom-fields-in-the-layout">Custom fields in the layout</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#customizing-the-form">Customizing the form</a><ul>
-<li><a class="reference internal" href="#alternate-pre-built-form-layouts">Alternate pre-built form layouts</a></li>
-<li><a class="reference internal" href="#customizing-the-form-layout">Customizing the form layout</a></li>
 <li><a class="reference internal" href="#customizing-the-validation-schema">Customizing the validation schema</a></li>
-<li><a class="reference internal" href="#customizing-form-adaptations-to-resource-types">Customizing form adaptations to resource types</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#metadata-transformations-on-submit">Metadata transformations on submit</a></li>
 </ul>
 </li>
 </ul>

@@ -464,11 +464,9 @@ severity-aware badges on the navigation components reflect the running
 validation state as the form is filled in.</p>
 <p>Client-side validation is opt-in:</p>
 <ol class="arabic simple">
-<li><p>Set <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="pre">=</span> <span class="pre">True</span></code> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code></p></li>
-<li><p>Run the included patch script against your installed <code class="docutils literal notranslate"><span class="pre">invenio-rdm-records</span></code>
-package (the patch enables the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> prop in the stock form
-bootstrap components)</p></li>
-<li><p>Rebuild front-end assets</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="pre">=</span> <span class="pre">True</span></code> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>
+(set <code class="docutils literal notranslate"><span class="pre">False</span></code> to rely on server-side validation only until submit).</p></li>
+<li><p>Rebuild front-end assets so the change is picked up.</p></li>
 </ol>
 <section id="the-default-schema">
 <h3>The default schema<a class="headerlink" href="#the-default-schema" title="Link to this heading">¶</a></h3>
@@ -571,7 +569,10 @@ webpack request string) to your <code class="docutils literal notranslate"><span
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">transformations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="p">(</span><span class="nx">values</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
 <span class="w">    </span><span class="p">...</span><span class="nx">values</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">metadata</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">,</span><span class="w"> </span><span class="nx">publisher</span><span class="o">:</span><span class="w"> </span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">.</span><span class="nx">publisher</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;My Repository&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">metadata</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">...</span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">publisher</span><span class="o">:</span><span class="w"> </span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">.</span><span class="nx">publisher</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;My Repository&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">(</span><span class="nx">values</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">stripEmptyArrays</span><span class="p">(</span><span class="nx">values</span><span class="p">),</span>
 <span class="p">];</span>
