@@ -251,7 +251,8 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
-<p>Until the package is published to PyPI, you can install it from GitHub from your InvenioRDM instance directory.</p>
+<p>Until the package is published to PyPI, you can install it from GitHub from your
+InvenioRDM instance directory.</p>
 <section id="using-uv">
 <h2>Using uv<a class="headerlink" href="#using-uv" title="Link to this heading">¶</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;invenio-modular-deposit-form @ git+https://github.com/MESH-Research/invenio-modular-deposit-form.git&quot;</span>
@@ -263,19 +264,18 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/MESH-Research/invenio-modular-deposit-form.git&quot;</span>
 </pre></div>
 </div>
-<p>After installation, the extension sets <code class="docutils literal notranslate"><span class="pre">APP_RDM_DEPOSIT_FORM_TEMPLATE</span></code> to use this package’s deposit template by default.</p>
+<p>After installation, the extension sets <code class="docutils literal notranslate"><span class="pre">APP_RDM_DEPOSIT_FORM_TEMPLATE</span></code> to use
+this package’s deposit template by default.</p>
 </section>
-<section id="patch-invenio-rdm-records-for-client-side-validation-optional">
-<h2>Patch invenio-rdm-records for client-side validation (optional)<a class="headerlink" href="#patch-invenio-rdm-records-for-client-side-validation-optional" title="Link to this heading">¶</a></h2>
-<p>Passing <code class="docutils literal notranslate"><span class="pre">validate</span></code> and <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code> into the deposit form requires that <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> and <code class="docutils literal notranslate"><span class="pre">DepositBootstrap</span></code> in invenio-rdm-records accept those props. invenio-rdm-records does not yet support them. If you wish to use client-side validation, you can use the included script to patch the files. The script is at <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/scripts/apply_patches.sh</span></code> (in the repo or under your venv’s site-packages after install). Run it with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>./apply_patches.sh<span class="w"> </span><span class="o">[</span>venv_path<span class="o">]</span>
+<section id="enable-client-side-validation-optional">
+<h2>Enable client-side validation (optional)<a class="headerlink" href="#enable-client-side-validation-optional" title="Link to this heading">¶</a></h2>
+<p>Client-side validation is opt-in. Set the following in your <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="o">=</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<p>If you run from your instance root and your instance venv is at <code class="docutils literal notranslate"><span class="pre">.venv</span></code>, you can use <code class="docutils literal notranslate"><span class="pre">./apply_patches.sh</span></code> with no arguments. Otherwise pass the full path to your instance venv (e.g. <code class="docutils literal notranslate"><span class="pre">./apply_patches.sh</span> <span class="pre">/path/to/my-instance/.venv</span></code>). The script reads patches from the installed package in site-packages and writes them into the installed <code class="docutils literal notranslate"><span class="pre">invenio_rdm_records</span></code> package. It doesn’t matter where the script is located.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Run the patch script again <strong>after any reinstall or upgrade of invenio-rdm-records</strong>; the patch modifies files inside the installed package, so they are overwritten when the package is updated.</p>
-</div>
+<p>Then rebuild your front-end assets. The package includes replacement versions
+of <code class="docutils literal notranslate"><span class="pre">DepositFormApp</span></code> and <code class="docutils literal notranslate"><span class="pre">DepositBootstrap</span></code> that accept the <code class="docutils literal notranslate"><span class="pre">validationSchema</span></code>
+prop; no patching of <code class="docutils literal notranslate"><span class="pre">invenio-rdm-records</span></code> is required.</p>
 </section>
 </section>
 
@@ -344,7 +344,7 @@
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#using-uv">Using uv</a></li>
 <li><a class="reference internal" href="#using-pipenv">Using pipenv</a></li>
-<li><a class="reference internal" href="#patch-invenio-rdm-records-for-client-side-validation-optional">Patch invenio-rdm-records for client-side validation (optional)</a></li>
+<li><a class="reference internal" href="#enable-client-side-validation-optional">Enable client-side validation (optional)</a></li>
 </ul>
 </li>
 </ul>
