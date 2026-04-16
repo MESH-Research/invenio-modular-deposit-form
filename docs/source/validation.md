@@ -6,19 +6,28 @@ Invenio Modular Deposit Form allows for client-side (in-browser) validation of f
 
 To enable client-side form validation, set the `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION` config variable to `True` in your instance's `invenio.cfg` file.
 
-## Prerequisites
+## How the schema reaches Formik
 
-Before client-side validation can work, you will also need to patch your installed invenio-rdm-records package, since that package does not currently pass the `validator` or `validationSchema` props through to Formik. Run the patch script from your instance root as described in the [Installation](./installation.md) section.
+This extension’s `RDMDepositForm` uses bundled replacement deposit bootstrap
+components that forward **`validationSchema`** to Formik. No patch to
+`invenio-rdm-records` is required for client-side validation to run once
+`MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION` is enabled and assets are rebuilt.
 
 ## Configuring the validator
 
 This package comes with a default validation schema at `assets/semantic-ui/js/invenio_modular_deposit_form/validation/validator.js`. If you wish to change any of the validation behaviour, you can use this as a template and provide your own file, exposing it via the **validator** entry point. See [Adding your own React components](extending.md) for how to register `invenio_modular_deposit_form.validator`.
 
-The `validator.js` file may export one or both of:
+The module loaded as `validator.js` must export a **single** value (default or
+CommonJS export). That value is either:
 
-- **validationSchema** — A `yup` schema. If provided, it will be passed to the Formik form validation handler via the `validationSchema` property, which will handle validation and update the form's `errors` object as necessary.
-- **validate** — A custom validation function that will be passed to the Formik form `validate` property.
+- **A function** `(config) => yupSchema` — called at form initialisation with the
+  deposit config; return a Yup schema (recommended), or
+- **A Yup schema object** — used as-is.
+
+`RDMDepositForm` passes the result to Formik as **`validationSchema` only**
+(schema-based validation). A separate Formik **`validate`** function is not
+used.
 
 ## Error visibility vs. Formik `errors`
 
-Yup / `validate` populate Formik **`errors`**, but some replacement field widgets only **surface** those errors in the UI when Formik **`touched`** is set for the path (aligned with `TextField`). The replacement **PIDField** fork sets **`touched`** on unmanaged-input blur and when managed/unmanaged or optional-DOI radios change; see {ref}`formik-touched-pidfield`. If you customize those components, preserve that wiring or inline errors may not appear when expected.
+Yup validation populates Formik **`errors`**, but some replacement field widgets only **surface** those errors in the UI when Formik **`touched`** is set for the path (aligned with `TextField`). The replacement **PIDField** fork sets **`touched`** on unmanaged-input blur and when managed/unmanaged or optional-DOI radios change; see {ref}`formik-touched-pidfield`. If you customize those components, preserve that wiring or inline errors may not appear when expected.
