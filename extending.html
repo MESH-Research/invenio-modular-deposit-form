@@ -252,10 +252,10 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="adding-your-own-components-and-validator">
 <h1>Adding your own components and validator<a class="headerlink" href="#adding-your-own-components-and-validator" title="Link to this heading">¶</a></h1>
-<p>To add your own React components or provide a custom <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> and/or <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>, you point the package at the directory (or directories) that contain those files. You can use <strong>Python entry points</strong> (recommended) or <strong>webpack aliases</strong>.</p>
+<p>To add your own React components or provide a custom <code class="docutils literal notranslate"><span class="pre">validator.js</span></code>, <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>, and/or <code class="docutils literal notranslate"><span class="pre">transformations.js</span></code>, you point the package at the directory (or directories) that contain those files. You can use <strong>Python entry points</strong> (recommended) or <strong>webpack aliases</strong>.</p>
 <section id="python-entry-points-recommended">
 <h2>Python entry points (recommended)<a class="headerlink" href="#python-entry-points-recommended" title="Link to this heading">¶</a></h2>
-<p>You can register one or both of these entry point groups; each callable returns the <strong>webpack request string</strong> for the file in question:</p>
+<p>You can register these entry point groups; each callable returns a <strong>string</strong> that becomes the <strong>right-hand side</strong> of a webpack resolver alias inside this package’s <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code> (for example <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code> → <em>your string</em>). That string is <strong>not</strong> passed through webpack’s alias table a second time: Invenio merges all bundle aliases into <code class="docutils literal notranslate"><span class="pre">config.json</span></code>, and <code class="docutils literal notranslate"><span class="pre">invenio_assets</span></code> builds the final config with <code class="docutils literal notranslate"><span class="pre">path.resolve(build.context,</span> <span class="pre">alias_path)</span></code> for every alias value.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
@@ -273,8 +273,19 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></td>
 <td><p>Extra or overriding React components</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.transformations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></p></td>
+<td><p>Submit-time metadata transforms (array of functions)</p></td>
+</tr>
 </tbody>
 </table>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Return a path under the collected assets tree, not an <code class="docutils literal notranslate"><span class="pre">&#64;js/...</span></code> request.</strong></p>
+<p>If your callable returns something like <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance/validation/validator.js</span></code>, the build will resolve <code class="docutils literal notranslate"><span class="pre">path.resolve(build.context,</span> <span class="pre">&quot;&#64;js/my_instance/validation/validator.js&quot;)</span></code>, which points at a <strong>non-existent</strong> path (a literal <code class="docutils literal notranslate"><span class="pre">&#64;js</span></code> directory under the instance assets folder). The build then fails with errors such as “Cannot find module … for matched aliased key <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code>”.</p>
+<p>Return instead a <strong>context-relative</strong> path, same style as the right-hand side of aliases in your own <code class="docutils literal notranslate"><span class="pre">WebpackThemeBundle</span></code> (for example <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance</span></code> → <code class="docutils literal notranslate"><span class="pre">js/my_instance</span></code> in <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code>, and the entry point returns <code class="docutils literal notranslate"><span class="pre">js/my_instance/validation/validator.js</span></code>). After <code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">collect</span></code>, that file must exist under the instance’s merged <code class="docutils literal notranslate"><span class="pre">js/</span></code> tree next to <code class="docutils literal notranslate"><span class="pre">node_modules</span></code>, so bare imports such as <code class="docutils literal notranslate"><span class="pre">react</span></code> and <code class="docutils literal notranslate"><span class="pre">yup</span></code> resolve correctly.</p>
+<p>For <strong>hand-written</strong> imports inside your own React sources, you may still use <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance/...</span></code> <strong>provided</strong> you defined that alias in your instance theme bundle; that is unrelated to what the Python entry point callables return.</p>
 </div>
 <section id="register-a-base-alias-for-your-js-assets">
 <h3>Register a base alias for your js assets<a class="headerlink" href="#register-a-base-alias-for-your-js-assets" title="Link to this heading">¶</a></h3>
@@ -293,20 +304,23 @@
 </section>
 <section id="create-a-registration-function-for-each-entry-point">
 <h3>Create a registration function for each entry point<a class="headerlink" href="#create-a-registration-function-for-each-entry-point" title="Link to this heading">¶</a></h3>
-<p>In your instance package, expose callables that return a webpack request string for each of your custom files. Each of these functions should return a single string, beginning with “&#64;js/my<em>instance_name” (the basic alias for your js assets). Onto this base alis, add the _relative</em> path to each file.</p>
-<p>So if your validator lives at <code class="docutils literal notranslate"><span class="pre">site/my_instance_name/assets/semantic-ui/js/my_instance_name/validation/validator.js</span></code> then your registration function would return “&#64;js/my_instance_name/validation/validator.js”.</p>
-<p>Likewise, if your components registry lives at <code class="docutils literal notranslate"><span class="pre">site/my_instance_name/assets/semantic-ui/js/my_instance_name/deposit_extras/componentsRegistry.js</span></code> then your registration function would return “&#64;js/my_instance_name/deposit_extras/componentsRegistry.js”.</p>
+<p>In your instance package, expose callables that return a <strong>single string</strong>: a path <strong>relative to the Invenio webpack <code class="docutils literal notranslate"><span class="pre">build.context</span></code></strong> (the instance assets build directory after <code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">collect</span></code>), almost always starting with <code class="docutils literal notranslate"><span class="pre">js/…</span></code>, in the same way your theme bundle’s own <code class="docutils literal notranslate"><span class="pre">aliases</span></code> map <code class="docutils literal notranslate"><span class="pre">&#64;js/…</span></code> keys to <strong><code class="docutils literal notranslate"><span class="pre">js/…</span></code> values</strong> (see <code class="docutils literal notranslate"><span class="pre">&#64;js/kcworks/collections</span></code> → <code class="docutils literal notranslate"><span class="pre">js/collections</span></code> in a typical instance).</p>
+<p>So if your validator file ends up collected as <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/validation/validator.js</span></code> under that directory, your registration function should return exactly <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/validation/validator.js</span></code>.</p>
+<p>Likewise, if your components registry is collected as <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/deposit_extras/componentsRegistry.js</span></code>, return <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/deposit_extras/componentsRegistry.js</span></code>.</p>
 <p>For example, you could place the following functions in a new <code class="docutils literal notranslate"><span class="pre">site/my_instance_name/deposit_extras/alias_registration.py</span></code> file:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_validator_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/validation/validator.js&quot;</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_validator_path</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s2">&quot;@/js/my_instance_name/validation/validator.js&quot;</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_components_registry_path</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s2">&quot;@js/my_instance_name/deposit_extras/componentsRegistry.js&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/componentsRegistry.js&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_transformations_path</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/transformations.js&quot;</span>
 </pre></div>
 </div>
-<p>The precise name or location of these files and the functions does not matter, as long as webpack can find them via the alias.</p>
+<p>The precise name or location of these files and the functions does not matter, as long as the returned path matches where your theme bundle’s assets land under the merged <code class="docutils literal notranslate"><span class="pre">js/</span></code> tree after collect.</p>
 </section>
 <section id="register-the-functions-on-the-entry-points">
 <h3>Register the functions on the entry points<a class="headerlink" href="#register-the-functions-on-the-entry-points" title="Link to this heading">¶</a></h3>
@@ -316,6 +330,9 @@
 
 <span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.components_registry&quot;</span><span class="k">]</span>
 <span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras.alias_registration:get_components_registry_path&quot;</span>
+
+<span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.transformations&quot;</span><span class="k">]</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras.alias_registration:get_transformations_path&quot;</span>
 </pre></div>
 </div>
 <p>Or in <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>:</p>
@@ -324,16 +341,19 @@
 <span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras.alias_registration:get_validator_path</span>
 <span class="na">invenio_modular_deposit_form.components_registry</span><span class="w"> </span><span class="o">=</span>
 <span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras.alias_registration:get_components_registry_path</span>
+<span class="na">invenio_modular_deposit_form.transformations</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras.alias_registration:get_transformations_path</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="webpack-alias-alternative">
 <h2>Webpack alias (alternative)<a class="headerlink" href="#webpack-alias-alternative" title="Link to this heading">¶</a></h2>
-<p>If you prefer not to use entry points, you can override the aliases in your instance’s <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code> so they point <strong>directly to the files</strong>:</p>
+<p>If you prefer not to use entry points, you can override the aliases in your instance’s <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code> so they point <strong>directly to the files</strong> (again using <strong><code class="docutils literal notranslate"><span class="pre">js/...</span></code> paths</strong> relative to the merged build context, not <code class="docutils literal notranslate"><span class="pre">&#64;js/...</span></code> strings):</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code> → path to <code class="docutils literal notranslate"><span class="pre">validator.js</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_components</span></code> → path to <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_transformations</span></code> → path to <code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></p></li>
 </ul>
 <p>Example snippet for <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">themes</span> <span class="o">=</span> <span class="p">{</span>
@@ -344,14 +364,16 @@
             <span class="s2">&quot;@js/invenio_modular_deposit_form_validator&quot;</span><span class="p">:</span> <span class="s2">&quot;js/deposit_validator/validator.js&quot;</span><span class="p">,</span>
             <span class="c1"># Point directly to your componentsRegistry.js file</span>
             <span class="s2">&quot;@js/invenio_modular_deposit_form_components&quot;</span><span class="p">:</span> <span class="s2">&quot;js/deposit_components/componentsRegistry.js&quot;</span><span class="p">,</span>
+            <span class="c1"># Point directly to your transformations.js file</span>
+            <span class="s2">&quot;@js/invenio_modular_deposit_form_transformations&quot;</span><span class="p">:</span> <span class="s2">&quot;js/deposit_components/transformations.js&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">),</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>These aliases completely override the defaults computed by
-<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.webpack_extras.get_validator_path()</span></code> and
-<code class="docutils literal notranslate"><span class="pre">get_components_registry_path()</span></code>. Only define them if you want to bypass
+<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.webpack_extras.get_validator_path()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">get_components_registry_path()</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_transformations_path()</span></code>. Only define them if you want to bypass
 the entry-point based resolution.</p>
 </section>
 <section id="the-componentsregistry-object">

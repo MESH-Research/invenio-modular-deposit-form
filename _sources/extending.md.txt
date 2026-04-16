@@ -1,15 +1,26 @@
 # Adding your own components and validator
 
-To add your own React components or provide a custom `validator.js` and/or `componentsRegistry.js`, you point the package at the directory (or directories) that contain those files. You can use **Python entry points** (recommended) or **webpack aliases**.
+To add your own React components or provide a custom `validator.js`, `componentsRegistry.js`, and/or `transformations.js`, you point the package at the directory (or directories) that contain those files. You can use **Python entry points** (recommended) or **webpack aliases**.
 
 ## Python entry points (recommended)
 
-You can register one or both of these entry point groups; each callable returns the **webpack request string** for the file in question:
+You can register these entry point groups; each callable returns a **string** that becomes the **right-hand side** of a webpack resolver alias inside this package’s `webpack.py` (for example `@js/invenio_modular_deposit_form_validator` → _your string_). That string is **not** passed through webpack’s alias table a second time: Invenio merges all bundle aliases into `config.json`, and `invenio_assets` builds the final config with `path.resolve(build.context, alias_path)` for every alias value.
 
 | Entry point group                                  | File in directory       | Purpose                                                  |
 | -------------------------------------------------- | ----------------------- | -------------------------------------------------------- |
 | `invenio_modular_deposit_form.validator`           | `validator.js`          | Client-side validation schema and/or `validate` function |
 | `invenio_modular_deposit_form.components_registry` | `componentsRegistry.js` | Extra or overriding React components                     |
+| `invenio_modular_deposit_form.transformations`     | `transformations.js`    | Submit-time metadata transforms (array of functions)   |
+
+```{warning}
+**Return a path under the collected assets tree, not an `@js/...` request.**
+
+If your callable returns something like `@js/my_instance/validation/validator.js`, the build will resolve `path.resolve(build.context, "@js/my_instance/validation/validator.js")`, which points at a **non-existent** path (a literal `@js` directory under the instance assets folder). The build then fails with errors such as “Cannot find module … for matched aliased key `@js/invenio_modular_deposit_form_validator`”.
+
+Return instead a **context-relative** path, same style as the right-hand side of aliases in your own `WebpackThemeBundle` (for example `@js/my_instance` → `js/my_instance` in `webpack.py`, and the entry point returns `js/my_instance/validation/validator.js`). After `invenio collect`, that file must exist under the instance’s merged `js/` tree next to `node_modules`, so bare imports such as `react` and `yup` resolve correctly.
+
+For **hand-written** imports inside your own React sources, you may still use `@js/my_instance/...` **provided** you defined that alias in your instance theme bundle; that is unrelated to what the Python entry point callables return.
+```
 
 ### Register a base alias for your js assets
 
@@ -30,25 +41,28 @@ Ensure your theme bundle is loaded (e.g. via `invenio_assets.webpack` entry poin
 
 ### Create a registration function for each entry point
 
-In your instance package, expose callables that return a webpack request string for each of your custom files. Each of these functions should return a single string, beginning with "@js/my*instance_name" (the basic alias for your js assets). Onto this base alis, add the \_relative* path to each file.
+In your instance package, expose callables that return a **single string**: a path **relative to the Invenio webpack `build.context`** (the instance assets build directory after `invenio collect`), almost always starting with `js/…`, in the same way your theme bundle’s own `aliases` map `@js/…` keys to **`js/…` values** (see `@js/kcworks/collections` → `js/collections` in a typical instance).
 
-So if your validator lives at `site/my_instance_name/assets/semantic-ui/js/my_instance_name/validation/validator.js` then your registration function would return "@js/my_instance_name/validation/validator.js".
+So if your validator file ends up collected as `js/my_instance_name/validation/validator.js` under that directory, your registration function should return exactly `js/my_instance_name/validation/validator.js`.
 
-Likewise, if your components registry lives at `site/my_instance_name/assets/semantic-ui/js/my_instance_name/deposit_extras/componentsRegistry.js` then your registration function would return "@js/my_instance_name/deposit_extras/componentsRegistry.js".
+Likewise, if your components registry is collected as `js/my_instance_name/deposit_extras/componentsRegistry.js`, return `js/my_instance_name/deposit_extras/componentsRegistry.js`.
 
 For example, you could place the following functions in a new `site/my_instance_name/deposit_extras/alias_registration.py` file:
 
 ```python
-from pathlib import Path
-
 def get_validator_path():
-    return "@/js/my_instance_name/validation/validator.js")
+    return "js/my_instance_name/validation/validator.js"
+
 
 def get_components_registry_path():
-    return "@js/my_instance_name/deposit_extras/componentsRegistry.js")
+    return "js/my_instance_name/deposit_extras/componentsRegistry.js"
+
+
+def get_transformations_path():
+    return "js/my_instance_name/deposit_extras/transformations.js"
 ```
 
-The precise name or location of these files and the functions does not matter, as long as webpack can find them via the alias.
+The precise name or location of these files and the functions does not matter, as long as the returned path matches where your theme bundle’s assets land under the merged `js/` tree after collect.
 
 ### Register the functions on the entry points
 
@@ -60,6 +74,9 @@ my_instance = "my_instance_name.deposit_extras.alias_registration:get_validator_
 
 [project.entry-points."invenio_modular_deposit_form.components_registry"]
 my_instance = "my_instance_name.deposit_extras.alias_registration:get_components_registry_path"
+
+[project.entry-points."invenio_modular_deposit_form.transformations"]
+my_instance = "my_instance_name.deposit_extras.alias_registration:get_transformations_path"
 ```
 
 Or in `setup.cfg`:
@@ -70,14 +87,17 @@ invenio_modular_deposit_form.validator =
     my_instance = my_instance_name.deposit_extras.alias_registration:get_validator_path
 invenio_modular_deposit_form.components_registry =
     my_instance = my_instance_name.deposit_extras.alias_registration:get_components_registry_path
+invenio_modular_deposit_form.transformations =
+    my_instance = my_instance_name.deposit_extras.alias_registration:get_transformations_path
 ```
 
 ## Webpack alias (alternative)
 
-If you prefer not to use entry points, you can override the aliases in your instance's `webpack.py` so they point **directly to the files**:
+If you prefer not to use entry points, you can override the aliases in your instance's `webpack.py` so they point **directly to the files** (again using **`js/...` paths** relative to the merged build context, not `@js/...` strings):
 
 - `@js/invenio_modular_deposit_form_validator` → path to `validator.js`
 - `@js/invenio_modular_deposit_form_components` → path to `componentsRegistry.js`
+- `@js/invenio_modular_deposit_form_transformations` → path to `transformations.js`
 
 Example snippet for `webpack.py`:
 
@@ -90,14 +110,16 @@ themes = {
             "@js/invenio_modular_deposit_form_validator": "js/deposit_validator/validator.js",
             # Point directly to your componentsRegistry.js file
             "@js/invenio_modular_deposit_form_components": "js/deposit_components/componentsRegistry.js",
+            # Point directly to your transformations.js file
+            "@js/invenio_modular_deposit_form_transformations": "js/deposit_components/transformations.js",
         },
     ),
 }
 ```
 
 These aliases completely override the defaults computed by
-`invenio_modular_deposit_form.webpack_extras.get_validator_path()` and
-`get_components_registry_path()`. Only define them if you want to bypass
+`invenio_modular_deposit_form.webpack_extras.get_validator_path()`,
+`get_components_registry_path()`, and `get_transformations_path()`. Only define them if you want to bypass
 the entry-point based resolution.
 
 ## The componentsRegistry object
