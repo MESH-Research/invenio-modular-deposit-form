@@ -32,6 +32,7 @@ const CreatibutorsInlineForm = ({
   addCreatibutor,
   addLabel,
   autocompleteNames = "search",
+  currentUserId,
   fieldPath,
   fieldPathPrefix,
   focusAddButtonHandler,
@@ -39,9 +40,13 @@ const CreatibutorsInlineForm = ({
   handleCloseForm,
   index,
   isNewItem,
+  isSelfRow = false,
+  onSelfNameSaved,
   removeCreatibutor,
   roleOptions = [],
+  savedSelfNameSplit,
   schema,
+  selfNameWasGuessed = false,
   serializeSuggestions: serializeSuggestionsProp,
   values,
 }) => {
@@ -251,17 +256,22 @@ const CreatibutorsInlineForm = ({
         <CreatibutorsFormBody
           affiliationsRef={affiliationsRef}
           autocompleteNames={autocompleteNames}
+          currentUserId={currentUserId}
           familyNameWidgetRef={familyNameWidgetRef}
           fieldPathPrefix={fieldPathPrefix}
           isCreator={isCreator}
           isNewItem={isNewItem}
           isOrganization={isOrganization}
-          onPersonSearchChange={onPersonSearchChange}
+          isSelfRow={isSelfRow}
           onOrganizationSearchChange={onOrganizationSearchChange}
           onPersonOrgToggle={onPersonOrgToggle}
-          roleOptions={roleOptions}
-          serializeSuggestions={serializeSuggestionsProp || defaultSerializeSuggestions}
+          onPersonSearchChange={onPersonSearchChange}
+          onSelfNameSaved={onSelfNameSaved}
           personDetailsExpanded={personDetailsExpanded}
+          roleOptions={roleOptions}
+          savedSelfNameSplit={savedSelfNameSplit}
+          selfNameWasGuessed={selfNameWasGuessed}
+          serializeSuggestions={serializeSuggestionsProp || defaultSerializeSuggestions}
           values={values}
         />
         <Form.Group inline className="creatibutors-item-form-buttons">
@@ -285,6 +295,7 @@ CreatibutorsInlineForm.propTypes = {
   addCreatibutor: PropTypes.func.isRequired,
   addLabel: PropTypes.string.isRequired,
   autocompleteNames: PropTypes.oneOf(["search", "search_only", "off"]),
+  currentUserId: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
   fieldPathPrefix: PropTypes.string.isRequired,
   focusAddButtonHandler: PropTypes.func,
@@ -292,9 +303,16 @@ CreatibutorsInlineForm.propTypes = {
   handleCloseForm: PropTypes.func.isRequired,
   index: PropTypes.number.isRequired,
   isNewItem: PropTypes.bool,
+  isSelfRow: PropTypes.bool,
+  onSelfNameSaved: PropTypes.func,
   removeCreatibutor: PropTypes.func.isRequired,
   roleOptions: PropTypes.array,
+  savedSelfNameSplit: PropTypes.shape({
+    family: PropTypes.string,
+    given: PropTypes.string,
+  }),
   schema: PropTypes.string.isRequired,
+  selfNameWasGuessed: PropTypes.bool,
   serializeSuggestions: PropTypes.func,
   values: PropTypes.object.isRequired,
 };

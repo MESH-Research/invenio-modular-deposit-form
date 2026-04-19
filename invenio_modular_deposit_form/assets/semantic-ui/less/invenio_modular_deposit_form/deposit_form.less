@@ -288,8 +288,16 @@
           }
         }
       }
-      &.metadata-creators-field {
-        .creator-identifiers {
+      &.metadata-creators-field,
+      &.metadata-contributors-field {
+        .creators-list,
+        .contributors-list {
+          .drag-anchor {
+            padding-top: 0.3em;
+          }
+        }
+        .creator-identifiers,
+        .contributor-identifiers {
           .close-btn {
             margin-top: 1.5em;
           }

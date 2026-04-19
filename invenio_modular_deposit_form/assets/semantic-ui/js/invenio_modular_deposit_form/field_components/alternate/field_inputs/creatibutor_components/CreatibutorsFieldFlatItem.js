@@ -44,6 +44,7 @@ const CreatibutorsFieldFlatItem = ({
   creatibutorDown,
   creatibutorUp,
   creatibutorsLength,
+  currentUserId,
   displayName,
   editLabel,
   fieldPath,
@@ -55,11 +56,15 @@ const CreatibutorsFieldFlatItem = ({
   handleCancel,
   index,
   isNewItem,
+  isSelfRow,
   itemError,
+  onSelfNameSaved,
   removeCreatibutor,
   moveCreatibutor,
   roleOptions,
+  savedSelfNameSplit,
   schema,
+  selfNameWasGuessed,
   serializeSuggestions,
   showEditForms,
   values,
@@ -159,7 +164,7 @@ const CreatibutorsFieldFlatItem = ({
           <>
             {!isNewItem && (
               <List.Content>
-                <List.Description>
+                <List.Header>
                   <span className="creatibutor">
                     {displayName}{" "}
                     {identifiersList.some((id) => id.scheme === "orcid") && (
@@ -191,7 +196,7 @@ const CreatibutorsFieldFlatItem = ({
                     )}{" "}
                     {renderRole(_get(values, `${fieldPathPrefix}.role`))}
                   </span>
-                </List.Description>
+                </List.Header>
               </List.Content>
             )}
             {showEditForms.includes(index) && (
@@ -199,6 +204,7 @@ const CreatibutorsFieldFlatItem = ({
                 addCreatibutor={addCreatibutor}
                 addLabel={addLabel}
                 autocompleteNames={autocompleteNames}
+                currentUserId={currentUserId}
                 fieldPath={fieldPath}
                 fieldPathPrefix={fieldPathPrefix}
                 focusAddButtonHandler={focusAddButtonHandler}
@@ -206,9 +212,13 @@ const CreatibutorsFieldFlatItem = ({
                 handleCloseForm={handleCloseForm}
                 index={index}
                 isNewItem={isNewItem}
+                isSelfRow={!!isSelfRow}
+                onSelfNameSaved={onSelfNameSaved}
                 removeCreatibutor={removeCreatibutor}
                 roleOptions={roleOptions}
+                savedSelfNameSplit={savedSelfNameSplit}
                 schema={schema}
+                selfNameWasGuessed={!!selfNameWasGuessed}
                 serializeSuggestions={serializeSuggestions}
                 values={values}
               />
@@ -233,6 +243,7 @@ CreatibutorsFieldFlatItem.propTypes = {
   creatibutorDown: PropTypes.func.isRequired,
   creatibutorUp: PropTypes.func.isRequired,
   creatibutorsLength: PropTypes.number.isRequired,
+  currentUserId: PropTypes.string,
   displayName: PropTypes.string,
   editLabel: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
@@ -244,11 +255,18 @@ CreatibutorsFieldFlatItem.propTypes = {
   handleCancel: PropTypes.func.isRequired,
   index: PropTypes.number.isRequired,
   isNewItem: PropTypes.bool.isRequired,
+  isSelfRow: PropTypes.bool,
   itemError: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  onSelfNameSaved: PropTypes.func,
   removeCreatibutor: PropTypes.func.isRequired,
   moveCreatibutor: PropTypes.func.isRequired,
   roleOptions: PropTypes.array,
+  savedSelfNameSplit: PropTypes.shape({
+    family: PropTypes.string,
+    given: PropTypes.string,
+  }),
   schema: PropTypes.string.isRequired,
+  selfNameWasGuessed: PropTypes.bool,
   serializeSuggestions: PropTypes.func,
   showEditForms: PropTypes.array.isRequired,
   values: PropTypes.object.isRequired,

@@ -14,10 +14,11 @@
 // typed family name still commits on blur. `focusFieldPathAfterSelect` when given name shows.
 // See `replacement_components/RemoteSelectField.js` and `docs/source/replacement_field_components.md`.
 
-import React, { createRef } from "react";
+import React, { createRef, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import axios from "axios";
 import { useStore } from "react-redux";
-import { Form } from "semantic-ui-react";
+import { Button, Form, Icon, Label } from "semantic-ui-react";
 import _get from "lodash/get";
 import Overridable from "react-overridable";
 import { RadioField } from "react-invenio-forms";
@@ -30,20 +31,36 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { CreatibutorsIdentifiers } from "./CreatibutorsIdentifiers";
 import { NamesAutocompleteOptions } from "./CreatibutorsInlineForm";
 
+// Posts the typed family/given to the modular-deposit-form API so the
+// authenticated user's `name_parts_local` profile override is persisted.
+// CSRF: reads the `csrftoken` cookie and sends it as `X-CSRFToken`, which
+// satisfies invenio-rest's global CSRF middleware.
+const userNameApiClient = axios.create({
+  withCredentials: true,
+  xsrfCookieName: "csrftoken",
+  xsrfHeaderName: "X-CSRFToken",
+  headers: { "Content-Type": "application/json" },
+});
+
 const CreatibutorsFormBody = ({
   affiliationsRef,
   autocompleteNames,
+  currentUserId,
   familyNameWidgetRef,
   fieldPathPrefix,
   isCreator,
   isNewItem,
   isOrganization,
-  onPersonSearchChange,
+  isSelfRow = false,
   onOrganizationSearchChange,
   onPersonOrgToggle,
-  roleOptions,
-  serializeSuggestions,
+  onPersonSearchChange,
+  onSelfNameSaved,
   personDetailsExpanded,
+  roleOptions,
+  savedSelfNameSplit,
+  selfNameWasGuessed = false,
+  serializeSuggestions,
   values,
 }) => {
   const personOrOrgPath = `${fieldPathPrefix}.person_or_org`;
@@ -65,6 +82,95 @@ const CreatibutorsFormBody = ({
   const namesSearchOnly = autocompleteNames === NamesAutocompleteOptions.SEARCH_ONLY;
 
   const inputRef = createRef();
+
+  const isPerson = _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON;
+  const currentFamily = String(_get(values, familyNameFieldPath, "") || "").trim();
+  const currentGiven = String(_get(values, givenNameFieldPath, "") || "").trim();
+  const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved | error
+  const [saveError, setSaveError] = useState("");
+
+  // Show "Remember change" when this is the self row + a Person with a non-empty
+  // family name, *and* the typed split either differs from the stored override
+  // or no firm override exists yet (initial split was a guess).
+  const showRememberButton = useMemo(() => {
+    if (!isSelfRow || !isPerson || !currentUserId) return false;
+    if (!currentFamily) return false;
+    if (savedSelfNameSplit) {
+      return (
+        savedSelfNameSplit.family !== currentFamily ||
+        (savedSelfNameSplit.given || "") !== currentGiven
+      );
+    }
+    return selfNameWasGuessed;
+  }, [
+    isSelfRow,
+    isPerson,
+    currentUserId,
+    currentFamily,
+    currentGiven,
+    savedSelfNameSplit,
+    selfNameWasGuessed,
+  ]);
+
+  const handleRememberClick = async () => {
+    if (!currentUserId || !currentFamily) return;
+    setSaveStatus("saving");
+    setSaveError("");
+    try {
+      await userNameApiClient.post(
+        `/api/modular-deposit-form/users/${currentUserId}/name`,
+        { family_name: currentFamily, given_name: currentGiven }
+      );
+      setSaveStatus("saved");
+      onSelfNameSaved?.({ family: currentFamily, given: currentGiven });
+      window.setTimeout(() => {
+        setSaveStatus((s) => (s === "saved" ? "idle" : s));
+      }, 3000);
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        i18next.t("Could not save your name. Please try again.");
+      setSaveError(msg);
+      setSaveStatus("error");
+    }
+  };
+
+  const rememberChangeRow = showRememberButton ? (
+    <Form.Group className="rel-mb-1">
+      <Form.Field>
+        <Button
+          type="button"
+          size="small"
+          basic
+          primary
+          icon
+          labelPosition="left"
+          loading={saveStatus === "saving"}
+          disabled={saveStatus === "saving"}
+          onClick={handleRememberClick}
+          aria-label={i18next.t(
+            "Remember this name split on your profile for future deposits"
+          )}
+        >
+          <Icon name="save" />
+          {i18next.t("Remember this name on my profile")}
+        </Button>
+        {saveStatus === "saved" && (
+          <Label basic color="green" pointing="left" className="rel-ml-1">
+            <Icon name="check" />
+            {i18next.t("Saved")}
+          </Label>
+        )}
+        {saveStatus === "error" && (
+          <Label basic color="red" pointing="left" className="rel-ml-1">
+            <Icon name="warning sign" />
+            {saveError}
+          </Label>
+        )}
+      </Form.Field>
+    </Form.Group>
+  ) : null;
 
   return (
     <>
@@ -134,6 +240,7 @@ const CreatibutorsFormBody = ({
                   />
                 )}
               </Form.Group>
+              {rememberChangeRow}
             </Overridable>
           )}
 
@@ -157,6 +264,7 @@ const CreatibutorsFormBody = ({
                   fieldPath={givenNameFieldPath}
                 />
               </Form.Group>
+              {rememberChangeRow}
             </Overridable>
           )}
 
@@ -278,17 +386,25 @@ const CreatibutorsFormBody = ({
 CreatibutorsFormBody.propTypes = {
   affiliationsRef: PropTypes.object,
   autocompleteNames: PropTypes.oneOf(["search", "search_only", "off"]),
+  currentUserId: PropTypes.string,
   familyNameWidgetRef: PropTypes.object,
   fieldPathPrefix: PropTypes.string.isRequired,
   isCreator: PropTypes.bool,
   isNewItem: PropTypes.bool,
   isOrganization: PropTypes.bool,
-  onPersonSearchChange: PropTypes.func.isRequired,
+  isSelfRow: PropTypes.bool,
   onOrganizationSearchChange: PropTypes.func.isRequired,
   onPersonOrgToggle: PropTypes.func.isRequired,
-  roleOptions: PropTypes.array,
-  serializeSuggestions: PropTypes.func,
+  onPersonSearchChange: PropTypes.func.isRequired,
+  onSelfNameSaved: PropTypes.func,
   personDetailsExpanded: PropTypes.bool,
+  roleOptions: PropTypes.array,
+  savedSelfNameSplit: PropTypes.shape({
+    family: PropTypes.string,
+    given: PropTypes.string,
+  }),
+  selfNameWasGuessed: PropTypes.bool,
+  serializeSuggestions: PropTypes.func,
   values: PropTypes.object.isRequired,
 };
 

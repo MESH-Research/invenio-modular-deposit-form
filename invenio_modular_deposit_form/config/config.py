@@ -229,6 +229,12 @@ RDM_NAMESPACES = {
     **THESIS_NAMESPACE,
 }
 
+# TODO: Submit a PR to invenio-vocabularies adding a constructor option
+# (e.g. ``missing_vocab_ok=True``) to ``VocabularyCF`` so the ``options()``
+# fallback below can be removed. Once that lands upstream and we pin a
+# version that includes it, drop ``_harden_vocabulary_cfs`` and
+# ``SafeVocabularyCF`` and let the upstream contrib lists flow through
+# unchanged.
 RDM_CUSTOM_FIELDS = [
     *_harden_vocabulary_cfs(CODEMETA_CUSTOM_FIELDS),
     *_harden_vocabulary_cfs(JOURNAL_CUSTOM_FIELDS),

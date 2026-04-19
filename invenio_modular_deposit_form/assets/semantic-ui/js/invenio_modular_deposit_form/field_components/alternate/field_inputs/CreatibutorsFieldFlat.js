@@ -21,7 +21,11 @@ import PropTypes from "prop-types";
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import { getFamilyName, getGivenName } from "../../../helpers/names";
+import {
+  getFamilyName,
+  getGivenName,
+  guessPersonNamesFromFullName,
+} from "../../../helpers/names";
 
 function sortOptions(options) {
   return options.sort((o1, o2) => o1.text.localeCompare(o2.text));
@@ -58,6 +62,77 @@ const orderOptions = (optionList, contribsOptionList) => {
   );
   return moveCommonRolesToTop(sortOptions(newOptionList));
 };
+
+/**
+ * Parse a profile name-parts blob into a plain object.
+ * Accepts either a JSON-string or an already-parsed object; returns null when
+ * the value is missing, empty, or not a non-empty object.
+ */
+function parseNamePartsBlob(raw) {
+  if (raw == null || raw === "" || (typeof raw === "string" && raw.trim() === "")) {
+    return null;
+  }
+  if (typeof raw === "object" && !Array.isArray(raw)) {
+    return Object.keys(raw).length ? raw : null;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      !Array.isArray(parsed) &&
+      Object.keys(parsed).length
+    ) {
+      return parsed;
+    }
+  } catch {
+    /* ignore invalid JSON */
+  }
+  return null;
+}
+
+/**
+ * Read the user's local override (`name_parts_local` only) as `{family, given}`.
+ * Returns null when the override is absent or empty so callers can decide whether
+ * to surface a "Remember change" button.
+ */
+function readSavedLocalNameSplit(profile) {
+  const parts = parseNamePartsBlob(profile?.name_parts_local);
+  if (!parts) {
+    return null;
+  }
+  const family = getFamilyName(parts) || "";
+  const given = getGivenName(parts) || parts.first || "";
+  if (!family && !given) {
+    return null;
+  }
+  return { family, given };
+}
+
+/**
+ * Initial family / given for "add myself": prefer any structured name parts
+ * (`name_parts_local` then `name_parts`); fall back to a single-string guess
+ * from `full_name`. Also reports whether the result is a guess (so the UI can
+ * prompt the user to confirm and persist the split).
+ */
+function getInitialSelfPersonNames(profile) {
+  const localParts = parseNamePartsBlob(profile?.name_parts_local);
+  const remoteParts = parseNamePartsBlob(profile?.name_parts);
+  const structured = localParts || remoteParts;
+  if (structured) {
+    const family = getFamilyName(structured) || "";
+    const given = getGivenName(structured) || structured.first || "";
+    if (family || given) {
+      return {
+        family_name: family,
+        given_name: given,
+        guessed: !localParts,
+      };
+    }
+  }
+  const guessed = guessPersonNamesFromFullName(profile?.full_name);
+  return { ...guessed, guessed: true };
+}
 
 const creatibutorNameDisplay = (value) => {
   const creatibutorType = _get(value, "person_or_org.type", CREATIBUTOR_TYPE.PERSON);
@@ -102,27 +177,17 @@ const defaultRoleForNewRow = (schema, orderedRoleOptions) => {
   return opts[0]?.value ?? "";
 };
 
-const makeSelfCreatibutor = (currentUserprofile, schema, orderedRoleOptions) => {
+const makeSelfCreatibutor = (currentUserprofile, schema, orderedRoleOptions, personNames) => {
   const myAffiliations =
     typeof currentUserprofile.affiliations === "string" && currentUserprofile.affiliations !== ""
       ? [currentUserprofile.affiliations]
       : currentUserprofile?.affiliations;
-  console.log(currentUserprofile);
-
-  let myNameParts = {};
-  if (currentUserprofile?.name_parts_local && currentUserprofile.name_parts_local !== "") {
-    myNameParts = JSON.parse(currentUserprofile.name_parts_local);
-  } else if (currentUserprofile?.name_parts && currentUserprofile.name_parts !== "") {
-    myNameParts = JSON.parse(currentUserprofile.name_parts);
-  }
-  console.log(myNameParts);
 
   const rawIdentifiers = Object.fromEntries(
     Object.entries(currentUserprofile).filter(
       ([key, value]) => key.startsWith("identifier") && value !== "" && value !== null
     )
   );
-  console.log(rawIdentifiers);
 
   let myIdentifiers = [];
   if (rawIdentifiers && Object.keys(rawIdentifiers).length > 0) {
@@ -132,10 +197,13 @@ const makeSelfCreatibutor = (currentUserprofile, schema, orderedRoleOptions) => 
     }));
   }
 
-  const return_obj = {
+  const family = personNames?.family_name?.trim() ?? "";
+  const given = personNames?.given_name?.trim() ?? "";
+
+  return {
     person_or_org: {
-      family_name: getFamilyName(myNameParts) || currentUserprofile?.full_name || "",
-      given_name: getGivenName(myNameParts) || myNameParts?.first || "",
+      family_name: family || currentUserprofile?.full_name || "",
+      given_name: given,
       name: currentUserprofile?.full_name || "",
       type: "personal",
       identifiers: myIdentifiers,
@@ -151,8 +219,6 @@ const makeSelfCreatibutor = (currentUserprofile, schema, orderedRoleOptions) => 
           }))
         : [],
   };
-  console.log(return_obj);
-  return return_obj;
 };
 
 const CreatibutorsFieldFlat = ({
@@ -178,9 +244,18 @@ const CreatibutorsFieldFlat = ({
   const store = useStore();
   const config = store.getState().deposit.config;
   const currentUserprofile = config?.current_user_profile ?? {};
-  const [addingSelf, setAddingSelf] = useState(false);
+  const currentUserId = currentUserprofile?.id ? String(currentUserprofile.id) : "";
   const [newItemIndex, setNewItemIndex] = useState(-1);
   const [showEditForms, setShowEditForms] = useState([]);
+  const [selfRowIndex, setSelfRowIndex] = useState(null);
+  // Last successfully-persisted local override read from the profile; updated
+  // after each successful Remember-change save so the button can re-hide.
+  const [savedSelfNameSplit, setSavedSelfNameSplit] = useState(() =>
+    readSavedLocalNameSplit(currentUserprofile)
+  );
+  // True when the initial split rendered for the self row was a guess (no
+  // `name_parts_local` was present at the time of "Add myself").
+  const [selfNameWasGuessed, setSelfNameWasGuessed] = useState(false);
   const { errors, initialErrors, initialValues, setFieldTouched, touched, values } =
     useFormikContext();
 
@@ -207,7 +282,6 @@ const CreatibutorsFieldFlat = ({
   };
 
   const handleCloseForm = (pushFunc, index, action) => {
-    setAddingSelf(false);
     const filteredEditForms = showEditForms.filter((elem) => elem !== index);
 
     if (action === "saveAndContinue") {
@@ -245,26 +319,66 @@ const CreatibutorsFieldFlat = ({
   const handleCancel = (removeFunc, index) => {
     handleCloseForm(undefined, index, "cancel");
     if (newItemIndex === index) {
+      adjustSelfRowIndexAfterRemove(index);
       removeFunc(index);
     }
     setNewItemIndex(-1);
   };
 
+  // Keep `selfRowIndex` aligned with row-index shifts caused by removals.
+  const adjustSelfRowIndexAfterRemove = (removedIndex) => {
+    setSelfRowIndex((prev) => {
+      if (prev === null) return null;
+      if (prev === removedIndex) return null;
+      if (prev > removedIndex) return prev - 1;
+      return prev;
+    });
+  };
+
+  // Keep `selfRowIndex` aligned with row reorders.
+  const adjustSelfRowIndexAfterMove = (fromIndex, toIndex) => {
+    setSelfRowIndex((prev) => {
+      if (prev === null) return null;
+      if (prev === fromIndex) return toIndex;
+      if (fromIndex < prev && toIndex >= prev) return prev - 1;
+      if (fromIndex > prev && toIndex <= prev) return prev + 1;
+      return prev;
+    });
+  };
+
   const handleRemove = (removeFunc, index) => {
+    adjustSelfRowIndexAfterRemove(index);
     removeFunc(index);
     focusAddButtonHandler();
   };
 
+  const wrappedMove = (moveFunc) => (fromIndex, toIndex) => {
+    adjustSelfRowIndexAfterMove(fromIndex, toIndex);
+    moveFunc(fromIndex, toIndex);
+  };
+
+  const wrappedRemove = (removeFunc) => (index) => {
+    adjustSelfRowIndexAfterRemove(index);
+    removeFunc(index);
+  };
+
   const creatibutorUp = (moveFunc, currentIndex) => {
     if (currentIndex > 0) {
+      adjustSelfRowIndexAfterMove(currentIndex, currentIndex - 1);
       moveFunc(currentIndex, currentIndex - 1);
     }
   };
 
   const creatibutorDown = (moveFunc, currentIndex) => {
     if (currentIndex < getIn(values, fieldPath).length - 1) {
+      adjustSelfRowIndexAfterMove(currentIndex, currentIndex + 1);
       moveFunc(currentIndex, currentIndex + 1);
     }
+  };
+
+  const handleSelfNameSaved = ({ family, given }) => {
+    setSavedSelfNameSplit({ family, given });
+    setSelfNameWasGuessed(false);
   };
 
   const baseRoles = roleOptions ?? [];
@@ -309,6 +423,7 @@ const CreatibutorsFieldFlat = ({
                     creatibutorsLength={getIn(values, fieldPath, []).length}
                     creatibutorDown={creatibutorDown}
                     creatibutorUp={creatibutorUp}
+                    currentUserId={currentUserId}
                     displayName={displayName}
                     editLabel={modal.editLabel}
                     fieldPath={fieldPath}
@@ -320,13 +435,17 @@ const CreatibutorsFieldFlat = ({
                     handleOpenForm={handleOpenForm}
                     index={index}
                     isNewItem={newItemIndex === index}
+                    isSelfRow={selfRowIndex === index}
                     itemError={creatibutorsError ? error?.[index] : null}
                     key={index}
-                    moveCreatibutor={arrayHelpers.move}
-                    removeCreatibutor={arrayHelpers.remove}
+                    moveCreatibutor={wrappedMove(arrayHelpers.move)}
+                    onSelfNameSaved={handleSelfNameSaved}
+                    removeCreatibutor={wrappedRemove(arrayHelpers.remove)}
                     replaceCreatibutor={arrayHelpers.replace}
                     roleOptions={orderedRoleOptions}
+                    savedSelfNameSplit={savedSelfNameSplit}
                     schema={schema}
+                    selfNameWasGuessed={selfNameWasGuessed}
                     serializeSuggestions={serializeSuggestionsProp}
                     showEditForms={showEditForms}
                     values={values}
@@ -345,7 +464,6 @@ const CreatibutorsFieldFlat = ({
                   className="add-button"
                   aria-labelledby={`${fieldPath}-field-description`}
                   onClick={() => {
-                    setAddingSelf(false);
                     handleAddNew(arrayHelpers.push, buildEmptyCreatibutor());
                   }}
                 >
@@ -360,10 +478,16 @@ const CreatibutorsFieldFlat = ({
                   className="add-button"
                   aria-labelledby={`${fieldPath}-field-description`}
                   onClick={() => {
-                    setAddingSelf(true);
+                    const initial = getInitialSelfPersonNames(currentUserprofile);
+                    const newIndex = getIn(values, fieldPath, []).length;
+                    setSelfRowIndex(newIndex);
+                    setSelfNameWasGuessed(!!initial.guessed);
                     handleAddNew(
                       arrayHelpers.push,
-                      makeSelfCreatibutor(currentUserprofile, schema, orderedRoleOptions)
+                      makeSelfCreatibutor(currentUserprofile, schema, orderedRoleOptions, {
+                        family_name: initial.family_name,
+                        given_name: initial.given_name,
+                      })
                     );
                   }}
                 >

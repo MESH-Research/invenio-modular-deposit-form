@@ -50,6 +50,7 @@ optional-dependencies.tests = [
 ]
 urls.Homepage = "https://github.com/MESH-Research/invenio-modular-deposit-form"
 entry-points."invenio_assets.webpack".invenio_modular_deposit_form_theme = "invenio_modular_deposit_form.webpack:theme"
+entry-points."invenio_base.api_blueprints".invenio_modular_deposit_form_api = "invenio_modular_deposit_form.views:create_api_blueprint"
 entry-points."invenio_base.api_finalize_app".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:api_finalize_app"
 entry-points."invenio_base.apps".invenio_modular_deposit_form = "invenio_modular_deposit_form:InvenioModularDepositForm"
 entry-points."invenio_base.blueprints".invenio_modular_deposit_form = "invenio_modular_deposit_form.ext:create_blueprint"

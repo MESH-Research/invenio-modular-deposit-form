@@ -32,4 +32,23 @@ function getGivenName(nameParts) {
     .join(" ");
 }
 
-export { getFamilyName, getGivenName };
+/**
+ * Best-effort split of a space-separated display string into creatibutor fields:
+ * last token → family name, preceding tokens → given names (Western-style guess).
+ */
+function guessPersonNamesFromFullName(fullName) {
+  const trimmed = (fullName || "").trim();
+  if (!trimmed) {
+    return { family_name: "", given_name: "" };
+  }
+  const parts = trimmed.split(/\s+/);
+  if (parts.length === 1) {
+    return { family_name: parts[0], given_name: "" };
+  }
+  return {
+    family_name: parts[parts.length - 1],
+    given_name: parts.slice(0, -1).join(" "),
+  };
+}
+
+export { getFamilyName, getGivenName, guessPersonNamesFromFullName };
