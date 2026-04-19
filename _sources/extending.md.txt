@@ -190,16 +190,16 @@ Custom field values are stored under `custom_fields` in the record and must be a
 For the **single-field custom components** that this package provides for the built-in contrib fields (journal, imprint, meeting, codemeta), you can either write your own `RDM_CUSTOM_FIELDS_UI` entries or **reuse ready-made helpers shipped with this extension**:
 
 ```python
-from invenio_modular_deposit_form.custom_field_ui.journal_fields import (
+from invenio_modular_deposit_form.custom_fields.ui.journal_fields import (
     JOURNAL_CUSTOM_FIELDS_UI,
 )
-from invenio_modular_deposit_form.custom_field_ui.imprint_fields import (
+from invenio_modular_deposit_form.custom_fields.ui.imprint_fields import (
     IMPRINT_CUSTOM_FIELDS_UI,
 )
-from invenio_modular_deposit_form.custom_field_ui.meeting_fields import (
+from invenio_modular_deposit_form.custom_fields.ui.meeting_fields import (
     MEETING_CUSTOM_FIELDS_UI,
 )
-from invenio_modular_deposit_form.custom_field_ui.codemeta_fields import (
+from invenio_modular_deposit_form.custom_fields.ui.codemeta_fields import (
     CODEMETA_CUSTOM_FIELDS_UI,
 )
 
