@@ -7,6 +7,8 @@
 
 """An InvenioRDM extension that adds a more modular and customizable version of the record deposit form."""
 
+import copy
+
 from invenio_i18n import lazy_gettext as _
 from invenio_rdm_records.contrib.codemeta import (
     CODEMETA_CUSTOM_FIELDS,
@@ -28,20 +30,22 @@ from invenio_rdm_records.contrib.thesis import (
     THESIS_CUSTOM_FIELDS,
     THESIS_NAMESPACE,
 )
+from invenio_vocabularies.services.custom_fields import VocabularyCF
 
-from ..custom_field_ui.codemeta_fields import (
+from ..custom_fields.safe_vocabulary import SafeVocabularyCF
+from ..custom_fields.ui.codemeta_fields import (
     CODEMETA_CUSTOM_FIELDS_UI,
 )
-from ..custom_field_ui.imprint_fields import (
+from ..custom_fields.ui.imprint_fields import (
     IMPRINT_CUSTOM_FIELDS_UI,
 )
-from ..custom_field_ui.journal_fields import (
+from ..custom_fields.ui.journal_fields import (
     JOURNAL_CUSTOM_FIELDS_UI,
 )
-from ..custom_field_ui.meeting_fields import (
+from ..custom_fields.ui.meeting_fields import (
     MEETING_CUSTOM_FIELDS_UI,
 )
-from ..custom_field_ui.thesis_fields import (
+from ..custom_fields.ui.thesis_fields import (
     THESIS_CUSTOM_FIELDS_UI,
 )
 from .default import COMMON_FIELDS_DEFAULT_PAGED, FIELDS_BY_TYPE_DEFAULT_PAGED
@@ -181,6 +185,42 @@ MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {}
 
 MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}
 
+def _harden_vocabulary_cfs(fields):
+    """Replace each VocabularyCF with a SafeVocabularyCF carrying the same state.
+
+    Stock ``VocabularyCF.options()`` raises ``NoResultFound`` when its
+    referenced vocabulary type isn't loaded in the database, which various
+    invenio_app_rdm blueprint-scoped error handlers convert directly to a
+    themed 404 (taking down e.g. ``/uploads/new``). ``SafeVocabularyCF``
+    swallows that exception, logs at WARNING, and renders an empty options
+    list so the form stays usable. See ``SafeVocabularyCF`` for details.
+
+    Implementation: shallow-copies each VocabularyCF instance and reassigns
+    its ``__class__`` to ``SafeVocabularyCF``. This is safe because the
+    subclass adds no new instance state; only ``options()`` is overridden.
+    The shallow copy avoids mutating the upstream
+    ``invenio_rdm_records.contrib.*.CUSTOM_FIELDS`` lists in place — other
+    importers of those lists keep the stock VocabularyCF behaviour.
+
+    Args:
+        fields: An iterable of custom field instances.
+
+    Returns:
+        A new list containing the (possibly hardened) custom field
+        instances in the original order. Non-VocabularyCF entries pass
+        through unchanged.
+    """
+    out = []
+    for cf in fields:
+        if isinstance(cf, VocabularyCF) and not isinstance(cf, SafeVocabularyCF):
+            new_cf = copy.copy(cf)
+            new_cf.__class__ = SafeVocabularyCF
+            out.append(new_cf)
+        else:
+            out.append(cf)
+    return out
+
+
 RDM_NAMESPACES = {
     **CODEMETA_NAMESPACE,
     **JOURNAL_NAMESPACE,
@@ -190,11 +230,11 @@ RDM_NAMESPACES = {
 }
 
 RDM_CUSTOM_FIELDS = [
-    *CODEMETA_CUSTOM_FIELDS,
-    *JOURNAL_CUSTOM_FIELDS,
-    *IMPRINT_CUSTOM_FIELDS,
-    *MEETING_CUSTOM_FIELDS,
-    *THESIS_CUSTOM_FIELDS,
+    *_harden_vocabulary_cfs(CODEMETA_CUSTOM_FIELDS),
+    *_harden_vocabulary_cfs(JOURNAL_CUSTOM_FIELDS),
+    *_harden_vocabulary_cfs(IMPRINT_CUSTOM_FIELDS),
+    *_harden_vocabulary_cfs(MEETING_CUSTOM_FIELDS),
+    *_harden_vocabulary_cfs(THESIS_CUSTOM_FIELDS),
 ]
 
 RDM_CUSTOM_FIELDS_UI = [
