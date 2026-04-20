@@ -59,7 +59,7 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         },
         {
             "component": "FormStepper",
-            "classnames": "column mobile tablet computer only",
+            "classnames": "column large screen hidden widescreen hidden",
             "computer": 11,
             "widescreen": 10,
             "mobile": 16,
