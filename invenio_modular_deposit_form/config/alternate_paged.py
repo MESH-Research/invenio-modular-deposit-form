@@ -59,11 +59,14 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         },
         {
             "component": "FormStepper",
-            "classnames": "column large screen hidden widescreen hidden",
-            "computer": 11,
-            "widescreen": 10,
+            "classnames": "column tablet mobile only",
             "mobile": 16,
             "tablet": 16,
+        },
+        {
+            "component": "FormStepper",
+            "classnames": "column computer-only-strict",
+            "computer": 11,
         },
         {
             "component": "SpacerColumn",

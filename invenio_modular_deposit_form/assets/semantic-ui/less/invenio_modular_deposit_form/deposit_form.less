@@ -136,6 +136,10 @@
         text-align: left;
       }
 
+      &:not(.active):hover {
+        background-color: rgba(0, 0, 0, 0.03) !important;
+      }
+
       /* Sidebar menu severity: error, warning, info. Badges replace exclamation icon. */
       &.has-error {
         border-left: 3px solid @negativeBorderColor;
@@ -179,10 +183,16 @@
 
   /* Prominent field label (alternate layout): legend-like typography on the top-level field label */
   .prominent-field-label {
-    > .invenio-field-wrapper > .field > label {
+    > .invenio-field-wrapper > .field > label,
+    > .invenio-field-wrapper > .field > .ui.grid > .column > label {
       color: @primaryColor;
       font-weight: bold;
       font-size: 1.25em;
+      margin-bottom: 1em;
+
+      > i.icon {
+        margin-right: 0.5em;
+      }
     }
   }
 
@@ -394,5 +404,19 @@
         margin-left: 1em;
       }
     }
+  }
+
+  /* Open creatibutor add/edit inline form: faint neutral fill matching the active sidebar item. */
+  fieldset.invenio-form-section[class*="-item-form"] {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Generic responsive helper: visible only at the computer breakpoint (992-1199px),
+ * hidden on mobile/tablet and on large screen / widescreen. Complements Semantic UI's
+ * built-in `mobile only`, `tablet only`, etc. */
+.computer-only-strict {
+  @media all and (max-width: 991px), (min-width: 1200px) {
+    display: none !important;
   }
 }
