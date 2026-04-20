@@ -60,6 +60,16 @@
       line-height: 1.25em;
     }
 
+    /* Bridge the focus outline across the chevron between steps. The Step.Group
+     * builds each chevron from the step's :after rotated-square pseudo-element,
+     * so step N-1's :after forms the left notch of step N. When step N is
+     * focused, recolor step N-1's :after border to match so the outline reads
+     * continuously instead of breaking at the triangle. */
+    .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus-visible):after,
+    .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus):after {
+      border-color: @primaryColor;
+    }
+
     /* Stepper severity: error, warning, info. Badges replace exclamation icon. */
     .upload-form-stepper-step.has-error {
       color: @errorColor;
