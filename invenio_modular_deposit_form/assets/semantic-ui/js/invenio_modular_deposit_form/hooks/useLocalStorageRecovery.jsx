@@ -9,6 +9,8 @@ import { useFormikContext } from "formik";
 
 import { areDeeplyEqual, focusFirstElement } from "../utils";
 
+const AUTOSAVE_DEBOUNCE_MS = 500;
+
 /** Custom hook for recovering form values from local storage
  *
  * @param {Object} currentUserprofile
@@ -25,6 +27,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
   const { values, initialValues, isSubmitting, setValues, setInitialValues, resetForm } =
     useFormikContext();
   const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
+  const autosaveTimeoutRef = useRef(null);
 
   // handler for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
@@ -33,24 +36,33 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     focusFirstElement(currentFormPage, true, fileUploadPageId);
   }, [currentFormPage, fileUploadPageId]);
 
-  // keep changed form values in local storage
+  // keep changed form values in local storage (debounced so rapid edits
+  // collapse into a single write once the user pauses)
   useEffect(() => {
-    if (!!recoveryAsked && !areDeeplyEqual(initialValues, values, ["ui"])) {
+    if (!recoveryAsked) return;
+    if (areDeeplyEqual(initialValues, values, ["ui"])) return;
+
+    autosaveTimeoutRef.current = setTimeout(() => {
       window.localStorage.setItem(
         `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`,
         JSON.stringify(values)
       );
       setStorageDataPresent(true);
-    }
-  }, [values]);
+      autosaveTimeoutRef.current = null;
+    }, AUTOSAVE_DEBOUNCE_MS);
+
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+      }
+    };
+  }, [values, recoveryAsked]);
 
   // recover form values from local storage
   useEffect(() => {
     const storageValues = window.localStorage.getItem(storageValuesKey);
     const storageValuesObj = JSON.parse(storageValues);
-    console.log("Checking if storageValuesObj is equal to values");
-    console.log("storageValuesObj:", storageValuesObj);
-    console.log("values:", values);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
@@ -61,18 +73,21 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
         "pids.doi",
       ])
     ) {
-      console.log("setting recoveredStorageValues");
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
     } else {
-      console.log("setting recoveryAsked to true");
       setRecoveryAsked(true);
     }
   }, []);
 
-  // clear local storage when form submits
+  // clear local storage (and any pending debounced autosave) when form submits
   useEffect(() => {
-    if (isSubmitting && storageDataPresent) {
+    if (!isSubmitting) return;
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+    if (storageDataPresent) {
       window.localStorage.removeItem(storageValuesKey);
     }
   }, [isSubmitting]);
@@ -80,7 +95,6 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
   const handleStorageData = useCallback(
     (recover) => {
       if (recover) {
-        console.log("recovering storage data");
         async function doSetInitialValues() {
           resetForm({ values: recoveredStorageValues });
         }

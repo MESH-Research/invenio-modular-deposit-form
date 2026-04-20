@@ -185,6 +185,7 @@ MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES = {}
 
 MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS = {}
 
+
 def _harden_vocabulary_cfs(fields):
     """Replace each VocabularyCF with a SafeVocabularyCF carrying the same state.
 
