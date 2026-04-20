@@ -59,19 +59,24 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     };
   }, [values, recoveryAsked]);
 
-  // recover form values from local storage
+  // Recover form values from local storage.
+  //
+  // The right question for "is there something worth offering to restore?" is
+  // "does the autosaved snapshot differ from what the server currently has?",
+  // not "does it differ from the live Formik values". Comparing against
+  // initialValues (the server snapshot Formik was initialised with) avoids
+  // false positives from client-side auto-defaulting effects that mutate
+  // `values` after mount (e.g. resource type / publication date / DOI), and
+  // also avoids false negatives where a user's only edit happens to be in one
+  // of those fields. We only need to ignore `ui`, which is transient
+  // client-only Formik state and not user content.
   useEffect(() => {
     const storageValues = window.localStorage.getItem(storageValuesKey);
     const storageValuesObj = JSON.parse(storageValues);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, values, [
-        "ui",
-        "metadata.resource_type",
-        "metadata.publication_date",
-        "pids.doi",
-      ])
+      !areDeeplyEqual(storageValuesObj, initialValues, ["ui"])
     ) {
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
