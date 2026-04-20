@@ -412,11 +412,16 @@
   }
 }
 
-/* Generic responsive helper: visible only at the computer breakpoint (992-1199px),
- * hidden on mobile/tablet and on large screen / widescreen. Complements Semantic UI's
+/* Generic responsive helper: visible only at the computer breakpoint, hidden on
+ * mobile/tablet and on large screen / widescreen. Complements Semantic UI's
  * built-in `mobile only`, `tablet only`, etc. */
-.computer-only-strict {
-  @media all and (max-width: 991px), (min-width: 1200px) {
+@media all and (max-width: @largestTabletScreen) {
+  .computer-only-strict {
+    display: none !important;
+  }
+}
+@media all and (min-width: @largeMonitorBreakpoint) {
+  .computer-only-strict {
     display: none !important;
   }
 }
