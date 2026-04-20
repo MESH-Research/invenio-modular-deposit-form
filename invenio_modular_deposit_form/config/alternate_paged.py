@@ -779,7 +779,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "section": "publisher",
                     "label": _("Publisher"),
                     "component": "PublisherComponent",
-                    "description": "",
+                    "classnames": "basic prominent-field-label",
                 },
                 {
                     "section": "alternate_identifiers",
@@ -814,9 +814,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                         "These formal subject headings let people find "
                         "your work in subject searches."
                     ),
-                    "placeholder": _(
-                        "e.g., Nelson Mandela, Genetics,Shakespeare"
-                    ),
+                    "placeholder": _("e.g., Nelson Mandela, Genetics,Shakespeare"),
                 },
                 {
                     "section": "related_works_section",

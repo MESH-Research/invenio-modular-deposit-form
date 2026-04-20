@@ -56,18 +56,36 @@
   }
 
   .upload-form-pager {
-    .upload-form-stepper-step .title {
-      line-height: 1.25em;
+    .upload-form-stepper-step {
+      /* Step renders as a Button, which sets `white-space: nowrap`. Override
+       * so titles can wrap when fluid steps shrink, and let the flex item
+       * shrink below its content's intrinsic width. */
+      white-space: normal;
+      min-width: 0;
     }
 
-    /* Bridge the focus outline across the chevron between steps. The Step.Group
-     * builds each chevron from the step's :after rotated-square pseudo-element,
-     * so step N-1's :after forms the left notch of step N. When step N is
-     * focused, recolor step N-1's :after border to match so the outline reads
-     * continuously instead of breaking at the triangle. */
+    .upload-form-stepper-step .title {
+      line-height: 1.25em;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    /* Bridge the focus outline across the chevrons surrounding the focused
+     * step. The Step.Group draws each chevron with the step's :after rotated
+     * square whose tip points into the next step, so when step N is focused we
+     * recolor three pseudo-elements:
+     *   - N-1's :after  (left notch of N, drawn by the previous sibling)
+     *   - N's own :after (right notch into N+1, visually the left edge of N+1)
+     *   - N+1's :after  (right notch of N+1)
+     * giving the primary outline a continuous read across the chevrons. */
     .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus-visible):after,
-    .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus):after {
+    .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus):after,
+    .upload-form-stepper-step:focus-visible:after,
+    .upload-form-stepper-step:focus:after,
+    .upload-form-stepper-step:focus-visible + .upload-form-stepper-step:after,
+    .upload-form-stepper-step:focus + .upload-form-stepper-step:after {
       border-color: @primaryColor;
+      border-width: 0 3px 3px 0;
     }
 
     /* Stepper severity: error, warning, info. Badges replace exclamation icon. */
