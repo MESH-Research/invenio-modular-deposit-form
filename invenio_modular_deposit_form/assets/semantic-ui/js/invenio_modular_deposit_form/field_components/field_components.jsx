@@ -341,6 +341,40 @@ const DoiComponent = ({ ...extraProps }) => {
 };
 
 /**
+ * Inner content for FileUploadComponent. Wrapped as a single child so
+ * FieldComponentWrapper's React.cloneElement target is a real component
+ * (not a Fragment), and so the label/feedback render *inside* the
+ * `.invenio-field-wrapper` div (matching DoiComponent etc.) — required
+ * for the prominent-field-label CSS selector to match.
+ */
+const FileUploaderInner = ({
+  label,
+  icon,
+  fileErrorPaths,
+  useUppy,
+  commonFileUploaderProps,
+}) => (
+  <>
+    {label && (
+      <Form.Field>
+        <FieldLabel htmlFor="files" icon={icon} label={label} />
+      </Form.Field>
+    )}
+    <SyncFilesCountFromRedux />
+    {fileErrorPaths.length > 0 && (
+      <div className="field rel-mt-1 error" role="alert">
+        <FeedbackLabel fieldPath="files" pointing="below" hasSubfields />
+      </div>
+    )}
+    {useUppy ? (
+      <UppyUploader {...commonFileUploaderProps} />
+    ) : (
+      <FileUploader {...commonFileUploaderProps} />
+    )}
+  </>
+);
+
+/**
  * File upload section (files). Uses stock FileUploader or UppyUploader.
  * @overridable InvenioAppRdm.Deposit.FileUploader.container (via FieldComponentWrapper)
  */
@@ -403,26 +437,15 @@ const FileUploadComponent = ({ ...extraProps }) => {
   const fileFieldIcon = extraProps.icon ?? extraProps.labelIcon ?? "file";
 
   return (
-    <>
-      {fileFieldLabel && (
-        <Form.Field>
-          <FieldLabel htmlFor="files" icon={fileFieldIcon} label={fileFieldLabel} />
-        </Form.Field>
-      )}
-      <SyncFilesCountFromRedux />
-      {fileErrorPaths.length > 0 && (
-        <div className="field rel-mt-1 error" role="alert">
-          <FeedbackLabel fieldPath="files" pointing="below" hasSubfields />
-        </div>
-      )}
-      <FieldComponentWrapper componentName="FileUploader" fieldPath="files" {...extraProps}>
-        {useUppy ? (
-          <UppyUploader {...commonFileUploaderProps} />
-        ) : (
-          <FileUploader {...commonFileUploaderProps} />
-        )}
-      </FieldComponentWrapper>
-    </>
+    <FieldComponentWrapper componentName="FileUploader" fieldPath="files" {...extraProps}>
+      <FileUploaderInner
+        label={fileFieldLabel}
+        icon={fileFieldIcon}
+        fileErrorPaths={fileErrorPaths}
+        useUppy={useUppy}
+        commonFileUploaderProps={commonFileUploaderProps}
+      />
+    </FieldComponentWrapper>
   );
 };
 
