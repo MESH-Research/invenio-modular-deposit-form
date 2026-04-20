@@ -59,7 +59,7 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         },
         {
             "component": "FormStepper",
-            "classnames": "column",
+            "classnames": "column mobile tablet computer only",
             "computer": 11,
             "widescreen": 10,
             "mobile": 16,
@@ -79,15 +79,16 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
 _PAGED_FORM_LEFT_SIDEBAR_MENU = {
     "component": "FormLeftSidebar",
     "classnames": "default-layout",
-    # Sidebar widths
+    # Sidebar widths (zeroed at mobile/tablet/computer via `only: large screen`)
     "computer": 3,
     "largeScreen": 3,
     "widescreen": 3,
+    "only": "large screen",
     "subsections": [
         {
             "component": "FormSidebarPageMenu",
             "label": _("Steps"),
-            "classnames": "computer widescreen large-monitor only",
+            "classnames": "widescreen large-monitor only",
         },
     ],
 }
@@ -846,7 +847,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
 COMMON_FIELDS_ALTERNATE_PAGED = [
     _PAGED_FORM_TITLE,
     _PAGED_FORM_HEADER_STEPPER_TOP,
-    _PAGED_FORM_LEFT_SIDEBAR_EMPTY,
+    _PAGED_FORM_LEFT_SIDEBAR_MENU,
     _PAGED_FORM_RIGHT_SIDEBAR,
     _PAGED_FORM_FOOTER,
     _PAGED_FORM_PAGES_ALTERNATE_PAGED,
