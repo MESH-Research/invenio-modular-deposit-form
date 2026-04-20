@@ -111,11 +111,13 @@ _PAGED_FORM_RIGHT_SIDEBAR = {
     "component": "FormRightSidebar",
     "classnames": "default-layout",
     # Sidebar widths: 4 (widescreen), 4 (largeScreen), 5 (computer)
-    "mobile": 16,
-    "tablet": 16,
+    # Hidden at mobile/tablet (zeroed via setZeroWidths from `only`); the
+    # save/access/feedback components also appear on the tablet/mobile-only
+    # "Save & Publish" form page (section "6") in the page menu/stepper.
     "computer": 5,
     "largeScreen": 4,
     "widescreen": 4,
+    "only": "computer",
     "subsections": [
         {
             "section": "form_feedback",
@@ -824,25 +826,34 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 },
             ],
         },
-        # {
-        #     "section": "6",
-        #     "label": "Save & Publish",
-        #     "component": "FormPage",
-        #     "subsections": [
-        #         {
-        #             "section": "submit_actions",
-        #             "label": "Publish",
-        #             "component": "SubmissionComponent",
-        #             "wrapped": False,
-        #         },
-        #         {
-        #             "section": "access",
-        #             "label": "Access",
-        #             "component": "AccessRightsComponent",
-        #             "wrapped": True,
-        #         },
-        #     ],
-        # },
+        {
+            "section": "6",
+            "label": _("Save & Publish"),
+            "component": "FormPage",
+            # Menu/stepper item only at tablet/mobile (the same components
+            # appear in the right sidebar at computer+ widths). The page
+            # itself stays navigable at all widths so hard links still work.
+            "menuItemClasses": "tablet mobile only",
+            "subsections": [
+                {
+                    "section": "form_feedback",
+                    "component": "FormFeedbackComponent",
+                    "wrapped": False,
+                },
+                {
+                    "section": "submit_actions",
+                    "label": _("Publish"),
+                    "component": "SubmissionComponent",
+                    "wrapped": False,
+                },
+                {
+                    "section": "access",
+                    "label": _("Visibility"),
+                    "component": "AccessRightsComponent",
+                    "wrapped": False,
+                },
+            ],
+        },
     ],
 }
 
