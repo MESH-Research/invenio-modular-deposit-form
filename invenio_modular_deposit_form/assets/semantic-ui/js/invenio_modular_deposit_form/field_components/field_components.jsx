@@ -583,6 +583,11 @@ const LicensesComponent = ({ ...extraProps }) => {
           },
           initialQueryState: {
             filters: [["tags", "recommended"]],
+            sortBy: "bestmatch",
+            sortOrder: "asc",
+            layout: "list",
+            page: 1,
+            size: 12,
           },
         }}
         serializeLicenses={(result) => ({
