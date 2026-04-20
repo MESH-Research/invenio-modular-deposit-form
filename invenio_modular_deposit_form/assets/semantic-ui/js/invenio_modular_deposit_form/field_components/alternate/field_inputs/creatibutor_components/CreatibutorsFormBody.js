@@ -202,70 +202,73 @@ const CreatibutorsFormBody = ({
       {_get(values, typeFieldPath, "") === CREATIBUTOR_TYPE.PERSON ? (
         <>
           {namesAutocompleteOn && (
-            <Overridable
-              id="InvenioRDMRecords.CreatibutorsFlat.PersonFamilyNameRemoteSelectField.container"
-              serializeSuggestions={serializeSuggestions}
-              onValueChange={onPersonSearchChange}
-              familyNameFieldPath={familyNameFieldPath}
-              ref={familyNameWidgetRef}
-            >
-              <Form.Group widths="equal">
-                <RemoteSelectField
-                  selectOnBlur={false}
-                  selectOnNavigation={false}
-                  fieldPath={familyNameFieldPath}
-                  label={i18next.t("Family name")}
-                  clearable
-                  multiple={false}
-                  hideAdditionMenuItem
-                  commitSearchOnBlur
-                  focusFieldPathAfterSelect={
-                    !namesSearchOnly || personDetailsExpanded ? givenNameFieldPath : undefined
-                  }
-                  placeholder={i18next.t("Family name")}
-                  noQueryMessage={i18next.t("Family name")}
-                  required={!!isCreator}
-                  isFocused={isNewItem}
-                  search={(options) => options}
-                  suggestionAPIUrl="/api/names"
-                  serializeSuggestions={serializeSuggestions}
-                  onValueChange={onPersonSearchChange}
-                  ref={familyNameWidgetRef}
-                />
-                {(!namesSearchOnly || personDetailsExpanded) && (
+            <>
+              <Overridable
+                id="InvenioRDMRecords.CreatibutorsFlat.PersonFamilyNameRemoteSelectField.container"
+                serializeSuggestions={serializeSuggestions}
+                onValueChange={onPersonSearchChange}
+                familyNameFieldPath={familyNameFieldPath}
+              >
+                <Form.Group widths="equal">
+                  <RemoteSelectField
+                    selectOnBlur={false}
+                    selectOnNavigation={false}
+                    fieldPath={familyNameFieldPath}
+                    label={i18next.t("Family name")}
+                    clearable
+                    multiple={false}
+                    hideAdditionMenuItem
+                    commitSearchOnBlur
+                    focusFieldPathAfterSelect={
+                      !namesSearchOnly || personDetailsExpanded ? givenNameFieldPath : undefined
+                    }
+                    placeholder={i18next.t("Family name")}
+                    noQueryMessage={i18next.t("Family name")}
+                    required={!!isCreator}
+                    isFocused={isNewItem}
+                    search={(options) => options}
+                    suggestionAPIUrl="/api/names"
+                    serializeSuggestions={serializeSuggestions}
+                    onValueChange={onPersonSearchChange}
+                    ref={familyNameWidgetRef}
+                  />
+                  {(!namesSearchOnly || personDetailsExpanded) && (
+                    <TextField
+                      label={i18next.t("Given names")}
+                      placeholder={i18next.t("Given names")}
+                      fieldPath={givenNameFieldPath}
+                    />
+                  )}
+                </Form.Group>
+              </Overridable>
+              {rememberChangeRow}
+            </>
+          )}
+
+          {!namesAutocompleteOn && personDetailsExpanded && (
+            <>
+              <Overridable
+                id="InvenioRDMRecords.CreatibutorsFlat.FullNameField.container"
+                familyNameFieldPath={familyNameFieldPath}
+                givenNameFieldPath={givenNameFieldPath}
+                isCreator={isCreator}
+              >
+                <Form.Group widths="equal">
+                  <TextField
+                    label={i18next.t("Family name")}
+                    placeholder={i18next.t("Family name")}
+                    fieldPath={familyNameFieldPath}
+                    required={isCreator}
+                  />
                   <TextField
                     label={i18next.t("Given names")}
                     placeholder={i18next.t("Given names")}
                     fieldPath={givenNameFieldPath}
                   />
-                )}
-              </Form.Group>
+                </Form.Group>
+              </Overridable>
               {rememberChangeRow}
-            </Overridable>
-          )}
-
-          {!namesAutocompleteOn && personDetailsExpanded && (
-            <Overridable
-              id="InvenioRDMRecords.CreatibutorsFlat.FullNameField.container"
-              familyNameFieldPath={familyNameFieldPath}
-              givenNameFieldPath={givenNameFieldPath}
-              isCreator={isCreator}
-            >
-              <Form.Group widths="equal">
-                <TextField
-                  label={i18next.t("Family name")}
-                  placeholder={i18next.t("Family name")}
-                  fieldPath={familyNameFieldPath}
-                  required={isCreator}
-                />
-                <TextField
-                  label={i18next.t("Given names")}
-                  placeholder={i18next.t("Given names")}
-                  fieldPath={givenNameFieldPath}
-                />
-              </Form.Group>
-              {rememberChangeRow}
-            </Overridable>
+            </>
           )}
 
           {personDetailsExpanded && (
@@ -283,7 +286,6 @@ const CreatibutorsFormBody = ({
               </Overridable>
               <Overridable
                 id="InvenioRDMRecords.CreatibutorsFlat.PersonAffiliationsField.container"
-                ref={affiliationsRef}
                 fieldPath={affiliationsFieldPath}
               >
                 <AffiliationsField fieldPath={affiliationsFieldPath} selectRef={affiliationsRef} />
@@ -324,7 +326,6 @@ const CreatibutorsFormBody = ({
           <Overridable
             id="InvenioRDMRecords.CreatibutorsFlat.OrganizationNameField.container"
             fieldPath={organizationNameFieldPath}
-            ref={inputRef}
             isCreator={isCreator}
           >
             <TextField
@@ -348,7 +349,6 @@ const CreatibutorsFormBody = ({
           </Overridable>
           <Overridable
             id="InvenioRDMRecords.CreatibutorsFlat.OrganizationAffiliationsField.container"
-            ref={affiliationsRef}
             fieldPath={affiliationsFieldPath}
           >
             <AffiliationsField fieldPath={affiliationsFieldPath} selectRef={affiliationsRef} />
