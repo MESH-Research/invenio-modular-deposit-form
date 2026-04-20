@@ -429,7 +429,10 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
   if (keys1.length !== keys2.length) return false;
 
   for (let key of keys1) {
-    if ( ignoreKeys.some(ignoreKey => key === ignoreKey?.split(".")[0])) {
+    // Skip only on an exact ignore-list match for this level. Dotted paths
+    // (e.g. "metadata.resource_type") are handled by recursing with
+    // _getSubKeys so we don't accidentally skip the entire parent subtree.
+    if (ignoreKeys.includes(key)) {
       continue;
     }
 
