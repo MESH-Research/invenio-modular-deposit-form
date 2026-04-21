@@ -75,6 +75,19 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
             "widescreen": 4,
             "only": "computer",
         },
+        # Mobile/tablet only: FormFeedbackComponent shown full-width under the
+        # stepper. At computer+ widths it appears in the right sidebar (see
+        # `_PAGED_FORM_RIGHT_SIDEBAR.subsections.form_feedback`); the
+        # HorizontalSubmissionComponent (page-6 mobile/tablet view) deliberately
+        # omits it so the feedback is consistently anchored at the page header
+        # rather than buried mid-page next to the publish buttons.
+        {
+            "section": "form_feedback_header",
+            "component": "FormFeedbackComponent",
+            "classnames": "column tablet mobile only",
+            "mobile": 16,
+            "tablet": 16,
+        },
     ],
 }
 
@@ -712,7 +725,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 },
                 {
                     "section": "dates",
-                    "label": _("Dates"),
+                    "label": _("Publication Dates"),
                     "component": "CombinedDatesComponent",
                     "classnames": "basic prominent-field-label",
                     "helpText": "",
@@ -830,6 +843,12 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                 {
                     "section": "submission_row_section",
                     "component": "HorizontalSubmissionComponent",
+                    "label": None,
+                    "classnames": "simple",
+                },
+                {
+                    "section": "access_row_section",
+                    "component": "HorizontalAccessComponent",
                     "label": None,
                     "classnames": "simple",
                 },

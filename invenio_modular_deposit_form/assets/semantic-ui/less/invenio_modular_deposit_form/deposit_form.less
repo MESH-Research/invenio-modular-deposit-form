@@ -540,6 +540,40 @@
       margin-bottom: 1.5em;
     }
   }
+
+  /* Horizontal submission / access rows (alternate_paged page-6, mobile/tablet
+   * only). Each row is a 2-equal-column `Grid relaxed stackable`:
+   *   - tablet/computer: left = controls, right = helptext or AccessMessage
+   *   - mobile: right column hidden (`computer tablet only`); left column
+   *     shows a single info-circle Popup trigger (`horizontal-help-trigger`)
+   *     floated to the top-right corner so it sits "to the right of the
+   *     components" without pushing layout. */
+  .horizontal-submission,
+  .horizontal-access {
+    margin-top: 0;
+    margin-bottom: 1.5em;
+
+    .horizontal-help-trigger {
+      float: right;
+      margin: 0 0 0.25em 0.5em;
+      line-height: 1;
+
+      .ui.icon {
+        cursor: pointer;
+        color: @primaryColor;
+      }
+    }
+  }
+
+  .horizontal-submission-helptext,
+  .horizontal-access-message {
+    > p:first-child {
+      margin-top: 0;
+    }
+    > p:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 
 /* Generic responsive helper: visible only at the computer breakpoint, hidden on

@@ -29,6 +29,7 @@ import {
 } from "./field_components/field_components";
 import { ContributorsComponentFlat } from "./field_components/alternate/ContributorsComponentFlat";
 import { CreatorsComponentFlat } from "./field_components/alternate/CreatorsComponentFlat";
+import { HorizontalAccessComponent } from "./field_components/alternate/HorizontalAccessComponent";
 import { HorizontalSubmissionComponent } from "./field_components/alternate/HorizontalSubmissionComponent";
 import { SizesComponent } from "./field_components/alternate/SizesComponent";
 import {
@@ -163,6 +164,7 @@ const componentsRegistry = {
   CombinedMeetingComponent: [CombinedMeetingComponent, ["custom_fields.meeting:meeting"]],
   CombinedThesisComponent: [CombinedThesisComponent, ["custom_fields.thesis:thesis"]],
   DeleteComponent: [DeleteComponent, []],
+  HorizontalAccessComponent: [HorizontalAccessComponent, ["access"]],
   HorizontalSubmissionComponent: [HorizontalSubmissionComponent, []],
   SubmissionComponent: [SubmissionComponent, []],
   // Layout / page navigation (no field paths; registered for config-driven regions)
