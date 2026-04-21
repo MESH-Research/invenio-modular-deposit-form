@@ -119,7 +119,7 @@ export class ArrayField extends Component {
     return (
       <Form.Field {...uiProps} {...hasError}>
         <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-        {helpText && <label className="helptext">{helpText}</label>}
+        {helpText && <label className="description">{helpText}</label>}
 
         {valuesToDisplay.map((value, index, array) => {
           const arrayPath = fieldPath;
@@ -182,10 +182,7 @@ export class ArrayField extends Component {
 }
 
 ArrayField.propTypes = {
-  addButtonRef: PropTypes.oneOfType([
-    PropTypes.func,
-    PropTypes.shape({ current: PropTypes.any }),
-  ]),
+  addButtonRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
   addButtonLabel: PropTypes.string,
   addButtonClassName: PropTypes.string,
   children: PropTypes.func.isRequired,
