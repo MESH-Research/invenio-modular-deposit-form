@@ -66,7 +66,7 @@ const CreatibutorsIdentifiers = ({
                     fluid
                     width={5}
                   />
-                  <Form.Field className="no-label">
+                  <Form.Field>
                     <Button
                       aria-label={i18next.t("Remove identifier")}
                       className="close-btn"

@@ -139,7 +139,7 @@ const CreatibutorsFormBody = ({
   };
 
   const rememberChangeRow = showRememberButton ? (
-    <Form.Group className="rel-mb-1">
+    <Form.Group>
       <Form.Field>
         <Button
           type="button"

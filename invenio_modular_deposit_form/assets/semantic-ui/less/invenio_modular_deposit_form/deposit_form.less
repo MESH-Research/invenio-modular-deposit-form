@@ -68,6 +68,13 @@
       min-width: 0;
     }
 
+    /* Tighter padding on tablet so step labels have more room before wrapping. */
+    @media all and (min-width: @tabletBreakpoint) and (max-width: @largestTabletScreen) {
+      .upload-form-stepper-step {
+        padding: 1em;
+      }
+    }
+
     .upload-form-stepper-step .title {
       line-height: 1.25em;
       white-space: normal;
@@ -329,6 +336,10 @@
 
     .invenio-field-wrapper {
       .field {
+        .no-label {
+          margin-top: 21px;
+        }
+
         .helptext,
         .description {
           // copies stock InvenioRDM styles for label.helptext
@@ -511,6 +522,11 @@
   /* Open creatibutor add/edit inline form: faint neutral fill matching the active sidebar item. */
   fieldset.invenio-form-section[class*="-item-form"] {
     background-color: #f3f4f5;
+
+    > .field,
+    > .fields {
+      margin-bottom: 1.5em;
+    }
   }
 }
 
