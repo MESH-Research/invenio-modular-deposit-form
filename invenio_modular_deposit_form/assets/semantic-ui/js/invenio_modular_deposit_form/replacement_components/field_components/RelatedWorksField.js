@@ -15,7 +15,7 @@
 // - `emptyRelatedWork` from `@js/invenio_rdm_records/.../RelatedWorksField/initialValues`.
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { FieldLabel, GroupField } from "react-invenio-forms";
+import { GroupField } from "react-invenio-forms";
 import { Button, Form, Icon } from "semantic-ui-react";
 import { emptyRelatedWork } from "@js/invenio_rdm_records/src/deposit/fields/RelatedWorksField/initialValues";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
@@ -36,94 +36,91 @@ export class RelatedWorksField extends Component {
     const { fieldPath, label, labelIcon, required, options, showEmptyValue } = this.props;
 
     return (
-      <>
-        <label className="helptext" style={{ marginBottom: "10px" }}>
-          {i18next.t(
-            "Specify identifiers of related works. Supported identifiers include DOI, Handle, ARK, PURL, ISSN, ISBN, PubMed ID, PubMed Central ID, ADS Bibliographic Code, arXiv, Life Science Identifiers (LSID), EAN-13, ISTC, URNs, and URLs."
-          )}
-        </label>
-        <ArrayField
-          addButtonRef={this.addButtonRef}
-          addButtonLabel={i18next.t("Add related work")}
-          defaultNewValue={emptyRelatedWork}
-          fieldPath={fieldPath}
-          label={label ? <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} /> : null}
-          onAfterAdd={({ index }) =>
-            focusFieldByPath(`${fieldPath}.${index}.relation_type`)
+      <ArrayField
+        addButtonRef={this.addButtonRef}
+        addButtonLabel={i18next.t("Add related work")}
+        defaultNewValue={emptyRelatedWork}
+        fieldPath={fieldPath}
+        helpText={i18next.t(
+          "Specify identifiers of related works. Supported identifiers include DOI, Handle, ARK, PURL, ISSN, ISBN, PubMed ID, PubMed Central ID, ADS Bibliographic Code, arXiv, Life Science Identifiers (LSID), EAN-13, ISTC, URNs, and URLs."
+        )}
+        label={label}
+        labelIcon={labelIcon}
+        onAfterAdd={({ index }) =>
+          focusFieldByPath(`${fieldPath}.${index}.relation_type`)
+        }
+        onAfterRemove={({ isNowEmpty, removedIndex }) => {
+          if (isNowEmpty) {
+            focusAddButton(this.addButtonRef);
+            return;
           }
-          onAfterRemove={({ isNowEmpty, removedIndex }) => {
-            if (isNowEmpty) {
-              focusAddButton(this.addButtonRef);
-              return;
-            }
-            const target = removedIndex > 0 ? removedIndex - 1 : 0;
-            focusFieldByPath(`${fieldPath}.${target}.relation_type`);
-          }}
-          required={required}
-          showEmptyValue={showEmptyValue}
-        >
-          {({ arrayHelpers, indexPath }) => {
-            const fieldPathPrefix = `${fieldPath}.${indexPath}`;
+          const target = removedIndex > 0 ? removedIndex - 1 : 0;
+          focusFieldByPath(`${fieldPath}.${target}.relation_type`);
+        }}
+        required={required}
+        showEmptyValue={showEmptyValue}
+      >
+        {({ arrayHelpers, indexPath }) => {
+          const fieldPathPrefix = `${fieldPath}.${indexPath}`;
 
-            return (
-              <GroupField optimized>
-                <SelectField
-                  clearable
-                  fieldPath={`${fieldPathPrefix}.relation_type`}
-                  label={i18next.t("Relation")}
-                  aria-label={i18next.t("Relation")}
-                  optimized
-                  options={options.relations}
-                  placeholder={{
-                    role: "option",
-                    content: "Select relation...",
-                  }}
-                  required
-                  width={3}
-                />
+          return (
+            <GroupField optimized>
+              <SelectField
+                clearable
+                fieldPath={`${fieldPathPrefix}.relation_type`}
+                label={i18next.t("Relation")}
+                aria-label={i18next.t("Relation")}
+                optimized
+                options={options.relations}
+                placeholder={{
+                  role: "option",
+                  content: "Select relation...",
+                }}
+                required
+                width={3}
+              />
 
-                <TextField
-                  fieldPath={`${fieldPathPrefix}.identifier`}
-                  label={i18next.t("Identifier")}
-                  required
-                  width={4}
-                />
+              <TextField
+                fieldPath={`${fieldPathPrefix}.identifier`}
+                label={i18next.t("Identifier")}
+                required
+                width={4}
+              />
 
-                <SelectField
-                  clearable
-                  fieldPath={`${fieldPathPrefix}.scheme`}
-                  label={i18next.t("Scheme")}
-                  aria-label={i18next.t("Scheme")}
-                  optimized
-                  options={options.scheme}
-                  required
-                  width={2}
-                />
+              <SelectField
+                clearable
+                fieldPath={`${fieldPathPrefix}.scheme`}
+                label={i18next.t("Scheme")}
+                aria-label={i18next.t("Scheme")}
+                optimized
+                options={options.scheme}
+                required
+                width={2}
+              />
 
-                <ResourceTypeField
-                  clearable
-                  fieldPath={`${fieldPathPrefix}.resource_type`}
-                  labelIcon=""
-                  options={options.resource_type}
-                  width={7}
-                  labelclassname="small field-label-class"
-                />
+              <ResourceTypeField
+                clearable
+                fieldPath={`${fieldPathPrefix}.resource_type`}
+                labelIcon=""
+                options={options.resource_type}
+                width={7}
+                labelclassname="small field-label-class"
+              />
 
-                <Form.Field>
-                  <Button
-                    aria-label={i18next.t("Remove field")}
-                    className="close-btn"
-                    icon
-                    onClick={() => arrayHelpers.remove(indexPath)}
-                  >
-                    <Icon name="close" />
-                  </Button>
-                </Form.Field>
-              </GroupField>
-            );
-          }}
-        </ArrayField>
-      </>
+              <Form.Field>
+                <Button
+                  aria-label={i18next.t("Remove field")}
+                  className="close-btn"
+                  icon
+                  onClick={() => arrayHelpers.remove(indexPath)}
+                >
+                  <Icon name="close" />
+                </Button>
+              </Form.Field>
+            </GroupField>
+          );
+        }}
+      </ArrayField>
     );
   }
 }
