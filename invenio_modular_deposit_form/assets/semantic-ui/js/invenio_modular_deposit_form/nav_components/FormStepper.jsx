@@ -67,7 +67,7 @@ const FormStepper = ({ classnames, ...props }) => {
 
   return (
     <Grid.Column className={classnames ?? ""} {...props}>
-      <Step.Group className="upload-form-pager" fluid={true} size="small">
+      <Step.Group className="upload-form-pager" fluid={true} size="small" unstackable>
         {formPages.map(({ section, label, menuItemClasses }, index) => {
           const counts = pageCounts[section];
           const severityClass = counts?.severity ? `has-${counts.severity}` : "";
@@ -94,13 +94,14 @@ const FormStepper = ({ classnames, ...props }) => {
                 <Step.Title>
                   {/* Mobile shows just the page number; tablet+ shows the
                    * translated label. Both are always rendered; visibility is
-                   * toggled via Semantic UI's `mobile only` / `mobile hidden`
-                   * responsive classes (defined for any element via
-                   * `[class*="mobile only"]` / `[class*="mobile hidden"]`). */}
+                   * toggled via the generic `:not(.ui.grid).only` responsive
+                   * rules from invenio_theme/site.overrides (Semantic UI's
+                   * built-in `mobile only` / `mobile hidden` classes only
+                   * apply to grid descendants). */}
                   <span className="upload-form-stepper-step-number mobile only">
                     {index + 1}
                   </span>
-                  <span className="upload-form-stepper-step-label mobile hidden">
+                  <span className="upload-form-stepper-step-label tablet computer only">
                     {i18next.t(label ?? section)}
                   </span>
                   {counts && (counts.errors > 0 || counts.warnings > 0 || counts.info > 0) && (
