@@ -432,8 +432,12 @@
   // Array/group .field.error must not paint siblings until their own .field.error
   .field.error fieldset:not(.error) .field:not(.error),
   .field.error .row .column .field:not(.error) {
+    label:not(.error) {
+      background-color: transparent !important;
+      color: #000 !important; // @inputColor;
+    }
+
     & > .input input:not(.error),
-    label:not(.error),
     .ui.dropdown:not(.error) {
       background-color: #fff !important; // @inputBackground;
       border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
