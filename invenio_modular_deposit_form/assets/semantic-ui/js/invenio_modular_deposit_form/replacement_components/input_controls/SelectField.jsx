@@ -196,6 +196,7 @@ export class SelectField extends Component {
       helpText,
       description,
       classnames,
+      width,
       error,
       required,
       showLabel = true,
@@ -218,6 +219,7 @@ export class SelectField extends Component {
       <Form.Field
         required={!!required}
         error={!!error}
+        width={width}
         className={["invenio-select-field-wrapper", classnames].filter(Boolean).join(" ")}
       >
         {showLabel && label
