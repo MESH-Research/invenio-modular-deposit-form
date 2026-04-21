@@ -94,7 +94,7 @@ export class UnmanagedIdentifierCmp extends Component {
             disabled={disabled}
           />
         </Form.Field>
-        {helpText && <label className="helptext">{helpText}</label>}
+        {helpText && <label className="helptext rel-mt-1 mb-0">{helpText}</label>}
       </>
     );
   }

@@ -43,7 +43,7 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { FieldLabel, FeedbackLabel } from "react-invenio-forms";
-import { Form, Grid } from "semantic-ui-react";
+import { Form } from "semantic-ui-react";
 import { OptionalDOIoptions } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/OptionalDOIoptions";
 import { SET_DOI_NEEDED } from "@js/invenio_rdm_records/src/deposit/state/types";
 import { ManagedIdentifierCmp } from "./pid_components/ManagedIdentifierCmp";
@@ -242,16 +242,8 @@ class OptionalPIDFieldCmp extends Component {
     return (
       <>
         <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
-          <Grid>
-            <Grid.Column width={5}>
-              <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
-            </Grid.Column>
-            {fieldError && (
-              <Grid.Column width={11}>
-                <FeedbackLabel fieldPath={fieldPath} />
-              </Grid.Column>
-            )}
-          </Grid>
+          <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
+          {fieldError && <FeedbackLabel fieldPath={fieldPath} />}
         </Form.Field>
 
         {this.canBeManagedAndUnmanaged && (

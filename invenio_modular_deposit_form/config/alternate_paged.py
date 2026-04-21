@@ -83,9 +83,7 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         # rather than buried mid-page next to the publish buttons.
         {
             "component": "FormFeedbackComponent",
-            "classnames": (
-                "sixteen wide column tablet mobile only rel-mt-1 pt-10"
-            ),
+            "classnames": ("sixteen wide column tablet mobile only rel-mt-1 pt-10"),
         },
     ],
 }
@@ -835,7 +833,7 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
                     "section": "files",
                     "label": _("File Upload"),
                     "component": "FileUploadComponent",
-                    "classnames": "basic prominent-field-label",
+                    "classnames": "basic prominent-field-label mb-30 rel-pb-2",
                     "description": _(
                         "Very large files (200MB and larger) should be uploaded "
                         "one at a time. Multiple smaller files may safely be "

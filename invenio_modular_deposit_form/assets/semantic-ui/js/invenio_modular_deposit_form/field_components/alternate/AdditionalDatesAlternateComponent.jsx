@@ -18,14 +18,14 @@ const AdditionalDatesAlternateComponent = ({
 }) => {
   const vocabularies = useStore().getState().deposit?.config?.vocabularies ?? { metadata: {} };
   const options = optionsProp ?? vocabularies.metadata.dates;
+  extraProps = {
+    ...extraProps,
+    classnames: ["rel-mt-2", extraProps.classnames].filter(Boolean).join(" "),
+  };
 
   return (
     <FieldComponentWrapper componentName="DateField" {...extraProps} fieldPath={fieldPath}>
-      <DatesFieldAlternate
-        fieldPath={fieldPath}
-        options={options}
-        showEmptyValue={false}
-      />
+      <DatesFieldAlternate fieldPath={fieldPath} options={options} showEmptyValue={false} />
     </FieldComponentWrapper>
   );
 };

@@ -128,7 +128,7 @@ class ManagedIdentifierComponent extends Component {
 
           <Form.Field>{identifier ? UnreserveBtn : ReserveBtn}</Form.Field>
         </Form.Group>
-        {helpText && <label className="helptext mt-0">{helpText}</label>}
+        {helpText && <label className="helptext mt-0 mb-0">{helpText}</label>}
       </>
     );
   }
