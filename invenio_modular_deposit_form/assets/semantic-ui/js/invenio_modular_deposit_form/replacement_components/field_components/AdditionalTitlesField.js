@@ -10,11 +10,19 @@
 // Modular fork: `ArrayField` is the local fork (`replacement_components/input_controls/
 // ArrayField`) so we get `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard
 // focus management on add and remove.
+//
+// The per-row Language picker is `AdditionalTitleLanguagePicker` (a small functional
+// wrapper around `LanguagesField`) so it can read the Formik `ui.<fieldPath>` mirror
+// and recover human-readable language labels after a localStorage restore. Stock
+// reads only from the Redux record's server-rendered UI block, which is stale once
+// `resetForm` applies an autosaved snapshot.
 
-import React, { Component } from "react";
+import React, { Component, useMemo } from "react";
 import PropTypes from "prop-types";
 import { Button, Form, Icon } from "semantic-ui-react";
 
+import { useFormikContext } from "formik";
+import _get from "lodash/get";
 import { GroupField } from "react-invenio-forms";
 import { emptyAdditionalTitle } from "@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues";
 import { LanguagesField } from "./LanguagesField";
@@ -26,6 +34,57 @@ import {
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
+
+/**
+ * Per-row Language picker for an additional title. Prefers the Formik
+ * `ui.<fieldPath>` mirror (written by RemoteSelectField on every selection and
+ * rehydrated by localStorage recovery) over the Redux record's server-rendered
+ * UI block, so restored language labels survive recovery instead of falling
+ * back to bare codes. RemoteSelectField content-aware re-seed
+ * (`componentDidUpdate` on `initialSuggestions`) handles the post-mount update.
+ */
+const AdditionalTitleLanguagePicker = ({ fieldPath, recordUiLang }) => {
+  const { values } = useFormikContext();
+  const formikUiLang = _get(values, `ui.${fieldPath}`, null);
+
+  const initialOptions = useMemo(() => {
+    if (Array.isArray(formikUiLang) && formikUiLang.length > 0) return formikUiLang;
+    return recordUiLang ? [recordUiLang] : [];
+  }, [JSON.stringify(formikUiLang), JSON.stringify(recordUiLang)]);
+
+  return (
+    <LanguagesField
+      serializeSuggestions={(suggestions) =>
+        suggestions.map((item) => ({
+          text: item.title_l10n,
+          value: item.id,
+          key: item.id,
+        }))
+      }
+      initialOptions={initialOptions}
+      fieldPath={fieldPath}
+      label={i18next.t("Language")}
+      multiple={false}
+      placeholder={i18next.t("Select language")}
+      labelIcon={null}
+      clearable
+      selectOnBlur={false}
+      width={5}
+    />
+  );
+};
+
+AdditionalTitleLanguagePicker.propTypes = {
+  fieldPath: PropTypes.string.isRequired,
+  recordUiLang: PropTypes.shape({
+    id: PropTypes.string,
+    title_l10n: PropTypes.string,
+  }),
+};
+
+AdditionalTitleLanguagePicker.defaultProps = {
+  recordUiLang: undefined,
+};
 
 export class AdditionalTitlesField extends Component {
   addButtonRef = React.createRef();
@@ -68,27 +127,9 @@ export class AdditionalTitlesField extends Component {
                 required
                 width={5}
               />
-              <LanguagesField
-                serializeSuggestions={(suggestions) =>
-                  suggestions.map((item) => ({
-                    text: item.title_l10n,
-                    value: item.id,
-                    key: item.id,
-                  }))
-                }
-                initialOptions={
-                  recordUI?.additional_titles && recordUI.additional_titles[indexPath]?.lang
-                    ? [recordUI.additional_titles[indexPath].lang]
-                    : []
-                }
+              <AdditionalTitleLanguagePicker
                 fieldPath={`${fieldPathPrefix}.lang`}
-                label={i18next.t("Language")}
-                multiple={false}
-                placeholder={i18next.t("Select language")}
-                labelIcon={null}
-                clearable
-                selectOnBlur={false}
-                width={5}
+                recordUiLang={recordUI?.additional_titles?.[indexPath]?.lang}
               />
               <Form.Field>
                 <Button

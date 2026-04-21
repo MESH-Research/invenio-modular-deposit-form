@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setupStore } from '@custom-test-utils/redux_store';
 import { LanguagesComponent } from './field_components';
@@ -7,6 +7,7 @@ import { FormUIStateContext } from '../FormUIStateManager.jsx';
 import { renderWithFormik, setupFormMocks } from '@custom-test-utils/formik_test_utils';
 import axios from 'axios';
 import { Provider } from 'react-redux';
+import { useFormikContext } from 'formik';
 
 describe('LanguagesComponent', () => {
   let store;
@@ -163,6 +164,71 @@ describe('LanguagesComponent', () => {
     expect(dropdown).toBeInTheDocument();
     expect(dropdown).toHaveTextContent('English');
     expect(dropdown).not.toHaveTextContent('French');
+  });
+
+  it('hydrates restored vocabulary labels after Formik resetForm (localStorage recovery)', async () => {
+    // Reproduces the localStorage-recovery flow: the deposit form mounts with the
+    // server's (stale) values, then the recovery hook calls `resetForm({ values })`
+    // with the autosaved snapshot. Without RemoteSelectField re-seeding its internal
+    // suggestions when `initialSuggestions` content changes, the dropdown would
+    // surface bare codes (e.g. "eng") instead of restored labels (e.g. "English").
+    const formikRef = { current: null };
+    const Capture = () => {
+      formikRef.current = useFormikContext();
+      return null;
+    };
+
+    const preloadedState = {
+      deposit: {
+        config: {
+          label_modifications: {},
+          icon_modifications: {},
+          help_text_modifications: {},
+          placeholder_modifications: {},
+          description_modifications: {},
+          default_field_values: {},
+          priority_field_values: {},
+          extra_required_fields: {},
+          vocabularies: { metadata: { languages: { limit_to: [] } } },
+        },
+        record: { ui: { languages: [] } },
+      },
+    };
+    store = setupStore(preloadedState);
+
+    renderWithFormik(
+      <Provider store={store}>
+        <FormUIStateContext.Provider
+          value={{
+            formUIState: { currentFormPage: '', currentResourceType: '' },
+            handleFormPageChange: () => {},
+          }}
+        >
+          <LanguagesComponent />
+          <Capture />
+        </FormUIStateContext.Provider>
+      </Provider>,
+      { initialValues: { metadata: { languages: [] } } }
+    );
+
+    expect(screen.queryByText('English')).not.toBeInTheDocument();
+
+    await act(async () => {
+      formikRef.current.resetForm({
+        values: {
+          metadata: { languages: ['eng'] },
+          ui: { metadata: { languages: [{ id: 'eng', title_l10n: 'English' }] } },
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('English')).toBeInTheDocument();
+    });
+
+    const englishLabel = screen.getByText('English').closest('a');
+    expect(englishLabel).toHaveClass('label');
+    expect(englishLabel).toHaveAttribute('value', 'eng');
   });
 
   it('should search and select a language when user types and selects', async () => {

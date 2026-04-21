@@ -14,6 +14,12 @@
 // - Preserves className/classnames passthrough for local styling hooks.
 // - Syncs selected suggestions to `formik.values.ui.<fieldPath>` on add/change so
 //   `initialSuggestions` can rehydrate readable labels on remount/recovery (stock does not).
+// - Re-seeds `state.suggestions` / `state.selectedSuggestions` from `initialSuggestions`
+//   on `componentDidUpdate` when its content changes (stock seeds only in the
+//   constructor). Required so localStorage recovery — which calls Formik `resetForm`
+//   *after* this widget has mounted — surfaces restored vocabulary labels instead of
+//   bare ids. Content equality (`_isEqual`) avoids churn when callers recompute
+//   `initialOptions` to a new array on every render.
 // - Search: keeps `latestSearchStringRef` in sync on **every** `onSearchChange` event (before
 //   debounce) so blur can commit the literal typed string; debounced fetch is `runDebouncedSearch`
 //   with `.cancel()` on unmount (stock debounces only, no ref / cancel).
@@ -330,6 +336,23 @@ class RemoteSelectField extends Component {
       }
     }, 0);
   };
+
+  componentDidUpdate(prevProps) {
+    // Re-seed the dropdown from `initialSuggestions` whenever its content changes
+    // after mount (e.g. localStorage recovery applies `resetForm` *after* this
+    // widget has already mounted with empty/server-stale suggestions, so without
+    // this the restored Formik value would render as a bare code instead of the
+    // human-readable label). Identity-only changes are ignored so a caller that
+    // recomputes `initialOptions` on every render does not churn this state.
+    const { initialSuggestions, serializeSuggestions } = this.props;
+    if (!_isEqual(prevProps.initialSuggestions, initialSuggestions)) {
+      const next = initialSuggestions ? serializeSuggestions(initialSuggestions) : [];
+      this.setState((prevState) => ({
+        selectedSuggestions: next,
+        suggestions: mergeOptions(prevState.suggestions, next),
+      }));
+    }
+  }
 
   componentWillUnmount() {
     this.cancellableAction && this.cancellableAction.cancel();

@@ -5,7 +5,7 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import _get from "lodash/get";
 import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
@@ -555,10 +555,16 @@ const LanguagesComponent = ({ ...extraProps }) => {
   const languageCodes =
     values?.metadata?.languages?.filter((lang) => lang !== null && typeof lang === "string") || [];
 
-  const initialOptions = languageCodes.map((code) => {
-    const hit = uiSourceOptions.find((o) => o.id === code);
-    return hit ?? { id: code, title_l10n: code };
-  });
+  // Stable reference so RemoteSelectField's content-aware re-seed (componentDidUpdate
+  // on `initialSuggestions`) only fires when the codes or labels actually change.
+  const initialOptions = useMemo(
+    () =>
+      languageCodes.map((code) => {
+        const hit = uiSourceOptions.find((o) => o.id === code);
+        return hit ?? { id: code, title_l10n: code };
+      }),
+    [languageCodes.join("|"), JSON.stringify(uiSourceOptions)]
+  );
 
   return (
     <FieldComponentWrapper
