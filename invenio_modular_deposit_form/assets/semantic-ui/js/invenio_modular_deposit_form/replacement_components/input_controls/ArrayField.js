@@ -107,7 +107,7 @@ export class ArrayField extends Component {
     const wrappedArrayHelpers = {
       ...arrayHelpers,
       remove: (indexPath) => {
-        const len = getIn(arrayHelpers.form.values, fieldPath, []).length;
+        const len = getIn(values, fieldPath, []).length;
         const isNowEmpty = len === 1;
         arrayHelpers.remove(indexPath);
         if (typeof onAfterRemove === "function") {
