@@ -4,17 +4,24 @@
 // Invenio-Modular-Deposit-Form is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React from "react";
-import { Grid } from "semantic-ui-react";
+import React, { useRef } from "react";
+import { Grid, Ref, Sticky } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { SubsectionsRenderer } from "./SubsectionsRenderer";
 
 const FormRightSidebar = ({ subsections = [], ...props }) => {
   if (!subsections?.length) return null;
+  // Match upstream RDMDepositForm sidebar: pin contents while the user scrolls
+  // through the long form. `Ref` provides the scroll context to `Sticky`.
+  const sidebarRef = useRef(null);
   return (
-    <Grid.Column {...props} className="deposit-right-sidebar deposit-sidebar">
-      <SubsectionsRenderer subsections={subsections} />
-    </Grid.Column>
+    <Ref innerRef={sidebarRef}>
+      <Grid.Column {...props} className="deposit-right-sidebar deposit-sidebar">
+        <Sticky context={sidebarRef} offset={20}>
+          <SubsectionsRenderer subsections={subsections} />
+        </Sticky>
+      </Grid.Column>
+    </Ref>
   );
 };
 
