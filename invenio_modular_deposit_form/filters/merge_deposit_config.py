@@ -73,14 +73,14 @@ def merge_deposit_config(forms_config, extra=None):
         base["vocabularies"].setdefault("creators", {})
         base["vocabularies"]["creators"]["identifiers"] = {
             "scheme": [
-                {"id": k, "title_l10n": str(v.get("label", k))}
+                {"text": str(v.get("label", k)), "value": k}
                 for k, v in personorg_schemes.items()
             ]
         }
         base["vocabularies"].setdefault("contributors", {})
         base["vocabularies"]["contributors"]["identifiers"] = {
             "scheme": [
-                {"id": k, "title_l10n": str(v.get("label", k))}
+                {"text": str(v.get("label", k)), "value": k}
                 for k, v in personorg_schemes.items()
             ]
         }
@@ -91,7 +91,7 @@ def merge_deposit_config(forms_config, extra=None):
         base.setdefault("vocabularies", {})
         base["vocabularies"].setdefault("identifiers", {})
         base["vocabularies"]["identifiers"]["scheme"] = [
-            {"id": k, "title_l10n": str(v.get("label", k))}
+            {"text": str(v.get("label", k)), "value": k}
             for k, v in record_identifiers_schemes.items()
         ]
 
@@ -101,7 +101,7 @@ def merge_deposit_config(forms_config, extra=None):
         base["vocabularies"].setdefault("locations", {})
         base["vocabularies"]["locations"].setdefault("identifiers", {})
         base["vocabularies"]["locations"]["identifiers"]["scheme"] = [
-            {"id": k, "title_l10n": str(v.get("label", k))}
+            {"text": str(v.get("label", k)), "value": k}
             for k, v in record_location_schemes.items()
         ]
 
