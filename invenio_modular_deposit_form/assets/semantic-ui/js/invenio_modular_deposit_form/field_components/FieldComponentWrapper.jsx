@@ -19,6 +19,7 @@ const FieldComponentWrapper = ({
   wrapped,
   show_heading,
   component,
+  wrapperClasses,
   ...restExtraProps
 }) => {
   const {
@@ -70,6 +71,7 @@ const FieldComponentWrapper = ({
           "invenio-field-wrapper",
           `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`,
           isRowField ? "field" : "",
+          wrapperClasses,
         ]
           .filter(Boolean)
           .join(" ")}

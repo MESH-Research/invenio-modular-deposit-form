@@ -83,7 +83,9 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         # rather than buried mid-page next to the publish buttons.
         {
             "component": "FormFeedbackComponent",
-            "classnames": ("sixteen wide column tablet mobile only rel-mt-1 pt-10"),
+            "classnames": (
+                "sixteen wide column tablet mobile only rel-mt-1 pt-10 rel-mr-1 rel-ml-1"
+            ),
         },
     ],
 }
@@ -195,7 +197,7 @@ _DATASET_DETAILS_PAGE = {
                             "description": "",
                         },
                     ],
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                 },
                 {
                     "component": "FormRow",
@@ -246,7 +248,7 @@ _IMAGE_DETAILS_PAGE = {
                             "component": "PublicationLocationComponent",
                         },
                     ],
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                 },
                 {
                     "component": "FormRow",
@@ -297,7 +299,7 @@ _VIDEO_DETAILS_PAGE = {
                             "component": "PublicationLocationComponent",
                         },
                     ],
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                 },
                 {
                     "component": "FormRow",
@@ -349,7 +351,7 @@ _AUDIO_DETAILS_PAGE = {
                             "label": _("Recording location"),
                         },
                     ],
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                 },
                 {
                     "component": "FormRow",
@@ -394,7 +396,7 @@ _SOFTWARE_DETAILS_PAGE = {
                             "icon": "github",
                         },
                     ],
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                 },
                 {
                     "component": "FormRow",
@@ -412,7 +414,7 @@ _SOFTWARE_DETAILS_PAGE = {
                             "placeholder": "",
                         },
                     ],
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                 },
                 {
                     "component": "FormRow",
@@ -461,7 +463,7 @@ _JOURNAL_DETAILS_PAGE = {
             "subsections": [
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "journal_title",
@@ -472,7 +474,7 @@ _JOURNAL_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "journal_volume",
@@ -532,7 +534,7 @@ _BOOK_IMPRINT_DETAILS_PAGE = {
             "subsections": [
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "book_title",
@@ -544,7 +546,7 @@ _BOOK_IMPRINT_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "publisher",
@@ -594,7 +596,7 @@ _MEETING_DETAILS_PAGE = {
             "subsections": [
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "meeting_title",
@@ -605,7 +607,7 @@ _MEETING_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "meeting_acronym",
@@ -621,7 +623,7 @@ _MEETING_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "meeting_place",
@@ -637,7 +639,7 @@ _MEETING_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "meeting_session",
@@ -651,7 +653,7 @@ _MEETING_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "publisher",
@@ -698,7 +700,7 @@ _THESIS_DETAILS_PAGE = {
             "subsections": [
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "thesis_university",
@@ -712,14 +714,14 @@ _THESIS_DETAILS_PAGE = {
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {"section": "thesis_type", "component": "ThesisTypeComponent"},
                     ],
                 },
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "thesis_date_submitted",
@@ -772,7 +774,7 @@ _LESSON_DETAILS_PAGE = {
             "subsections": [
                 {
                     "component": "FormRow",
-                    "classnames": "equal width",
+                    "classnames": "equal width rel-mb-2",
                     "subsections": [
                         {
                             "section": "sizes",

@@ -354,13 +354,23 @@
 
         .helptext,
         .description {
-          // copies stock InvenioRDM styles for label.helptext
-          margin-top: -0.8em;
-          margin-bottom: 2em;
           display: block;
           color: #757575 !important;
           font-size: 0.9em !important;
           font-weight: 400 !important;
+        }
+
+        // Description sits above the input; pull it close to the label and
+        // leave a small gap before the input.
+        .description {
+          margin-top: -0.8em;
+          margin-bottom: 1em;
+        }
+
+        // Helptext sits below the input; small breathing room above, none below.
+        .helptext {
+          margin-top: 0.5em;
+          margin-bottom: 0;
         }
       }
       // &.files-field .storage-col {
@@ -537,6 +547,11 @@
   /* Open creatibutor add/edit inline form: faint neutral fill matching the active sidebar item. */
   fieldset.invenio-form-section[class*="-item-form"] {
     background-color: #f3f4f5;
+
+    > legend:not(.sr-only) {
+      color: @primaryColor;
+      font-weight: bold;
+    }
 
     > .field,
     > .fields {
