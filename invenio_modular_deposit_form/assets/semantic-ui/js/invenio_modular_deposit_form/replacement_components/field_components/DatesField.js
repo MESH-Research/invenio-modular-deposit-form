@@ -7,6 +7,9 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 //
 // Modular fork (intentional deltas from upstream `DatesField/DatesField.js`):
+// - `ArrayField`: local fork (`replacement_components/input_controls/ArrayField`) so we get
+//   `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard focus management on
+//   add and remove.
 // - `TextField` / `SelectField` from `replacement_components/` (not `react-invenio-forms`).
 // - `emptyDate` from `@js/invenio_rdm_records/.../DatesField/initialValues`.
 import React, { Component } from "react";
@@ -16,17 +19,24 @@ import _has from "lodash/has";
 import _isEmpty from "lodash/isEmpty";
 import _isEqual from "lodash/isEqual";
 import _matches from "lodash/matches";
-import { ArrayField, GroupField } from "react-invenio-forms";
+import { GroupField } from "react-invenio-forms";
 import { Button, Form, Icon } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { emptyDate } from "@js/invenio_rdm_records/src/deposit/fields/DatesField/initialValues";
 import { sortOptions } from "@js/invenio_rdm_records/src/deposit/utils";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
+import { ArrayField } from "../../replacement_components/input_controls/ArrayField";
+import {
+  focusAddButton,
+  focusFieldByPath,
+} from "../../replacement_components/input_controls/arrayFieldFocus";
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 
 export class DatesField extends Component {
+  addButtonRef = React.createRef();
+
   getRequiredOption = (currentValue, arrayOfValues) => {
     const { requiredOptions } = this.props;
     for (const requiredOption of requiredOptions) {
@@ -56,6 +66,7 @@ export class DatesField extends Component {
         fieldPath={fieldPath}
       >
         <ArrayField
+          addButtonRef={this.addButtonRef}
           addButtonLabel={i18next.t("Add date")}
           defaultNewValue={emptyDate}
           fieldPath={fieldPath}
@@ -64,6 +75,15 @@ export class DatesField extends Component {
           )}
           label={label}
           labelIcon={labelIcon}
+          onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.date`)}
+          onAfterRemove={({ isNowEmpty, removedIndex }) => {
+            if (isNowEmpty) {
+              focusAddButton(this.addButtonRef);
+              return;
+            }
+            const target = removedIndex > 0 ? removedIndex - 1 : 0;
+            focusFieldByPath(`${fieldPath}.${target}.date`);
+          }}
           required={required}
           requiredOptions={requiredOptions}
           showEmptyValue={showEmptyValue}

@@ -10,30 +10,50 @@
 // - Row wrapper: bare `<GroupField>` — same as upstream (no `fieldPath` / `optimized` on
 //   the group). Baseline for comparing touch/error behavior vs experiments that add those
 //   props.
+// - `ArrayField`: local fork (`replacement_components/input_controls/ArrayField`) so we get
+//   `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard focus management on
+//   add and remove.
 // - `TextField` / `SelectField`: from `replacement_components/` (not `react-invenio-forms`).
 // - `emptyIdentifier`: imported from `@js/invenio_rdm_records/.../Identifiers/initialValues`
 //   (bundle path; same object as upstream `./initialValues`).
 import PropTypes from "prop-types";
 import React, { Component } from "react";
-import { ArrayField, FieldLabel, GroupField } from "react-invenio-forms";
+import { FieldLabel, GroupField } from "react-invenio-forms";
 import { Button, Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { emptyIdentifier } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/initialValues";
 
+import { ArrayField } from "../../replacement_components/input_controls/ArrayField";
+import {
+  focusAddButton,
+  focusFieldByPath,
+} from "../../replacement_components/input_controls/arrayFieldFocus";
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 
 /** Identifiers array component (modular fork; see file header). */
 export class IdentifiersField extends Component {
+  addButtonRef = React.createRef();
+
   render() {
     const { fieldPath, label, labelIcon, required, schemeOptions, showEmptyValue } = this.props;
 
     return (
       <ArrayField
+        addButtonRef={this.addButtonRef}
         addButtonLabel={i18next.t("Add identifier")}
         defaultNewValue={emptyIdentifier}
         fieldPath={fieldPath}
         label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
+        onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.identifier`)}
+        onAfterRemove={({ isNowEmpty, removedIndex }) => {
+          if (isNowEmpty) {
+            focusAddButton(this.addButtonRef);
+            return;
+          }
+          const target = removedIndex > 0 ? removedIndex - 1 : 0;
+          focusFieldByPath(`${fieldPath}.${target}.identifier`);
+        }}
         required={required}
         showEmptyValue={showEmptyValue}
       >

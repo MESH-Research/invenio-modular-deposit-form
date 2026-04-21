@@ -7,21 +7,31 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 //
 // Modular fork (intentional deltas from upstream `RelatedWorksField/RelatedWorksField.js`):
+// - `ArrayField`: local fork (`replacement_components/input_controls/ArrayField`) so we get
+//   `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard focus management on
+//   add and remove.
 // - `TextField` / `SelectField` from `replacement_components/`; `ResourceTypeField` from
 //   this folder (already uses replacement `SelectField`).
 // - `emptyRelatedWork` from `@js/invenio_rdm_records/.../RelatedWorksField/initialValues`.
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { ArrayField, FieldLabel, GroupField } from "react-invenio-forms";
+import { FieldLabel, GroupField } from "react-invenio-forms";
 import { Button, Form, Icon } from "semantic-ui-react";
 import { emptyRelatedWork } from "@js/invenio_rdm_records/src/deposit/fields/RelatedWorksField/initialValues";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
+import { ArrayField } from "../../replacement_components/input_controls/ArrayField";
+import {
+  focusAddButton,
+  focusFieldByPath,
+} from "../../replacement_components/input_controls/arrayFieldFocus";
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 import { ResourceTypeField } from "./ResourceTypeField";
 
 export class RelatedWorksField extends Component {
+  addButtonRef = React.createRef();
+
   render() {
     const { fieldPath, label, labelIcon, required, options, showEmptyValue } = this.props;
 
@@ -33,10 +43,22 @@ export class RelatedWorksField extends Component {
           )}
         </label>
         <ArrayField
+          addButtonRef={this.addButtonRef}
           addButtonLabel={i18next.t("Add related work")}
           defaultNewValue={emptyRelatedWork}
           fieldPath={fieldPath}
           label={label ? <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} /> : null}
+          onAfterAdd={({ index }) =>
+            focusFieldByPath(`${fieldPath}.${index}.relation_type`)
+          }
+          onAfterRemove={({ isNowEmpty, removedIndex }) => {
+            if (isNowEmpty) {
+              focusAddButton(this.addButtonRef);
+              return;
+            }
+            const target = removedIndex > 0 ? removedIndex - 1 : 0;
+            focusFieldByPath(`${fieldPath}.${target}.relation_type`);
+          }}
           required={required}
           showEmptyValue={showEmptyValue}
         >

@@ -6,27 +6,48 @@
 //
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
+//
+// Modular fork: `ArrayField` is the local fork (`replacement_components/input_controls/
+// ArrayField`) so we get `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard
+// focus management on add and remove.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Button, Form, Icon } from "semantic-ui-react";
 
-import { ArrayField, GroupField } from "react-invenio-forms";
+import { GroupField } from "react-invenio-forms";
 import { emptyAdditionalTitle } from "@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues";
 import { LanguagesField } from "./LanguagesField";
+import { ArrayField } from "../../replacement_components/input_controls/ArrayField";
+import {
+  focusAddButton,
+  focusFieldByPath,
+} from "../../replacement_components/input_controls/arrayFieldFocus";
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class AdditionalTitlesField extends Component {
+  addButtonRef = React.createRef();
+
   render() {
     const { fieldPath, options, recordUI } = this.props;
     return (
       <ArrayField
+        addButtonRef={this.addButtonRef}
         addButtonLabel={i18next.t("Add titles")}
         defaultNewValue={emptyAdditionalTitle}
         fieldPath={fieldPath}
         className="additional-titles"
+        onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.title`)}
+        onAfterRemove={({ isNowEmpty, removedIndex }) => {
+          if (isNowEmpty) {
+            focusAddButton(this.addButtonRef);
+            return;
+          }
+          const target = removedIndex > 0 ? removedIndex - 1 : 0;
+          focusFieldByPath(`${fieldPath}.${target}.title`);
+        }}
       >
         {({ arrayHelpers, indexPath }) => {
           const fieldPathPrefix = `${fieldPath}.${indexPath}`;
