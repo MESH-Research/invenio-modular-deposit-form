@@ -162,6 +162,55 @@
         margin-left: 0.25em;
       }
     }
+
+    /* Mobile: the number replaces the title text. Use a larger, bolder digit
+     * so each step is legible despite the narrow column width that 6 fluid
+     * steps share at the mobile breakpoint. */
+    .upload-form-stepper-step-number {
+      font-size: 1.15em;
+      font-weight: bold;
+    }
+  }
+
+  /* Mobile-only page-title dropdown rendered by FormStepper beneath the
+   * numbered stepper. Styled to look like a black page heading (slightly
+   * larger than .prominent-field-label's 1.25em) with a right-aligned caret;
+   * no border or background so it reads as a heading, not a form input. */
+  .upload-form-pager-mobile-title.ui.dropdown {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 0.75em;
+    padding: 0.25em 0;
+    color: #000;
+    font-weight: bold;
+    font-size: 1.4em;
+    line-height: 1.25em;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+
+    > .text {
+      color: #000;
+      font-weight: bold;
+    }
+
+    /* Right-align the default Semantic UI caret. The icon is rendered as the
+     * dropdown's trailing element via the `dropdown` icon class. */
+    > .dropdown.icon {
+      margin: 0 0 0 0.5em;
+      font-size: 0.85em;
+      color: #000;
+    }
+
+    > .menu {
+      width: 100%;
+      margin-top: 0.25em;
+      font-size: 0.8em;
+      font-weight: normal;
+    }
   }
 
   .deposit-form-sidebar-menu {

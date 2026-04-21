@@ -5,7 +5,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import React, { useMemo, useState, useLayoutEffect } from "react";
-import { Button, Grid, Label, Step } from "semantic-ui-react";
+import { Button, Dropdown, Grid, Label, Step } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { useFormUIState } from "../FormUIStateManager.jsx";
@@ -49,10 +49,26 @@ const FormStepper = ({ classnames, ...props }) => {
   }, [formPages.length]);
 
   if (!formPages?.length) return null;
+
+  // Mobile-only dropdown: lists every form page by translated title so a
+  // narrow viewport can read what the numbered stepper steps abbreviate.
+  // Pages hidden from the stepper via `menuItemClasses: "tablet mobile only"`
+  // (e.g. the "Save & Publish" page on the alternate_paged layout) are still
+  // navigable from the dropdown so behavior matches the desktop sidebar menu.
+  const dropdownOptions = formPages.map(({ section, label }, index) => ({
+    key: section,
+    value: section,
+    text: `${index + 1}. ${i18next.t(label ?? section)}`,
+  }));
+  const currentPage = formPages.find((p) => p.section === currentFormPage);
+  const currentPageTitle = currentPage
+    ? i18next.t(currentPage.label ?? currentPage.section)
+    : "";
+
   return (
     <Grid.Column className={classnames ?? ""} {...props}>
       <Step.Group className="upload-form-pager" fluid={true} size="small">
-        {formPages.map(({ section, label, menuItemClasses }) => {
+        {formPages.map(({ section, label, menuItemClasses }, index) => {
           const counts = pageCounts[section];
           const severityClass = counts?.severity ? `has-${counts.severity}` : "";
           return (
@@ -76,7 +92,17 @@ const FormStepper = ({ classnames, ...props }) => {
             >
               <Step.Content>
                 <Step.Title>
-                  {i18next.t(label ?? section)}
+                  {/* Mobile shows just the page number; tablet+ shows the
+                   * translated label. Both are always rendered; visibility is
+                   * toggled via Semantic UI's `mobile only` / `mobile hidden`
+                   * responsive classes (defined for any element via
+                   * `[class*="mobile only"]` / `[class*="mobile hidden"]`). */}
+                  <span className="upload-form-stepper-step-number mobile only">
+                    {index + 1}
+                  </span>
+                  <span className="upload-form-stepper-step-label mobile hidden">
+                    {i18next.t(label ?? section)}
+                  </span>
                   {counts && (counts.errors > 0 || counts.warnings > 0 || counts.info > 0) && (
                     <span className="upload-form-stepper-badges">
                       {counts.errors > 0 && (
@@ -120,6 +146,18 @@ const FormStepper = ({ classnames, ...props }) => {
           );
         })}
       </Step.Group>
+      {/* Mobile-only page-title dropdown beneath the numbered stepper.
+       * Trigger is a borderless heading-style label with a right-aligned
+       * caret so it reads as a page title that is also a navigation menu. */}
+      <Dropdown
+        className="upload-form-pager-mobile-title mobile only"
+        text={currentPageTitle}
+        value={currentFormPage}
+        onChange={handleFormPageChange}
+        options={dropdownOptions}
+        selectOnBlur={false}
+        aria-label={i18next.t("Jump to form page")}
+      />
     </Grid.Column>
   );
 };
