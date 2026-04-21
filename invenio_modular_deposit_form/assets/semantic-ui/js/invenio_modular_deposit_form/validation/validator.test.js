@@ -12,7 +12,6 @@ describe("validator (full form validation) - pids.doi", () => {
     metadata: {
       creators: [
         {
-          role: "author",
           person_or_org: {
             type: "personal",
             family_name: "Doe",
@@ -135,7 +134,6 @@ describe("validator (full form validation) - pids.doi", () => {
           ...baseForm.metadata,
           creators: [
             {
-              role: "author",
               person_or_org: {
                 type: "personal",
                 family_name: "Doe",
@@ -159,7 +157,6 @@ describe("validator (full form validation) - pids.doi", () => {
           ...baseForm.metadata,
           creators: [
             {
-              role: "author",
               person_or_org: {
                 type: "personal",
                 family_name: "Doe",
@@ -181,7 +178,6 @@ describe("validator (full form validation) - pids.doi", () => {
           ...baseForm.metadata,
           creators: [
             {
-              role: "author",
               person_or_org: {
                 type: "personal",
                 family_name: "Doe",
@@ -205,7 +201,6 @@ describe("validator (full form validation) - pids.doi", () => {
           ...baseForm.metadata,
           contributors: [
             {
-              role: "editor",
               person_or_org: {
                 type: "personal",
                 family_name: "Doe",

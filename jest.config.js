@@ -19,6 +19,8 @@ module.exports = {
       "<rootDir>/__mocks__/i18next_invenio_rdm_records.js",
     "^@js/invenio_modular_deposit_form/(.*)$":
       "<rootDir>/invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/$1",
+    "^@js/invenio_modular_deposit_form_transformations$":
+      "<rootDir>/__mocks__/invenio_modular_deposit_form_transformations.js",
     "^@js/invenio_rdm_records$": "<rootDir>/__mocks__/invenio_rdm_records.js",
     "^@js/invenio_rdm_records/(.*)$": "<rootDir>/__mocks__/invenio_rdm_records.js",
     "^@js/invenio_vocabularies$": "<rootDir>/__mocks__/invenio_vocabularies_stub.js",
