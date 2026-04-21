@@ -7,11 +7,11 @@
 // modify it under the terms of the MIT License; see LICENSE file for more details.
 //
 // Differences from stock react-invenio-forms SelectField:
-// - Pulls `classnames` out of Formik field props and merges it into `className` on
-//   `Form.Dropdown` (semantic-ui-react has no `classnames` prop; spreading it would
+// - Pulls `classnames` out of props and merges it into `className` on the wrapping
+//   `Form.Field` (semantic-ui-react has no `classnames` prop; spreading it would
 //   not apply styles).
-// - Imports `FeedbackLabel`, `mergeOptions`, `ensureSelectedValuesInOptions`, and
-//   `createOption` from `react-invenio-forms` main entry (published package has no
+// - Imports `FeedbackLabel`, `FieldLabel`, `mergeOptions`, `ensureSelectedValuesInOptions`,
+//   and `createOption` from `react-invenio-forms` main entry (published package has no
 //   `react-invenio-forms/utils` subpath; helpers live on the root export).
 // - Stock destructures nonexistent `form.meta`; we use `form.touched` so messages from
 //   `form.errors` show only after the field is touched (prop `error` and initial-error
@@ -25,9 +25,9 @@
 //   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
 //   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
 //   and any other caller that needs extra blur logic.
-// - Optional **`description`** (above the dropdown) and **`helpText`** (below), same placement
-//   contract as replacement `TextField` / `TextArea` / `MultiInput`; string values run through
-//   `i18next.t` like `TextField`.
+// - The dropdown is wrapped in `Form.Field` and the label is rendered as a separate
+//   `FieldLabel` sibling rather than passed to `Form.Dropdown` via its `label` prop, so
+//   `description` can be rendered between the label and the input.
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { FastField, Field, getIn } from "formik";
@@ -35,6 +35,7 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import {
   FeedbackLabel,
+  FieldLabel,
   mergeOptions,
   ensureSelectedValuesInOptions,
   createOption,
@@ -95,7 +96,6 @@ export class SelectField extends Component {
       defaultValue,
       error,
       fieldPath,
-      label,
       options,
       onChange,
       onAddItem,
@@ -104,7 +104,6 @@ export class SelectField extends Component {
       disabled,
       required,
       allowAdditions,
-      classnames,
       ...uiProps
     } = cmpProps;
 
@@ -128,11 +127,10 @@ export class SelectField extends Component {
     return (
       <Form.Dropdown
         fluid
-        className={`invenio-select-field ${classnames ?? ""}`}
+        className="invenio-select-field"
         search
         selection
         error={this.renderError(isTouched, initialValue, initialErrors, value, errors)}
-        label={{ children: label }}
         name={fieldPath}
         disabled={disabled}
         required={required}
@@ -190,29 +188,72 @@ export class SelectField extends Component {
   };
 
   render() {
-    const { optimized, fieldPath, helpText, description, ...uiProps } = this.props;
+    const {
+      optimized,
+      fieldPath,
+      label,
+      labelIcon,
+      helpText,
+      description,
+      classnames,
+      error,
+      required,
+      showLabel = true,
+      ...uiProps
+    } = this.props;
     const FormikField = optimized ? FastField : Field;
+
+    const descriptionId = description && description !== " " ? `${fieldPath}.description` : "";
+    const helpTextId = helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
+    const ariaDescribedBy =
+      [descriptionId, helpTextId].filter(Boolean).join(" ") || undefined;
+    const labelId =
+      showLabel && label
+        ? React.isValidElement(label)
+          ? label.props?.id
+          : `${fieldPath}.label`
+        : undefined;
+
     return (
-      <>
-        {description && description !== " " && (
-          <label className="helptext" id={`${fieldPath}.description`}>
+      <Form.Field
+        required={!!required}
+        error={!!error}
+        className={["invenio-select-field-wrapper", classnames].filter(Boolean).join(" ")}
+      >
+        {showLabel && label
+          ? React.isValidElement(label)
+            ? label
+            : (
+              <FieldLabel
+                id={`${fieldPath}.label`}
+                htmlFor={fieldPath}
+                icon={labelIcon}
+                label={label}
+              />
+            )
+          : null}
+        {descriptionId && (
+          <div className="description" id={descriptionId}>
             {React.isValidElement(description)
               ? description
               : i18next.t(description)}
-          </label>
+          </div>
         )}
         <FormikField
           name={fieldPath}
           component={this.renderFormField}
           fieldPath={fieldPath}
+          required={required}
           {...uiProps}
+          {...(ariaDescribedBy ? { "aria-describedby": ariaDescribedBy } : {})}
+          {...(labelId ? { "aria-labelledby": labelId } : {})}
         />
-        {helpText && helpText !== " " && (
-          <label className="helptext" id={`${fieldPath}.helptext`}>
+        {helpTextId && (
+          <div className="helptext" id={helpTextId}>
             {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
-          </label>
+          </div>
         )}
-      </>
+      </Form.Field>
     );
   }
 }
@@ -224,6 +265,9 @@ SelectField.propTypes = {
   optimized: PropTypes.bool,
   error: PropTypes.any,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  labelIcon: PropTypes.string,
+  showLabel: PropTypes.bool,
+  classnames: PropTypes.string,
   onChange: PropTypes.func,
   onAddItem: PropTypes.func,
   allowAdditions: PropTypes.bool,
@@ -239,6 +283,9 @@ SelectField.defaultProps = {
   optimized: false,
   error: undefined,
   label: "",
+  labelIcon: undefined,
+  showLabel: true,
+  classnames: undefined,
   onChange: undefined,
   onAddItem: undefined,
   multiple: false,

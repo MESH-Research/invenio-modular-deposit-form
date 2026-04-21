@@ -1,5 +1,3 @@
-// Optional `description` renders above the input, `helpText` below (both `.helptext`; strings via
-// `i18next.t`). Same placement contract as `TextArea`, `MultiInput`, `SelectField`.
 import React from "react";
 import { FastField, Field } from "formik";
 import { Form } from "semantic-ui-react";
@@ -35,12 +33,11 @@ const TextField = ({
     ...uiProps
   } = extraProps;
 
-  const descriptionId = description ? `${fieldPath}.description` : "";
-  const helptextId = helpText ? `${fieldPath}.helptext` : "";
-  const describedByText = [
-    helptextId ? `${fieldPath}.helptext` : "",
-    descriptionId ? `${fieldPath}.description` : "",
-  ].join(" ");
+  const descriptionId = description && description !== " " ? `${fieldPath}.description` : "";
+  const helptextId = helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
+  const describedByText =
+    [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
+  const labelId = showLabel && label ? `${fieldPath}.label` : undefined;
 
   return (
     <FormikField id={fieldPath} name={fieldPath}>
@@ -72,9 +69,11 @@ const TextField = ({
                 label={label}
               />
             ) : null}
-            {description && description !== " " && (
+            {descriptionId && (
               <div className="description mb-5 mt-5" id={descriptionId}>
-                {React.isValidElement(description) ? description : description}
+                {React.isValidElement(description)
+                  ? description
+                  : i18next.t(description)}
               </div>
             )}
             <Form.Input
@@ -84,8 +83,6 @@ const TextField = ({
               icon={undefined}
               id={fieldPath}
               name={fieldPath}
-              aria-labelledby={`${fieldPath}.label`}
-              aria-describedby={describedByText}
               {...field}
               {...(onBlur && {
                 onBlur: (e) => {
@@ -94,10 +91,14 @@ const TextField = ({
                 },
               })}
               {...uiProps}
+              {...(describedByText ? { "aria-describedby": describedByText } : {})}
+              {...(labelId ? { "aria-labelledby": labelId } : {})}
             />
-            {helpText && helpText !== " " && (
+            {helptextId && (
               <div className="helptext" id={helptextId}>
-                {React.isValidElement(helpText) ? helpText : helpText}
+                {React.isValidElement(helpText)
+                  ? helpText
+                  : i18next.t(helpText)}
               </div>
             )}
           </Form.Field>

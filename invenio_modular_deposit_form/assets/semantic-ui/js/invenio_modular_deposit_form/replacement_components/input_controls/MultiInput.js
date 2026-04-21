@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useFormikContext, getIn } from "formik";
-import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
-import { FieldLabel } from "react-invenio-forms";
 import { SelectField } from "./SelectField";
 
 function MultiInput({
@@ -29,52 +27,49 @@ function MultiInput({
     }));
 
   return (
-    <>
-      <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-      {description && description !== " " && <label className="helptext label top">{i18next.t(description)}</label>}
-      <SelectField
-        additionLabel={additionLabel}
-        classnames={classnames}
-        allowAdditions
-        className="invenio-multi-input"
-        clearable
-        defaultValue={[]}
-        description={""}
-        fieldPath={fieldPath}
-        helpText={""}
-        label={null}
-        multiple
-        noQueryMessage={noQueryMessage}
-        noResultsMessage={""}
-        onChange={({ data, formikProps }) => {
-          setOptions(serializeValues(data.value));
-          formikProps.form.setFieldValue(fieldPath, data.value);
-        }}
-        onAddItem={({ data }) => {
-          setOptions([{ text: data.value, value: data.value }, ...options]);
-        }}
-        optimized
-        options={serializeValues(getIn(values, fieldPath, []))}
-        placeholder={placeholder}
-        required={required}
-        search
-        showLabel={false}
-        {...uiProps}
-        icon={undefined}
-      />
-      {helpText && helpText !== " " && <label className="helptext">{i18next.t(helpText)}</label>}
-    </>
+    <SelectField
+      additionLabel={additionLabel}
+      classnames={classnames}
+      allowAdditions
+      className="invenio-multi-input"
+      clearable
+      defaultValue={[]}
+      description={description}
+      fieldPath={fieldPath}
+      helpText={helpText}
+      label={label}
+      labelIcon={labelIcon}
+      multiple
+      noQueryMessage={noQueryMessage}
+      noResultsMessage={""}
+      onChange={({ data, formikProps }) => {
+        setOptions(serializeValues(data.value));
+        formikProps.form.setFieldValue(fieldPath, data.value);
+      }}
+      onAddItem={({ data }) => {
+        setOptions([{ text: data.value, value: data.value }, ...options]);
+      }}
+      optimized
+      options={serializeValues(getIn(values, fieldPath, []))}
+      placeholder={placeholder}
+      required={required}
+      search
+      {...uiProps}
+      icon={undefined}
+    />
   );
 }
 
 MultiInput.propTypes = {
   classnames: PropTypes.string,
   fieldPath: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]).isRequired,
   placeholder: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
+  description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   additionLabel: PropTypes.string,
   labelIcon: PropTypes.string,
+  noQueryMessage: PropTypes.string,
   required: PropTypes.bool,
 };
 

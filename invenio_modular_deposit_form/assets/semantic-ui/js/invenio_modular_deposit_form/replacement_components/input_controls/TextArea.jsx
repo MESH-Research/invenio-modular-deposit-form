@@ -41,6 +41,14 @@ const TextArea = ({
         form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
+        const descriptionId =
+          description && description !== " " ? `${fieldPath}.description` : "";
+        const helptextId =
+          helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
+        const describedByText =
+          [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
+        const labelId = showLabel && label ? `${fieldPath}.label` : undefined;
+
         return (
           <Form.Field
             required={!!required}
@@ -49,24 +57,28 @@ const TextArea = ({
               !!error ||
               (field.value === meta.initialValue && !!meta.initialError)
             }
-            // (!!meta.touched && !!meta.errors) ||
-            // (!meta.touched && meta.initialError)
             className={`invenio-text-area-field ${classnames ? classnames : ""}`}
             width={width}
           >
             {showLabel && label && (
-              <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+              <FieldLabel
+                id={`${fieldPath}.label`}
+                htmlFor={fieldPath}
+                icon={labelIcon}
+                label={label}
+              />
             )}
-            {description && description !== " " && (
-              <label id={`${fieldPath}.helptext`} className={`helptext label top`}>
-                {i18next.t(description)}
-              </label>
+            {descriptionId && (
+              <div className="description" id={descriptionId}>
+                {React.isValidElement(description)
+                  ? description
+                  : i18next.t(description)}
+              </div>
             )}
             <Form.TextArea
               id={fieldPath}
               name={fieldPath}
               rows={rows}
-              {...(helpText ? { "aria-describedby": `${fieldPath}.helptext` } : {})}
               {...field}
               {...(onBlur && {
                 onBlur: (e) => {
@@ -75,10 +87,14 @@ const TextArea = ({
                 },
               })}
               {...uiProps}
+              {...(describedByText ? { "aria-describedby": describedByText } : {})}
+              {...(labelId ? { "aria-labelledby": labelId } : {})}
             />
-            {helpText && helpText !== " " && (
-              <div className="helptext label" id={`${fieldPath}.helptext`}>
-                {i18next.t(helpText)}
+            {helptextId && (
+              <div className="helptext" id={helptextId}>
+                {React.isValidElement(helpText)
+                  ? helpText
+                  : i18next.t(helpText)}
               </div>
             )}
             {((!!meta.error && !!meta.touched) ||
