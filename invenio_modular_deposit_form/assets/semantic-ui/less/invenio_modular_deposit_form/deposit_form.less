@@ -70,6 +70,15 @@
       overflow-wrap: anywhere;
     }
 
+    /* Strip the trailing chevron on the last *visible* step. Semantic UI's
+     * default `:last-child:after { display: none }` only matches the DOM
+     * `:last-child`; when later steps are hidden via per-step responsive
+     * classes (e.g. `menuItemClasses: "tablet mobile only"`), the visually
+     * last step is tagged with `last-visible` by `FormStepper`. */
+    .upload-form-stepper-step.last-visible:after {
+      display: none;
+    }
+
     /* Bridge the focus outline across the chevrons surrounding the focused
      * step. The Step.Group draws each chevron with the step's :after rotated
      * square whose tip points into the next step, so when step N is focused we

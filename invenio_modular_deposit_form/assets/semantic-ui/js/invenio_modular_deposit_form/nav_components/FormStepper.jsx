@@ -4,7 +4,7 @@
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useLayoutEffect } from "react";
 import { Button, Grid, Label, Step } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
@@ -24,6 +24,30 @@ const FormStepper = ({ classnames, ...props }) => {
   const pageCounts = useMemo(() => getPageFlaggedErrorCounts(formUIState), [formUIState]);
   const currentFormPage = formUIState?.currentFormPage;
   const handleFormPageChange = ctx.handleFormPageChange;
+
+  /* Track which step is the last *visible* one across the page so we can strip
+   * its trailing chevron. Steps hidden via per-step responsive classes (e.g.
+   * `menuItemClasses: "tablet mobile only"`) are still in the DOM, so the
+   * default `:last-child:after { display: none }` rule misses them and the
+   * visually-last step keeps its pointer. A document-wide query is fine here:
+   * the surrounding Step.Groups are themselves wrapped in mutually-exclusive
+   * responsive Grid.Columns, so only one group's steps have a non-null
+   * offsetParent at any viewport width. */
+  const [lastVisibleSection, setLastVisibleSection] = useState(null);
+  useLayoutEffect(() => {
+    const compute = () => {
+      const steps = document.querySelectorAll(".upload-form-stepper-step");
+      let last = null;
+      steps.forEach((s) => {
+        if (s.offsetParent !== null) last = s;
+      });
+      setLastVisibleSection(last ? last.dataset.section : null);
+    };
+    compute();
+    window.addEventListener("resize", compute);
+    return () => window.removeEventListener("resize", compute);
+  }, [formPages.length]);
+
   if (!formPages?.length) return null;
   return (
     <Grid.Column className={classnames ?? ""} {...props}>
@@ -40,7 +64,14 @@ const FormStepper = ({ classnames, ...props }) => {
               onClick={handleFormPageChange}
               value={section}
               formNoValidate
-              className={["ui button upload-form-stepper-step", section, severityClass, menuItemClasses].filter(Boolean).join(" ")}
+              className={[
+                "ui button upload-form-stepper-step",
+                section,
+                severityClass,
+                menuItemClasses,
+                section === lastVisibleSection ? "last-visible" : "",
+              ].filter(Boolean).join(" ")}
+              data-section={section}
               type="button"
             >
               <Step.Content>
