@@ -282,10 +282,13 @@
     }
   }
 
-  /* Prominent field label (alternate layout): legend-like typography on the top-level field label */
+  /* Prominent field label (alternate layout): legend-like typography on the top-level field label.
+   * The third selector covers stock fields (e.g. SubjectsField) that wrap their inner `.field`
+   * in a `GroupField.main-group-field`, adding an extra hop our default selectors don't reach. */
   .prominent-field-label {
     > .invenio-field-wrapper > .field > label,
-    > .invenio-field-wrapper > .field > .ui.grid > .column > label {
+    > .invenio-field-wrapper > .field > .ui.grid > .column > label,
+    > .invenio-field-wrapper > .fields.main-group-field > .field > label {
       color: @primaryColor;
       font-weight: bold;
       font-size: 1.25em;
@@ -294,6 +297,15 @@
       > i.icon {
         margin-right: 0.5em;
       }
+    }
+
+    /* When a stock field renders helptext as a sibling of the input column inside a horizontal
+     * `.fields.main-group-field` (e.g. stock SubjectsField), the helptext aligns to the top of
+     * the column — i.e. to the prominent label, not the input. Push it down so its first line
+     * sits at the input top. The offset matches the prominent label above:
+     *   font-size 1.25em * line-height ~1.43 + margin-bottom 1em ≈ 2.79em. */
+    > .invenio-field-wrapper > .fields.main-group-field > .helptext {
+      padding-top: ~"calc(1.25em * 1.4285 + 1em)";
     }
   }
 
