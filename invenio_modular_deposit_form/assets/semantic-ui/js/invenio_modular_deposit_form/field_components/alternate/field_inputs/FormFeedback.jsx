@@ -310,8 +310,16 @@ function noMessagesPresent(
  * @param {string} [props.fieldPath] — Passed by Overridable / layout; unused here (sidebar message block).
  * @param {boolean} [props.hideMessageIcon=true] — When false, shows the Semantic UI `Message` leading icon from `feedbackConfig` for the effective severity. When true (default), the icon is omitted for a compact sidebar.
  * @param {object} [props.labels] — Reserved for custom error labels (align with stock API).
+ * @param {string} [props.className] — Extra classes appended to the rendered `<Message>` (forwarded from the layout config so callers can apply responsive grid classes like `sixteen wide column mobile tablet only`).
+ * @param {string} [props.classnames] — Alias for `className` to match the layout config convention used elsewhere in this package.
  */
-const FormFeedback = ({ fieldPath: _fieldPath, hideMessageIcon, labels: _labels }) => {
+const FormFeedback = ({
+  fieldPath: _fieldPath,
+  hideMessageIcon,
+  labels: _labels,
+  className,
+  classnames,
+}) => {
   const store = useStore();
   const { actionState, errors: backendErrors, config } = store.getState().deposit;
   const sectionsConfig = config?.formSectionFields;
@@ -380,7 +388,7 @@ const FormFeedback = ({ fieldPath: _fieldPath, hideMessageIcon, labels: _labels 
     <Message
       visible
       {...{ [type]: true }}
-      className="flashed pb-15"
+      className={["flashed pb-15", className, classnames].filter(Boolean).join(" ")}
       icon={!hideMessageIcon}
       id={type + "-feedback-div"}
     >
@@ -404,12 +412,16 @@ FormFeedback.propTypes = {
   fieldPath: PropTypes.string,
   hideMessageIcon: PropTypes.bool,
   labels: PropTypes.object,
+  className: PropTypes.string,
+  classnames: PropTypes.string,
 };
 
 FormFeedback.defaultProps = {
   fieldPath: undefined,
   hideMessageIcon: true,
   labels: undefined,
+  className: undefined,
+  classnames: undefined,
 };
 
 export { FormFeedback };
