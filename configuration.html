@@ -252,6 +252,49 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h1>
+<section id="quick-start-shipped-layout-presets">
+<h2>Quick start: shipped layout presets<a class="headerlink" href="#quick-start-shipped-layout-presets" title="Link to this heading">¶</a></h2>
+<p>The package ships several ready-made layout presets. The default is <strong><code class="docutils literal notranslate"><span class="pre">COMMON_FIELDS_ALTERNATE_PAGED</span></code></strong> with the matching <strong><code class="docutils literal notranslate"><span class="pre">FIELDS_BY_TYPE_ALTERNATE_PAGED</span></code></strong> — you don’t need to set anything to use it. To pick a different preset, set both variables to the matching pair in your instance <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">invenio_modular_deposit_form.config.default</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">COMMON_FIELDS_DEFAULT_PAGED</span><span class="p">,</span>
+    <span class="n">FIELDS_BY_TYPE_DEFAULT_PAGED</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span> <span class="o">=</span> <span class="n">COMMON_FIELDS_DEFAULT_PAGED</span>
+<span class="n">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span> <span class="o">=</span> <span class="n">FIELDS_BY_TYPE_DEFAULT_PAGED</span>
+</pre></div>
+</div>
+<p>Available presets:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">COMMON_FIELDS</span></code> value</p></th>
+<th class="head"><p>Matching <code class="docutils literal notranslate"><span class="pre">FIELDS_BY_TYPE</span></code></p></th>
+<th class="head"><p>Layout shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">COMMON_FIELDS_ALTERNATE_PAGED</span></code> <em>(default)</em></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FIELDS_BY_TYPE_ALTERNATE_PAGED</span></code></p></td>
+<td><p>Multi-page form with stepper, alternate page grouping suited to scholarly works.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">COMMON_FIELDS_DEFAULT_PAGED</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FIELDS_BY_TYPE_DEFAULT_PAGED</span></code></p></td>
+<td><p>Multi-page form with the stepper inside the form header on mobile/tablet only and a sidebar page menu on larger screens.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">COMMON_FIELDS_DEFAULT_PAGED_TOP_STEPPER</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FIELDS_BY_TYPE_DEFAULT_PAGED</span></code></p></td>
+<td><p>Same field layout as <code class="docutils literal notranslate"><span class="pre">DEFAULT_PAGED</span></code> but with the stepper always at the top instead of in the sidebar.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">COMMON_FIELDS_DEFAULT_SINGLE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FIELDS_BY_TYPE_DEFAULT_PAGED</span></code></p></td>
+<td><p>Single-page form (everything visible at once, like the stock InvenioRDM form).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ALTERNATE_PAGED</span></code> is in <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.config.alternate_paged</span></code>; the other three are in <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.config.default</span></code>. To customize one of the presets, copy it into your instance config and edit it there — see <a class="reference internal" href="#creating-a-custom-form-layout"><span class="xref myst">Creating a custom form layout</span></a> for the schema.</p>
+</section>
 <section id="creating-a-custom-form-layout">
 <h2>Creating a custom form layout<a class="headerlink" href="#creating-a-custom-form-layout" title="Link to this heading">¶</a></h2>
 <p>You define the deposit form layout by setting <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> in your instance’s <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>. The default configuration in this package’s <code class="docutils literal notranslate"><span class="pre">config.py</span></code> provides a good guide. At its most basic, the layout configuration is a nested tree of dictionaries in which each dictionary represents a React component. Some components are structural layout components; others are wrappers for individual form field components. Each dictionary in the tree has:</p>
@@ -322,6 +365,7 @@
 </ul>
 <p><strong>Optional layout regions</strong></p>
 <ul class="simple">
+<li><p><strong>FormTitle</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormTitle&quot;</span></code>. Replaces the stock <code class="docutils literal notranslate"><span class="pre">&lt;h1&gt;</span></code> form heading area at the top of the form. When omitted, the form renders the default heading (record title plus selected community label, if any). When present, only the components in your <code class="docutils literal notranslate"><span class="pre">subsections</span></code> are rendered in that region — provide your own heading component(s).</p></li>
 <li><p><strong>FormHeader</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormHeader&quot;</span></code>. Rendered above the form (below the community banner if shown), full width.</p></li>
 <li><p><strong>FormLeftSidebar</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormLeftSidebar&quot;</span></code>. Rendered in a left column (default 3 grid units on computer, 16 on mobile). Optional responsive column keys: <code class="docutils literal notranslate"><span class="pre">mobile</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span></code>, <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code>, <code class="docutils literal notranslate"><span class="pre">widescreen</span></code>.</p></li>
 <li><p><strong>FormRightSidebar</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormRightSidebar&quot;</span></code>. Same as left sidebar. The default package layout uses it with <strong>FormFeedbackComponent</strong> (form feedback above; implementation paths and optional <strong><code class="docutils literal notranslate"><span class="pre">hideMessageIcon</span></code></strong> in <a class="reference internal" href="field_components.html#form-feedback-errors-and-action-state"><span class="std std-ref">field_components.md</span></a>), <strong>SubmissionComponent</strong> (stock-style submit card), and <strong>AccessRightsComponent</strong> (Visibility). See <a class="reference internal" href="field_components.html#multiple-components-for-the-same-field-or-region"><span class="std std-ref">Built-in field widget components</span></a> for the difference between SubmissionComponent and HorizontalSubmissionComponent and when to use FormFeedbackComponent.</p></li>
@@ -386,7 +430,7 @@
 </section>
 <section id="extending-the-layout-components">
 <h4>Extending the layout components<a class="headerlink" href="#extending-the-layout-components" title="Link to this heading">¶</a></h4>
-<p>To change the HTML of any structural component, override it using the ReactOverridable mechanism and your instance’s <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> file. Ensure your layout components pass through the <code class="docutils literal notranslate"><span class="pre">children</span></code> property. You can also create entirely new custom layout components using the component extension methods described in <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p>
+<p>To change the HTML of any structural component, override it using the ReactOverridable mechanism and your instance’s <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> file. Ensure your layout components pass through the <code class="docutils literal notranslate"><span class="pre">children</span></code> property. You can also create entirely new custom layout components — see <a class="reference internal" href="extending.html#custom-layout-components"><span class="std std-ref">Custom layout components</span></a> in the extending guide.</p>
 </section>
 </section>
 <section id="field-widget-components">
@@ -414,12 +458,190 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p><strong>Implementing your own compound component:</strong></p>
+<p>To author your own compound component, see <a class="reference internal" href="extending.html#custom-layout-components"><span class="std std-ref">Custom layout components</span></a> and <a class="reference internal" href="extending.html#the-componentsregistry-object"><span class="std std-ref">The componentsRegistry object</span></a> in the extending guide. From the configuration side you only need to add one section that references its registered name, the same way you would for any other built-in component.</p>
+</section>
+</section>
+<section id="responsive-layout">
+<h2>Responsive layout<a class="headerlink" href="#responsive-layout" title="Link to this heading">¶</a></h2>
+<p>The form layout supports two complementary mechanisms for varying what is shown by viewport width:</p>
 <ol class="arabic simple">
-<li><p>Create a React component that imports and renders the child field components. Use the package’s <strong>FormSection</strong> and <strong>FormRow</strong> to group and arrange the fields.</p></li>
-<li><p>Register the component in your instance’s component registry (or the package’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>) with value <code class="docutils literal notranslate"><span class="pre">[Component,</span> <span class="pre">fieldPaths]</span></code> where <code class="docutils literal notranslate"><span class="pre">fieldPaths</span></code> is an array of all metadata field paths the block touches.</p></li>
-<li><p>Add one section in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> that references your component by name.</p></li>
+<li><p><strong>Per-breakpoint column widths</strong> — set widths on a layout region (<code class="docutils literal notranslate"><span class="pre">FormPages</span></code>, <code class="docutils literal notranslate"><span class="pre">FormLeftSidebar</span></code>, <code class="docutils literal notranslate"><span class="pre">FormRightSidebar</span></code>) so the column collapses or grows at each breakpoint.</p></li>
+<li><p><strong>CSS visibility classes</strong> — pass Semantic UI responsive helper classes via <code class="docutils literal notranslate"><span class="pre">classnames</span></code> (for any region/component) or <code class="docutils literal notranslate"><span class="pre">menuItemClasses</span></code> (for a <code class="docutils literal notranslate"><span class="pre">FormPage</span></code>’s stepper/sidebar entry) so the element is hidden via <code class="docutils literal notranslate"><span class="pre">display:</span> <span class="pre">none</span></code> at the breakpoints you choose.</p></li>
 </ol>
+<p>Use widths to control how the grid lays out; use classes to hide individual elements without re-laying-out the columns.</p>
+<section id="per-breakpoint-column-widths">
+<h3>Per-breakpoint column widths<a class="headerlink" href="#per-breakpoint-column-widths" title="Link to this heading">¶</a></h3>
+<p>The optional keys <code class="docutils literal notranslate"><span class="pre">mobile</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span></code>, <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code>, and <code class="docutils literal notranslate"><span class="pre">widescreen</span></code> (camelCase; use <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code>, <strong>not</strong> <code class="docutils literal notranslate"><span class="pre">largeMonitor</span></code>) accept Semantic UI grid column widths (1–16). They are accepted by <code class="docutils literal notranslate"><span class="pre">FormPages</span></code>, <code class="docutils literal notranslate"><span class="pre">FormLeftSidebar</span></code>, and <code class="docutils literal notranslate"><span class="pre">FormRightSidebar</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormLeftSidebar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;computer&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="c1"># mobile/tablet omitted: zero-width = collapsed at those breakpoints</span>
+    <span class="s2">&quot;only&quot;</span><span class="p">:</span> <span class="s2">&quot;large screen&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code> key is a shortcut for zeroing widths at every breakpoint <strong>smaller</strong> than the named one. <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;:</span> <span class="pre">&quot;computer&quot;</span></code> zeroes <code class="docutils literal notranslate"><span class="pre">mobile</span></code> and <code class="docutils literal notranslate"><span class="pre">tablet</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;:</span> <span class="pre">&quot;large</span> <span class="pre">screen&quot;</span></code> zeroes <code class="docutils literal notranslate"><span class="pre">mobile</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span></code>, and <code class="docutils literal notranslate"><span class="pre">computer</span></code>. When you use <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code>, omit the now-redundant smaller-breakpoint keys (any value you do supply is ignored — the zeroing wins).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">FormPages</span></code> does not declare per-breakpoint widths, its width at each breakpoint is <code class="docutils literal notranslate"><span class="pre">16</span> <span class="pre">−</span> <span class="pre">&lt;left</span> <span class="pre">sidebar</span> <span class="pre">width&gt;</span> <span class="pre">−</span> <span class="pre">&lt;right</span> <span class="pre">sidebar</span> <span class="pre">width&gt;</span></code> at that breakpoint, so collapsing a sidebar via <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code> automatically widens the main column.</p>
+</section>
+<section id="aligning-rows-with-spacercolumn">
+<h3>Aligning rows with <code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code><a class="headerlink" href="#aligning-rows-with-spacercolumn" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code> is an empty <code class="docutils literal notranslate"><span class="pre">Grid.Column</span></code> you drop into any region’s <code class="docutils literal notranslate"><span class="pre">subsections</span></code> to consume grid units. Combine it with the per-breakpoint width keys (<code class="docutils literal notranslate"><span class="pre">mobile</span></code> / <code class="docutils literal notranslate"><span class="pre">tablet</span></code> / <code class="docutils literal notranslate"><span class="pre">computer</span></code> / <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code> / <code class="docutils literal notranslate"><span class="pre">widescreen</span></code>) and the <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code> shortcut to push other columns into alignment with sibling rows, add a responsive-width margin, or reserve gutter space. It is most useful inside <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">FormTitle</span></code>, <code class="docutils literal notranslate"><span class="pre">FormFooter</span></code>, and any <code class="docutils literal notranslate"><span class="pre">FormRow</span></code> where you need an alignment other than the default left edge.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code> accepts the same width keys, the <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code> shortcut, and the same <code class="docutils literal notranslate"><span class="pre">classnames</span></code> (Semantic UI responsive helpers) as any other column. It takes no <code class="docutils literal notranslate"><span class="pre">subsections</span></code> and renders as a single empty <code class="docutils literal notranslate"><span class="pre">&lt;div</span> <span class="pre">class=&quot;…</span> <span class="pre">column&quot;&gt;</span></code>.</p>
+<p><strong>Aligning a top stepper with the sidebars.</strong> When a page has a left and/or right sidebar at large widths, a stepper placed in <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code> needs leading and trailing spacers so it begins at the same x-position as the main column and ends where the right sidebar starts. The spacers’ widths mirror each sidebar’s widths at each breakpoint:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_PAGED_FORM_HEADER_STEPPER_TOP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormHeader&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="c1"># Leading spacer: matches the (large-screen-only) left sidebar widths.</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SpacerColumn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;only&quot;</span><span class="p">:</span> <span class="s2">&quot;large screen&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="c1"># Stepper occupies the central space.</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormStepper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;classnames&quot;</span><span class="p">:</span> <span class="s2">&quot;column computer-only-strict&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;computer&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="c1"># Trailing spacer: matches the right sidebar widths at computer+.</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SpacerColumn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;computer&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s2">&quot;only&quot;</span><span class="p">:</span> <span class="s2">&quot;computer&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Responsive-width margin.</strong> Use a single leading spacer to push everything that follows in the row by N grid units, with different N at each breakpoint, then attach <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code> so the margin disappears at smaller widths:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SpacerColumn&quot;</span><span class="p">,</span> <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;only&quot;</span><span class="p">:</span> <span class="s2">&quot;large screen&quot;</span><span class="p">},</span>
+</pre></div>
+</div>
+<p><strong>Aligning the form title with the main column.</strong> Place a <code class="docutils literal notranslate"><span class="pre">FormTitle</span></code> with a leading <code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code> whose widths match the left sidebar so the heading starts above the main column rather than the page edge:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormTitle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SpacerColumn&quot;</span><span class="p">,</span> <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;only&quot;</span><span class="p">:</span> <span class="s2">&quot;large screen&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormTitle&quot;</span><span class="p">,</span> <span class="s2">&quot;computer&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+<p><strong>Tips.</strong></p>
+<ul class="simple">
+<li><p>To hide a spacer without zeroing widths, use a Semantic UI visibility class via <code class="docutils literal notranslate"><span class="pre">classnames</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;mobile</span> <span class="pre">hidden&quot;</span></code>); to collapse it to zero width at smaller breakpoints, prefer <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code>. The two are interchangeable for hiding, but <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code> keeps the breakpoint width math explicit.</p></li>
+<li><p>Always declare a width for every breakpoint the spacer should occupy. A column with no width set at a breakpoint inherits Semantic UI’s default (auto-fill of the row), which is usually not what you want for a spacer.</p></li>
+<li><p>Spacers participate in the row’s 16-column budget. Make sure the sum of widths for each breakpoint adds up correctly across all columns in the row.</p></li>
+</ul>
+</section>
+<section id="css-visibility-classes-classnames">
+<h3>CSS visibility classes (<code class="docutils literal notranslate"><span class="pre">classnames</span></code>)<a class="headerlink" href="#css-visibility-classes-classnames" title="Link to this heading">¶</a></h3>
+<p>For finer-grained control — hiding a single component without affecting grid widths — use Semantic UI’s responsive utility classes via <code class="docutils literal notranslate"><span class="pre">classnames</span></code>. The element stays in the DOM; only its <code class="docutils literal notranslate"><span class="pre">display</span></code> is toggled.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Class</p></th>
+<th class="head"><p>Visible at</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mobile</span> <span class="pre">only</span></code></p></td>
+<td><p>Mobile only (≤767px).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tablet</span> <span class="pre">only</span></code></p></td>
+<td><p>Tablet only (768–991px).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">computer</span> <span class="pre">only</span></code></p></td>
+<td><p>Computer <strong>and larger</strong> (≥992px) — <em>not</em> strict “only computer”.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">large</span> <span class="pre">screen</span> <span class="pre">only</span></code></p></td>
+<td><p>Large screen <strong>and larger</strong> (≥1200px).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">widescreen</span> <span class="pre">only</span></code></p></td>
+<td><p>Widescreen only (≥1920px).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mobile</span> <span class="pre">hidden</span></code>, <code class="docutils literal notranslate"><span class="pre">tablet</span> <span class="pre">hidden</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span> <span class="pre">hidden</span></code>, <code class="docutils literal notranslate"><span class="pre">large</span> <span class="pre">screen</span> <span class="pre">hidden</span></code>, <code class="docutils literal notranslate"><span class="pre">widescreen</span> <span class="pre">hidden</span></code></p></td>
+<td><p>Everywhere except the named breakpoint.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tablet</span> <span class="pre">mobile</span> <span class="pre">only</span></code> (and similar two-/three-word combinations)</p></td>
+<td><p>Only at the named breakpoints (composes the per-breakpoint hides).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">computer-only-strict</span></code></strong> <em>(custom helper)</em></p></td>
+<td><p>Computer breakpoint only (992–1199px) — hidden on mobile, tablet, large screen, and widescreen. Use when you need a strict “only computer” that excludes large monitors.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">computer-only-strict</span></code> is defined in this package’s <code class="docutils literal notranslate"><span class="pre">deposit_form.less</span></code>; the others are built into Semantic UI’s grid styles.</p>
+<p>For components that render as a <code class="docutils literal notranslate"><span class="pre">Grid.Column</span></code> (<code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>, custom column-rendering components), include <code class="docutils literal notranslate"><span class="pre">&quot;column&quot;</span></code> in <code class="docutils literal notranslate"><span class="pre">classnames</span></code> so Semantic UI’s column display rules apply alongside the visibility class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormStepper&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;classnames&quot;</span><span class="p">:</span> <span class="s2">&quot;column tablet mobile only&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mobile&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="s2">&quot;tablet&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+<span class="p">},</span>
+<span class="p">{</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormStepper&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;classnames&quot;</span><span class="p">:</span> <span class="s2">&quot;column computer-only-strict&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;computer&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="showing-hiding-a-page-menu-item-without-hiding-the-page">
+<h3>Showing/hiding a page menu item without hiding the page<a class="headerlink" href="#showing-hiding-a-page-menu-item-without-hiding-the-page" title="Link to this heading">¶</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> accepts an optional <strong><code class="docutils literal notranslate"><span class="pre">menuItemClasses</span></code></strong> key. The string is applied to the page’s stepper step (<code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>) <strong>and</strong> sidebar menu item (<code class="docutils literal notranslate"><span class="pre">FormSidebarPageMenu</span></code>) only — not to the page content. This lets you hide the navigation entry at some breakpoints while keeping the page reachable via direct URL (<code class="docutils literal notranslate"><span class="pre">?page=&lt;section&gt;</span></code>), the next/back footer navigation (<code class="docutils literal notranslate"><span class="pre">FormPageNavigationBar</span></code>), and any other links pointing at it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Save &amp; Publish&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;menuItemClasses&quot;</span><span class="p">:</span> <span class="s2">&quot;tablet mobile only&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span>
+<span class="p">},</span>
+</pre></div>
+</div>
+<p>With the example above the “Save &amp; Publish” step appears in the menu only at mobile/tablet widths; at computer+ widths the menu item disappears but the page remains addressable.</p>
+</section>
+<section id="worked-example-shifting-save-access-feedback-between-sidebar-and-page">
+<h3>Worked example: shifting save/access/feedback between sidebar and page<a class="headerlink" href="#worked-example-shifting-save-access-feedback-between-sidebar-and-page" title="Link to this heading">¶</a></h3>
+<p>Pattern: at computer and larger widths the submission/access/feedback components live in the right sidebar; at tablet and mobile widths the right sidebar collapses and the same components appear on a dedicated form page reachable from the menu/stepper.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Right sidebar: visible on computer+; collapses at mobile/tablet via `only`.</span>
+<span class="n">_PAGED_FORM_RIGHT_SIDEBAR</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormRightSidebar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;classnames&quot;</span><span class="p">:</span> <span class="s2">&quot;default-layout&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;computer&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;largeScreen&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;widescreen&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;only&quot;</span><span class="p">:</span> <span class="s2">&quot;computer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;form_feedback&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormFeedbackComponent&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;submit_actions&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Publish&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SubmissionComponent&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Visibility&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;AccessRightsComponent&quot;</span><span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="c1"># Dedicated &quot;Save &amp; Publish&quot; page: menu/stepper item only on tablet/mobile.</span>
+<span class="c1"># Components are unwrapped (`wrapped: False`) since they render their own card-like shells.</span>
+<span class="n">_SAVE_AND_PUBLISH_PAGE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Save &amp; Publish&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormPage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;menuItemClasses&quot;</span><span class="p">:</span> <span class="s2">&quot;tablet mobile only&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;form_feedback&quot;</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;FormFeedbackComponent&quot;</span><span class="p">,</span> <span class="s2">&quot;wrapped&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;submit_actions&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Publish&quot;</span><span class="p">),</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;SubmissionComponent&quot;</span><span class="p">,</span> <span class="s2">&quot;wrapped&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;access&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Visibility&quot;</span><span class="p">),</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;AccessRightsComponent&quot;</span><span class="p">,</span> <span class="s2">&quot;wrapped&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Add both objects to <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> (place <code class="docutils literal notranslate"><span class="pre">_SAVE_AND_PUBLISH_PAGE</span></code> inside <code class="docutils literal notranslate"><span class="pre">FormPages.subsections</span></code>). At computer+ widths the user sees the right sidebar as before; at tablet/mobile widths the sidebar disappears and the user reaches the same controls via the new page entry. Because the page itself is not responsively hidden, an existing hard link to <code class="docutils literal notranslate"><span class="pre">?page=6</span></code> keeps working at every breakpoint.</p>
 </section>
 </section>
 <section id="changing-layout-by-resource-type">
@@ -427,7 +649,7 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> config variable lets you change layout elements based on the current resource type. Its keys are InvenioRDM resource type names (from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary). The values are dictionaries describing how pages should be laid out for that resource type; keys must correspond to the <code class="docutils literal notranslate"><span class="pre">section</span></code> ids of the <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> components in your common fields layout.</p>
 <p>If a page is not included in the resource type dictionary, the default layout from the common fields is used. If a page is included, the new page layout <strong>replaces</strong> the default for that page.</p>
 <p>Example: replace the entire page whose <code class="docutils literal notranslate"><span class="pre">section</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;3&quot;</span></code> with a single ISBN field when the selected resource type is <code class="docutils literal notranslate"><span class="pre">&quot;textDocument-book&quot;</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;textDocument-book&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;subsections&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -443,31 +665,228 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>To re-use another resource type’s page entry for the same FormPage <code class="docutils literal notranslate"><span class="pre">section</span></code> id, set top-level <code class="docutils literal notranslate"><span class="pre">same_as</span></code> to that type’s id. The form resolves the target page (following further <code class="docutils literal notranslate"><span class="pre">same_as</span></code> on that type if present), then <strong>shallow-merges</strong> your entry on top: keys you set—such as <strong><code class="docutils literal notranslate"><span class="pre">label</span></code></strong> or <strong><code class="docutils literal notranslate"><span class="pre">classnames</span></code></strong> (and any other keys the merged page object supports)—override the target. If you omit <strong><code class="docutils literal notranslate"><span class="pre">subsections</span></code></strong>, the target’s subsection list is used; if you <strong>include</strong> <code class="docutils literal notranslate"><span class="pre">subsections</span></code>, your list <strong>replaces</strong> the inherited one entirely. Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;textDocument-monograph&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;same_as&quot;</span><span class="p">:</span> <span class="s2">&quot;textDocument-book&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Monograph details&quot;</span><span class="p">}}</span>
+<section id="inheriting-page-layouts-with-same-as">
+<h3>Inheriting page layouts with <code class="docutils literal notranslate"><span class="pre">same_as</span></code><a class="headerlink" href="#inheriting-page-layouts-with-same-as" title="Link to this heading">¶</a></h3>
+<p>To re-use another resource type’s page entry for the same FormPage <code class="docutils literal notranslate"><span class="pre">section</span></code> id, set top-level <code class="docutils literal notranslate"><span class="pre">same_as</span></code> to that type’s id. The form resolves the target page first (chasing further <code class="docutils literal notranslate"><span class="pre">same_as</span></code> references along the way, with cycle detection), then <strong>shallow-merges</strong> your entry on top.</p>
+<p>Merge rules:</p>
+<ul class="simple">
+<li><p>Keys you set on your entry — <code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">classnames</span></code>, and any other keys the page object supports — override the resolved base.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">subsections</span></code></strong> is the only key with special handling: omit it and the base’s subsection list is inherited; include it and your list replaces the inherited one entirely (no item-level merging).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">same_as</span></code> key itself is stripped from the merged result.</p></li>
+<li><p>Cycles (<code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">→</span> <span class="pre">b</span> <span class="pre">→</span> <span class="pre">a</span></code>) are detected and resolve to the originating entry without recursion.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;textDocument-monograph&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;same_as&quot;</span><span class="p">:</span> <span class="s2">&quot;textDocument-book&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Monograph details&quot;</span><span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
-<section id="other-changes-to-fields-by-resource-type">
-<h2>Other changes to fields by resource type<a class="headerlink" href="#other-changes-to-fields-by-resource-type" title="Link to this heading">¶</a></h2>
-<p>Additional config values allow customization of specific props at the field widget level by resource type without declaring a whole new page layout:</p>
-<ul class="simple">
-<li><p><strong>MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</strong></p></li>
-<li><p><strong>MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</strong></p></li>
-</ul>
-<p>Each value is a dictionary with resource types as keys. The value for each resource type is a dictionary with dot-separated metadata field paths as keys and the value to use.</p>
-<p>Example: modify the icon for the title field by resource type:</p>
+</section>
+<section id="per-field-modifications-by-resource-type">
+<h2>Per-field modifications by resource type<a class="headerlink" href="#per-field-modifications-by-resource-type" title="Link to this heading">¶</a></h2>
+<p>Several config variables let you customize individual field widget props by resource type without declaring a whole new page layout. They all share the same shape:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;&lt;resource-type-id&gt;&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;&lt;dot-separated-metadata-path&gt;&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">value</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="o">...</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Resource types not listed in the map fall back to the props the layout config provides; field paths not listed for the current type are unaffected. The <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> reads each map at render time and overrides the matching prop on the widget it wraps.</p>
+<section id="display-and-metadata-modifications-apply-to-all-built-in-widgets">
+<h3>Display and metadata modifications (apply to all built-in widgets)<a class="headerlink" href="#display-and-metadata-modifications-apply-to-all-built-in-widgets" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Overrides</p></th>
+<th class="head"><p>Value type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">label</span></code></p></td>
+<td><p>string (or <code class="docutils literal notranslate"><span class="pre">lazy_gettext(...)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">placeholder</span></code></p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">description</span></code></p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labelIcon</span></code> (FontAwesome name)</p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">helpText</span></code></p></td>
+<td><p>string</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">required</span></code> flag on the widget (does <strong>not</strong> affect server-side validation)</p></td>
+<td><p>bool</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Example — change the title field’s icon by resource type:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;audio&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;headphones&quot;</span><span class="p">},</span>
     <span class="s2">&quot;dataset&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;table&quot;</span><span class="p">},</span>
     <span class="s2">&quot;image-photo&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;camera&quot;</span><span class="p">},</span>
     <span class="s2">&quot;presentation&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">:</span> <span class="s2">&quot;microphone&quot;</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For custom fields, the field path uses the InvenioRDM custom-field syntax (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;custom_fields.journal:journal.title&quot;</span></code>).</p>
+</section>
+<section id="field-value-modifications-only-effective-in-custom-widgets">
+<h3>Field value modifications (only effective in custom widgets)<a class="headerlink" href="#field-value-modifications-only-effective-in-custom-widgets" title="Link to this heading">¶</a></h3>
+<p>The following two variables are wired all the way through to each <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>, but <strong>none of the package’s built-in widgets currently consume them</strong>. They are forwarded to the inner widget as the props named in the table; a custom widget you write can read those props and use them.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Prop received by widget</p></th>
+<th class="head"><p>Intended use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">defaultFieldValue</span></code> (singular)</p></td>
+<td><p>Pre-fill an empty field with a default.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</span></code></strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">priorityFieldValues</span></code></p></td>
+<td><p>Display value(s) the widget should surface as preferred suggestions.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If you set these expecting them to affect the stock title/abstract/etc. widgets, they will not — see <a class="reference internal" href="extending.html"><span class="std std-doc">Adding your own components</span></a> for how to write a widget that reads these props.</p>
+</section>
+</section>
+<section id="other-configuration-flags">
+<h2>Other configuration flags<a class="headerlink" href="#other-configuration-flags" title="Link to this heading">¶</a></h2>
+<p>These flags toggle global form behaviour. None of them require asset rebuilds at config-change time <em>except</em> <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code> (see note below).</p>
+<section id="modular-deposit-form-use-client-validation">
+<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code><a class="headerlink" href="#modular-deposit-form-use-client-validation" title="Link to this heading">¶</a></h3>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the form loads your <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> (see <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a> and <a class="reference internal" href="extending.html#module-contracts"><span class="std std-ref">Adding your own components</span></a>) and runs the resulting Yup schema on every change. When <code class="docutils literal notranslate"><span class="pre">False</span></code>, no client schema is loaded; field errors only appear after submit returns server-side validation errors.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Changing this value requires rebuilding assets (<code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">webpack</span> <span class="pre">build</span></code>) — the choice is baked in at build time by <code class="docutils literal notranslate"><span class="pre">webpack_extras.get_validator_path()</span></code>.</p>
+</div>
+</section>
+<section id="modular-deposit-form-use-confirm-modal">
+<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code><a class="headerlink" href="#modular-deposit-form-use-confirm-modal" title="Link to this heading">¶</a></h3>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, attempting to navigate to another page in a multi-page form while the current page has unresolved errors opens a confirmation modal asking the user to either fix the errors or proceed. When <code class="docutils literal notranslate"><span class="pre">False</span></code>, the errors are still flagged on the leaving page but no modal interrupts navigation.</p>
+</section>
+<section id="modular-deposit-form-show-community-banner-at-top">
+<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP</span></code><a class="headerlink" href="#modular-deposit-form-show-community-banner-at-top" title="Link to this heading">¶</a></h3>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, a full-width community banner (the stock InvenioRDM <code class="docutils literal notranslate"><span class="pre">CommunityHeader</span></code>) is rendered above the form title whenever the deposit state would normally show it (community selected or selectable). Set to <code class="docutils literal notranslate"><span class="pre">False</span></code> to suppress it; the selected community will then be shown next to the form title instead.</p>
+</section>
+<section id="modular-deposit-form-priority-resource-types">
+<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES</span></code><a class="headerlink" href="#modular-deposit-form-priority-resource-types" title="Link to this heading">¶</a></h3>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">(&quot;publication-article&quot;,</span> <span class="pre">&quot;publication-peerreview&quot;,</span> <span class="pre">&quot;publication-book&quot;,</span> <span class="pre">&quot;publication-section&quot;,</span> <span class="pre">&quot;lesson&quot;)</span></code>.</p>
+<p>Ordered tuple of resource type ids that the <code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorComponent</span></code> exposes as shortcut buttons (in addition to the always-present “Other…” control that opens the full vocabulary select).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Only the <strong>first five</strong> ids in the tuple are rendered as buttons. Additional ids are ignored. List your most-specific or highest-traffic types first.</p>
+</div>
+<p>Ids must come from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary.</p>
+</section>
+<section id="modular-deposit-form-pids-overrides">
+<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES</span></code><a class="headerlink" href="#modular-deposit-form-pids-overrides" title="Link to this heading">¶</a></h3>
+<p>Default: a <code class="docutils literal notranslate"><span class="pre">doi</span></code> entry with KC-flavoured labels and help text (see <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/config/config.py</span></code>).</p>
+<p>Maps PID scheme ids to dictionaries of UI-string overrides that are <strong>shallow-merged into the matching entry of stock <code class="docutils literal notranslate"><span class="pre">RDM_PERSISTENT_IDENTIFIERS</span></code></strong> before the deposit form mounts. Any keys you set replace the corresponding keys on the PID config; keys you omit keep their stock value.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only the <strong><code class="docutils literal notranslate"><span class="pre">doi</span></code></strong> scheme is currently honoured by the merge logic. Entries for other schemes are ignored.</p>
+</div>
+<p>Keys most commonly overridden:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">field_label</span></code></p></td>
+<td><p>The visible field label (e.g. “Digital Object Identifier”).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pid_placeholder</span></code></p></td>
+<td><p>Input placeholder text.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">btn_label_get_pid</span></code></p></td>
+<td><p>Label for the “reserve a PID” button.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">btn_label_discard_pid</span></code></p></td>
+<td><p>Label for the discard-reserved-PID button.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">managed_help_text</span></code></p></td>
+<td><p>Help text shown when the instance is configured to manage DOIs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reserved_help_text</span></code></p></td>
+<td><p>Help text shown after a DOI has been reserved.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unmanaged_help_text</span></code></p></td>
+<td><p>Help text shown when DOIs are not managed by this instance.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Example — switch the field label and reserve-button text:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;field_label&quot;</span><span class="p">:</span> <span class="s2">&quot;DOI&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;btn_label_get_pid&quot;</span><span class="p">:</span> <span class="s2">&quot;Reserve a DOI&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="custom-fields-and-namespaces">
+<h2>Custom fields and namespaces<a class="headerlink" href="#custom-fields-and-namespaces" title="Link to this heading">¶</a></h2>
+<p>The package ships its own InvenioRDM custom-field defaults (codemeta, journal, imprint, meeting, thesis) and the matching UI definitions, applied to the standard Flask config keys:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">RDM_NAMESPACES</span></code></strong> — namespace prefixes (<code class="docutils literal notranslate"><span class="pre">codemeta</span></code>, <code class="docutils literal notranslate"><span class="pre">journal</span></code>, <code class="docutils literal notranslate"><span class="pre">imprint</span></code>, <code class="docutils literal notranslate"><span class="pre">meeting</span></code>, <code class="docutils literal notranslate"><span class="pre">thesis</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span></code></strong> — backend custom-field declarations (with <code class="docutils literal notranslate"><span class="pre">VocabularyCF</span></code> instances replaced by a hardened subclass that won’t 500 the form when a vocabulary is missing — see <code class="docutils literal notranslate"><span class="pre">SafeVocabularyCF</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code></strong> — UI definitions consumed by <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> and the stock InvenioRDM custom-field rendering.</p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>Partial overrides are a footgun.</strong> The package applies these defaults in two passes:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">init_config</span></code> uses <code class="docutils literal notranslate"><span class="pre">setdefault</span></code>, so any value you set in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> wins outright.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finalize_app</span></code> (after the full config stack settles) re-applies the package defaults <strong>only when the value is still <code class="docutils literal notranslate"><span class="pre">[]</span></code></strong> — i.e. nothing else, including your <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>, supplied a non-empty value.</p></li>
+</ol>
+<p>If you set <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span> <span class="pre">=</span> <span class="pre">[my_field]</span></code> (or <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span> <span class="pre">=</span> <span class="pre">[my_ui]</span></code>) in your <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>, you <strong>lose the package’s journal/imprint/codemeta/meeting/thesis fields</strong> entirely — neither pass will re-add them. To extend rather than replace, spread the package defaults yourself:</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">invenio_modular_deposit_form.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">imdf_config</span>
+
+<span class="n">RDM_CUSTOM_FIELDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">*</span><span class="n">imdf_config</span><span class="o">.</span><span class="n">RDM_CUSTOM_FIELDS</span><span class="p">,</span>
+    <span class="n">my_extra_field</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">RDM_CUSTOM_FIELDS_UI</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="o">*</span><span class="n">imdf_config</span><span class="o">.</span><span class="n">RDM_CUSTOM_FIELDS_UI</span><span class="p">,</span>
+    <span class="n">my_extra_ui</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">RDM_NAMESPACES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="o">**</span><span class="n">imdf_config</span><span class="o">.</span><span class="n">RDM_NAMESPACES</span><span class="p">,</span>
+    <span class="s2">&quot;myns&quot;</span><span class="p">:</span> <span class="s2">&quot;https://example.org/ns/&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -553,6 +972,7 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Configuration</a><ul>
+<li><a class="reference internal" href="#quick-start-shipped-layout-presets">Quick start: shipped layout presets</a></li>
 <li><a class="reference internal" href="#creating-a-custom-form-layout">Creating a custom form layout</a><ul>
 <li><a class="reference internal" href="#example-minimal-two-page-layout">Example: minimal two-page layout</a></li>
 <li><a class="reference internal" href="#top-level-form">Top-level form</a></li>
@@ -572,8 +992,32 @@
 <li><a class="reference internal" href="#compound-field-components">Compound field components</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#changing-layout-by-resource-type">Changing layout by resource type</a></li>
-<li><a class="reference internal" href="#other-changes-to-fields-by-resource-type">Other changes to fields by resource type</a></li>
+<li><a class="reference internal" href="#responsive-layout">Responsive layout</a><ul>
+<li><a class="reference internal" href="#per-breakpoint-column-widths">Per-breakpoint column widths</a></li>
+<li><a class="reference internal" href="#aligning-rows-with-spacercolumn">Aligning rows with <code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code></a></li>
+<li><a class="reference internal" href="#css-visibility-classes-classnames">CSS visibility classes (<code class="docutils literal notranslate"><span class="pre">classnames</span></code>)</a></li>
+<li><a class="reference internal" href="#showing-hiding-a-page-menu-item-without-hiding-the-page">Showing/hiding a page menu item without hiding the page</a></li>
+<li><a class="reference internal" href="#worked-example-shifting-save-access-feedback-between-sidebar-and-page">Worked example: shifting save/access/feedback between sidebar and page</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#changing-layout-by-resource-type">Changing layout by resource type</a><ul>
+<li><a class="reference internal" href="#inheriting-page-layouts-with-same-as">Inheriting page layouts with <code class="docutils literal notranslate"><span class="pre">same_as</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#per-field-modifications-by-resource-type">Per-field modifications by resource type</a><ul>
+<li><a class="reference internal" href="#display-and-metadata-modifications-apply-to-all-built-in-widgets">Display and metadata modifications (apply to all built-in widgets)</a></li>
+<li><a class="reference internal" href="#field-value-modifications-only-effective-in-custom-widgets">Field value modifications (only effective in custom widgets)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#other-configuration-flags">Other configuration flags</a><ul>
+<li><a class="reference internal" href="#modular-deposit-form-use-client-validation"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code></a></li>
+<li><a class="reference internal" href="#modular-deposit-form-use-confirm-modal"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code></a></li>
+<li><a class="reference internal" href="#modular-deposit-form-show-community-banner-at-top"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP</span></code></a></li>
+<li><a class="reference internal" href="#modular-deposit-form-priority-resource-types"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES</span></code></a></li>
+<li><a class="reference internal" href="#modular-deposit-form-pids-overrides"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#custom-fields-and-namespaces">Custom fields and namespaces</a></li>
 <li><a class="reference internal" href="#inveniordm-version-14-extensions">InvenioRDM version 14 extensions</a></li>
 </ul>
 </li>

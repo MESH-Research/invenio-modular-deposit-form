@@ -1,30 +1,40 @@
 # Adding your own components and validator
 
-To add your own React components or provide a custom `validator.js`, `componentsRegistry.js`, and/or `transformations.js`, you point the package at the directory (or directories) that contain those files. You can use **Python entry points** (recommended) or **webpack aliases**.
+The package exposes three extension points:
 
-## Python entry points (recommended)
+- **`validator.js`** — your client-side Yup validation schema.
+- **`componentsRegistry.js`** — extra or replacement React components you
+  reference by name from `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` /
+  `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE`.
+- **`transformations.js`** — pure functions that rewrite Formik values
+  immediately before submit.
 
-You can register these entry point groups; each callable returns a **string** that becomes the **right-hand side** of a webpack resolver alias inside this package’s `webpack.py` (for example `@js/invenio_modular_deposit_form_validator` → _your string_). That string is **not** passed through webpack’s alias table a second time: Invenio merges all bundle aliases into `config.json`, and `invenio_assets` builds the final config with `path.resolve(build.context, alias_path)` for every alias value.
+Each is **independently optional**: if you don't register one, the package falls back to a no-op stub. See [Registering your extension files](#registering-your-extension-files) for the steps.
 
-| Entry point group                                  | File in directory       | Purpose                                                  |
-| -------------------------------------------------- | ----------------------- | -------------------------------------------------------- |
-| `invenio_modular_deposit_form.validator`           | `validator.js`          | Client-side validation schema and/or `validate` function |
-| `invenio_modular_deposit_form.components_registry` | `componentsRegistry.js` | Extra or overriding React components                     |
-| `invenio_modular_deposit_form.transformations`     | `transformations.js`    | Submit-time metadata transforms (array of functions)   |
+(module-contracts)=
 
-```{warning}
-**Return a path under the collected assets tree, not an `@js/...` request.**
+## What goes in each extension file
 
-If your callable returns something like `@js/my_instance/validation/validator.js`, the build will resolve `path.resolve(build.context, "@js/my_instance/validation/validator.js")`, which points at a **non-existent** path (a literal `@js` directory under the instance assets folder). The build then fails with errors such as “Cannot find module … for matched aliased key `@js/invenio_modular_deposit_form_validator`”.
+Each file is expected to export a specific kind of customization object:
 
-Return instead a **context-relative** path, same style as the right-hand side of aliases in your own `WebpackThemeBundle` (for example `@js/my_instance` → `js/my_instance` in `webpack.py`, and the entry point returns `js/my_instance/validation/validator.js`). After `invenio collect`, that file must exist under the instance’s merged `js/` tree next to `node_modules`, so bare imports such as `react` and `yup` resolve correctly.
+| File                    | Required export                                                          | Notes                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `validator.js`          | A Yup schema, **or** a function `(config) => yupSchema`                  | Resolved as `module.default ?? module`, so both `export default` and `module.exports = …` work. **Only loaded when `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION` is truthy** in `invenio.cfg`; otherwise the package ignores the entry point and Formik runs no client schema. A separate Formik `validate` function is **not** consulted — schema only. |
+| `componentsRegistry.js` | A named export `componentsRegistry: { [name]: [Component, fieldPaths] }` | Merged onto the built-in registry via `Object.assign` after the package loads, so your keys override built-ins with the same name and new keys are added alongside. Either ESM (`export { componentsRegistry }`) or CommonJS (`module.exports = { componentsRegistry }`) works.                                                                         |
+| `transformations.js`    | A named export `transformations: Function[]` (an array of functions)     | Each function is `(values) => newValues` and **must be pure** — return a new object; do not mutate `values`. They run in array order at submit time inside the package's `useFormSubmissionTransformer` hook. Asynchronous transforms are not supported; return synchronously.                                                                          |
 
-For **hand-written** imports inside your own React sources, you may still use `@js/my_instance/...` **provided** you defined that alias in your instance theme bundle; that is unrelated to what the Python entry point callables return.
-```
+See [Validation](validation.md) for more on how the schema reaches Formik, and
+[Replacement field components](replacement_field_components.md) for the
+touched-aware widgets you should usually compose with when writing
+replacements.
 
-### Register a base alias for your js assets
+## Registering your extension files
 
-Both of the methods described below depend on your first setting up an alias that points to your local js assets in your instance's `site/webpack.py` file like this:
+The package finds your `validator.js`, `componentsRegistry.js`, and `transformations.js` through Python entry points. Setting that up takes three small steps, done once per instance. You only need to register the files you actually provide — omit any of the three and the package falls back to a no-op default for that one.
+
+### 1. Make sure your assets folder has a webpack alias
+
+In your instance's `site/<my_instance>/webpack.py`, add an alias for the directory holding your JS assets (skip this if you already have one for your instance code):
 
 ```python
 themes={
@@ -37,21 +47,28 @@ themes={
 },
 ```
 
-Ensure your theme bundle is loaded (e.g. via `invenio_assets.webpack` entry point).
+Ensure your theme bundle is loaded — usually via the `invenio_assets.webpack` entry point.
 
-### Create a registration function for each entry point
+### 2. Place your extension files under that folder
 
-In your instance package, expose callables that return a **single string**: a path **relative to the Invenio webpack `build.context`** (the instance assets build directory after `invenio collect`), almost always starting with `js/…`, in the same way your theme bundle’s own `aliases` map `@js/…` keys to **`js/…` values** (see `@js/kcworks/collections` → `js/collections` in a typical instance).
+Put each file you want to register somewhere under your assets directory, e.g.:
 
-So if your validator file ends up collected as `js/my_instance_name/validation/validator.js` under that directory, your registration function should return exactly `js/my_instance_name/validation/validator.js`.
+```text
+site/my_instance_name/assets/semantic-ui/js/my_instance_name/deposit_extras/
+├── validator.js
+├── componentsRegistry.js
+└── transformations.js
+```
 
-Likewise, if your components registry is collected as `js/my_instance_name/deposit_extras/componentsRegistry.js`, return `js/my_instance_name/deposit_extras/componentsRegistry.js`.
+### 3. Tell the package where they are
 
-For example, you could place the following functions in a new `site/my_instance_name/deposit_extras/alias_registration.py` file:
+The package reads three Python entry points. Each one points to a Python function that returns **the path to the corresponding file**, in the form `js/<your-alias-name>/path/to/file.js` — the same path you'd write after `@js/` in a JavaScript import, but with `js/` instead of `@js/`.
+
+Add a small Python module — e.g. `site/my_instance_name/deposit_extras.py`:
 
 ```python
 def get_validator_path():
-    return "js/my_instance_name/validation/validator.js"
+    return "js/my_instance_name/deposit_extras/validator.js"
 
 
 def get_components_registry_path():
@@ -62,118 +79,149 @@ def get_transformations_path():
     return "js/my_instance_name/deposit_extras/transformations.js"
 ```
 
-The precise name or location of these files and the functions does not matter, as long as the returned path matches where your theme bundle’s assets land under the merged `js/` tree after collect.
-
-### Register the functions on the entry points
-
-If you are using a `pyproject.toml` file to manage your project, add these entry points (adjusting the paths to point to your registration functions):
+Then register those functions on the entry points. In `pyproject.toml`:
 
 ```toml
 [project.entry-points."invenio_modular_deposit_form.validator"]
-my_instance = "my_instance_name.deposit_extras.alias_registration:get_validator_path"
+my_instance = "my_instance_name.deposit_extras:get_validator_path"
 
 [project.entry-points."invenio_modular_deposit_form.components_registry"]
-my_instance = "my_instance_name.deposit_extras.alias_registration:get_components_registry_path"
+my_instance = "my_instance_name.deposit_extras:get_components_registry_path"
 
 [project.entry-points."invenio_modular_deposit_form.transformations"]
-my_instance = "my_instance_name.deposit_extras.alias_registration:get_transformations_path"
+my_instance = "my_instance_name.deposit_extras:get_transformations_path"
 ```
 
-Or in `setup.cfg`:
+Or the equivalent in `setup.cfg`:
 
 ```ini
 [options.entry_points]
 invenio_modular_deposit_form.validator =
-    my_instance = my_instance_name.deposit_extras.alias_registration:get_validator_path
+    my_instance = my_instance_name.deposit_extras:get_validator_path
 invenio_modular_deposit_form.components_registry =
-    my_instance = my_instance_name.deposit_extras.alias_registration:get_components_registry_path
+    my_instance = my_instance_name.deposit_extras:get_components_registry_path
 invenio_modular_deposit_form.transformations =
-    my_instance = my_instance_name.deposit_extras.alias_registration:get_transformations_path
+    my_instance = my_instance_name.deposit_extras:get_transformations_path
 ```
 
-## Webpack alias (alternative)
+After changing entry points, reinstall your instance package (`uv pip install -e .` or equivalent) and rebuild assets (`invenio webpack build`) so the new files are picked up.
 
-If you prefer not to use entry points, you can override the aliases in your instance's `webpack.py` so they point **directly to the files** (again using **`js/...` paths** relative to the merged build context, not `@js/...` strings):
-
-- `@js/invenio_modular_deposit_form_validator` → path to `validator.js`
-- `@js/invenio_modular_deposit_form_components` → path to `componentsRegistry.js`
-- `@js/invenio_modular_deposit_form_transformations` → path to `transformations.js`
-
-Example snippet for `webpack.py`:
-
-```python
-themes = {
-    "semantic-ui": dict(
-        entry={ ... },
-        aliases={
-            # Point directly to your validator.js file
-            "@js/invenio_modular_deposit_form_validator": "js/deposit_validator/validator.js",
-            # Point directly to your componentsRegistry.js file
-            "@js/invenio_modular_deposit_form_components": "js/deposit_components/componentsRegistry.js",
-            # Point directly to your transformations.js file
-            "@js/invenio_modular_deposit_form_transformations": "js/deposit_components/transformations.js",
-        },
-    ),
-}
+```{warning}
+Return a path that **starts with `js/`**, not `@js/`. The returned string is resolved against the merged build directory, so `@js/my_instance/...` would look for a literal `@js` folder and fail at build time. If your build complains with "Cannot find module … for matched aliased key `@js/invenio_modular_deposit_form_validator`", a stray `@js/` prefix in one of these functions is almost always the cause.
 ```
 
-These aliases completely override the defaults computed by
-`invenio_modular_deposit_form.webpack_extras.get_validator_path()`,
-`get_components_registry_path()`, and `get_transformations_path()`. Only define them if you want to bypass
-the entry-point based resolution.
+For reference, the three entry point groups are:
+
+| Entry point group | File | Purpose |
+| --- | --- | --- |
+| `invenio_modular_deposit_form.validator` | `validator.js` | Client-side Yup schema or schema-builder function. |
+| `invenio_modular_deposit_form.components_registry` | `componentsRegistry.js` | Extra or overriding React components. |
+| `invenio_modular_deposit_form.transformations` | `transformations.js` | Pure functions that rewrite Formik values immediately before submit. |
+
+See [What goes in each extension file](#module-contracts) for the exact export each file must provide.
 
 ## The componentsRegistry object
 
-The `componentsRegistry` object must have the following structure:
+`componentsRegistry.js` exports a named `componentsRegistry` whose keys are the strings you reference in your layout config and whose values are `[Component, fieldPaths]` tuples:
 
 ```javascript
-{
+import { FieldComponentWrapper } from "@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper";
+import { MyTitlesWrapper } from "./components/MyTitlesWrapper";
+import { BookSectionVolumePagesComponent } from "./components/BookSectionVolumePagesComponent";
+
+export const componentsRegistry = {
+  // Replace the built-in titles section with your own wrapper.
+  TitlesComponent: [
+    MyTitlesWrapper,
+    ["metadata.title", "metadata.additional_titles"],
+  ],
+
+  // Add a brand-new section for a compound custom field.
   BookSectionVolumePagesComponent: [
     BookSectionVolumePagesComponent,
     [
       "custom_fields.journal:journal.pages",
       "custom_fields.imprint:imprint.pages",
     ],
-  ];
+  ],
+};
+```
+
+- `[0]` is the React component the layout will mount whenever it sees that name in `"component": "..."`.
+- `[1]` is the list of dot-separated metadata field paths the component is responsible for. The form uses this list to map server- and client-side validation errors back to the correct section and to compose the per-section summary in `FormFeedback`. If your component owns no metadata fields (for example, layout, navigation, or informational widgets), pass `[]`.
+
+Because your registry is merged onto the built-in registry with `Object.assign`, a key that matches a built-in name (e.g. `TitlesComponent`) **replaces** the built-in entry, while a new key is **added** alongside the built-ins. Replacing a built-in via the registry is the right tool when you need to change which metadata fields a section owns or how its props are assembled; for purely visual replacements of a section's inner widget, prefer the Overridable API (see [Customizing field components](#customizing-field-components)).
+
+## Using your component in the layout
+
+Once a key is in the merged registry, you reference it by that string from `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` (or any per-resource-type override in `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE`):
+
+```python
+{
+    "section": "discipline",
+    "label": "Discipline",
+    "component": "MyDisciplineComponent",
 }
 ```
 
-The keys are strings matching the names of the React components you want to expose (referenced in your layout configuration). The value for each component is an array: `[0]` the React component itself, `[1]` an array of the field names handled by the component.
-
-## Overriding
-
-Normally, overriding a React component should be done using the Overridable API. This extension also allows a second method: if you include a component definition in your `componentsRegistry.js` that duplicates the key of a built-in component, your definition will supersede the built-in one. This is useful when you want to _change the metadata fields handled by a component_. See [Customizing field components](#customizing-field-components) for when to use each approach.
+There is no separate "register-this-component-with-the-layout" step — the registry key _is_ the layout name.
 
 (customizing-field-components)=
 
 ## Customizing field components
 
-There are two ways to customize how a form section or field is rendered: via the **component registry** or via **Overridable**.
+There are two ways to change how an existing form section is rendered:
 
-### 1. Component registry
+| You want to…                                                                                                                                    | Use                    | How                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Replace the **whole section wrapper** and control how its props are assembled (different data sources, different field paths, different layout) | **Component registry** | Register your component in `componentsRegistry.js` under the existing key. Wrap your inner widget in `FieldComponentWrapper` if you want the same label/icon/placeholder/help-text mods (from `MODULAR_DEPOSIT_FORM_*_MODIFICATIONS`) and the same Overridable slot exposure that the built-in wrapper provided. |
+| Add a section for a **metadata field with no built-in component**                                                                               | **Component registry** | Add a new key plus `FieldComponentWrapper`, supply all props the widget needs (`fieldPath`, `label`, `options`, etc.), and reference the new key from your layout config.                                                                                                                                        |
+| Replace **only the inner widget** for a section that already has a working wrapper                                                              | **Overridable**        | Register your component in your instance's `assets/js/invenio_app_rdm/overridableRegistry/mapping.js` under the slot id for that section (see [Override guide](override-guide.md)). It receives the same props the default child would; do **not** wrap it in `FieldComponentWrapper` again.                     |
 
-Use the component registry when:
+Use the registry when you need to control how props are gathered or when the section composition itself has to change. Use Overridable when the existing wrapper does what you want and you only need a different inner widget.
 
-- You want to **override the whole wrapper** for a section and re-implement how all of the widget's props are assembled (e.g. different data sources, different field paths, or a different structure).
-- You want to **add a component for a metadata field that has no default field component** in the layout. In that case you must supply all props for the field yourself and wrap your custom widget in `FieldComponentWrapper` so it gets layout config, resource-type mods, and the correct Overridable slot.
+Imports you typically need when writing a replacement:
 
-Your component is what the layout renders for that section name. It is responsible for gathering any record/store/config data and passing it into the widget. If the section corresponds to an existing slot (e.g. dates, languages), you use `FieldComponentWrapper` with your default inner widget as its child; the wrapper renders the Overridable, so an instance can still override that slot.
+```javascript
+import { FieldComponentWrapper } from "@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper";
+import {
+  TextField,
+  SelectField,
+  RemoteSelectField,
+} from "@js/invenio_modular_deposit_form/replacement_components";
+```
 
-**Example — replace the whole wrapper and change how options are built:** Register a custom component under the same key as a built-in one. Your wrapper assembles props (e.g. options) and passes the default inner widget as the child of `FieldComponentWrapper`.
+Prefer the package's [replacement field components](replacement_field_components.md) (`TextField`, `SelectField`, `RemoteSelectField`, etc.) over the stock `react-invenio-forms` widgets so visible-error gating ("touched") stays consistent across the form.
 
-**Example — new metadata field with no default component:** Add a new section name and a component that wraps your widget in `FieldComponentWrapper`. You must pass all props the widget needs (fieldPath, label, options, etc.).
+(custom-layout-components)=
 
-### 2. Overridable
+## Custom layout components
 
-Use Overridable when you only want to **replace the inner widget** for a section that already has a default wrapper. Your component is rendered _inside_ the existing wrapper (e.g. inside `FieldComponentWrapper`'s `<Overridable>`), so it receives the **same props the default child would get**. Your override does not need to wrap itself in `FieldComponentWrapper` again.
+The structural components used by the layout config — `FormPage`, `FormSection`, `FormRow`, `FormHeader`, `FormLeftSidebar`, `FormRightSidebar`, `FormFooter`, `FormStepper`, etc. — are themselves entries in the component registry. To replace one (or to add a new structural component) you register it in your instance's `componentsRegistry.js` under the same name and reference it from the layout config.
 
-Register your component in the instance's overridable registry (`assets/js/invenio_app_rdm/overridableRegistry/mapping.js`) under the slot id for that section. See the package's [Override guide](override-guide.md) for the list of slot ids.
+When writing a custom layout component:
 
-| Goal                                                         | Method                                                                                   |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Replace whole section and control how props are assembled    | Component registry (override by section name, wrap in `FieldComponentWrapper` if needed) |
-| Add a section for a metadata field with no default component | Component registry (new name + `FieldComponentWrapper` + all props)                      |
-| Replace only the inner widget and use the wrapper's props    | Overridable (register in `mapping.js` under the slot id)                                 |
+- **Forward `children` unchanged** so child sections render inside your layout. The package builds the section tree from the layout config and passes the resolved child elements down.
+- If your component needs to react to the current resource type, current page, or overall error state, read from the package's `FormUIStateContext` / `useFormUIState` hook (see [Available hooks and contexts](#available-hooks-and-contexts) below). Doing this through the context, rather than re-deriving the same state from Redux or Formik directly, keeps your component in sync with the rest of the form.
+- For HTML-only changes to a structural component, prefer overriding it via the React Overridable mechanism in your instance's `mapping.js`; that avoids re-implementing prop assembly.
+
+(available-hooks-and-contexts)=
+
+## Available hooks and contexts
+
+When writing a custom component, these are the imports the package treats as part of its public surface for extenders:
+
+| Import                                                                                                               | Purpose                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `import { FieldComponentWrapper } from "@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper"`    | Wrap a custom field widget so it receives the layout's label/icon/placeholder/help-text mods and exposes the matching Overridable slot.                              |
+| `import { CustomField } from "@js/invenio_modular_deposit_form/field_components/CustomField"`                        | Render an InvenioRDM custom field by name, resolving its widget and props from `RDM_CUSTOM_FIELDS_UI`. See [Handling custom fields](#handling-custom-fields).        |
+| `import { useCurrentFieldMods } from "@js/invenio_modular_deposit_form/hooks/useCurrentFieldMods"`                   | Read the `MODULAR_DEPOSIT_FORM_*_MODIFICATIONS`, `*_FIELD_VALUES`, and `EXTRA_REQUIRED_FIELDS` values for the current resource type.                                 |
+| `import { useCurrentResourceTypeFields } from "@js/invenio_modular_deposit_form/hooks/useCurrentResourceTypeFields"` | Resolve the section list for the currently selected resource type (with `same_as` followed).                                                                         |
+| `import { useFormPageNavigation } from "@js/invenio_modular_deposit_form/hooks/useFormPageNavigation"`               | Read or control the current form page in a multi-page layout.                                                                                                        |
+| `import { useCustomFieldWidget } from "@js/invenio_modular_deposit_form/hooks/useCustomFieldWidget"`                 | The lookup hook used internally by `CustomField`; useful when one component needs to compose several custom fields.                                                  |
+| `import { useFormUIState, FormUIStateContext } from "@js/invenio_modular_deposit_form/FormUIStateManager"`           | Current resource type, current page, and combined client + server error state. Use this in custom layout components instead of re-implementing the same derivations. |
+
+Replacement input widgets (`TextField`, `SelectField`, `RemoteSelectField`, `TextArea`, `MultiInput`, `Input`, `Dropdown`, `AutocompleteDropdown`) live under `@js/invenio_modular_deposit_form/replacement_components` — see [Replacement field components](replacement_field_components.md) for the behavioural differences from upstream.
 
 (handling-custom-fields)=
 

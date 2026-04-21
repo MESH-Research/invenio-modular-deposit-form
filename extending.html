@@ -252,44 +252,54 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="adding-your-own-components-and-validator">
 <h1>Adding your own components and validator<a class="headerlink" href="#adding-your-own-components-and-validator" title="Link to this heading">¶</a></h1>
-<p>To add your own React components or provide a custom <code class="docutils literal notranslate"><span class="pre">validator.js</span></code>, <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>, and/or <code class="docutils literal notranslate"><span class="pre">transformations.js</span></code>, you point the package at the directory (or directories) that contain those files. You can use <strong>Python entry points</strong> (recommended) or <strong>webpack aliases</strong>.</p>
-<section id="python-entry-points-recommended">
-<h2>Python entry points (recommended)<a class="headerlink" href="#python-entry-points-recommended" title="Link to this heading">¶</a></h2>
-<p>You can register these entry point groups; each callable returns a <strong>string</strong> that becomes the <strong>right-hand side</strong> of a webpack resolver alias inside this package’s <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code> (for example <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code> → <em>your string</em>). That string is <strong>not</strong> passed through webpack’s alias table a second time: Invenio merges all bundle aliases into <code class="docutils literal notranslate"><span class="pre">config.json</span></code>, and <code class="docutils literal notranslate"><span class="pre">invenio_assets</span></code> builds the final config with <code class="docutils literal notranslate"><span class="pre">path.resolve(build.context,</span> <span class="pre">alias_path)</span></code> for every alias value.</p>
+<p>The package exposes three extension points:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">validator.js</span></code></strong> — your client-side Yup validation schema.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></strong> — extra or replacement React components you
+reference by name from <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> /
+<code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></strong> — pure functions that rewrite Formik values
+immediately before submit.</p></li>
+</ul>
+<p>Each is <strong>independently optional</strong>: if you don’t register one, the package falls back to a no-op stub. See <a class="reference internal" href="#registering-your-extension-files"><span class="xref myst">Registering your extension files</span></a> for the steps.</p>
+<section id="what-goes-in-each-extension-file">
+<span id="module-contracts"></span><h2>What goes in each extension file<a class="headerlink" href="#what-goes-in-each-extension-file" title="Link to this heading">¶</a></h2>
+<p>Each file is expected to export a specific kind of customization object:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Entry point group</p></th>
-<th class="head"><p>File in directory</p></th>
-<th class="head"><p>Purpose</p></th>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Required export</p></th>
+<th class="head"><p>Notes</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.validator</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">validator.js</span></code></p></td>
-<td><p>Client-side validation schema and/or <code class="docutils literal notranslate"><span class="pre">validate</span></code> function</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">validator.js</span></code></p></td>
+<td><p>A Yup schema, <strong>or</strong> a function <code class="docutils literal notranslate"><span class="pre">(config)</span> <span class="pre">=&gt;</span> <span class="pre">yupSchema</span></code></p></td>
+<td><p>Resolved as <code class="docutils literal notranslate"><span class="pre">module.default</span> <span class="pre">??</span> <span class="pre">module</span></code>, so both <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">default</span></code> and <code class="docutils literal notranslate"><span class="pre">module.exports</span> <span class="pre">=</span> <span class="pre">…</span></code> work. <strong>Only loaded when <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code> is truthy</strong> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>; otherwise the package ignores the entry point and Formik runs no client schema. A separate Formik <code class="docutils literal notranslate"><span class="pre">validate</span></code> function is <strong>not</strong> consulted — schema only.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.components_registry</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></td>
-<td><p>Extra or overriding React components</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></td>
+<td><p>A named export <code class="docutils literal notranslate"><span class="pre">componentsRegistry:</span> <span class="pre">{</span> <span class="pre">[name]:</span> <span class="pre">[Component,</span> <span class="pre">fieldPaths]</span> <span class="pre">}</span></code></p></td>
+<td><p>Merged onto the built-in registry via <code class="docutils literal notranslate"><span class="pre">Object.assign</span></code> after the package loads, so your keys override built-ins with the same name and new keys are added alongside. Either ESM (<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">{</span> <span class="pre">componentsRegistry</span> <span class="pre">}</span></code>) or CommonJS (<code class="docutils literal notranslate"><span class="pre">module.exports</span> <span class="pre">=</span> <span class="pre">{</span> <span class="pre">componentsRegistry</span> <span class="pre">}</span></code>) works.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.transformations</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></p></td>
-<td><p>Submit-time metadata transforms (array of functions)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></p></td>
+<td><p>A named export <code class="docutils literal notranslate"><span class="pre">transformations:</span> <span class="pre">Function[]</span></code> (an array of functions)</p></td>
+<td><p>Each function is <code class="docutils literal notranslate"><span class="pre">(values)</span> <span class="pre">=&gt;</span> <span class="pre">newValues</span></code> and <strong>must be pure</strong> — return a new object; do not mutate <code class="docutils literal notranslate"><span class="pre">values</span></code>. They run in array order at submit time inside the package’s <code class="docutils literal notranslate"><span class="pre">useFormSubmissionTransformer</span></code> hook. Asynchronous transforms are not supported; return synchronously.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><strong>Return a path under the collected assets tree, not an <code class="docutils literal notranslate"><span class="pre">&#64;js/...</span></code> request.</strong></p>
-<p>If your callable returns something like <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance/validation/validator.js</span></code>, the build will resolve <code class="docutils literal notranslate"><span class="pre">path.resolve(build.context,</span> <span class="pre">&quot;&#64;js/my_instance/validation/validator.js&quot;)</span></code>, which points at a <strong>non-existent</strong> path (a literal <code class="docutils literal notranslate"><span class="pre">&#64;js</span></code> directory under the instance assets folder). The build then fails with errors such as “Cannot find module … for matched aliased key <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code>”.</p>
-<p>Return instead a <strong>context-relative</strong> path, same style as the right-hand side of aliases in your own <code class="docutils literal notranslate"><span class="pre">WebpackThemeBundle</span></code> (for example <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance</span></code> → <code class="docutils literal notranslate"><span class="pre">js/my_instance</span></code> in <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code>, and the entry point returns <code class="docutils literal notranslate"><span class="pre">js/my_instance/validation/validator.js</span></code>). After <code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">collect</span></code>, that file must exist under the instance’s merged <code class="docutils literal notranslate"><span class="pre">js/</span></code> tree next to <code class="docutils literal notranslate"><span class="pre">node_modules</span></code>, so bare imports such as <code class="docutils literal notranslate"><span class="pre">react</span></code> and <code class="docutils literal notranslate"><span class="pre">yup</span></code> resolve correctly.</p>
-<p>For <strong>hand-written</strong> imports inside your own React sources, you may still use <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance/...</span></code> <strong>provided</strong> you defined that alias in your instance theme bundle; that is unrelated to what the Python entry point callables return.</p>
-</div>
-<section id="register-a-base-alias-for-your-js-assets">
-<h3>Register a base alias for your js assets<a class="headerlink" href="#register-a-base-alias-for-your-js-assets" title="Link to this heading">¶</a></h3>
-<p>Both of the methods described below depend on your first setting up an alias that points to your local js assets in your instance’s <code class="docutils literal notranslate"><span class="pre">site/webpack.py</span></code> file like this:</p>
+<p>See <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a> for more on how the schema reaches Formik, and
+<a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">Replacement field components</span></a> for the
+touched-aware widgets you should usually compose with when writing
+replacements.</p>
+</section>
+<section id="registering-your-extension-files">
+<h2>Registering your extension files<a class="headerlink" href="#registering-your-extension-files" title="Link to this heading">¶</a></h2>
+<p>The package finds your <code class="docutils literal notranslate"><span class="pre">validator.js</span></code>, <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>, and <code class="docutils literal notranslate"><span class="pre">transformations.js</span></code> through Python entry points. Setting that up takes three small steps, done once per instance. You only need to register the files you actually provide — omit any of the three and the package falls back to a no-op default for that one.</p>
+<section id="make-sure-your-assets-folder-has-a-webpack-alias">
+<h3>1. Make sure your assets folder has a webpack alias<a class="headerlink" href="#make-sure-your-assets-folder-has-a-webpack-alias" title="Link to this heading">¶</a></h3>
+<p>In your instance’s <code class="docutils literal notranslate"><span class="pre">site/&lt;my_instance&gt;/webpack.py</span></code>, add an alias for the directory holding your JS assets (skip this if you already have one for your instance code):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">themes</span><span class="o">=</span><span class="p">{</span>
     <span class="s2">&quot;semantic-ui&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">entry</span><span class="o">=</span><span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
@@ -300,16 +310,24 @@
 <span class="p">},</span>
 </pre></div>
 </div>
-<p>Ensure your theme bundle is loaded (e.g. via <code class="docutils literal notranslate"><span class="pre">invenio_assets.webpack</span></code> entry point).</p>
+<p>Ensure your theme bundle is loaded — usually via the <code class="docutils literal notranslate"><span class="pre">invenio_assets.webpack</span></code> entry point.</p>
 </section>
-<section id="create-a-registration-function-for-each-entry-point">
-<h3>Create a registration function for each entry point<a class="headerlink" href="#create-a-registration-function-for-each-entry-point" title="Link to this heading">¶</a></h3>
-<p>In your instance package, expose callables that return a <strong>single string</strong>: a path <strong>relative to the Invenio webpack <code class="docutils literal notranslate"><span class="pre">build.context</span></code></strong> (the instance assets build directory after <code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">collect</span></code>), almost always starting with <code class="docutils literal notranslate"><span class="pre">js/…</span></code>, in the same way your theme bundle’s own <code class="docutils literal notranslate"><span class="pre">aliases</span></code> map <code class="docutils literal notranslate"><span class="pre">&#64;js/…</span></code> keys to <strong><code class="docutils literal notranslate"><span class="pre">js/…</span></code> values</strong> (see <code class="docutils literal notranslate"><span class="pre">&#64;js/kcworks/collections</span></code> → <code class="docutils literal notranslate"><span class="pre">js/collections</span></code> in a typical instance).</p>
-<p>So if your validator file ends up collected as <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/validation/validator.js</span></code> under that directory, your registration function should return exactly <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/validation/validator.js</span></code>.</p>
-<p>Likewise, if your components registry is collected as <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/deposit_extras/componentsRegistry.js</span></code>, return <code class="docutils literal notranslate"><span class="pre">js/my_instance_name/deposit_extras/componentsRegistry.js</span></code>.</p>
-<p>For example, you could place the following functions in a new <code class="docutils literal notranslate"><span class="pre">site/my_instance_name/deposit_extras/alias_registration.py</span></code> file:</p>
+<section id="place-your-extension-files-under-that-folder">
+<h3>2. Place your extension files under that folder<a class="headerlink" href="#place-your-extension-files-under-that-folder" title="Link to this heading">¶</a></h3>
+<p>Put each file you want to register somewhere under your assets directory, e.g.:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>site/my_instance_name/assets/semantic-ui/js/my_instance_name/deposit_extras/
+├── validator.js
+├── componentsRegistry.js
+└── transformations.js
+</pre></div>
+</div>
+</section>
+<section id="tell-the-package-where-they-are">
+<h3>3. Tell the package where they are<a class="headerlink" href="#tell-the-package-where-they-are" title="Link to this heading">¶</a></h3>
+<p>The package reads three Python entry points. Each one points to a Python function that returns <strong>the path to the corresponding file</strong>, in the form <code class="docutils literal notranslate"><span class="pre">js/&lt;your-alias-name&gt;/path/to/file.js</span></code> — the same path you’d write after <code class="docutils literal notranslate"><span class="pre">&#64;js/</span></code> in a JavaScript import, but with <code class="docutils literal notranslate"><span class="pre">js/</span></code> instead of <code class="docutils literal notranslate"><span class="pre">&#64;js/</span></code>.</p>
+<p>Add a small Python module — e.g. <code class="docutils literal notranslate"><span class="pre">site/my_instance_name/deposit_extras.py</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_validator_path</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/validation/validator.js&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/validator.js&quot;</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_components_registry_path</span><span class="p">():</span>
@@ -320,124 +338,191 @@
     <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/transformations.js&quot;</span>
 </pre></div>
 </div>
-<p>The precise name or location of these files and the functions does not matter, as long as the returned path matches where your theme bundle’s assets land under the merged <code class="docutils literal notranslate"><span class="pre">js/</span></code> tree after collect.</p>
-</section>
-<section id="register-the-functions-on-the-entry-points">
-<h3>Register the functions on the entry points<a class="headerlink" href="#register-the-functions-on-the-entry-points" title="Link to this heading">¶</a></h3>
-<p>If you are using a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file to manage your project, add these entry points (adjusting the paths to point to your registration functions):</p>
+<p>Then register those functions on the entry points. In <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
 <div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.validator&quot;</span><span class="k">]</span>
-<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras.alias_registration:get_validator_path&quot;</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras:get_validator_path&quot;</span>
 
 <span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.components_registry&quot;</span><span class="k">]</span>
-<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras.alias_registration:get_components_registry_path&quot;</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras:get_components_registry_path&quot;</span>
 
 <span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.transformations&quot;</span><span class="k">]</span>
-<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras.alias_registration:get_transformations_path&quot;</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras:get_transformations_path&quot;</span>
 </pre></div>
 </div>
-<p>Or in <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>:</p>
+<p>Or the equivalent in <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[options.entry_points]</span>
 <span class="na">invenio_modular_deposit_form.validator</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras.alias_registration:get_validator_path</span>
+<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras:get_validator_path</span>
 <span class="na">invenio_modular_deposit_form.components_registry</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras.alias_registration:get_components_registry_path</span>
+<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras:get_components_registry_path</span>
 <span class="na">invenio_modular_deposit_form.transformations</span><span class="w"> </span><span class="o">=</span>
-<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras.alias_registration:get_transformations_path</span>
+<span class="w">    </span><span class="na">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">my_instance_name.deposit_extras:get_transformations_path</span>
 </pre></div>
 </div>
-</section>
-</section>
-<section id="webpack-alias-alternative">
-<h2>Webpack alias (alternative)<a class="headerlink" href="#webpack-alias-alternative" title="Link to this heading">¶</a></h2>
-<p>If you prefer not to use entry points, you can override the aliases in your instance’s <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code> so they point <strong>directly to the files</strong> (again using <strong><code class="docutils literal notranslate"><span class="pre">js/...</span></code> paths</strong> relative to the merged build context, not <code class="docutils literal notranslate"><span class="pre">&#64;js/...</span></code> strings):</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code> → path to <code class="docutils literal notranslate"><span class="pre">validator.js</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_components</span></code> → path to <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_transformations</span></code> → path to <code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></p></li>
-</ul>
-<p>Example snippet for <code class="docutils literal notranslate"><span class="pre">webpack.py</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">themes</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;semantic-ui&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
-        <span class="n">entry</span><span class="o">=</span><span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
-        <span class="n">aliases</span><span class="o">=</span><span class="p">{</span>
-            <span class="c1"># Point directly to your validator.js file</span>
-            <span class="s2">&quot;@js/invenio_modular_deposit_form_validator&quot;</span><span class="p">:</span> <span class="s2">&quot;js/deposit_validator/validator.js&quot;</span><span class="p">,</span>
-            <span class="c1"># Point directly to your componentsRegistry.js file</span>
-            <span class="s2">&quot;@js/invenio_modular_deposit_form_components&quot;</span><span class="p">:</span> <span class="s2">&quot;js/deposit_components/componentsRegistry.js&quot;</span><span class="p">,</span>
-            <span class="c1"># Point directly to your transformations.js file</span>
-            <span class="s2">&quot;@js/invenio_modular_deposit_form_transformations&quot;</span><span class="p">:</span> <span class="s2">&quot;js/deposit_components/transformations.js&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">),</span>
-<span class="p">}</span>
-</pre></div>
+<p>After changing entry points, reinstall your instance package (<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> or equivalent) and rebuild assets (<code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">webpack</span> <span class="pre">build</span></code>) so the new files are picked up.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Return a path that <strong>starts with <code class="docutils literal notranslate"><span class="pre">js/</span></code></strong>, not <code class="docutils literal notranslate"><span class="pre">&#64;js/</span></code>. The returned string is resolved against the merged build directory, so <code class="docutils literal notranslate"><span class="pre">&#64;js/my_instance/...</span></code> would look for a literal <code class="docutils literal notranslate"><span class="pre">&#64;js</span></code> folder and fail at build time. If your build complains with “Cannot find module … for matched aliased key <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form_validator</span></code>”, a stray <code class="docutils literal notranslate"><span class="pre">&#64;js/</span></code> prefix in one of these functions is almost always the cause.</p>
 </div>
-<p>These aliases completely override the defaults computed by
-<code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.webpack_extras.get_validator_path()</span></code>,
-<code class="docutils literal notranslate"><span class="pre">get_components_registry_path()</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_transformations_path()</span></code>. Only define them if you want to bypass
-the entry-point based resolution.</p>
+<p>For reference, the three entry point groups are:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Entry point group</p></th>
+<th class="head"><p>File</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.validator</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">validator.js</span></code></p></td>
+<td><p>Client-side Yup schema or schema-builder function.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.components_registry</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code></p></td>
+<td><p>Extra or overriding React components.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.transformations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></p></td>
+<td><p>Pure functions that rewrite Formik values immediately before submit.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>See <a class="reference internal" href="#module-contracts">What goes in each extension file</a> for the exact export each file must provide.</p>
+</section>
 </section>
 <section id="the-componentsregistry-object">
 <h2>The componentsRegistry object<a class="headerlink" href="#the-componentsregistry-object" title="Link to this heading">¶</a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">componentsRegistry</span></code> object must have the following structure:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<p><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> exports a named <code class="docutils literal notranslate"><span class="pre">componentsRegistry</span></code> whose keys are the strings you reference in your layout config and whose values are <code class="docutils literal notranslate"><span class="pre">[Component,</span> <span class="pre">fieldPaths]</span></code> tuples:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MyTitlesWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./components/MyTitlesWrapper&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BookSectionVolumePagesComponent</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./components/BookSectionVolumePagesComponent&quot;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">componentsRegistry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Replace the built-in titles section with your own wrapper.</span>
+<span class="w">  </span><span class="nx">TitlesComponent</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nx">MyTitlesWrapper</span><span class="p">,</span>
+<span class="w">    </span><span class="p">[</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;metadata.additional_titles&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="p">],</span>
+
+<span class="w">  </span><span class="c1">// Add a brand-new section for a compound custom field.</span>
 <span class="w">  </span><span class="nx">BookSectionVolumePagesComponent</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="nx">BookSectionVolumePagesComponent</span><span class="p">,</span>
 <span class="w">    </span><span class="p">[</span>
 <span class="w">      </span><span class="s2">&quot;custom_fields.journal:journal.pages&quot;</span><span class="p">,</span>
 <span class="w">      </span><span class="s2">&quot;custom_fields.imprint:imprint.pages&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="p">],</span>
-<span class="w">  </span><span class="p">];</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[0]</span></code> is the React component the layout will mount whenever it sees that name in <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;...&quot;</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[1]</span></code> is the list of dot-separated metadata field paths the component is responsible for. The form uses this list to map server- and client-side validation errors back to the correct section and to compose the per-section summary in <code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code>. If your component owns no metadata fields (for example, layout, navigation, or informational widgets), pass <code class="docutils literal notranslate"><span class="pre">[]</span></code>.</p></li>
+</ul>
+<p>Because your registry is merged onto the built-in registry with <code class="docutils literal notranslate"><span class="pre">Object.assign</span></code>, a key that matches a built-in name (e.g. <code class="docutils literal notranslate"><span class="pre">TitlesComponent</span></code>) <strong>replaces</strong> the built-in entry, while a new key is <strong>added</strong> alongside the built-ins. Replacing a built-in via the registry is the right tool when you need to change which metadata fields a section owns or how its props are assembled; for purely visual replacements of a section’s inner widget, prefer the Overridable API (see <a class="reference internal" href="#customizing-field-components">Customizing field components</a>).</p>
+</section>
+<section id="using-your-component-in-the-layout">
+<h2>Using your component in the layout<a class="headerlink" href="#using-your-component-in-the-layout" title="Link to this heading">¶</a></h2>
+<p>Once a key is in the merged registry, you reference it by that string from <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> (or any per-resource-type override in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;discipline&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Discipline&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;MyDisciplineComponent&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The keys are strings matching the names of the React components you want to expose (referenced in your layout configuration). The value for each component is an array: <code class="docutils literal notranslate"><span class="pre">[0]</span></code> the React component itself, <code class="docutils literal notranslate"><span class="pre">[1]</span></code> an array of the field names handled by the component.</p>
-</section>
-<section id="overriding">
-<h2>Overriding<a class="headerlink" href="#overriding" title="Link to this heading">¶</a></h2>
-<p>Normally, overriding a React component should be done using the Overridable API. This extension also allows a second method: if you include a component definition in your <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> that duplicates the key of a built-in component, your definition will supersede the built-in one. This is useful when you want to <em>change the metadata fields handled by a component</em>. See <a class="reference internal" href="#customizing-field-components">Customizing field components</a> for when to use each approach.</p>
+<p>There is no separate “register-this-component-with-the-layout” step — the registry key <em>is</em> the layout name.</p>
 </section>
 <section id="customizing-field-components">
 <span id="id1"></span><h2>Customizing field components<a class="headerlink" href="#customizing-field-components" title="Link to this heading">¶</a></h2>
-<p>There are two ways to customize how a form section or field is rendered: via the <strong>component registry</strong> or via <strong>Overridable</strong>.</p>
-<section id="component-registry">
-<h3>1. Component registry<a class="headerlink" href="#component-registry" title="Link to this heading">¶</a></h3>
-<p>Use the component registry when:</p>
-<ul class="simple">
-<li><p>You want to <strong>override the whole wrapper</strong> for a section and re-implement how all of the widget’s props are assembled (e.g. different data sources, different field paths, or a different structure).</p></li>
-<li><p>You want to <strong>add a component for a metadata field that has no default field component</strong> in the layout. In that case you must supply all props for the field yourself and wrap your custom widget in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> so it gets layout config, resource-type mods, and the correct Overridable slot.</p></li>
-</ul>
-<p>Your component is what the layout renders for that section name. It is responsible for gathering any record/store/config data and passing it into the widget. If the section corresponds to an existing slot (e.g. dates, languages), you use <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> with your default inner widget as its child; the wrapper renders the Overridable, so an instance can still override that slot.</p>
-<p><strong>Example — replace the whole wrapper and change how options are built:</strong> Register a custom component under the same key as a built-in one. Your wrapper assembles props (e.g. options) and passes the default inner widget as the child of <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>.</p>
-<p><strong>Example — new metadata field with no default component:</strong> Add a new section name and a component that wraps your widget in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>. You must pass all props the widget needs (fieldPath, label, options, etc.).</p>
-</section>
-<section id="overridable">
-<h3>2. Overridable<a class="headerlink" href="#overridable" title="Link to this heading">¶</a></h3>
-<p>Use Overridable when you only want to <strong>replace the inner widget</strong> for a section that already has a default wrapper. Your component is rendered <em>inside</em> the existing wrapper (e.g. inside <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>’s <code class="docutils literal notranslate"><span class="pre">&lt;Overridable&gt;</span></code>), so it receives the <strong>same props the default child would get</strong>. Your override does not need to wrap itself in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> again.</p>
-<p>Register your component in the instance’s overridable registry (<code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code>) under the slot id for that section. See the package’s <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a> for the list of slot ids.</p>
+<p>There are two ways to change how an existing form section is rendered:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Goal</p></th>
-<th class="head"><p>Method</p></th>
+<tr class="row-odd"><th class="head"><p>You want to…</p></th>
+<th class="head"><p>Use</p></th>
+<th class="head"><p>How</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Replace whole section and control how props are assembled</p></td>
-<td><p>Component registry (override by section name, wrap in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> if needed)</p></td>
+<tr class="row-even"><td><p>Replace the <strong>whole section wrapper</strong> and control how its props are assembled (different data sources, different field paths, different layout)</p></td>
+<td><p><strong>Component registry</strong></p></td>
+<td><p>Register your component in <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> under the existing key. Wrap your inner widget in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> if you want the same label/icon/placeholder/help-text mods (from <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_*_MODIFICATIONS</span></code>) and the same Overridable slot exposure that the built-in wrapper provided.</p></td>
 </tr>
-<tr class="row-odd"><td><p>Add a section for a metadata field with no default component</p></td>
-<td><p>Component registry (new name + <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> + all props)</p></td>
+<tr class="row-odd"><td><p>Add a section for a <strong>metadata field with no built-in component</strong></p></td>
+<td><p><strong>Component registry</strong></p></td>
+<td><p>Add a new key plus <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>, supply all props the widget needs (<code class="docutils literal notranslate"><span class="pre">fieldPath</span></code>, <code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code>, etc.), and reference the new key from your layout config.</p></td>
 </tr>
-<tr class="row-even"><td><p>Replace only the inner widget and use the wrapper’s props</p></td>
-<td><p>Overridable (register in <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> under the slot id)</p></td>
+<tr class="row-even"><td><p>Replace <strong>only the inner widget</strong> for a section that already has a working wrapper</p></td>
+<td><p><strong>Overridable</strong></p></td>
+<td><p>Register your component in your instance’s <code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code> under the slot id for that section (see <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a>). It receives the same props the default child would; do <strong>not</strong> wrap it in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> again.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Use the registry when you need to control how props are gathered or when the section composition itself has to change. Use Overridable when the existing wrapper does what you want and you only need a different inner widget.</p>
+<p>Imports you typically need when writing a replacement:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">TextField</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SelectField</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RemoteSelectField</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/replacement_components&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Prefer the package’s <a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">replacement field components</span></a> (<code class="docutils literal notranslate"><span class="pre">TextField</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>, etc.) over the stock <code class="docutils literal notranslate"><span class="pre">react-invenio-forms</span></code> widgets so visible-error gating (“touched”) stays consistent across the form.</p>
 </section>
+<section id="custom-layout-components">
+<span id="id2"></span><h2>Custom layout components<a class="headerlink" href="#custom-layout-components" title="Link to this heading">¶</a></h2>
+<p>The structural components used by the layout config — <code class="docutils literal notranslate"><span class="pre">FormPage</span></code>, <code class="docutils literal notranslate"><span class="pre">FormSection</span></code>, <code class="docutils literal notranslate"><span class="pre">FormRow</span></code>, <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">FormLeftSidebar</span></code>, <code class="docutils literal notranslate"><span class="pre">FormRightSidebar</span></code>, <code class="docutils literal notranslate"><span class="pre">FormFooter</span></code>, <code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>, etc. — are themselves entries in the component registry. To replace one (or to add a new structural component) you register it in your instance’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> under the same name and reference it from the layout config.</p>
+<p>When writing a custom layout component:</p>
+<ul class="simple">
+<li><p><strong>Forward <code class="docutils literal notranslate"><span class="pre">children</span></code> unchanged</strong> so child sections render inside your layout. The package builds the section tree from the layout config and passes the resolved child elements down.</p></li>
+<li><p>If your component needs to react to the current resource type, current page, or overall error state, read from the package’s <code class="docutils literal notranslate"><span class="pre">FormUIStateContext</span></code> / <code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code> hook (see <a class="reference internal" href="#available-hooks-and-contexts">Available hooks and contexts</a> below). Doing this through the context, rather than re-deriving the same state from Redux or Formik directly, keeps your component in sync with the rest of the form.</p></li>
+<li><p>For HTML-only changes to a structural component, prefer overriding it via the React Overridable mechanism in your instance’s <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code>; that avoids re-implementing prop assembly.</p></li>
+</ul>
+</section>
+<section id="available-hooks-and-contexts">
+<span id="id3"></span><h2>Available hooks and contexts<a class="headerlink" href="#available-hooks-and-contexts" title="Link to this heading">¶</a></h2>
+<p>When writing a custom component, these are the imports the package treats as part of its public surface for extenders:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Import</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">FieldComponentWrapper</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/field_components/FieldComponentWrapper&quot;</span></code></p></td>
+<td><p>Wrap a custom field widget so it receives the layout’s label/icon/placeholder/help-text mods and exposes the matching Overridable slot.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">CustomField</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/field_components/CustomField&quot;</span></code></p></td>
+<td><p>Render an InvenioRDM custom field by name, resolving its widget and props from <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>. See <a class="reference internal" href="#handling-custom-fields">Handling custom fields</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useCurrentFieldMods</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useCurrentFieldMods&quot;</span></code></p></td>
+<td><p>Read the <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_*_MODIFICATIONS</span></code>, <code class="docutils literal notranslate"><span class="pre">*_FIELD_VALUES</span></code>, and <code class="docutils literal notranslate"><span class="pre">EXTRA_REQUIRED_FIELDS</span></code> values for the current resource type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useCurrentResourceTypeFields</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useCurrentResourceTypeFields&quot;</span></code></p></td>
+<td><p>Resolve the section list for the currently selected resource type (with <code class="docutils literal notranslate"><span class="pre">same_as</span></code> followed).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useFormPageNavigation</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useFormPageNavigation&quot;</span></code></p></td>
+<td><p>Read or control the current form page in a multi-page layout.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useCustomFieldWidget</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useCustomFieldWidget&quot;</span></code></p></td>
+<td><p>The lookup hook used internally by <code class="docutils literal notranslate"><span class="pre">CustomField</span></code>; useful when one component needs to compose several custom fields.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useFormUIState,</span> <span class="pre">FormUIStateContext</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/FormUIStateManager&quot;</span></code></p></td>
+<td><p>Current resource type, current page, and combined client + server error state. Use this in custom layout components instead of re-implementing the same derivations.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Replacement input widgets (<code class="docutils literal notranslate"><span class="pre">TextField</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, <code class="docutils literal notranslate"><span class="pre">MultiInput</span></code>, <code class="docutils literal notranslate"><span class="pre">Input</span></code>, <code class="docutils literal notranslate"><span class="pre">Dropdown</span></code>, <code class="docutils literal notranslate"><span class="pre">AutocompleteDropdown</span></code>) live under <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/replacement_components</span></code> — see <a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">Replacement field components</span></a> for the behavioural differences from upstream.</p>
 </section>
 <section id="handling-custom-fields">
-<span id="id2"></span><h2>Handling custom fields<a class="headerlink" href="#handling-custom-fields" title="Link to this heading">¶</a></h2>
+<span id="id4"></span><h2>Handling custom fields<a class="headerlink" href="#handling-custom-fields" title="Link to this heading">¶</a></h2>
 <p>Custom field values are stored under <code class="docutils literal notranslate"><span class="pre">custom_fields</span></code> in the record and must be accessed via the correct field path (e.g. <code class="docutils literal notranslate"><span class="pre">custom_fields.kcr:my_field</span></code>). To implement your own custom field widgets while reusing the standard InvenioRDM custom field configuration, use the <strong>CustomField</strong> component.</p>
 <section id="prerequisites">
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h3>
@@ -562,20 +647,18 @@ the entry-point based resolution.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Adding your own components and validator</a><ul>
-<li><a class="reference internal" href="#python-entry-points-recommended">Python entry points (recommended)</a><ul>
-<li><a class="reference internal" href="#register-a-base-alias-for-your-js-assets">Register a base alias for your js assets</a></li>
-<li><a class="reference internal" href="#create-a-registration-function-for-each-entry-point">Create a registration function for each entry point</a></li>
-<li><a class="reference internal" href="#register-the-functions-on-the-entry-points">Register the functions on the entry points</a></li>
+<li><a class="reference internal" href="#what-goes-in-each-extension-file">What goes in each extension file</a></li>
+<li><a class="reference internal" href="#registering-your-extension-files">Registering your extension files</a><ul>
+<li><a class="reference internal" href="#make-sure-your-assets-folder-has-a-webpack-alias">1. Make sure your assets folder has a webpack alias</a></li>
+<li><a class="reference internal" href="#place-your-extension-files-under-that-folder">2. Place your extension files under that folder</a></li>
+<li><a class="reference internal" href="#tell-the-package-where-they-are">3. Tell the package where they are</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#webpack-alias-alternative">Webpack alias (alternative)</a></li>
 <li><a class="reference internal" href="#the-componentsregistry-object">The componentsRegistry object</a></li>
-<li><a class="reference internal" href="#overriding">Overriding</a></li>
-<li><a class="reference internal" href="#customizing-field-components">Customizing field components</a><ul>
-<li><a class="reference internal" href="#component-registry">1. Component registry</a></li>
-<li><a class="reference internal" href="#overridable">2. Overridable</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#using-your-component-in-the-layout">Using your component in the layout</a></li>
+<li><a class="reference internal" href="#customizing-field-components">Customizing field components</a></li>
+<li><a class="reference internal" href="#custom-layout-components">Custom layout components</a></li>
+<li><a class="reference internal" href="#available-hooks-and-contexts">Available hooks and contexts</a></li>
 <li><a class="reference internal" href="#handling-custom-fields">Handling custom fields</a><ul>
 <li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li><a class="reference internal" href="#using-customfield">Using CustomField</a></li>
