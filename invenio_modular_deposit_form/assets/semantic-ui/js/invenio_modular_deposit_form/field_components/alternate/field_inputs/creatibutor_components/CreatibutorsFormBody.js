@@ -17,6 +17,7 @@
 import React, { createRef, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
+import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 import { Button, Form, Icon, Label } from "semantic-ui-react";
 import _get from "lodash/get";
@@ -83,33 +84,34 @@ const CreatibutorsFormBody = ({
 
   const inputRef = createRef();
 
+  const { initialValues } = useFormikContext();
+
   const isPerson = _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON;
   const currentFamily = String(_get(values, familyNameFieldPath, "") || "").trim();
   const currentGiven = String(_get(values, givenNameFieldPath, "") || "").trim();
+  const initialFamily = String(
+    _get(initialValues, familyNameFieldPath, "") || ""
+  ).trim();
+  const initialGiven = String(
+    _get(initialValues, givenNameFieldPath, "") || ""
+  ).trim();
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved | error
   const [saveError, setSaveError] = useState("");
 
-  // Show "Remember change" when this is the self row + a Person with a non-empty
-  // family name, *and* the typed split either differs from the stored override
-  // or no firm override exists yet (initial split was a guess).
+  // Self row + Person with a non-empty family name, and the user has actually
+  // edited family/given since the form was opened.
   const showRememberButton = useMemo(() => {
     if (!isSelfRow || !isPerson || !currentUserId) return false;
     if (!currentFamily) return false;
-    if (savedSelfNameSplit) {
-      return (
-        savedSelfNameSplit.family !== currentFamily ||
-        (savedSelfNameSplit.given || "") !== currentGiven
-      );
-    }
-    return selfNameWasGuessed;
+    return currentFamily !== initialFamily || currentGiven !== initialGiven;
   }, [
     isSelfRow,
     isPerson,
     currentUserId,
     currentFamily,
     currentGiven,
-    savedSelfNameSplit,
-    selfNameWasGuessed,
+    initialFamily,
+    initialGiven,
   ]);
 
   const handleRememberClick = async () => {
@@ -142,8 +144,6 @@ const CreatibutorsFormBody = ({
         <Button
           type="button"
           size="small"
-          basic
-          primary
           icon
           labelPosition="left"
           loading={saveStatus === "saving"}
@@ -154,7 +154,7 @@ const CreatibutorsFormBody = ({
           )}
         >
           <Icon name="save" />
-          {i18next.t("Remember this name on my profile")}
+          {i18next.t("Remember changes")}
         </Button>
         {saveStatus === "saved" && (
           <Label basic color="green" pointing="left" className="rel-ml-1">

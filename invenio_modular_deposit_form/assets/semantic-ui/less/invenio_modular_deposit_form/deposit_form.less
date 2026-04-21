@@ -59,7 +59,11 @@
     .upload-form-stepper-step {
       /* Step renders as a Button, which sets `white-space: nowrap`. Override
        * so titles can wrap when fluid steps shrink, and let the flex item
-       * shrink below its content's intrinsic width. */
+       * shrink below its content's intrinsic width. Override Semantic's
+       * `flex: 1 0 auto` (no shrink, content-sized basis) so fluid steps
+       * share the container width evenly and shrink past their intrinsic
+       * content width. */
+      flex: 1 1 0;
       white-space: normal;
       min-width: 0;
     }
@@ -90,7 +94,9 @@
      *   - N's own :after (right notch into N+1, visually the left edge of N+1)
      *   - N+1's :after  (right notch of N+1)
      * giving the primary outline a continuous read across the chevrons. */
-    .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus-visible):after,
+    .upload-form-stepper-step:has(
+        + .upload-form-stepper-step:focus-visible
+      ):after,
     .upload-form-stepper-step:focus-visible:after {
       border-color: @primaryColor;
       border-width: 0 3px 3px 0;
@@ -500,7 +506,7 @@
 
   /* Open creatibutor add/edit inline form: faint neutral fill matching the active sidebar item. */
   fieldset.invenio-form-section[class*="-item-form"] {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f3f4f5;
   }
 }
 
