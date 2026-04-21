@@ -404,7 +404,7 @@ const CreatibutorsFieldFlat = ({
               <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="mb-15" />
             )}
             {description && (
-              <span id={`${fieldPath}-field-description`} className="description mt-0 rel-mb-2">
+              <span id={`${fieldPath}-field-description`} className="description rel-mb-2">
                 {description}
               </span>
             )}

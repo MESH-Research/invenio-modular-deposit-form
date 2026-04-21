@@ -1,183 +1,250 @@
 # Replacement field components
 
-This page lists the modules **re-exported** from `replacement_components/field_components/index.js`. Each is a **local** copy or fork of a field component that exists in **`invenio_rdm_records`** (or closely related packages), maintained so the modular deposit form can use **shared widgets** (`TextField`, `RemoteSelectField`, …) and **consistent error visibility** (notably “touched” rules) without patching `node_modules`.
+This page covers the field components re-exported from
+`replacement_components/field_components/index.js` — local copies and forks of
+field components that exist in **`invenio_rdm_records`** (and a few in
+`react-invenio-forms`). They ship in this package so the modular deposit form
+can use **shared widgets** and **consistent UX** without patching
+`node_modules`.
 
-For how these plug into layout/registry, see [Built-in field widget components](field_components.md).
+For how these plug into layout and the components registry, see
+[Built-in field widget components](field_components.md).
 
-**Form feedback:** the modular deposit `FormFeedback` UI is **not** listed here; it lives in `replacement_components/alternate_components/FormFeedback.jsx` with `replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx` (paths relative to `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/`). See [Form feedback (errors and action state)](field_components.md#form-feedback-errors-and-action-state).
+## Why these replacements exist
+
+A small number of cross-cutting issues account for almost every replacement on
+this page. Knowing them up front makes the catalog below much easier to read:
+
+1. **Touched-aware error visibility.** Upstream field components don't all gate
+   visible errors on Formik's `touched` flag the same way `TextField` does.
+   The replacements use a shared `getFieldErrorsForDisplay` helper and
+   explicitly mark `touched` on controls that aren't plain Formik `<Field>`s
+   (PID radios and the unmanaged identifier input, search dropdowns, the
+   creators/contributors modal). The result: validation errors only appear
+   after a user has interacted with the field, consistently across the form.
+
+2. **Help text above and below the widget.** `react-invenio-forms` typically
+   collapses `helpText ?? description` into a single string rendered below the
+   field. The replacements treat **`description`** (above the control) and
+   **`helpText`** (below) as separate slots, matching the convention used by
+   the rest of this package's section components.
+
+3. **Keyboard / focus a11y.** Search dropdowns can drop focus into a hard-to-
+   recover state after selection; modal lifecycle and ID/name plumbing on
+   non-`<Field>` controls also affect screen-reader and keyboard behavior.
+   The replacements add small, opt-in fixes (e.g. `focusFieldPathAfterSelect`
+   on `RemoteSelectField`) and keep blur/touched wiring sensible. Inline
+   reorder buttons for the flat creator/contributor list live with that
+   component — see [Alternate components](field_components.md#alternate-components).
+
+4. **Layout and registry hooks.** Layout config (`label_modifications`,
+   `icon_modifications`, etc.) needs a consistent path from
+   `FieldComponentWrapper` into the inner widget. The replacements accept
+   **`labelIcon`** (aligned with `invenio_rdm_records`) and forward props
+   predictably.
+
+Most of the "stock copy" entries in [The replacement field components](#the-replacement-field-components)
+below exist *only* so they can `import` this package's `TextField` /
+`SelectField` / `RemoteSelectField` instead of the upstream defaults. They
+aren't doing anything novel themselves — they're conduits for the changes
+above.
 
 ```{warning}
-Draft sections may evolve as upstream InvenioRDM changes. When in doubt, read the file header in each source module.
+Draft sections may evolve as upstream InvenioRDM changes. When in doubt, read
+the file header in each source module.
 ```
 
-## Top-level widget shims
+## Top-level replacement widgets
 
-In addition to `field_components/*`, the top-level `replacement_components/index.js` exports shim/adapter widgets for stock custom-field `ui_widget` names:
+`replacement_components/index.js` re-exports the core widgets and a small set
+of stock-name adapters:
 
-- `Input` -> stock-like adapter over local `TextField`
+- **Core widgets:** `TextField`, `TextArea`, `SelectField`, `RemoteSelectField`,
+  `MultiInput`.
+- **Stock-name adapters:** `Input`, `Dropdown`, `AutocompleteDropdown`. These
+  are thin wrappers that delegate to `TextField`, `SelectField`, and
+  `RemoteSelectField`, respectively. They exist so backend custom-field
+  `ui_widget` names (`Input`, `Dropdown`, `AutocompleteDropdown`) resolve to
+  the touched-aware local widgets without you having to change those names in
+  YAML or in `RDM_CUSTOM_FIELDS_UI`.
 
-These are used by the custom-field widget loader fallback (`@js/invenio_modular_deposit_form`) so stock widget names can resolve to touched-aware local replacements without changing backend `ui_widget` names.
+All of these expose **`description`** (rendered above the control) and
+**`helpText`** (rendered below) as separate props. Two known exceptions keep
+their own helptext behavior: `PIDField` and `ResourceTypeSelectorField`.
 
-The same top-level barrel also exports core replacement widgets directly:
+### `SelectField` and `RemoteSelectField` — notes worth knowing
 
-- `SelectField`
-- `Dropdown` (stock-like adapter over local `SelectField`)
-- `AutocompleteDropdown` (stock-like adapter over local `RemoteSelectField`)
-- `TextField`
-- `TextArea`
-- `RemoteSelectField`
-- `MultiInput`
+A few behaviors are worth knowing if you wrap or extend these widgets:
 
-For `Input`, `Dropdown`, and `AutocompleteDropdown`, the local replacements delegate to `TextField`, `SelectField`, and `RemoteSelectField`. They pass **`description`** and **`helpText`** as **separate** props: optional copy **above** the control (`description`) and **below** (`helpText`), matching replacement `TextField`, `TextArea`, `MultiInput`, and `SelectField`. This differs from stock `react-invenio-forms`, which typically uses `helpText ?? description` as a single string below the field. PID fields and `ResourceTypeSelectorField` are exceptions with their own helptext behavior.
+- **`SelectField` marks touched on blur.** Formik's `handleBlur` decides what
+  to mark from `event.target.name` / `id`, and a search dropdown's blur event
+  often doesn't carry the Formik path. The local `SelectField` calls
+  `form.setFieldTouched(fieldPath, true, false)` on blur in addition to
+  `handleBlur`, so the touched-aware error gating works.
 
-### `SelectField` and Formik `touched`
+- **`SelectField` chains a caller-provided `onBlur`.** If you pass an `onBlur`
+  prop (e.g. from `RemoteSelectField`), it runs **after** `handleBlur` and
+  `setFieldTouched`. You can extend blur behavior without accidentally
+  dropping touched-marking.
 
-Stock `react-invenio-forms` `SelectField` wires `onBlur={handleBlur}` on `Form.Dropdown`. Formik’s `handleBlur` decides which field to mark touched from **`event.target.name`** or **`event.target.id`**. For a **search** dropdown, the element that blurs is often **not** labeled with the Formik path, so touch can fail for the real `fieldPath`. The local replacement keeps stock-style **`handleBlur(e)`** and also calls **`form.setFieldTouched(fieldPath, true, false)`** on blur so touched-aware error gating (see file header) works. It also gates visible messages from **`form.errors`** on **`form.touched`** while leaving the stock **`error` prop** and **initial-value / `initialErrors`** branch unchanged.
+- **`RemoteSelectField` opt-in props.** All default to `false` / unset:
 
-**Chained `onBlur` (departure from stock spread order):** if the field receives an **`onBlur`** prop (e.g. from `RemoteSelectField`), the local implementation **does not** rely on spreading that prop onto `Form.Dropdown` last (which would **replace** the default blur handler and **drop** `setFieldTouched`). Instead it destructures **`onBlur`** from incoming props and invokes **`onBlurFromProps(e, { formikProps })` only after** `handleBlur` and **`setFieldTouched`**. Callers therefore extend blur behavior without re-implementing touch parity.
+  - `commitSearchOnBlur` — for single-value fields, blur commits trimmed
+    search text as a free-text choice. Doesn't require Semantic UI's
+    `allowAdditions`.
+  - `hideAdditionMenuItem` — sets `allowAdditions={false}` on the
+    `Form.Dropdown`, hiding Semantic UI's synthetic "Add …" row. Pair with
+    `commitSearchOnBlur` (or list-only values) when free text must still apply.
+  - `focusFieldPathAfterSelect` — DOM `id` (or name path) to focus after a
+    selection. Used by the flat creators UI to jump from family-name to
+    given-name after picking a person.
 
-### `RemoteSelectField` (departures from stock)
-
-Upstream: `react-invenio-forms` `RemoteSelectField` (often consumed via `invenio_rdm_records` deposit). Local module: `replacement_components/RemoteSelectField.js`.
-
-| Topic | Stock (typical) | Local replacement |
-|--------|-----------------|-------------------|
-| `SelectField` import | Package `SelectField` | Local `SelectField` (touched + chained blur above) |
-| **`ui.<fieldPath>`** | Not written | On add/change, maps selected options to **`{ id, title_l10n }`** so **`initialSuggestions`** / label display can recover after remount without changing the canonical value shape |
-| **Search text vs debounce** | Debounced search only | **`latestSearchStringRef`** updated on **every** search input change **before** debounce, for accurate blur-time reads |
-| **Unmount** | Request cancel only | Also **`runDebouncedSearch.cancel()`** |
-| **`commitSearchOnBlur`** | N/A | **Opt-in** (default `false`). When `true` and single value (not `multiple`), blur commits **trimmed** search text like a free-text choice (`onValueChange` + **`ui.*`**). Does **not** require semantic-ui-react **`allowAdditions`**. |
-| **`hideAdditionMenuItem`** | N/A | **Opt-in** (default `false`). Sets **`allowAdditions={false}`** on **`Form.Dropdown`**. semantic-ui-react **`getMenuOptions`** injects the synthetic “Add …” row only when **`allowAdditions`** is true; there is no separate prop to hide that row while leaving additions on. Use with **`commitSearchOnBlur`** (or list-only values) when free text must still apply. |
-| **`focusFieldPathAfterSelect`** | N/A | **Opt-in** `string` (expected DOM **`id`** / name path used by `TextField`). After **`onChange`** (list pick, including click) or **`onAddItem`** (when **`allowAdditions`** is true), focuses that element on the next tick; **not** used after blur-only commit |
-
-**`RemoteSelectField`** passes **`searchInput={{ id: fieldPath, … }}`**, which can still help **`handleBlur`’s `id`** fallback on the inner search input.
-
-**Creators flat UI:** `alternate_components/creatibutor_components/CreatibutorsFormBody.js` enables **`hideAdditionMenuItem`**, **`commitSearchOnBlur`**, and **`focusFieldPathAfterSelect`** on the person **family name** names API field when the given-name column is shown (`!namesSearchOnly || personDetailsExpanded`, matching the sibling `TextField`). Other uses (e.g. `AutocompleteDropdown`) keep defaults unless they opt in.
-
-**Internal design notes** (not built by Sphinx as a manual page): `docs/internal/creatibutors-field-flat-person-names.md` for the flat creatibutor name UX.
+- **Label survives remount.** `RemoteSelectField` writes
+  `ui.<fieldPath> = { id, title_l10n }` for the selected value(s) so the
+  visible label can be recovered from `initialSuggestions` after remount,
+  without changing the canonical value shape.
 
 ## `FieldComponentWrapper` and `labelIcon`
 
-Built-in section components wrap their default field widget in **`FieldComponentWrapper`**, which merges layout config (`label_modifications`, **`icon_modifications`** in deposit config, etc.) and passes props to the inner widget via `React.cloneElement`. The wrapper passes the field label icon as **`labelIcon`** (aligned with `invenio_rdm_records` field components such as `AccessRightField`). Legacy props **`icon`** on the wrapper or on merged custom-field props are still folded into the computed `labelIcon` so existing `custom_fields.ui` / YAML using `icon` continues to work. Replacement **`TextField`**, **`TextArea`**, and **`MultiInput`** take **`labelIcon` only** for that label icon (adapters such as **`Input`** / **`Dropdown`** may still accept stock **`icon`** and map it to `FieldLabel`).
+Built-in section components wrap their inner widget in
+**`FieldComponentWrapper`**, which merges layout config (`label_modifications`,
+`icon_modifications`, etc.) and forwards props to the inner widget via
+`React.cloneElement`.
 
-## Enumeration (matches `field_components/index.js`)
+The wrapper passes the field's label icon as **`labelIcon`** (matching
+`invenio_rdm_records` field components such as `AccessRightField`). Legacy
+`icon` props on the wrapper or merged into custom-field props are still folded
+into the computed `labelIcon`, so existing `custom_fields.ui` / YAML using
+`icon` continues to work.
 
-The barrel file path is:
+Replacement **`TextField`**, **`TextArea`**, and **`MultiInput`** accept
+**`labelIcon` only** for that label icon. The stock-name adapters **`Input`**
+and **`Dropdown`** may still accept stock **`icon`** and map it to
+`FieldLabel`.
+
+## The replacement field components
+
+The barrel is at:
 
 `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/replacement_components/field_components/index.js`
 
-| Export | Typical upstream analogue | Role of this replacement |
-|--------|---------------------------|---------------------------|
-| `AdditionalDescriptionsField` | `AdditionalDescriptionsField` in `invenio_rdm_records` | Stock copy; swaps in local replacement widgets (`TextField` / related) where the stock file used default form controls. |
-| `AdditionalTitlesField` | `AdditionalTitlesField` | Same pattern: additional titles UI with local widgets. |
-| `CopyrightsField` | `CopyrightsField` | Stock copy; uses `replacement_components/TextField.js` for the copyright string field. |
-| `CreatibutorsField` | `CreatibutorsField` | Fork: uses a **local** `CreatibutorsModal` so `onModalClose` runs whenever the modal closes (cancel/close/save), allowing `setFieldTouched`; item/type/utils still imported from `@js/invenio_rdm_records`. |
-| `DatesField` | `deposit/fields/DatesField/DatesField` | Fork: same layout and `InvenioRdmRecords.DatesField.*` Overridable ids as stock; local `TextField` / `SelectField`; `emptyDate` from `@js/.../DatesField/initialValues`; `sortOptions` from `@js/.../deposit/utils`. |
-| `DescriptionsField` | `DescriptionsField` | Stock copy; uses local rich/text widgets where configured. |
-| `IdentifiersField` | `deposit/fields/Identifiers/IdentifiersField` | Fork: row wrapper is bare `<GroupField>` like stock; local `TextField` / `SelectField`; `emptyIdentifier` from `@js/.../Identifiers/initialValues`. |
-| `LanguagesField` | `LanguagesField` | Stock copy; uses local `RemoteSelectField` from this package instead of the stock select import. |
-| `PIDField` | `deposit/fields/Identifiers/PIDField` | **Larger fork** (see below): touched-aware errors via `pid_components/fieldErrorsForDisplay.js`, local identifier components, `@js` deep imports for paths that do not resolve from this repo. |
-| `PublisherField` | `PublisherField` | Stock copy; local replacement widgets. |
-| `RelatedWorksField` | `deposit/fields/RelatedWorksField/RelatedWorksField` | Fork: same layout as stock; local `TextField` / `SelectField`; row `ResourceTypeField` from this folder (replacement `SelectField`); `emptyRelatedWork` from `@js/.../RelatedWorksField/initialValues`. |
-| `ResourceTypeField` | `ResourceTypeField` | Stock copy; may use local vocabulary/select widgets. |
-| `TitlesField` | `TitlesField` | Stock copy; `TextField` + `AdditionalTitlesField` from replacements. |
-| `VersionField` | `VersionField` | Stock copy; local widgets. |
+### Stock copies that only swap in the local input widgets
 
-## `PIDField` (detailed)
+The following are mostly thin copies of the upstream field whose only
+meaningful change is to `import` this package's `TextField` / `SelectField` /
+`RemoteSelectField` (and a few helpers like `emptyDate` / `emptyIdentifier`)
+so the touched-aware widgets and dual help text apply throughout:
 
-Upstream layout (for comparison):
+- `AdditionalDescriptionsField`
+- `AdditionalTitlesField`
+- `CopyrightsField`
+- `DatesField`
+- `DescriptionsField`
+- `IdentifiersField`
+- `LanguagesField` (uses local `RemoteSelectField` instead of the stock select)
+- `PublisherField`
+- `RelatedWorksField` (row `ResourceTypeField` from this folder, replacement
+  `SelectField`)
+- `ResourceTypeField`
+- `TitlesField`
+- `VersionField`
 
-`invenio_rdm_records/.../src/deposit/fields/Identifiers/PIDField/`
+If you customize layouts, you'd typically reach for these via the components
+registry — see [Built-in field widget components](field_components.md).
 
-Local layout:
+### Forks with substantive behavior changes
 
-- **`index.js`**, **`PIDFieldCmp.js`**, **`RequiredPIDField.js`**, **`OptionalPIDField.js`** at the folder root (same roles as upstream).
-- **`pid_components/`** — not a full mirror of upstream `components/*`. It holds:
-  - **`fieldErrorsForDisplay.js`** — adds `getFieldErrorsForDisplay` (aligned with `replacement_components/TextField.js`); stock only has `getFieldErrors`. **`pickDisplayableError`** merges nested Yup messages (e.g. `errors.pids.doi.identifier`) so the FastField bound to `pids.doi` still receives a single string for SUI `error=`.
-  - **`UnmanagedIdentifierCmp.js`**, **`ManagedIdentifierCmp.js`** — identifier UIs with the new error helper and, for managed, `@js` imports for deposit API/state/buttons.
+- **`CreatibutorsField`** — uses a local `CreatibutorsModal` so an
+  `onModalClose` callback runs whenever the modal closes (cancel, dismiss,
+  save). That's how the parent gets a chance to `setFieldTouched`, so any
+  existing errors become visible after editing. Item, type, and util
+  components are still imported from `@js/invenio_rdm_records`.
 
-The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in `field_components.jsx`) so DOI/PID errors do not appear before touch in a way that disagrees with other fields.
+  For an inline (non-modal) alternative with extra a11y affordances (Up/Down
+  reorder buttons, "Add myself", focus management), see the flat creator UI
+  in [Alternate components](field_components.md#alternate-components).
+
+- **`PIDField`** — the largest fork; see below.
+
+## `PIDField` (touched and DOI selection)
+
+The replacement `PIDField` exists for two reasons.
+
+**Touched-aware errors.** Stock `PIDField` doesn't wrap the identifier input
+or the managed/unmanaged radios in plain Formik `<Field>` controls, so nothing
+was ever marking the PID path "touched". Without that, `pids.<scheme>` errors
+could appear before the user interacted with the field — out of step with
+every other field in the form. The replacement marks `touched` explicitly at
+three interaction points:
+
+- **Blur of the unmanaged identifier input** — `setFieldTouched(fieldPath, true, true)`
+  (touch + run validation).
+- **Toggle of the managed/unmanaged radios** — `setFieldTouched(fieldPath, false, false)`
+  (untouched, no validation on that call) so switching branches doesn't
+  immediately validate or show errors for an empty PID. Validation re-engages
+  when the user actually edits the new branch.
+- **Toggle of the optional-DOI radios** (`managed` / `unmanaged` / `not_needed`) —
+  same pattern: `setFieldTouched(fieldPath, false, false)`, plus a write to
+  `values.ui.pids.doi.managed_selection` so the choice survives a remount or a
+  cleared `pids` object.
+
+**Branch state survives remount.** Stock `RequiredPIDField` keeps "is the user
+on the managed or unmanaged branch?" in component state (`isManagedSelected`),
+which is lost on remount and can disagree with the actual Formik values. The
+replacement persists the choice in `values.ui.<fieldPath>.managed_selection`
+(values: `"managed"` / `"unmanaged"`) so the right radio stays selected after
+remount. `OptionalPIDField` does the same with
+`"managed"` / `"unmanaged"` / `"not_needed"` so optional DOI doesn't snap back
+to "managed" after a remount when the user had picked something else.
+
+```{note}
+Stock `PIDField` has no `componentDidMount` seeding from `default_selected`.
+The replacement adds limited mount-time seeding for **`RequiredPIDField`
+only** — it sets `{ provider: "external", identifier: "" }` for `"yes"`, or
+clears the value for `"no"` (only when the existing value isn't already an
+explicit unmanaged shape). **`OptionalPIDField` deliberately does not seed on
+mount**, so an empty optional DOI never validates as an external identifier.
+```
 
 (formik-touched-pidfield)=
-### Formik `touched` and this fork
 
-`getFieldErrorsForDisplay` shows validation errors when **`form.touched[fieldPath]`** is truthy (among other branches). Stock PID inputs are not plain Formik `<Field>` scalars, so **nothing** was marking the PID path touched. This fork wires **`touched`** explicitly (we use **`form.setFieldTouched(fieldPath)`** on unmanaged blur, not raw **`field.onBlur(e)`**: Formik’s blur handler uses **`e.target.name`**, which Semantic UI **`Form.Input`** often omits, so touch would incorrectly apply to **`undefined`**).
+### Where the touched wiring lives
 
-| Interaction | Where |
-|-------------|--------|
-| **Mount**, empty identifier, per **`doiDefaultSelection`** (`default_selected`) | **`RequiredPIDField.js` only** — seed `{ provider: "external", identifier: "" }` for `"yes"`, or `{}` for `"no"` when clearing a non-empty stale value **unless** `provider` is already **`"external"`** (do not wipe unmanaged). **Stock upstream has no `componentDidMount` seeding** (see below). **`OptionalPIDField`** does not seed (optional DOI must not validate an empty field). |
-| User blurs the **unmanaged** identifier text input | `pid_components/UnmanagedIdentifierCmp.js` — `onBlur` calls `form.setFieldTouched(fieldPath, true, true)` (touch + run validation; radios rely on `setFieldValue` + `validateOnChange`). `Form.Input` gets `name={field.name \|\| fieldPath}`. |
-| User changes the **managed / unmanaged** radios (`ManagedUnmanagedSwitch`) | `RequiredPIDField.js` — `restoreFromBackup`, `setFieldValue(ui.<fieldPath>.managed_selection, …)`, and `setFieldTouched(fieldPath, false, false)` (untouched; no validate on that call). |
-| User changes **optional DOI** radios (`OptionalDOIoptions`) | `OptionalPIDField.js` — `setFieldTouched(fieldPath, false, false)` on that path, and `form.setFieldValue("ui.pids.doi.managed_selection", …)` (`managed` / `unmanaged` / `not_needed`) so the branch survives `pids` being `{}` or remount; see below. |
+If you're customizing PID behavior or debugging visible errors, the relevant
+files under
+`replacement_components/field_components/PIDField/` are:
 
-Blur/input paths set `touched` so `getFieldErrorsForDisplay` can show errors after the user interacts. Radio toggles set **`touched` to `false`** and **`shouldValidate`** to **`false`** on that `setFieldTouched` call, so switching branches does not immediately validate or show errors for an empty PID.
+- **`pid_components/fieldErrorsForDisplay.js`** — the touched-aware error
+  helper used on the label row and identifier components. `pickDisplayableError`
+  merges nested Yup messages (e.g. `errors.pids.doi.identifier`) so the
+  FastField bound to `pids.doi` still receives a single string for SUI's
+  `error=` prop.
+- **`RequiredPIDField.js`** — managed/unmanaged radio handler; mount-time
+  seeding (described above); `componentDidUpdate` keeps
+  `draft_managed_pid_backup` in sync while the managed branch is selected.
+- **`OptionalPIDField.js`** — optional-DOI radio handler; no mount-time
+  seeding; the unmanaged radio avoids `provider: "external"` until the user
+  actually types in the unmanaged identifier.
+- **`pid_components/UnmanagedIdentifierCmp.js`** — `onBlur` calls
+  `setFieldTouched(fieldPath, true, true)`. The Semantic UI `Form.Input`
+  receives `name={field.name || fieldPath}` so Formik's blur handler can
+  identify the path correctly even when the inner element doesn't carry it.
 
-(formik-pid-initial-provider)=
-### Initial `pids.<scheme>` shape vs `default_selected`
+The deposit form imports `PIDField` from this tree (e.g. `DoiComponent` in
+`field_components.jsx`), so DOI/PID errors don't appear before touch in a way
+that disagrees with the rest of the form.
 
-Deposit config exposes per-scheme UI default as **`default_selected`** (`"yes"` / `"no"` / `"not_needed"` for optional DOI), passed to `PIDField` as **`doiDefaultSelection`**.
+## Form feedback components (cross-reference)
 
-#### Stock `RequiredPIDField` (upstream `invenio_rdm_records`)
+The form-feedback UI used in this package's layouts (`FormFeedback`,
+`FormFeedbackSummary`) lives under `replacement_components/alternate_components/`
+rather than `replacement_components/field_components/`. See
+[Form feedback (errors and action state)](field_components.md#form-feedback-errors-and-action-state)
+for behavior and props.
 
-- **No `componentDidMount`** — Formik is not normalized from `default_selected` on mount.
-- **Constructor:** if **`record.is_draft === true`** and the field has a **non-empty** identifier and a **non-`external`** provider, local state **`isManagedSelected`** is initialized to **`true`** (managed). Otherwise it is **`undefined`**.
-- **Render:** if state is **`undefined`**, managed vs unmanaged is inferred as  
-  **`hasManagedIdentifier || (empty identifier && doiDefaultSelection === "no")`**.  
-  So **`{ provider: "external", identifier: "" }`** with **`default_selected === "no"`** still infers **managed** after remount (local state is lost), which disagrees with Formik.
-- **Errors:** **`getFieldErrors`** (no touched gating like this package).
-- **Radio:** **`onManagedUnmanagedChange`** does **not** call **`setFieldTouched`** on the PID path.
+## Internal notes
 
-#### This package’s `RequiredPIDField` (additional / changed behavior)
-
-- **`componentDidMount`:** if the identifier is empty, **`doiDefaultSelection === "yes"`** sets **`{ provider: "external", identifier: "" }`** when `provider` is missing or not `"external"`; **`doiDefaultSelection === "no"`** sets **`{}`** only when the value still has keys **and** `provider` is **not** `"external"` (avoids clearing explicit unmanaged shape from the API or after user choice).
-- **`getFieldErrorsForDisplay`** on the label row and identifier components; **`setFieldTouched(fieldPath, false, false)`** when managed/unmanaged radios change (see table above).
-- **Managed / unmanaged branch:** **`values.ui.<fieldPath>`** holds **`managed_selection`** (`managed` / `unmanaged`) and **`draft_unmanaged_pid_backup`** / **`draft_managed_pid_backup`** (for DOI, **`fieldPath`** is **`pids.doi`**, so keys mirror **`OptionalPIDField`** under **`values.ui.pids.doi.*`**). **`render`** reads **`managed_selection` only** (no upstream-style **`useState`/`isManagedSelected`**). **`restoreFromBackup`** runs on radio change; unmanaged typing updates the unmanaged backup (debounced); while the managed branch is selected, **`componentDidUpdate`** refreshes **`draft_managed_pid_backup`** when **`pids.<scheme>`**’s Formik value **reference** changes (reserve/discard).
-- **`doiDefaultSelection` PropTypes** use **`string`** (stock incorrectly types it as **`object`**).
-- **`ManagedUnmanagedSwitch` `disabled`:** same split as stock — **`hasDoi`** from **`record.pids?.doi?.identifier`** (“backend already has this PID”), **`isDoiCreated`** from the draft **`field.value.identifier`** (user-visible / Formik value).
-
-#### This package’s `OptionalPIDField` (additional / changed behavior)
-
-**`OptionalPIDField`** does **not** mount-seed. **`values.ui.pids.doi.managed_selection`** holds the optional-DOI radio choice (**`managed`** / **`unmanaged`** / **`not_needed`**). When set, `computeManagedUnmanaged` uses it instead of inferring only from PID shape and **`doiDefaultSelection`**—so clearing **`pids`** or remounting the field does not incorrectly revert the UI branch (e.g. empty **`pids`** plus **`default_selected "no"`** inferring managed while the user had chosen unmanaged). When **`managed_selection` is unset**, behaviour matches the prior heuristic derivation (same inputs as stock-style logic: identifiers, provider, draft, parent/record DOI, **`not_needed`** default). Seeding external on mount would make Yup treat the field as an external DOI branch and can flag an empty identifier when optional DOI should not require one. The unmanaged radio avoids **`provider: "external"`** until input: it clears **`pids`** (same as managed / not-needed), and **`provider: "external"`** is written only when the user types in the unmanaged identifier input (`onExternalIdentifierChanged`). Under normal **`PIDField`** wiring, **`OptionalPIDField`** mounts only with **`required === false`**; the **`!required`** guard on the managed branch’s Redux / **`managed_selection`** updates is for hypothetical direct reuse and does not change that path today.
-
-## Upstream changes that could remove these replacements
-
-This section describes **what would need to exist in stock `invenio_rdm_records` (and sometimes `react-invenio-forms`)** so this package could **import field components only from `@js/invenio_rdm_records`** and delete the corresponding files under `replacement_components/field_components/`. It is **not** a commitment to upstream work; it is a design checklist.
-
-### Shared / cross-cutting
-
-1. **Pluggable text/select/inputs**  
-   If upstream field components accepted **render props** or **injected component types** for “text input”, “select”, and “remote select” (instead of hard-coding `react-invenio-forms` / Semantic defaults), instances could pass **`TextField`** / **`RemoteSelectField`** from this package **without** copying whole field files.
-
-2. **Error visibility**  
-   If upstream standardized on Formik **`meta`** (or a small helper like `fieldErrorsForDisplay`) **everywhere**, including **PID** and **creators/contributors**, with the same “touched / initialError” policy as the rest of the form, the modular package would not need forks **only** to match `TextField` behavior.
-
-### `PIDField` specifically
-
-1. **`getFieldErrorsForDisplay` (or equivalent) in upstream**  
-   Extend `PIDField/components/helpers.js` (or export a sibling) with a function that gates **visible** errors the same way as other fields, or add a **`showErrorWhen`** prop on `PIDField` / identifier components.
-
-2. **Consistent `touched` for non-`Field` controls**  
-   If upstream ensured **`touched`** for `pids.<scheme>` when users blur the unmanaged input or change managed/unmanaged (and optional-DOI) radios—e.g. by using Formik `Field`/`useField` for those controls or by documenting `setFieldTouched` in the stock handlers—apps would not need a local fork **only** for touch parity.
-
-3. **Resolvable imports from consuming apps**  
-   Export PID subcomponents (e.g. `UnmanagedIdentifierCmp`) from the **`@js/invenio_rdm_records`** public API so apps do not need relative paths; and/or export **deposit context** and **action types** from stable entry points (already partly true via deep paths).
-
-4. **Optional composition**  
-   Allow passing **custom** `ManagedIdentifierCmp` / `UnmanagedIdentifierCmp` as props so a host app can inject behavior without replacing the whole tree.
-
-### `CreatibutorsField` / modal
-
-1. **Lifecycle hooks on stock `CreatibutorsModal`**  
-   An optional **`onModalClose`** (or `onDismiss`) callback invoked for **every** close path would let the parent call `setFieldTouched` without forking the modal.
-
-### `CreatibutorsField`-level error display
-
-If upstream **`CreatibutorsField`** (or `FeedbackLabel` usage) respected the same touched rules as `TextField`, the local field-level wrapper for “general creatibutors error” might be unnecessary.
-
-### “Simple” widget-swap fields (`TitlesField`, `CopyrightsField`, `DatesField`, `IdentifiersField`, `RelatedWorksField`, …)
-
-If **`TextField`** / **`SelectField`** (or equivalent) were **injected** per field via **theme** or **props** on stock `TitlesField`, `CopyrightsField`, `DatesField`, `IdentifiersField`, `RelatedWorksField`, etc., the **only** change in a downstream app would be configuration—**no** file copy. Today those replacements exist because stock files **import** specific components directly.
-
-### Operational note
-
-Even if upstream implements the above, **version alignment** matters: this package pins a specific `invenio-rdm-records` release. Removals here should be **one field at a time** behind a compatibility check.
+Design notes for what would need to change upstream to retire each replacement
+live in `docs/internal/upstream-replacement-removal-checklist.md` (not
+published as part of the manual). Notes on the flat creatibutor name UX live
+in `docs/internal/creatibutors-field-flat-person-names.md`.
