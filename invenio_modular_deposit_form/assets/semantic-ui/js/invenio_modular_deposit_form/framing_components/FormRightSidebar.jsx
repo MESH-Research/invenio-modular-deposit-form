@@ -9,11 +9,20 @@ import { Grid, Ref, Sticky } from "semantic-ui-react";
 import PropTypes from "prop-types";
 import { SubsectionsRenderer } from "./SubsectionsRenderer";
 
-const FormRightSidebar = ({ subsections = [], ...props }) => {
+const FormRightSidebar = ({ subsections = [], sticky = true, ...props }) => {
   if (!subsections?.length) return null;
   // Match upstream RDMDepositForm sidebar: pin contents while the user scrolls
-  // through the long form. `Ref` provides the scroll context to `Sticky`.
+  // through the long form. `Ref` provides the scroll context to `Sticky`. Pass
+  // `sticky={false}` from the layout config to opt out (e.g. for sidebars whose
+  // total height exceeds the viewport, where pinning would hide the bottom).
   const sidebarRef = useRef(null);
+  if (!sticky) {
+    return (
+      <Grid.Column {...props} className="deposit-right-sidebar deposit-sidebar">
+        <SubsectionsRenderer subsections={subsections} />
+      </Grid.Column>
+    );
+  }
   return (
     <Ref innerRef={sidebarRef}>
       <Grid.Column {...props} className="deposit-right-sidebar deposit-sidebar">
@@ -27,6 +36,7 @@ const FormRightSidebar = ({ subsections = [], ...props }) => {
 
 FormRightSidebar.propTypes = {
   subsections: PropTypes.array,
+  sticky: PropTypes.bool,
 };
 
 export { FormRightSidebar };
