@@ -82,11 +82,10 @@ _PAGED_FORM_HEADER_STEPPER_TOP = {
         # omits it so the feedback is consistently anchored at the page header
         # rather than buried mid-page next to the publish buttons.
         {
-            "section": "form_feedback_header",
             "component": "FormFeedbackComponent",
-            "classnames": "column tablet mobile only",
-            "mobile": 16,
-            "tablet": 16,
+            "classnames": (
+                "sixteen wide column tablet mobile only rel-mt-1 pt-10"
+            ),
         },
     ],
 }
@@ -196,7 +195,17 @@ _DATASET_DETAILS_PAGE = {
                             "label": _("Record count"),
                             "placeholder": _("e.g. 1.4M rows (press 'enter' to add)"),
                             "description": "",
-                        }
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
                     ],
                     "classnames": "equal width",
                 },
@@ -230,7 +239,7 @@ _IMAGE_DETAILS_PAGE = {
                         {
                             "section": "sizes",
                             "component": "SizesComponent",
-                            "label": "Dimensions",
+                            "label": _("Dimensions"),
                             "placeholder": _("e.g. 32 x 40 cm (press 'enter' to add)"),
                             "description": "",
                         },
@@ -241,11 +250,21 @@ _IMAGE_DETAILS_PAGE = {
                     ],
                     "classnames": "equal width",
                 },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
             ],
         },
         {
             "section": "alternate_identifiers",
-            "label": "Image URL and Other Identifiers",
+            "label": _("Image URL and Other Identifiers"),
             "component": "AlternateIdentifiersComponent",
             "classnames": "basic prominent-field-label",
         },
@@ -261,7 +280,7 @@ _VIDEO_DETAILS_PAGE = {
         {
             "section": "image_details",
             "component": "FormSection",
-            "label": "Media Details",
+            "label": _("Media Details"),
             "icon": "video",
             "show_heading": True,
             "subsections": [
@@ -271,7 +290,7 @@ _VIDEO_DETAILS_PAGE = {
                         {
                             "section": "sizes",
                             "component": "SizesComponent",
-                            "label": "Duration",
+                            "label": _("Duration"),
                             "placeholder": _("e.g. 30 min (press 'enter' to add)"),
                             "description": "",
                         },
@@ -282,11 +301,21 @@ _VIDEO_DETAILS_PAGE = {
                     ],
                     "classnames": "equal width",
                 },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
             ],
         },
         {
             "section": "alternate_identifiers",
-            "label": "Media URL and Other Identifiers",
+            "label": _("Media URL and Other Identifiers"),
             "component": "AlternateIdentifiersComponent",
             "classnames": "basic prominent-field-label",
         },
@@ -320,6 +349,16 @@ _AUDIO_DETAILS_PAGE = {
                             "section": "publication_location",
                             "component": "PublicationLocationComponent",
                             "label": _("Recording location"),
+                        },
+                    ],
+                    "classnames": "equal width",
+                },
+                {
+                    "component": "FormRow",
+                    "subsections": [
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
                         },
                     ],
                     "classnames": "equal width",
@@ -413,14 +452,14 @@ _SOFTWARE_DETAILS_PAGE = {
 _JOURNAL_DETAILS_PAGE = {
     "section": "4",
     "component": "FormPage",
-    "label": _("Journal Details"),
+    "label": _("Periodical Details"),
     "subsections": [
         {
             "section": "journal_details",
             "component": "FormSection",
             "show_heading": True,
             "icon": "newspaper outline",
-            "label": _("Journal details"),
+            "label": _("Periodical Details"),
             "subsections": [
                 {
                     "component": "FormRow",
@@ -445,6 +484,10 @@ _JOURNAL_DETAILS_PAGE = {
                             "section": "journal_issue",
                             "component": "JournalIssueComponent",
                         },
+                        {
+                            "section": "journal_pages",
+                            "component": "SectionPagesComponent",
+                        },
                     ],
                 },
                 {
@@ -452,17 +495,28 @@ _JOURNAL_DETAILS_PAGE = {
                     "classnames": "equal width",
                     "subsections": [
                         {
-                            "section": "journal_pages",
-                            "component": "SectionPagesComponent",
-                        },
-                        {
                             "section": "journal_issn",
                             "component": "JournalISSNComponent",
+                        },
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                        {
+                            "section": "location",
+                            "component": "PublicationLocationComponent",
                         },
                     ],
                 },
             ],
         },
+        {
+            "section": "alternate_identifiers",
+            "label": _("URLs and Other Identifiers"),
+            "component": "AlternateIdentifiersComponent",
+            "classnames": "basic prominent-field-label",
+        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -495,6 +549,10 @@ _BOOK_IMPRINT_DETAILS_PAGE = {
                     "classnames": "equal width",
                     "subsections": [
                         {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                        {
                             "section": "location",
                             "component": "PublicationLocationComponent",
                         },
@@ -504,26 +562,37 @@ _BOOK_IMPRINT_DETAILS_PAGE = {
                     "component": "FormRow",
                     "classnames": "equal width",
                     "subsections": [
+                        {
+                            "section": "section_pages",
+                            "component": "SectionPagesComponent",
+                        },
                         {"section": "book_pages", "component": "TotalPagesComponent"},
                         {"section": "isbn", "component": "ISBNComponent"},
                     ],
                 },
             ],
         },
+        {
+            "section": "alternate_identifiers",
+            "label": _("URLs and Other Identifiers"),
+            "component": "AlternateIdentifiersComponent",
+            "classnames": "basic prominent-field-label",
+        },
+        _LANGUAGE_SECTION,
     ],
 }
 
 _MEETING_DETAILS_PAGE = {
     "section": "4",
     "component": "FormPage",
-    "label": _("Conference details"),
+    "label": _("Conference Details"),
     "subsections": [
         {
             "section": "conference_details",
             "component": "FormSection",
             "show_heading": True,
             "icon": "calendar",
-            "label": _("Conference details"),
+            "label": _("Conference Details"),
             "subsections": [
                 {
                     "component": "FormRow",
@@ -587,6 +656,16 @@ _MEETING_DETAILS_PAGE = {
                     "classnames": "equal width",
                     "subsections": [
                         {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
                             "section": "meeting_identifiers",
                             "component": "MeetingIdentifiersComponent",
                             "label": _("Conference identifiers"),
@@ -596,13 +675,20 @@ _MEETING_DETAILS_PAGE = {
                 },
             ],
         },
+        {
+            "section": "alternate_identifiers",
+            "label": _("URLs and Other Identifiers"),
+            "component": "AlternateIdentifiersComponent",
+            "classnames": "basic prominent-field-label",
+        },
+        _LANGUAGE_SECTION,
     ],
 }
 
 _THESIS_DETAILS_PAGE = {
     "section": "4",
     "component": "FormPage",
-    "label": _("Thesis details"),
+    "label": _("Thesis Details"),
     "subsections": [
         {
             "section": "thesis_details",
@@ -647,8 +733,83 @@ _THESIS_DETAILS_PAGE = {
                         },
                     ],
                 },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                        {
+                            "section": "location",
+                            "component": "PublicationLocationComponent",
+                        },
+                    ],
+                },
             ],
         },
+        {
+            "section": "alternate_identifiers",
+            "label": _("URLs and Other Identifiers"),
+            "component": "AlternateIdentifiersComponent",
+            "classnames": "basic prominent-field-label",
+        },
+        _LANGUAGE_SECTION,
+    ],
+}
+
+
+_LESSON_DETAILS_PAGE = {
+    "section": "4",
+    "component": "FormPage",
+    "label": _("Lesson Plan Details"),
+    "subsections": [
+        {
+            "section": "lesson_details",
+            "component": "FormSection",
+            "show_heading": True,
+            "icon": "graduation",
+            "label": _("Lesson Plan Details"),
+            "subsections": [
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "sizes",
+                            "component": "SizesComponent",
+                            "label": _("Class length or duration"),
+                            "placeholder": _(
+                                "e.g. 45 min, 12 pages (press 'enter' to add)"
+                            ),
+                            "description": "",
+                        },
+                    ],
+                },
+                {
+                    "component": "FormRow",
+                    "classnames": "equal width",
+                    "subsections": [
+                        {
+                            "section": "publisher",
+                            "component": "PublisherComponent",
+                        },
+                        {
+                            "section": "location",
+                            "component": "PublicationLocationComponent",
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "section": "alternate_identifiers",
+            "label": _("Lesson URL and Other Identifiers"),
+            "component": "AlternateIdentifiersComponent",
+            "classnames": "basic prominent-field-label",
+        },
+        _LANGUAGE_SECTION,
     ],
 }
 
@@ -867,6 +1028,14 @@ COMMON_FIELDS_ALTERNATE_PAGED = [
     _PAGED_FORM_PAGES_ALTERNATE_PAGED,
 ]
 
+
+def _details_page(constant, label):
+    """Return a deepcopy of a page constant with the page-level ``label`` overridden."""
+    page = copy.deepcopy(constant)
+    page["label"] = label
+    return page
+
+
 FIELDS_BY_TYPE_ALTERNATE_PAGED = {
     "audio": {
         "4": copy.deepcopy(_AUDIO_DETAILS_PAGE),
@@ -874,59 +1043,113 @@ FIELDS_BY_TYPE_ALTERNATE_PAGED = {
     "dataset": {
         "4": copy.deepcopy(_DATASET_DETAILS_PAGE),
     },
+    "event": {
+        "4": {"same_as": "publication-conferencepaper", "label": _("Event Details")},
+    },
     "image": {
         "4": copy.deepcopy(_IMAGE_DETAILS_PAGE),
     },
     "image-figure": {
-        "4": {
-            "same_as": "image",
-            "label": _("Figure Details"),
-        },
+        "4": {"same_as": "image", "label": _("Figure Details")},
     },
     "image-plot": {
-        "4": {
-            "same_as": "image",
-            "label": _("Plot Details"),
-        },
+        "4": {"same_as": "image", "label": _("Plot Details")},
     },
     "image-drawing": {
-        "4": {
-            "same_as": "image",
-            "label": _("Drawing Details"),
-        },
+        "4": {"same_as": "image", "label": _("Drawing Details")},
     },
     "image-diagram": {
-        "4": {
-            "same_as": "image",
-            "label": _("Diagram Details"),
-        },
+        "4": {"same_as": "image", "label": _("Diagram Details")},
     },
     "image-photo": {
-        "4": {
-            "same_as": "image",
-            "label": _("Photo Details"),
-        },
+        "4": {"same_as": "image", "label": _("Photo Details")},
     },
     "image-other": {
+        "4": {"same_as": "image", "label": _("Image Details")},
+    },
+    "lesson": {
+        "4": copy.deepcopy(_LESSON_DETAILS_PAGE),
+    },
+    "poster": {
+        "4": {"same_as": "publication-conferencepaper", "label": _("Poster Details")},
+    },
+    "presentation": {
         "4": {
-            "same_as": "image",
-            "label": _("Image Details"),
+            "same_as": "publication-conferencepaper",
+            "label": _("Presentation Details"),
         },
     },
     "publication-article": {
-        "4": copy.deepcopy(_JOURNAL_DETAILS_PAGE),
+        "4": _details_page(_JOURNAL_DETAILS_PAGE, _("Article Details")),
     },
     "publication-book": {
         "4": copy.deepcopy(_BOOK_IMPRINT_DETAILS_PAGE),
     },
+    "publication-conferencepaper": {
+        "4": _details_page(_MEETING_DETAILS_PAGE, _("Paper Details")),
+    },
+    "publication-conferenceproceeding": {
+        "4": {
+            "same_as": "publication-conferencepaper",
+            "label": _("Proceedings Details"),
+        },
+    },
+    "publication-datamanagementplan": {
+        "4": {"same_as": "publication-book", "label": _("Plan Details")},
+    },
+    "publication-datapaper": {
+        "4": {"same_as": "publication-article", "label": _("Data Paper Details")},
+    },
+    "publication-deliverable": {
+        "4": {"same_as": "publication-book", "label": _("Deliverable Details")},
+    },
+    "publication-dissertation": {
+        "4": {"same_as": "publication-thesis", "label": _("Dissertation Details")},
+    },
     "publication-journal": {
-        "4": copy.deepcopy(_JOURNAL_DETAILS_PAGE),
+        "4": _details_page(_JOURNAL_DETAILS_PAGE, _("Journal Details")),
+    },
+    "publication-milestone": {
+        "4": {"same_as": "publication-book", "label": _("Milestone Details")},
+    },
+    "publication-peerreview": {
+        "4": {"same_as": "publication-article", "label": _("Review Details")},
+    },
+    "publication-preprint": {
+        "4": {"same_as": "publication-article", "label": _("Preprint Details")},
+    },
+    "publication-proposal": {
+        "4": {"same_as": "publication-book", "label": _("Proposal Details")},
+    },
+    "publication-report": {
+        "4": {"same_as": "publication-book", "label": _("Report Details")},
+    },
+    "publication-section": {
+        "4": {"same_as": "publication-book", "label": _("Chapter/Section Details")},
+    },
+    "publication-softwaredocumentation": {
+        "4": {"same_as": "publication-book", "label": _("Documentation Details")},
+    },
+    "publication-standard": {
+        "4": {"same_as": "publication-book", "label": _("Standard Details")},
+    },
+    "publication-taxonomictreatment": {
+        "4": {"same_as": "publication-article", "label": _("Treatment Details")},
+    },
+    "publication-technicalnote": {
+        "4": {"same_as": "publication-book", "label": _("Technical Note Details")},
     },
     "publication-thesis": {
         "4": copy.deepcopy(_THESIS_DETAILS_PAGE),
     },
+    "publication-workingpaper": {
+        "4": {"same_as": "publication-book", "label": _("Working Paper Details")},
+    },
     "software": {
         "4": copy.deepcopy(_SOFTWARE_DETAILS_PAGE),
+    },
+    "software-computationalnotebook": {
+        "4": {"same_as": "software", "label": _("Notebook Details")},
     },
     "video": {
         "4": copy.deepcopy(_VIDEO_DETAILS_PAGE),

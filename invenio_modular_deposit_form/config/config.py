@@ -115,12 +115,84 @@ Per-page values are ``{"subsections": [...], "label"?: str}``; keys match each F
 """
 
 MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS = {
-    "publication-article": {"metadata.title": _("Article title")},
-    "publication-book": {"metadata.title": _("Book title")},
-    "publication-section": {"metadata.title": _("Chapter/section title")},
-    "dataset": {"metadata.title": _("Dataset title")},
-    "software": {"metadata.title": _("Software name")},
-    "software-computationalnotebook": {"metadata.title": _("Notebook name")},
+    "audio": {
+        "metadata.title": _("Recording Title"),
+        "custom_fields.kcr:publication_url": _("Project URL"),
+    },
+    "video": {
+        "metadata.title": _("Recording Title"),
+        "custom_fields.kcr:publication_url": _("Project URL"),
+    },
+    "dataset": {
+        "metadata.title": _("Dataset Title"),
+        "custom_fields.kcr:publication_url": _("Project URL"),
+    },
+    "image": {
+        "metadata.title": _("Image Title"),
+        "custom_fields.imprint:imprint.place": _("Location"),
+        "custom_fields.kcr:publication_url": _("Project URL"),
+    },
+    "image-figure": {"metadata.title": _("Figure Title")},
+    "image-plot": {"metadata.title": _("Chart Title")},
+    "image-drawing": {"metadata.title": _("Artwork Title")},
+    "image-diagram": {"metadata.title": _("Diagram Title")},
+    "image-photo": {
+        "metadata.title": _("Photograph Title"),
+        "custom_fields.imprint:imprint.place": _("Location"),
+        "custom_fields.kcr:publication_url": _("Project URL"),
+    },
+    "image-other": {
+        "metadata.title": _("Image Title"),
+        "custom_fields.kcr:publication_url": _("Project URL"),
+    },
+    "lesson": {"metadata.title": _("Resource Title")},
+    "presentation": {"metadata.title": _("Presentation Title")},
+    "poster": {"metadata.title": _("Poster Title")},
+    "software": {"metadata.title": _("Software Name")},
+    "software-computationalnotebook": {
+        "metadata.title": _("Notebook Name"),
+        "metadata.identifiers": _("Notebook URLs and Other Identifiers"),
+    },
+    "publication-article": {
+        "metadata.title": _("Article Title"),
+        "custom_fields.journal:journal.pages": _("Article pages"),
+    },
+    "publication-book": {"metadata.title": _("Monograph Title")},
+    "publication-section": {"metadata.title": _("Chapter/Section Title")},
+    "publication-conferencepaper": {"metadata.title": _("Paper Title")},
+    "publication-conferenceproceeding": {
+        "metadata.title": _("Proceedings Title"),
+        "metadata.identifiers": _("Proceedings URL and Other Identifiers"),
+    },
+    "publication-datamanagementplan": {
+        "metadata.title": _("Plan Title"),
+        "metadata.identifiers": _("Plan URLs and Other Identifiers"),
+    },
+    "publication-softwaredocumentation": {
+        "metadata.title": _("Documentation Title"),
+        "metadata.identifiers": _("Documentation URLs and Other Identifiers"),
+    },
+    "publication-preprint": {"metadata.title": _("Preprint Title")},
+    "publication-report": {
+        "metadata.title": _("Report Title"),
+        "custom_fields.imprint:imprint.pages": _("Total report pages"),
+    },
+    "publication-peerreview": {
+        "metadata.title": _("Review Title"),
+        "custom_fields.journal:journal.title": _("Magazine/periodical title"),
+        "custom_fields.journal:journal.pages": _("Review pages"),
+        "metadata.identifiers": _("Review URLs and Other Identifiers"),
+    },
+    "publication-thesis": {"metadata.title": _("Thesis/Dissertation Title")},
+    "publication-workingpaper": {
+        "metadata.title": _("Working Paper Title"),
+        "metadata.identifiers": _("Working Paper URLs and Other Identifiers"),
+    },
+    "publication-standard": {
+        "metadata.title": _("Standard Title"),
+        "metadata.identifiers": _("Standard URLs and Other Identifiers"),
+    },
+    "event": {"metadata.title": _("Event Title")},
 }
 """Field label modifications by resource type. Keys must match resource type IDs from your 
 instance's resource_types vocabulary. Values map dot-separated metadata field paths to 
