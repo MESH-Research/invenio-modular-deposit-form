@@ -88,13 +88,12 @@
      *   - N+1's :after  (right notch of N+1)
      * giving the primary outline a continuous read across the chevrons. */
     .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus-visible):after,
-    .upload-form-stepper-step:has(+ .upload-form-stepper-step:focus):after,
-    .upload-form-stepper-step:focus-visible:after,
-    .upload-form-stepper-step:focus:after,
-    .upload-form-stepper-step:focus-visible + .upload-form-stepper-step:after,
-    .upload-form-stepper-step:focus + .upload-form-stepper-step:after {
+    .upload-form-stepper-step:focus-visible:after {
       border-color: @primaryColor;
       border-width: 0 3px 3px 0;
+    }
+    .upload-form-stepper-step:focus-visible + .upload-form-stepper-step {
+      box-shadow: inset 3px 0 0 0 @primaryColor;
     }
 
     /* Stepper severity: error, warning, info. Badges replace exclamation icon. */
