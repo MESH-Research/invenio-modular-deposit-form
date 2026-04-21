@@ -6,10 +6,39 @@
 
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useFormikContext } from "formik";
+import { useStore } from "react-redux";
 
 import { areDeeplyEqual, focusFirstElement } from "../utils";
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
+
+// Server-managed/computed fields that are part of the Formik deposit schema but
+// are owned by the backend (populated from the API response, not edited by the
+// user). They must never be rehydrated from a stale localStorage snapshot:
+// stripping them on save keeps the snapshot lean, and overlaying them from the
+// live Redux record on restore prevents downstream consumers (e.g. upstream
+// ShareDraftButton's `Object.keys(values.expanded)`) from blowing up when a
+// restored snapshot would otherwise leave them undefined.
+const SERVER_MANAGED_FORMIK_KEYS = ["expanded", "links"];
+
+const stripServerManagedKeys = (values) => {
+  if (!values || typeof values !== "object") return values;
+  const result = { ...values };
+  for (const key of SERVER_MANAGED_FORMIK_KEYS) {
+    delete result[key];
+  }
+  return result;
+};
+
+const overlayServerManagedKeys = (snapshot, record) => {
+  const overlay = {};
+  for (const key of SERVER_MANAGED_FORMIK_KEYS) {
+    if (record && record[key] !== undefined) {
+      overlay[key] = record[key];
+    }
+  }
+  return { ...snapshot, ...overlay };
+};
 
 /** Custom hook for recovering form values from local storage
  *
@@ -28,6 +57,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     useFormikContext();
   const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
   const autosaveTimeoutRef = useRef(null);
+  const store = useStore();
 
   // handler for recoveryAsked
   // focus first element when modal is closed to allow keyboard navigation
@@ -37,15 +67,17 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
   }, [currentFormPage, fileUploadPageId]);
 
   // keep changed form values in local storage (debounced so rapid edits
-  // collapse into a single write once the user pauses)
+  // collapse into a single write once the user pauses). Server-managed keys
+  // are ignored here so that fresh server-side updates to e.g. `expanded` or
+  // `links` don't trigger spurious autosaves with no user content change.
   useEffect(() => {
     if (!recoveryAsked) return;
-    if (areDeeplyEqual(initialValues, values, ["ui"])) return;
+    if (areDeeplyEqual(initialValues, values, ["ui", ...SERVER_MANAGED_FORMIK_KEYS])) return;
 
     autosaveTimeoutRef.current = setTimeout(() => {
       window.localStorage.setItem(
         `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`,
-        JSON.stringify(values)
+        JSON.stringify(stripServerManagedKeys(values))
       );
       setStorageDataPresent(true);
       autosaveTimeoutRef.current = null;
@@ -68,15 +100,19 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
   // false positives from client-side auto-defaulting effects that mutate
   // `values` after mount (e.g. resource type / publication date / DOI), and
   // also avoids false negatives where a user's only edit happens to be in one
-  // of those fields. We only need to ignore `ui`, which is transient
-  // client-only Formik state and not user content.
+  // of those fields. We ignore `ui` (transient client-only Formik state) and
+  // SERVER_MANAGED_FORMIK_KEYS (which we deliberately strip on save and
+  // overlay from the live record on restore — see handleStorageData).
   useEffect(() => {
     const storageValues = window.localStorage.getItem(storageValuesKey);
     const storageValuesObj = JSON.parse(storageValues);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, initialValues, ["ui"])
+      !areDeeplyEqual(storageValuesObj, initialValues, [
+        "ui",
+        ...SERVER_MANAGED_FORMIK_KEYS,
+      ])
     ) {
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
@@ -100,15 +136,21 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
   const handleStorageData = useCallback(
     (recover) => {
       if (recover) {
+        // Overlay server-managed keys from the live record onto the recovered
+        // snapshot. The snapshot intentionally omits these (we strip them on
+        // save), and pre-existing snapshots saved by older code may have stale
+        // copies; either way, the live Redux record is the source of truth.
+        const liveRecord = store.getState().deposit?.record ?? {};
+        const merged = overlayServerManagedKeys(recoveredStorageValues, liveRecord);
         async function doSetInitialValues() {
-          resetForm({ values: recoveredStorageValues });
+          resetForm({ values: merged });
         }
         doSetInitialValues();
         setRecoveredStorageValues(null);
       }
       window.localStorage.removeItem(`rdmDepositFormValues.${currentUserprofile.id}.${values.id}`);
     },
-    [currentUserprofile.id, recoveredStorageValues, resetForm, values.id]
+    [currentUserprofile.id, recoveredStorageValues, resetForm, store, values.id]
   );
 
   return useMemo(

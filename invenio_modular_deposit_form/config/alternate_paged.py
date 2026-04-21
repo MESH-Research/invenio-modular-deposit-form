@@ -834,21 +834,10 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "menuItemClasses": "tablet mobile only",
             "subsections": [
                 {
-                    "section": "form_feedback",
-                    "component": "FormFeedbackComponent",
-                    "wrapped": False,
-                },
-                {
-                    "section": "submit_actions",
-                    "label": _("Publish"),
-                    "component": "SubmissionComponent",
-                    "wrapped": False,
-                },
-                {
-                    "section": "access",
-                    "label": _("Visibility"),
-                    "component": "AccessRightsComponent",
-                    "wrapped": False,
+                    "section": "submission_row_section",
+                    "component": "HorizontalSubmissionComponent",
+                    "label": None,
+                    "classnames": "simple",
                 },
             ],
         },

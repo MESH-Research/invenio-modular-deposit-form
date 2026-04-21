@@ -9,7 +9,13 @@ import _isEmpty from "lodash/isEmpty";
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 import { Card, Grid } from "semantic-ui-react";
-import { DeleteButton, PreviewButton, PublishButton, SaveButton } from "@js/invenio_rdm_records";
+import {
+  DeleteButton,
+  DepositStatusBox,
+  PreviewButton,
+  PublishButton,
+  SaveButton,
+} from "@js/invenio_rdm_records";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import Overridable from "react-overridable";
 import { RECORD_FIELD_ERROR_ROOTS } from "../../constants";
@@ -35,6 +41,7 @@ const HorizontalSubmissionComponent = () => {
   const store = useStore();
 
   const { actionState, config, errors, record, permissions } = store.getState().deposit;
+  const groupsEnabled = config?.groups_enabled ?? false;
 
   // errors not related to validation, following a different format {status:.., message:..}
   let nonValidationErrors;
@@ -59,10 +66,16 @@ const HorizontalSubmissionComponent = () => {
   };
 
   return (
-    <Overridable id="InvenioAppRdm.Deposit.CardDepositStatusBox.container">
+    <Overridable
+      id="InvenioAppRdm.Deposit.CardDepositStatusBox.container"
+      record={record}
+      permissions={permissions}
+      groupsEnabled={groupsEnabled}
+    >
       <Grid relaxed className={`save-submit-buttons ${getAlertClass()}`}>
         <Grid.Row>
           <Grid.Column computer="8" tablet="6">
+            <DepositStatusBox />
             <ModularFormFeedback labels={config.custom_fields.error_labels} />
 
             <SaveButton fluid aria-describedby="save-button-description" />
@@ -73,7 +86,13 @@ const HorizontalSubmissionComponent = () => {
               id="deposit-form-publish-button"
             />
 
-            {(record?.is_draft === null || permissions?.can_manage) && <ShareDraftButton />}
+            {(record?.is_draft === null || permissions?.can_manage) && (
+              <ShareDraftButton
+                record={record}
+                permissions={permissions}
+                groupsEnabled={groupsEnabled}
+              />
+            )}
             {permissions?.can_delete_draft && (
               <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
                 <Card>
