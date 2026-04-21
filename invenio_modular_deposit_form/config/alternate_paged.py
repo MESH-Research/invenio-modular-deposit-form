@@ -796,12 +796,6 @@ _PAGED_FORM_PAGES_ALTERNATE_PAGED = {
             "component": "FormPage",
             "subsections": [
                 {
-                    "section": "communities",
-                    "label": _("Community submission"),
-                    "component": "CommunitiesComponent",
-                    "classnames": "basic prominent-field-label",
-                },
-                {
                     "section": "subjects",
                     "label": _("Subjects"),
                     "component": "SubjectsComponent",
