@@ -33,9 +33,7 @@ const FieldComponentWrapper = ({
   } = useCurrentFieldMods();
 
   const moddedLabelIcon =
-    iconMods && Object.hasOwn(iconMods, fieldPath)
-      ? iconMods[fieldPath]
-      : labelIcon ?? icon;
+    iconMods && Object.hasOwn(iconMods, fieldPath) ? iconMods[fieldPath] : (labelIcon ?? icon);
   const effectiveLabelIcon = moddedLabelIcon ?? labelIcon ?? icon;
   const moddedLabel =
     labelMods && Object.hasOwn(labelMods, fieldPath) ? labelMods[fieldPath] : label;
@@ -71,7 +69,6 @@ const FieldComponentWrapper = ({
         className={[
           "invenio-field-wrapper",
           `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`,
-          "rel-mb-2",
           isRowField ? "field" : "",
         ]
           .filter(Boolean)
