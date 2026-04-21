@@ -75,6 +75,9 @@
      * `:last-child`; when later steps are hidden via per-step responsive
      * classes (e.g. `menuItemClasses: "tablet mobile only"`), the visually
      * last step is tagged with `last-visible` by `FormStepper`. */
+    .upload-form-stepper-step.last-visible {
+      border-radius: 0em @defaultBorderRadius @defaultBorderRadius 0em;
+    }
     .upload-form-stepper-step.last-visible:after {
       display: none;
     }
