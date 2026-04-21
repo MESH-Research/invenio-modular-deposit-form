@@ -99,7 +99,7 @@ const CreatibutorsFieldFlatItem = ({
   const renderRole = (role) => {
     if (role) {
       const friendlyRole = roleOptions?.find(({ value }) => value === role)?.text ?? role;
-      return <Label>{friendlyRole}</Label>;
+      return <Label className="ml-5">{friendlyRole}</Label>;
     }
     return null;
   };
@@ -170,7 +170,7 @@ const CreatibutorsFieldFlatItem = ({
                     {identifiersList.some((id) => id.scheme === "orcid") && (
                       <img
                         alt="ORCID logo"
-                        className="inline-id-icon mr-5"
+                        className="inline-id-icon ml-5"
                         src="/static/images/orcid.svg"
                         width="16"
                         height="16"
@@ -179,7 +179,7 @@ const CreatibutorsFieldFlatItem = ({
                     {identifiersList.some((id) => id.scheme === "ror") && (
                       <img
                         alt="ROR logo"
-                        className="inline-id-icon mr-5"
+                        className="inline-id-icon ml-5"
                         src="/static/images/ror-icon.svg"
                         width="16"
                         height="16"
@@ -188,7 +188,7 @@ const CreatibutorsFieldFlatItem = ({
                     {identifiersList.some((id) => id.scheme === "gnd") && (
                       <img
                         alt="GND logo"
-                        className="inline-id-icon mr-5"
+                        className="inline-id-icon ml-5"
                         src="/static/images/gnd-icon.svg"
                         width="16"
                         height="16"
