@@ -77,7 +77,11 @@ const CreatibutorsFormBody = ({
   // RDMDepositForm nests merged vocabs under vocabularies.metadata.* (same as stock payload shape).
   const personorg_schemes =
     store.getState().deposit.config.vocabularies?.metadata?.creators?.identifiers?.scheme ?? [];
-  const personorg_scheme_labels = personorg_schemes.map((s) => s.title_l10n);
+  // Tolerate either shape emitted by the deposit-config merge filter; see
+  // `invenio_modular_deposit_form/filters/merge_deposit_config.py::_scheme_entry`.
+  const personorg_scheme_labels = personorg_schemes
+    .map((s) => s.title_l10n ?? s.text ?? s.id ?? s.value)
+    .filter(Boolean);
 
   const namesAutocompleteOn = autocompleteNames !== NamesAutocompleteOptions.OFF;
   const namesSearchOnly = autocompleteNames === NamesAutocompleteOptions.SEARCH_ONLY;

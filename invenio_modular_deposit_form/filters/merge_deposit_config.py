@@ -46,6 +46,27 @@ _CONFIG_KEYS = [
 ]
 
 
+def _scheme_entry(key, value):
+    """Serialize one identifier-scheme entry with both shape conventions.
+
+    Different React consumers in this package read different keys from the same
+    vocabulary list:
+      * Top-level Identifiers/RelatedWorks dropdowns feed the array straight to
+        ``SelectField``, which expects ``{ text, value }``.
+      * The creator/contributor identifier subforms read ``{ id, title_l10n }``.
+
+    Emitting all four keys keeps both consumers working without a coordinated
+    Python+JS change every time we touch this serializer.
+    """
+    label = str(value.get("label", key))
+    return {
+        "id": key,
+        "value": key,
+        "title_l10n": label,
+        "text": label,
+    }
+
+
 def merge_deposit_config(forms_config, extra=None):
     """Merge stock forms_config with this extension's config for the deposits-config payload.
 
@@ -72,17 +93,11 @@ def merge_deposit_config(forms_config, extra=None):
         base.setdefault("vocabularies", {})
         base["vocabularies"].setdefault("creators", {})
         base["vocabularies"]["creators"]["identifiers"] = {
-            "scheme": [
-                {"text": str(v.get("label", k)), "value": k}
-                for k, v in personorg_schemes.items()
-            ]
+            "scheme": [_scheme_entry(k, v) for k, v in personorg_schemes.items()]
         }
         base["vocabularies"].setdefault("contributors", {})
         base["vocabularies"]["contributors"]["identifiers"] = {
-            "scheme": [
-                {"text": str(v.get("label", k)), "value": k}
-                for k, v in personorg_schemes.items()
-            ]
+            "scheme": [_scheme_entry(k, v) for k, v in personorg_schemes.items()]
         }
     record_identifiers_schemes = current_app.config.get(
         "RDM_RECORDS_IDENTIFIERS_SCHEMES", {}
@@ -91,8 +106,7 @@ def merge_deposit_config(forms_config, extra=None):
         base.setdefault("vocabularies", {})
         base["vocabularies"].setdefault("identifiers", {})
         base["vocabularies"]["identifiers"]["scheme"] = [
-            {"text": str(v.get("label", k)), "value": k}
-            for k, v in record_identifiers_schemes.items()
+            _scheme_entry(k, v) for k, v in record_identifiers_schemes.items()
         ]
 
     record_location_schemes = current_app.config.get("RDM_RECORDS_LOCATION_SCHEMES", {})
@@ -101,8 +115,7 @@ def merge_deposit_config(forms_config, extra=None):
         base["vocabularies"].setdefault("locations", {})
         base["vocabularies"]["locations"].setdefault("identifiers", {})
         base["vocabularies"]["locations"]["identifiers"]["scheme"] = [
-            {"text": str(v.get("label", k)), "value": k}
-            for k, v in record_location_schemes.items()
+            _scheme_entry(k, v) for k, v in record_location_schemes.items()
         ]
 
     if extra:

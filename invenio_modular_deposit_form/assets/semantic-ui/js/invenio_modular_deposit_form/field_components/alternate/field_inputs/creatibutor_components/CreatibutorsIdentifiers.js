@@ -20,12 +20,15 @@ import { FieldArray } from "formik";
 
 const newIdentifier = { scheme: "", identifier: "" };
 
+// Tolerate either of the two shapes our merge filter has emitted historically
+// (`{ id, title_l10n }` and `{ value, text }`); see
+// `invenio_modular_deposit_form/filters/merge_deposit_config.py::_scheme_entry`.
 const serializeIdSchemes = (schemes) => {
-  return (schemes ?? []).map((s) => ({
-    text: s.title_l10n,
-    value: s.id,
-    key: s.id,
-  }));
+  return (schemes ?? []).map((s) => {
+    const value = s.value ?? s.id;
+    const text = s.text ?? s.title_l10n ?? value;
+    return { text, value, key: value };
+  });
 };
 
 const CreatibutorsIdentifiers = ({
@@ -104,7 +107,12 @@ CreatibutorsIdentifiers.propTypes = {
   label: PropTypes.string,
   placeholder: PropTypes.string,
   idTypes: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string, title_l10n: PropTypes.string })
+    PropTypes.shape({
+      id: PropTypes.string,
+      value: PropTypes.string,
+      title_l10n: PropTypes.string,
+      text: PropTypes.string,
+    })
   ),
 };
 
