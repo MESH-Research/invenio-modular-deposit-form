@@ -1,7 +1,7 @@
-// Part of the Knowledge Commons Repository
+// Part of Knowledge Commons Works
 // Copyright (C) 2023 MESH Research
 //
-// The Knowledge Commons Repository and Invenio App RDM are both free software;
+// Knowledge Commons Works and Invenio App RDM are both free software;
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
@@ -44,7 +44,6 @@ import {
   TitlesField,
   VersionField,
 } from "../replacement_components/field_components";
-import { CreatibutorsFieldFlat } from "./alternate/field_inputs";
 import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { Card, Form, Grid } from "semantic-ui-react";
@@ -291,7 +290,7 @@ const ShareDraftButtonComponent = () => {
   const { config, record, permissions } = store.getState().deposit;
   const groupsEnabled = config.groups_enabled ?? false;
   const requireSecretLinksExpiration = config.require_secret_links_expiration;
-  return (
+  return record.parent === undefined ? null : (
     <ShareDraftButton
       record={record ?? {}}
       permissions={permissions ?? {}}
@@ -347,13 +346,7 @@ const DoiComponent = ({ ...extraProps }) => {
  * `.invenio-field-wrapper` div (matching DoiComponent etc.) — required
  * for the prominent-field-label CSS selector to match.
  */
-const FileUploaderInner = ({
-  label,
-  icon,
-  fileErrorPaths,
-  useUppy,
-  commonFileUploaderProps,
-}) => (
+const FileUploaderInner = ({ label, icon, fileErrorPaths, useUppy, commonFileUploaderProps }) => (
   <>
     {label && (
       <Form.Field>
@@ -806,7 +799,7 @@ const SubmissionComponent = () => {
               </Grid.Column>
 
               <Grid.Column width={16} className="pt-0">
-                {(record?.is_draft === null || permissions?.can_manage) && (
+                {record.parent && (record?.is_draft === null || permissions?.can_manage) && (
                   <ShareDraftButton
                     record={record}
                     permissions={permissions}
