@@ -16,7 +16,67 @@ const EMPTY_RESOURCE_TYPES = [];
 const EMPTY_PRIORITY_TYPES = [];
 
 /**
- * Resource type (metadata.resource_type). Uses ResourceTypeSelectorField (button-style shortcuts).
+ * Builds the ordered list of resource type ids shown as shortcut buttons.
+ *
+ * Args:
+ *   max: Upper bound on how many ids to return.
+ *   options: Vocabulary rows (`{ id, ... }[]`) in server list order.
+ *   priorityResourceTypes: Ids from `deposit.config.priority_resource_types`.
+ *   shortcutResourceTypeIdsProp: Layout `shortcutResourceTypeIds` when it is an
+ *     array (including `[]`); non-arrays are treated like “not from layout”.
+ *
+ * Returns:
+ *   String ids: those from layout/priority that exist in `options`, in that
+ *   configured order, then further ids from `options` in array order until `max`.
+ */
+function buildShortcutResourceTypeIds({
+  max,
+  options,
+  priorityResourceTypes,
+  shortcutResourceTypeIdsProp,
+}) {
+  const hasExplicitLayoutIds = Array.isArray(shortcutResourceTypeIdsProp);
+  const fromLayout = hasExplicitLayoutIds
+    ? shortcutResourceTypeIdsProp.filter((id) => typeof id === "string" && id.length > 0)
+    : null;
+  const candidateIds = fromLayout !== null ? fromLayout : priorityResourceTypes;
+
+  const vocabOrderedIds = (Array.isArray(options) ? options : [])
+    .map((o) => (o && typeof o.id === "string" ? o.id : ""))
+    .filter((id) => id.length > 0);
+
+  const inVocab = new Set(vocabOrderedIds);
+  const validFromConfig = candidateIds.filter((id) => inVocab.has(id));
+  const chosen = new Set(validFromConfig);
+  const result = [...validFromConfig];
+  for (const id of vocabOrderedIds) {
+    if (result.length >= max) {
+      break;
+    }
+    if (!chosen.has(id)) {
+      result.push(id);
+      chosen.add(id);
+    }
+  }
+  return result;
+}
+
+/**
+ * Resource type field (`metadata.resource_type`): shortcut buttons plus an
+ * "Other" vocabulary select via `ResourceTypeSelectorField`.
+ *
+ * **Preferred shortcut ids** (instance / layout), in order:
+ *
+ * - If the layout subsection passes `shortcutResourceTypeIds` as an array, that
+ *   list is used (string ids only). An empty array means no ids from the layout.
+ * - Otherwise the list comes from `deposit.config.priority_resource_types`, which
+ *   is set from Flask `MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES` in
+ *   `merge_deposit_config` (see `invenio_modular_deposit_form/filters/merge_deposit_config.py`).
+ *
+ * **Resolution:** Ids not present in `deposit.config.vocabularies.metadata.resource_type`
+ * are dropped while preserving the configured order. Any remaining shortcut slots
+ * (up to five) are filled from that vocabulary array in **server list order** (no
+ * extra sort in the client).
  */
 function ResourceTypeSelectorComponent({
   fieldPath = "metadata.resource_type",
@@ -33,10 +93,16 @@ function ResourceTypeSelectorComponent({
 
   const options = optionsProp ?? resourceTypeVocabulary;
 
-  const shortcutResourceTypeIds = useMemo(() => {
-    const rawIds = shortcutResourceTypeIdsProp ?? priorityResourceTypes;
-    return rawIds.slice(0, MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS);
-  }, [shortcutResourceTypeIdsProp, priorityResourceTypes]);
+  const shortcutResourceTypeIds = useMemo(
+    () =>
+      buildShortcutResourceTypeIds({
+        max: MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS,
+        options,
+        priorityResourceTypes,
+        shortcutResourceTypeIdsProp,
+      }),
+    [shortcutResourceTypeIdsProp, priorityResourceTypes, options]
+  );
 
   return (
     <FieldComponentWrapper componentName="ResourceTypeField" fieldPath={fieldPath} {...extraProps}>
