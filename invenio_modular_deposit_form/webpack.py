@@ -21,7 +21,6 @@ theme = WebpackThemeBundle(
                 "invenio-modular-deposit-form-css": "./less/invenio_modular_deposit_form/deposit_form.less",
             },
             dependencies={
-                "geopattern": "^1.2.3",
                 "orcid-utils": "^1.2.2",
                 "yup": "^0.32.11",
             },
