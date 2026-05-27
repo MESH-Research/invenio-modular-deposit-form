@@ -255,16 +255,16 @@ class FormErrorManager {
    * Build a flat list of section error entries from a set of field paths. Each entry has
    * page, section, error_fields, info_fields, warning_fields (string[] each). Paths that
    * do not resolve to any section (fieldPathToSection returns null) are skipped.
-   * useErrorsForPath(path) returns the errors object to use for severity for that path
+   * getErrorsForPath(path) returns the errors object to use for severity for that path
    * (formik.errors vs formik.initialErrors depending on whether the path is in the "current"
    * or "initial" set). Severity is read from the error value and paths are bucketed into
    * error_fields, warning_fields, or info_fields. Arrays are sorted for stable output.
    *
    * @param {string[]} fieldPaths - paths to aggregate by section
-   * @param {function(string): Object} useErrorsForPath - (path) => errors object for getSeverityAtPath
+   * @param {function(string): Object} getErrorsForPath - (path) => errors object for getSeverityAtPath
    * @returns {Array<{ page, section, error_fields, info_fields, warning_fields }>}
    */
-  _buildSectionErrorList = (fieldPaths, useErrorsForPath) => {
+  _buildSectionErrorList = (fieldPaths, getErrorsForPath) => {
     const byKey = new Map();
     for (const path of fieldPaths) {
       const section = fieldPathToSection(this.formSectionFields, path);
@@ -280,7 +280,7 @@ class FormErrorManager {
         });
       }
       const entry = byKey.get(key);
-      const errors = useErrorsForPath(path);
+      const errors = getErrorsForPath(path);
       const severity = getSeverityAtPath(errors, path);
       if (severity === "error") entry.error_fields.push(path);
       else if (severity === "warning") entry.warning_fields.push(path);
