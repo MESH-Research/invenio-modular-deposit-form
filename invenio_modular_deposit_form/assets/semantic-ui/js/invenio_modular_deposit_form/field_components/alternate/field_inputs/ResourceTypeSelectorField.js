@@ -282,6 +282,7 @@ function ResourceTypeSelectorFieldInner({
             <div
               className="ui compact fluid icon labeled six item menu"
               role="radiogroup"
+              tabIndex={-1}
               aria-invalid={showError || undefined}
               aria-labelledby={showLabel && label ? labelElementId : undefined}
               aria-label={showLabel && label ? undefined : assistiveGroupName}
@@ -317,8 +318,6 @@ function ResourceTypeSelectorFieldInner({
                 role="radio"
                 tabIndex={getRadioTabIndex(shortcutButtons.length)}
                 aria-checked={otherToggleActive}
-                aria-haspopup="listbox"
-                aria-expanded={otherToggleActive}
                 aria-controls={otherListId}
                 disabled={otherDropdownOptions.length < 1}
                 onClick={handleOtherToggleClick}
