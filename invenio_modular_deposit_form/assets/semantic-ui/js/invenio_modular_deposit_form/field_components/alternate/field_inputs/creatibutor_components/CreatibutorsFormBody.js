@@ -31,6 +31,7 @@ import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/Cre
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { CreatibutorsIdentifiers } from "./CreatibutorsIdentifiers";
 import { NamesAutocompleteOptions } from "./CreatibutorsInlineForm";
+import { fetchOrcidPersonSuggestions } from "./orcid";
 
 // Posts the typed family/given to the modular-deposit-form API so the
 // authenticated user's `name_parts_local` profile override is persisted.
@@ -93,12 +94,8 @@ const CreatibutorsFormBody = ({
   const isPerson = _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON;
   const currentFamily = String(_get(values, familyNameFieldPath, "") || "").trim();
   const currentGiven = String(_get(values, givenNameFieldPath, "") || "").trim();
-  const initialFamily = String(
-    _get(initialValues, familyNameFieldPath, "") || ""
-  ).trim();
-  const initialGiven = String(
-    _get(initialValues, givenNameFieldPath, "") || ""
-  ).trim();
+  const initialFamily = String(_get(initialValues, familyNameFieldPath, "") || "").trim();
+  const initialGiven = String(_get(initialValues, givenNameFieldPath, "") || "").trim();
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved | error
   const [saveError, setSaveError] = useState("");
 
@@ -123,10 +120,10 @@ const CreatibutorsFormBody = ({
     setSaveStatus("saving");
     setSaveError("");
     try {
-      await userNameApiClient.post(
-        `/api/modular-deposit-form/users/${currentUserId}/name`,
-        { family_name: currentFamily, given_name: currentGiven }
-      );
+      await userNameApiClient.post(`/api/modular-deposit-form/users/${currentUserId}/name`, {
+        family_name: currentFamily,
+        given_name: currentGiven,
+      });
       setSaveStatus("saved");
       onSelfNameSaved?.({ family: currentFamily, given: currentGiven });
       window.setTimeout(() => {
@@ -153,9 +150,7 @@ const CreatibutorsFormBody = ({
           loading={saveStatus === "saving"}
           disabled={saveStatus === "saving"}
           onClick={handleRememberClick}
-          aria-label={i18next.t(
-            "Remember this name split on your profile for future deposits"
-          )}
+          aria-label={i18next.t("Remember this name split on your profile for future deposits")}
         >
           <Icon name="save" />
           {i18next.t("Remember changes")}
@@ -230,9 +225,10 @@ const CreatibutorsFormBody = ({
                     noQueryMessage={i18next.t("Family name")}
                     required={!!isCreator}
                     isFocused={isNewItem}
-                    search={(options) => options}
+                    restrictOptionsToResults
                     suggestionAPIUrl="/api/names"
                     serializeSuggestions={serializeSuggestions}
+                    mergeExtraSource={fetchOrcidPersonSuggestions}
                     onValueChange={onPersonSearchChange}
                     ref={familyNameWidgetRef}
                   />

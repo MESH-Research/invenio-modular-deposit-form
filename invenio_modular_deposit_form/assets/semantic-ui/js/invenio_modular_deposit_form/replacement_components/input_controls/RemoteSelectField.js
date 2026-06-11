@@ -35,6 +35,23 @@
 //   `document.getElementById(path)` on the next tick; not run after blur-only commit.
 // - **`description` / `helpText`:** forwarded to local `SelectField` (above / below the
 //   dropdown); see `SelectField.jsx`.
+// - `mergeExtraSource` (optional `(localHitsPromise, query) => Promise<extraHits>`): fans out
+//   alongside the local `suggestionAPIUrl` request. Local hits are painted into the dropdown as
+//   soon as they arrive (spinner stays on while extras are pending); extras are merged in via
+//   `mergeOptions` when they resolve. The helper receives a *promise* of local hits so it can
+//   fire its own request in parallel and await the local promise only at de-dup time. Late
+//   responses for queries the user has already typed past are dropped via a `searchQuery`
+//   staleness guard. Errors thrown from `mergeExtraSource` are swallowed (logged) so the local
+//   list is never lost.
+// - `restrictOptionsToResults` (default false): when true, the dropdown menu is sourced solely from
+//   the current remote results (`this.state.suggestions`) rather than the inner `SelectField`'s
+//   accumulating `state.options`. This bypasses both semantic-ui-react's built-in client-side
+//   text filtering and the inherited stock `SelectField` behavior of merging every `props.options`
+//   change into an ever-growing option universe (which, with client filtering disabled, would
+//   otherwise leave stale prior-query rows visible). Use for true remote autocomplete (e.g.
+//   `/api/names`) where the server / `mergeExtraSource` already decide relevance and each query's
+//   results should replace the previous menu. Callers pass the flag instead of a custom
+//   `search={(options) => options}` and need no ref into this widget's state.
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
@@ -125,24 +142,57 @@ class RemoteSelectField extends Component {
     };
 
     this.executeSearch = async (searchQuery) => {
-      const { preSearchChange, serializeSuggestions } = this.props;
+      const { preSearchChange, serializeSuggestions, mergeExtraSource } = this.props;
       const query = preSearchChange(searchQuery);
       const { searchQuery: prevSearchQuery } = this.state;
       if (prevSearchQuery === query) return;
 
       this.setState({ isFetching: true, searchQuery: query });
+
+      // Two-phase render: paint local hits into the dropdown the moment they arrive, then
+      // merge in extras (e.g. ORCID) when the extra source resolves. Both round-trips overlap:
+      // `mergeExtraSource` receives a *promise* of local hits so it can fire its own request
+      // immediately and await `localPromise` only when it needs the data for de-duping.
+      // TODO: pass an AbortSignal to mergeExtraSource for true request cancellation; today
+      // late responses are just dropped via the `searchQuery` staleness guard below.
+      const localPromise = this.fetchSuggestions(query);
+      const extraPromise = mergeExtraSource
+        ? Promise.resolve(mergeExtraSource(localPromise, query)).catch((e) => {
+            console.warn("RemoteSelectField extra source failed:", e);
+            return [];
+          })
+        : null;
+
+      let localHits;
       try {
-        const suggestions = await this.fetchSuggestions(query);
-        const serializedSuggestions = serializeSuggestions(suggestions);
-        this.setState((prevState) => ({
-          suggestions: mergeOptions(prevState.selectedSuggestions, serializedSuggestions),
-          isFetching: false,
-          error: false,
-          open: true,
-        }));
+        localHits = (await localPromise) ?? [];
       } catch (e) {
+        if (this.state.searchQuery !== query) return;
         console.error(e);
         this.setState({ error: true, isFetching: false });
+        return;
+      }
+      if (this.state.searchQuery !== query) return;
+      this.setState((prevState) => ({
+        suggestions: mergeOptions(
+          prevState.selectedSuggestions,
+          serializeSuggestions(localHits)
+        ),
+        isFetching: !!extraPromise,
+        error: false,
+        open: true,
+      }));
+
+      if (extraPromise) {
+        const extraHits = (await extraPromise) ?? [];
+        if (this.state.searchQuery !== query) return;
+        this.setState((prevState) => ({
+          suggestions: mergeOptions(
+            prevState.suggestions,
+            serializeSuggestions(extraHits)
+          ),
+          isFetching: false,
+        }));
       }
     };
 
@@ -284,6 +334,8 @@ class RemoteSelectField extends Component {
         commitSearchOnBlur,
         focusFieldPathAfterSelect,
         hideAdditionMenuItem,
+        mergeExtraSource,
+        restrictOptionsToResults,
         ...uiProps
       } = this.props;
 
@@ -308,6 +360,8 @@ class RemoteSelectField extends Component {
         commitSearchOnBlur,
         focusFieldPathAfterSelect,
         hideAdditionMenuItem,
+        mergeExtraSource,
+        restrictOptionsToResults,
       };
       return { compProps, uiProps };
     };
@@ -361,6 +415,13 @@ class RemoteSelectField extends Component {
     }
   }
 
+  // Menu source for `restrictOptionsToResults`: returns only the current remote
+  // results (selected item(s) + latest query's hits, including merged
+  // extra-source hits). Stable identity so semantic-ui-react isn't handed a new
+  // `search` function on every render; it reads fresh `state.suggestions` at
+  // call time.
+  menuSearchFromResults = () => this.state.suggestions;
+
   render() {
     const { compProps, uiProps } = this.getProps();
     const { error, suggestions, open, isFetching } = this.state;
@@ -368,6 +429,12 @@ class RemoteSelectField extends Component {
     const classNameParts = ["invenio-remote-select-field", uiProps.className, uiProps.classnames]
       .filter(Boolean)
       .join(" ");
+
+    // When restricting the menu to current results, source it from this widget's
+    // own suggestions and ignore the caller-supplied `search`.
+    const menuSearch = compProps.restrictOptionsToResults
+      ? this.menuSearchFromResults
+      : compProps.search;
 
     return (
       <SelectField
@@ -378,7 +445,7 @@ class RemoteSelectField extends Component {
         fieldPath={compProps.fieldPath}
         options={suggestions}
         noResultsMessage={this.getNoResultsMessage()}
-        search={compProps.search}
+        search={menuSearch}
         searchInput={{
           id: compProps.fieldPath,
           autoFocus: compProps.isFocused,
@@ -451,6 +518,8 @@ RemoteSelectField.defaultProps = {
   commitSearchOnBlur: false,
   focusFieldPathAfterSelect: undefined,
   hideAdditionMenuItem: false,
+  mergeExtraSource: undefined,
+  restrictOptionsToResults: false,
 };
 
 RemoteSelectField.propTypes = {
@@ -480,6 +549,8 @@ RemoteSelectField.propTypes = {
   hideAdditionMenuItem: PropTypes.bool,
   description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   helpText: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  mergeExtraSource: PropTypes.func,
+  restrictOptionsToResults: PropTypes.bool,
 };
 
 export { RemoteSelectField };
