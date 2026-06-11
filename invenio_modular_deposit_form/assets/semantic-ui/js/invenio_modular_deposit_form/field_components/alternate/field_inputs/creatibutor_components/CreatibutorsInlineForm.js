@@ -143,6 +143,13 @@ const CreatibutorsInlineForm = ({
     (_ctx, selectedSuggestions) => {
       const selectedSuggestion = selectedSuggestions?.[0];
       if (!selectedSuggestion) {
+        setPersonIdentifiers([]);
+        setPersonAffiliations([]);
+        setFieldValue(`${personOrOrgPath}.family_name`, "");
+        setFieldValue(`${personOrOrgPath}.given_name`, "");
+        setFieldValue(identifiersFieldPath, []);
+        setFieldValue(affiliationsFieldPath, []);
+        syncAffiliationsRef([]);
         return;
       }
 
@@ -166,13 +173,22 @@ const CreatibutorsInlineForm = ({
       setPersonDetailsExpanded(true);
       setFieldValue(`${personOrOrgPath}.family_name`, String(freeText));
     },
-    [familyNameWidgetRef, applyPersonFromApi, personOrOrgPath, setFieldValue]
+    [
+      familyNameWidgetRef,
+      applyPersonFromApi,
+      personOrOrgPath,
+      identifiersFieldPath,
+      affiliationsFieldPath,
+      setFieldValue,
+      syncAffiliationsRef,
+    ]
   );
 
   const onOrganizationSearchChange = useCallback(
     (_ctx, selectedSuggestions) => {
       const first = selectedSuggestions?.[0];
       if (!first?.extra) {
+        setFieldValue(`${personOrOrgPath}.name`, "");
         return;
       }
       const selected = first.extra;

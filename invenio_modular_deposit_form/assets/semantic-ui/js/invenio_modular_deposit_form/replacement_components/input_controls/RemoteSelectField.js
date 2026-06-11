@@ -487,7 +487,11 @@ class RemoteSelectField extends Component {
                 title_l10n: o.text,
               }))
             );
-            this.scheduleFocusFieldPath(compProps.focusFieldPathAfterSelect);
+            // Only advance focus on an actual selection; a clear (empty
+            // selection) should leave focus in this field.
+            if (selectedSuggestions.length > 0) {
+              this.scheduleFocusFieldPath(compProps.focusFieldPathAfterSelect);
+            }
           });
         }}
         loading={isFetching}

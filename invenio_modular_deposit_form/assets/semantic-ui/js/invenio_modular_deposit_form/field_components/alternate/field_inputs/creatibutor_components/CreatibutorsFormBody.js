@@ -316,7 +316,7 @@ const CreatibutorsFormBody = ({
                 )}
                 required={false}
                 isFocused={isNewItem}
-                search={(options) => options}
+                restrictOptionsToResults
                 suggestionAPIUrl="/api/affiliations"
                 serializeSuggestions={serializeSuggestions}
                 onValueChange={onOrganizationSearchChange}
