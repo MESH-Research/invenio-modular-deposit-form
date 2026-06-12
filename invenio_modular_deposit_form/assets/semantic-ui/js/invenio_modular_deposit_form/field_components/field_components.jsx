@@ -315,7 +315,12 @@ const DoiComponent = ({ ...extraProps }) => {
   }
 
   return (
-    <FieldComponentWrapper componentName="PIDField" {...extraProps} fieldPath="pids.doi">
+    <FieldComponentWrapper
+      componentName="PIDField"
+      {...extraProps}
+      fieldPath="pids.doi"
+      required={config?.is_doi_required ?? true}
+    >
       <ReplacementPIDField
         btnLabelDiscardPID={doiPid.btn_label_discard_pid}
         btnLabelGetPID={doiPid.btn_label_get_pid}
@@ -331,7 +336,6 @@ const DoiComponent = ({ ...extraProps }) => {
         pidPlaceholder={doiPid.pid_placeholder}
         pidType={doiPid.scheme}
         record={record ?? {}}
-        required={config?.is_doi_required ?? true}
         reservedHelpText={doiPid.reserved_help_text}
         unmanagedHelpText={doiPid.unmanaged_help_text}
       />
