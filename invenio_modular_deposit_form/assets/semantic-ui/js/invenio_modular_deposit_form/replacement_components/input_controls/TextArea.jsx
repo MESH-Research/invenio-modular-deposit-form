@@ -38,15 +38,12 @@ const TextArea = ({
     >
       {({
         field, // { name, value, onChange, onBlur }
-        form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+        // form: { touched, errors, values }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
         meta,
       }) => {
-        const descriptionId =
-          description && description !== " " ? `${fieldPath}.description` : "";
-        const helptextId =
-          helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
-        const describedByText =
-          [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
+        const descriptionId = description && description !== " " ? `${fieldPath}.description` : "";
+        const helptextId = helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
+        const describedByText = [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
         const labelId = showLabel && label ? `${fieldPath}.label` : undefined;
 
         return (
@@ -70,9 +67,7 @@ const TextArea = ({
             )}
             {descriptionId && (
               <div className="description" id={descriptionId}>
-                {React.isValidElement(description)
-                  ? description
-                  : i18next.t(description)}
+                {React.isValidElement(description) ? description : i18next.t(description)}
               </div>
             )}
             <Form.TextArea
@@ -92,9 +87,7 @@ const TextArea = ({
             />
             {helptextId && (
               <div className="helptext" id={helptextId}>
-                {React.isValidElement(helpText)
-                  ? helpText
-                  : i18next.t(helpText)}
+                {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
               </div>
             )}
             {((!!meta.error && !!meta.touched) ||

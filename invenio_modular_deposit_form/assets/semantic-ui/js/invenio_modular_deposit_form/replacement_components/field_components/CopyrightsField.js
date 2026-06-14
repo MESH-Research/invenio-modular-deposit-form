@@ -14,19 +14,18 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class CopyrightsField extends Component {
   render() {
-    const { fieldPath, label, required } = this.props;
+    const { classnames, fieldPath, label, required, placeholder, description, helpText } =
+      this.props;
     return (
       <TextField
+        classnames={classnames}
         fieldPath={fieldPath}
         label={label}
         labelIcon="copyright outline"
         required={required}
-        helpText={i18next.t(
-          "A copyright statement describing the ownership of the uploaded resource."
-        )}
-        placeholder={i18next.t("Copyright (C) {{currentYear}} The Authors.", {
-          currentYear: new Date().getFullYear(),
-        })}
+        helpText={helpText}
+        placeholder={placeholder}
+        description={description && description !== null ? description : ""}
         optimized
       />
     );
@@ -40,6 +39,10 @@ CopyrightsField.propTypes = {
 };
 
 CopyrightsField.defaultProps = {
+  helpText: i18next.t("A copyright statement describing the ownership of the uploaded resource."),
   label: i18next.t("Copyright"),
   required: false,
+  placeholder: i18next.t("Copyright (C) {{currentYear}} The Authors.", {
+    currentYear: new Date().getFullYear(),
+  }),
 };

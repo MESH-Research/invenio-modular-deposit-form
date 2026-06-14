@@ -31,7 +31,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
     >
       <Segment>
         <Grid className="deposit-form-nav-bar">
-          <Grid.Column width={3} textAlign="left">
+          <Grid.Column width={4} textAlign="left">
             {!!previousFormPage && (
               <Button
                 type="button"
@@ -46,7 +46,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
               </Button>
             )}
           </Grid.Column>
-          <Grid.Column className="nav-bar-message" width={10} textAlign="center">
+          <Grid.Column className="nav-bar-message pr-0 pl-0" width={8} textAlign="center">
             {!!storageDataPresent && (
               <span className="nav-bar-message-text">
                 <Trans
@@ -56,7 +56,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
               </span>
             )}
           </Grid.Column>
-          <Grid.Column width={3} textAlign="right">
+          <Grid.Column width={4} textAlign="right">
             {!!nextFormPage && (
               <Button
                 type="button"
