@@ -20,6 +20,8 @@
 // - Reserve / discard dispatch `reservePID` / `discardPID` directly (same thunks as
 //   `DepositBootstrap`) instead of `setSubmitContext` + `formik.handleSubmit`, so Formik does
 //   not run full submit validation or mark all fields touched for those actions.
+// - Before those dispatches, `valuesWithLinkFallbacks` merges `links` from Redux / Formik
+//   initial values when Formik values lost them (e.g. after localStorage recovery).
 //
 // JSX structure (managed identifier display, reserve/unreserve buttons) matches stock.
 
@@ -35,9 +37,18 @@ import {
   RESERVE_PID_STARTED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
 import { scrollTop } from "@js/invenio_rdm_records/src/deposit/utils";
+import { valuesWithLinkFallbacks } from "../../../../helpers/valuesWithLinkFallbacks";
 import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
 
 class ManagedIdentifierComponent extends Component {
+  draftValuesForPidAction(formik) {
+    const { recordLinks } = this.props;
+    return valuesWithLinkFallbacks(formik.values, {
+      recordLinks,
+      initialValuesLinks: formik.initialValues?.links,
+    });
+  }
+
   handleReservePID = async (event, formik) => {
     if (event?.preventDefault) {
       event.preventDefault();
@@ -47,7 +58,7 @@ class ManagedIdentifierComponent extends Component {
     }
     const { pidType, reservePID: reservePIDAction } = this.props;
     try {
-      await reservePIDAction(formik.values, { pidType });
+      await reservePIDAction(this.draftValuesForPidAction(formik), { pidType });
     } catch (error) {
       if (error && error.errors) {
         formik.setErrors(error.errors);
@@ -66,7 +77,7 @@ class ManagedIdentifierComponent extends Component {
     }
     const { discardPID: discardPIDAction, pidType } = this.props;
     try {
-      await discardPIDAction(formik.values, { pidType });
+      await discardPIDAction(this.draftValuesForPidAction(formik), { pidType });
     } catch (error) {
       if (error && error.errors) {
         formik.setErrors(error.errors);
@@ -149,6 +160,7 @@ ManagedIdentifierComponent.propTypes = {
   actionStateExtra: PropTypes.object,
   discardPID: PropTypes.func.isRequired,
   reservePID: PropTypes.func.isRequired,
+  recordLinks: PropTypes.object,
 };
 
 ManagedIdentifierComponent.defaultProps = {
@@ -157,11 +169,13 @@ ManagedIdentifierComponent.defaultProps = {
   helpText: null,
   actionState: "",
   actionStateExtra: {},
+  recordLinks: undefined,
 };
 
 const mapStateToProps = (state) => ({
   actionState: state.deposit.actionState,
   actionStateExtra: state.deposit.actionStateExtra,
+  recordLinks: state.deposit.record?.links,
 });
 
 const mapDispatchToProps = (dispatch) => ({
