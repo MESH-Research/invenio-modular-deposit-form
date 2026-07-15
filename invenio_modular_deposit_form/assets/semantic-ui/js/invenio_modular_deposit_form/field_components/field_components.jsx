@@ -790,11 +790,23 @@ const SubmissionComponent = () => {
           </Card.Content>
           <Card.Content>
             <Grid relaxed>
-              <Grid.Column computer={8} mobile={16} className="pb-0 left-btn-col">
+              <Grid.Column
+                widescreen={8}
+                largeScreen={16}
+                computer={16}
+                mobile={16}
+                className="pb-0"
+              >
                 <SaveButton fluid />
               </Grid.Column>
 
-              <Grid.Column computer={8} mobile={16} className="pb-0 right-btn-col">
+              <Grid.Column
+                widescreen={8}
+                largeScreen={16}
+                computer={16}
+                mobile={16}
+                className="pb-0"
+              >
                 <PreviewButton fluid />
               </Grid.Column>
 

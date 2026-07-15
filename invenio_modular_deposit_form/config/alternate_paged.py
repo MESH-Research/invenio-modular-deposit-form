@@ -103,7 +103,7 @@ _PAGED_FORM_LEFT_SIDEBAR_MENU = {
         {
             "component": "FormSidebarPageMenu",
             "label": _("Steps"),
-            "classnames": "widescreen large-monitor only",
+            "classnames": "widescreen large screen only",
         },
     ],
 }

@@ -75,9 +75,7 @@ function fillWidthsFromDefaults(configRaw) {
 function omitZeroSidebarWidthsForGrid(mergedSidebarConfig) {
   const widthKeys = new Set(Object.keys(SIDEBAR_DEFAULTS_WIDTHS));
   return Object.fromEntries(
-    Object.entries(mergedSidebarConfig).filter(
-      ([key, val]) => !(widthKeys.has(key) && val === 0)
-    )
+    Object.entries(mergedSidebarConfig).filter(([key, val]) => !(widthKeys.has(key) && val === 0))
   );
 }
 
@@ -159,101 +157,97 @@ const FormLayoutContainer = () => {
           </Grid.Row>
         </Grid>
       )}
-      <Container id="rdm-deposit-form" className="rel-mt-1">
-        <Grid>
-          {formTitleConfig ? (
-            <FormTitleRegion
-              subsections={formTitleConfig?.subsections ?? []}
-              classnames={formTitleConfig?.classnames}
-            />
-          ) : (
-            <Grid.Row className="deposit-form-title">
-              <Grid.Column width={16}>
-                <h1 className="ui header">{makeFormHeading(record)}</h1>
-                {!!selectedCommunityLabel && !config?.show_community_banner_at_top && (
-                  <h2 className="ui header preselected-community-header">
-                    for {selectedCommunityLabel}
-                  </h2>
-                )}
-              </Grid.Column>
-            </Grid.Row>
-          )}
-
-          {formHeaderConfig && (
-            <FormHeaderRegion subsections={formHeaderConfig?.subsections ?? []} />
-          )}
-          <Grid.Row>
-            {leftSidebar && (
-              <FormLeftSidebar
-                subsections={leftSidebar.config?.subsections ?? []}
-                mobile={leftSidebar.config?.mobile}
-                tablet={leftSidebar.config?.tablet}
-                computer={leftSidebar.config?.computer}
-                largeScreen={leftSidebar.config?.largeScreen}
-                widescreen={leftSidebar.config?.widescreen}
-                {...(leftSidebar.config?.only ? { only: leftSidebar.config?.only } : {})}
-              />
-            )}
-            <Grid.Column
-              computer={mainColumnWidths.computer}
-              mobile={mainColumnWidths.mobile}
-              tablet={mainColumnWidths.tablet}
-              largeScreen={mainColumnWidths.largeScreen}
-              widescreen={mainColumnWidths.widescreen}
-              className="mb-15"
-            >
-              <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
-                {/* Non-empty pages only; full merged list (incl. placeholders) is formUIState.resolvedFormPages */}
-                {state.visibleFormPages.map((mergedPage) => {
-                  const {
-                    section,
-                    subsections,
-                    classnames,
-                    label,
-                    component: _formPageComponent,
-                    ...rest
-                  } = mergedPage;
-                  return (
-                    state.currentFormPage === section && (
-                      <div key={section}>
-                        <FormPage
-                          focusFirstElement={focusFirstElement}
-                          id={`InvenioAppRdm.Deposit.FormPage.${section}`}
-                          recoveryAsked={ctx.recoveryAsked}
-                          classnames={classnames}
-                          subsections={subsections}
-                          label={label}
-                          {...rest}
-                        />
-                      </div>
-                    )
-                  );
-                })}
-              </Transition.Group>
+      <Grid as={Container} id="rdm-deposit-form" className="rel-mt-1">
+        {formTitleConfig ? (
+          <FormTitleRegion
+            subsections={formTitleConfig?.subsections ?? []}
+            classnames={formTitleConfig?.classnames}
+          />
+        ) : (
+          <Grid.Row className="deposit-form-title">
+            <Grid.Column width={16}>
+              <h1 className="ui header">{makeFormHeading(record)}</h1>
+              {!!selectedCommunityLabel && !config?.show_community_banner_at_top && (
+                <h2 className="ui header preselected-community-header">
+                  for {selectedCommunityLabel}
+                </h2>
+              )}
             </Grid.Column>
-            {rightSidebar && (
-              <FormRightSidebar
-                subsections={rightSidebar.config?.subsections ?? []}
-                mobile={rightSidebar.config?.mobile}
-                tablet={rightSidebar.config?.tablet}
-                computer={rightSidebar.config?.computer}
-                largeScreen={rightSidebar.config?.largeScreen}
-                widescreen={rightSidebar.config?.widescreen}
-                {...(rightSidebar.config?.only ? { only: rightSidebar.config?.only } : {})}
-              />
-            )}
           </Grid.Row>
+        )}
 
-          {formFooterConfig && (
-            <FormFooterRegion subsections={formFooterConfig?.subsections ?? []}>
-              <div
-                id="sticky-footer-observation-target"
-                ref={ctx.pageTargetRefCallback}
-                style={{ minHeight: 1 }}
-              />
-            </FormFooterRegion>
+        {formHeaderConfig && <FormHeaderRegion subsections={formHeaderConfig?.subsections ?? []} />}
+        <Grid.Row>
+          {leftSidebar && (
+            <FormLeftSidebar
+              subsections={leftSidebar.config?.subsections ?? []}
+              mobile={leftSidebar.config?.mobile}
+              tablet={leftSidebar.config?.tablet}
+              computer={leftSidebar.config?.computer}
+              largeScreen={leftSidebar.config?.largeScreen}
+              widescreen={leftSidebar.config?.widescreen}
+              {...(leftSidebar.config?.only ? { only: leftSidebar.config?.only } : {})}
+            />
           )}
-        </Grid>
+          <Grid.Column
+            computer={mainColumnWidths.computer}
+            mobile={mainColumnWidths.mobile}
+            tablet={mainColumnWidths.tablet}
+            largeScreen={mainColumnWidths.largeScreen}
+            widescreen={mainColumnWidths.widescreen}
+            className="mb-15"
+          >
+            <Transition.Group animation="fade" duration={{ show: 1000, hide: 20 }}>
+              {/* Non-empty pages only; full merged list (incl. placeholders) is formUIState.resolvedFormPages */}
+              {state.visibleFormPages.map((mergedPage) => {
+                const {
+                  section,
+                  subsections,
+                  classnames,
+                  label,
+                  component: _formPageComponent,
+                  ...rest
+                } = mergedPage;
+                return (
+                  state.currentFormPage === section && (
+                    <div key={section}>
+                      <FormPage
+                        focusFirstElement={focusFirstElement}
+                        id={`InvenioAppRdm.Deposit.FormPage.${section}`}
+                        recoveryAsked={ctx.recoveryAsked}
+                        classnames={classnames}
+                        subsections={subsections}
+                        label={label}
+                        {...rest}
+                      />
+                    </div>
+                  )
+                );
+              })}
+            </Transition.Group>
+          </Grid.Column>
+          {rightSidebar && (
+            <FormRightSidebar
+              subsections={rightSidebar.config?.subsections ?? []}
+              mobile={rightSidebar.config?.mobile}
+              tablet={rightSidebar.config?.tablet}
+              computer={rightSidebar.config?.computer}
+              largeScreen={rightSidebar.config?.largeScreen}
+              widescreen={rightSidebar.config?.widescreen}
+              {...(rightSidebar.config?.only ? { only: rightSidebar.config?.only } : {})}
+            />
+          )}
+        </Grid.Row>
+
+        {formFooterConfig && (
+          <FormFooterRegion subsections={formFooterConfig?.subsections ?? []}>
+            <div
+              id="sticky-footer-observation-target"
+              ref={ctx.pageTargetRefCallback}
+              style={{ minHeight: 1 }}
+            />
+          </FormFooterRegion>
+        )}
 
         <Confirm
           icon="question circle outline"
@@ -290,7 +284,7 @@ const FormLayoutContainer = () => {
             setRecoveryAsked={ctx.handleRecoveryAsked}
           />
         )}
-      </Container>
+      </Grid>
     </>
   );
 };

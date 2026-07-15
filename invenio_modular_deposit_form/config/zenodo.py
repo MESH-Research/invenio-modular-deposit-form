@@ -37,11 +37,11 @@ COMMON_FIELDS_ZENODO_PAGED = [
         "largeScreen": 3,
         "widescreen": 2,
         "subsections": [
-            # Visibility class: use "large-monitor" (hyphen) for class name equivalent to
+            # Visibility class: use "large screen" for class name equivalent to
             # "largeScreen" width prop
             {
                 "component": "FormSidebarPageMenu",
-                "classnames": "computer widescreen large-monitor only",
+                "classnames": "computer widescreen large screen only",
             },
         ],
     },
