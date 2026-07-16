@@ -784,7 +784,7 @@ const SubmissionComponent = () => {
         permissions={permissions}
         groupsEnabled={groupsEnabled}
       >
-        <Card>
+        <Card className="pt-0">
           <Card.Content>
             <DepositStatusBox />
           </Card.Content>
@@ -829,7 +829,7 @@ const SubmissionComponent = () => {
       </Overridable>
       {permissions?.can_delete_draft && (
         <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
-          <Card>
+          <Card className="pt-0 pb-0">
             <Card.Content>
               <DeleteButton fluid />
             </Card.Content>

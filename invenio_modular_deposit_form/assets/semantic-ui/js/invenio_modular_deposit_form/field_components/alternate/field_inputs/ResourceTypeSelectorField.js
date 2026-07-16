@@ -280,7 +280,7 @@ function ResourceTypeSelectorFieldInner({
               </div>
             )}
             <div
-              className="ui compact fluid icon labeled six item menu"
+              className="ui compact fluid icon labeled six item menu rel-mb-1"
               role="radiogroup"
               tabIndex={-1}
               aria-invalid={showError || undefined}
