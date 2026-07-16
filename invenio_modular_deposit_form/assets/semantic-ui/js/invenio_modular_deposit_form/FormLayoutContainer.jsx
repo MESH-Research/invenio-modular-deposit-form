@@ -141,7 +141,7 @@ const FormLayoutContainer = () => {
   const selectedCommunity = editorState?.selectedCommunity;
   const selectedCommunityLabel = makeSelectedCommunityLabel(selectedCommunity);
 
-  useStickyFooterOverlapFix(state.currentFormPage);
+  useStickyFooterOverlapFix();
 
   return (
     <>
