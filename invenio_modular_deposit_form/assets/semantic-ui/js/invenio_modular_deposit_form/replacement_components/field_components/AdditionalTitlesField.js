@@ -69,6 +69,7 @@ const AdditionalTitleLanguagePicker = ({ fieldPath, recordUiLang }) => {
       labelIcon={null}
       clearable
       selectOnBlur={false}
+      selectOnNavigation={false}
       width={5}
     />
   );

@@ -137,6 +137,7 @@ export class AdditionalDescriptionsField extends Component {
                     labelIcon=""
                     clearable
                     selectOnBlur={false}
+                    selectOnNavigation={false}
                   />
                 </Grid.Column>
               </Grid.Row>
