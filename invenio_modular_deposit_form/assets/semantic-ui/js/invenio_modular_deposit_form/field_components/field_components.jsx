@@ -785,36 +785,24 @@ const SubmissionComponent = () => {
         groupsEnabled={groupsEnabled}
       >
         <Card className="pt-0">
-          <Card.Content>
+          {/* <Card.Content>
             <DepositStatusBox />
-          </Card.Content>
+          </Card.Content> */}
           <Card.Content>
             <Grid relaxed>
-              <Grid.Column
-                widescreen={8}
-                largeScreen={16}
-                computer={16}
-                mobile={16}
-                className="pb-0"
-              >
+              <Grid.Column width={16} className="rel-pt-2 pb-0">
                 <SaveButton fluid />
               </Grid.Column>
 
-              <Grid.Column
-                widescreen={8}
-                largeScreen={16}
-                computer={16}
-                mobile={16}
-                className="pb-0"
-              >
+              <Grid.Column width={16} className="rel-pt-1 pb-0">
                 <PreviewButton fluid />
               </Grid.Column>
 
-              <Grid.Column width={16} className="pt-10">
+              <Grid.Column width={16} className="rel-pt-1 pb-0">
                 <PublishButton fluid record={record} />
               </Grid.Column>
 
-              <Grid.Column width={16} className="pt-0">
+              <Grid.Column width={16} className="rel-pt-1">
                 {record.parent && (record?.is_draft === null || permissions?.can_manage) && (
                   <ShareDraftButton
                     record={record}
