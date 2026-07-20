@@ -17,7 +17,7 @@ import React, {
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 
-import { findPageIdContainingComponent, focusFirstElement } from "./utils";
+import { focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
 import { formUIStateReducer, getInitialFormUIState } from "./helpers/formUIStateReducer";
 import { useFormSubmissionTransformer } from "./hooks/useFormSubmissionTransformer";
@@ -56,10 +56,6 @@ const FormUIStateManager = ({ children }) => {
     .getState()
     .deposit?.config?.common_fields?.find((item) => item.component === "FormPages");
   const formPagesCommon = formPagesConfig?.subsections ?? [];
-  const fileUploadPageId = useMemo(
-    () => findPageIdContainingComponent(formPagesCommon, "FileUploadComponent"),
-    [formPagesCommon]
-  );
   const useConfirmModal = config?.use_confirm_modal ?? true;
 
   // Dynamic form state
@@ -83,11 +79,7 @@ const FormUIStateManager = ({ children }) => {
   ]);
 
   // Autosave form data in browser local storage
-  const recovery = useLocalStorageRecovery(
-    currentUserprofile,
-    state.currentFormPage,
-    fileUploadPageId
-  );
+  const recovery = useLocalStorageRecovery(currentUserprofile, state.currentFormPage);
 
   // Perform any desired record data transformations before submission
   useFormSubmissionTransformer();
@@ -100,7 +92,6 @@ const FormUIStateManager = ({ children }) => {
     focusFirstElement,
     recovery.recoveryAsked,
     formik,
-    fileUploadPageId,
     useConfirmModal
   );
 
@@ -122,7 +113,6 @@ const FormUIStateManager = ({ children }) => {
       confirmingPageChange: navigation.confirmingPageChange,
       formUIState: state,
       formUIDispatch: dispatch,
-      fileUploadPageId,
       handleFormPageChange: navigation.handleFormPageChange,
       handlePageChangeCancel: navigation.handlePageChangeCancel,
       handlePageChangeConfirm: navigation.handlePageChangeConfirm,
@@ -140,7 +130,6 @@ const FormUIStateManager = ({ children }) => {
       navigation,
       state,
       dispatch,
-      fileUploadPageId,
       pageTargetRef,
       pageTargetRefCallback,
       pageTargetInViewport,

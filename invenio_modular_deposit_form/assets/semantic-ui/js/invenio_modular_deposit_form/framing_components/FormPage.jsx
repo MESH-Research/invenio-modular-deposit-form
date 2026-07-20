@@ -16,14 +16,15 @@ const FormPage = ({
   label,
   ...pageRest
 }) => {
-  const { formUIState, fileUploadPageId } = useFormUIState();
+  const { formUIState } = useFormUIState();
   const currentFormPage = formUIState?.currentFormPage;
 
   useLayoutEffect(() => {
-    window.setTimeout(() => {
-      focusFirstElement(currentFormPage, recoveryAsked, fileUploadPageId);
+    const timer = window.setTimeout(() => {
+      focusFirstElement(currentFormPage, recoveryAsked);
     }, 200);
-  }, [currentFormPage, recoveryAsked, fileUploadPageId]);
+    return () => window.clearTimeout(timer);
+  }, [currentFormPage, recoveryAsked]);
 
   return (
     <Overridable

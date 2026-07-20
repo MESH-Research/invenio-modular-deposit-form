@@ -597,6 +597,22 @@ describe('_scrollTop', () => {
 });
 
 describe('focusFirstElement', () => {
+  const SELECTOR =
+    '#InvenioAppRdm\\.Deposit\\.FormPage\\.1 button, #InvenioAppRdm\\.Deposit\\.FormPage\\.1 input, #InvenioAppRdm\\.Deposit\\.FormPage\\.1 .selection.dropdown input';
+
+  /** Plain objects are not real DOM nodes; stub activeElement so the retry loop can stop. */
+  const makeFocusable = () => {
+    const el = {
+      focus: jest.fn(() => {
+        Object.defineProperty(document, 'activeElement', {
+          configurable: true,
+          get: () => el,
+        });
+      }),
+    };
+    return el;
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -605,26 +621,29 @@ describe('focusFirstElement', () => {
     jest.useRealTimers();
   });
 
-  test('focuses first focusable element and scrolls to top after timeout', () => {
-    const focus = jest.fn();
+  test('focuses first focusable element and scrolls to top after initial delay', () => {
+    const input0 = makeFocusable();
     const scrollTo = jest.fn();
-    const input0 = { focus };
     const querySelectorAll = jest.fn(() => [input0]);
     Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
     Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true });
 
-    focusFirstElement('1', true, null);
+    focusFirstElement('1', true);
+    expect(querySelectorAll).not.toHaveBeenCalled();
+
     jest.advanceTimersByTime(100);
 
-    expect(querySelectorAll).toHaveBeenCalledWith(
-      '#InvenioAppRdm\\.Deposit\\.FormPage\\.1 button, #InvenioAppRdm\\.Deposit\\.FormPage\\.1 input, #InvenioAppRdm\\.Deposit\\.FormPage\\.1 .selection.dropdown input'
-    );
-    expect(focus).toHaveBeenCalled();
+    expect(querySelectorAll).toHaveBeenCalledWith(SELECTOR);
+    expect(input0.focus).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith(0, 0);
+
+    // Focus stuck — no further retries.
+    jest.advanceTimersByTime(50 * 24);
+    expect(input0.focus).toHaveBeenCalledTimes(1);
   });
 
   test('when recoveryAsked is false, does not focus', () => {
-    const querySelectorAll = jest.fn(() => [{ focus: jest.fn() }]);
+    const querySelectorAll = jest.fn(() => [makeFocusable()]);
     Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
 
     focusFirstElement('1', false);
@@ -633,17 +652,76 @@ describe('focusFirstElement', () => {
     expect(querySelectorAll).not.toHaveBeenCalled();
   });
 
-  test('on file upload page focuses second element when fileUploadPageId matches', () => {
-    const focus0 = jest.fn();
-    const focus1 = jest.fn();
-    const querySelectorAll = jest.fn(() => [{ focus: focus0 }, { focus: focus1 }]);
+  test('retries until the first focusable element appears and retains focus', () => {
+    const input0 = makeFocusable();
+    const scrollTo = jest.fn();
+    const querySelectorAll = jest
+      .fn()
+      .mockReturnValueOnce([])
+      .mockReturnValueOnce([])
+      .mockReturnValue([input0]);
     Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
+    Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true });
 
-    focusFirstElement('6', true, '6');
-    jest.advanceTimersByTime(100);
+    focusFirstElement('1', true);
 
-    expect(focus0).not.toHaveBeenCalled();
-    expect(focus1).toHaveBeenCalled();
+    jest.advanceTimersByTime(100); // empty
+    expect(input0.focus).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(50); // empty again
+    expect(input0.focus).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(50); // element present
+    expect(querySelectorAll).toHaveBeenCalledTimes(3);
+    expect(input0.focus).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(0, 0);
+
+    jest.advanceTimersByTime(50 * 24);
+    expect(input0.focus).toHaveBeenCalledTimes(1);
+  });
+
+  test('skips a disabled first control and focuses the next interactive one', () => {
+    const disabled = { disabled: true, focus: jest.fn(), getAttribute: () => null };
+    const input1 = makeFocusable();
+    const scrollTo = jest.fn();
+    const querySelectorAll = jest.fn(() => [disabled, input1]);
+    Object.defineProperty(document, 'querySelectorAll', { value: querySelectorAll, writable: true });
+    Object.defineProperty(window, 'scrollTo', { value: scrollTo, writable: true });
+
+    focusFirstElement('1', true);
+
+    jest.advanceTimersByTime(100); // skip disabled
+    expect(disabled.focus).not.toHaveBeenCalled();
+    expect(input1.focus).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(50); // focus next
+    expect(input1.focus).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(0, 0);
+  });
+
+  test('stops retrying after the attempt cap when focus never sticks', () => {
+    const focus = jest.fn(); // does not set document.activeElement
+    const input0 = { focus, getAttribute: () => null };
+    const querySelectorAll = jest.fn(() => [input0]);
+    Object.defineProperty(document, 'querySelectorAll', {
+      value: querySelectorAll,
+      writable: true,
+    });
+    Object.defineProperty(window, 'scrollTo', { value: jest.fn(), writable: true });
+    Object.defineProperty(document, 'activeElement', {
+      configurable: true,
+      get: () => document.body,
+    });
+
+    focusFirstElement('1', true);
+
+    // First tick: try [0], focus fails to stick, index advances past the only candidate.
+    // Remaining attempts see undefined and do not call focus again.
+    jest.advanceTimersByTime(100 + 50 * 23);
+    expect(focus).toHaveBeenCalledTimes(1);
+
+    jest.advanceTimersByTime(50 * 10);
+    expect(focus).toHaveBeenCalledTimes(1);
   });
 });
 

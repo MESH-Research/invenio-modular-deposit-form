@@ -44,10 +44,9 @@ const overlayServerManagedKeys = (snapshot, record) => {
  *
  * @param {Object} currentUserprofile
  * @param {string} currentFormPage - Current form page id
- * @param {string|null} fileUploadPageId - Page id containing FileUploadComponent (for focus workaround)
  * @returns {Object} recoveryAsked, confirmModalRef, recoveredStorageValues, storageDataPresent
  */
-function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUploadPageId) {
+function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
   const user = currentUserprofile.id;
   const [recoveryAsked, setRecoveryAsked] = useState(false);
   const confirmModalRef = useRef();
@@ -63,8 +62,8 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
   // focus first element when modal is closed to allow keyboard navigation
   const handleRecoveryAsked = useCallback(() => {
     setRecoveryAsked(true);
-    focusFirstElement(currentFormPage, true, fileUploadPageId);
-  }, [currentFormPage, fileUploadPageId]);
+    focusFirstElement(currentFormPage, true);
+  }, [currentFormPage]);
 
   // keep changed form values in local storage (debounced so rapid edits
   // collapse into a single write once the user pauses). Server-managed keys
@@ -109,10 +108,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, initialValues, [
-        "ui",
-        ...SERVER_MANAGED_FORMIK_KEYS,
-      ])
+      !areDeeplyEqual(storageValuesObj, initialValues, ["ui", ...SERVER_MANAGED_FORMIK_KEYS])
     ) {
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
@@ -147,10 +143,18 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage, fileUpload
         }
         doSetInitialValues();
         setRecoveredStorageValues(null);
+        focusFirstElement(currentFormPage, true);
       }
       window.localStorage.removeItem(`rdmDepositFormValues.${currentUserprofile.id}.${values.id}`);
     },
-    [currentUserprofile.id, recoveredStorageValues, resetForm, store, values.id]
+    [
+      currentFormPage,
+      currentUserprofile.id,
+      recoveredStorageValues,
+      resetForm,
+      store,
+      values.id,
+    ]
   );
 
   return useMemo(

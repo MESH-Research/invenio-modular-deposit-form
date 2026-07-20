@@ -168,8 +168,7 @@ function findPageIdContainingComponent(formPages, componentName) {
 function _normalizeFieldsByTypePage(raw) {
   if (raw == null) return { label: undefined, subsections: null };
   if (typeof raw === "object" && !Array.isArray(raw) && Array.isArray(raw.subsections)) {
-    const label =
-      typeof raw.label === "string" && raw.label.trim() !== "" ? raw.label : undefined;
+    const label = typeof raw.label === "string" && raw.label.trim() !== "" ? raw.label : undefined;
     return { label, subsections: raw.subsections };
   }
   return { label: undefined, subsections: null };
@@ -186,7 +185,11 @@ function _normalizeFieldsByTypePage(raw) {
  * @returns {object|null} Merged layout without `same_as`, or null if `layoutWithSameAs` is not a same_as row
  */
 function _mergeSameAsLayout(layoutWithSameAs, baseLayout) {
-  if (layoutWithSameAs == null || typeof layoutWithSameAs !== "object" || Array.isArray(layoutWithSameAs)) {
+  if (
+    layoutWithSameAs == null ||
+    typeof layoutWithSameAs !== "object" ||
+    Array.isArray(layoutWithSameAs)
+  ) {
     return null;
   }
   if (typeof layoutWithSameAs.same_as !== "string" || layoutWithSameAs.same_as.trim() === "") {
@@ -229,11 +232,17 @@ function _mergeSameAsLayout(layoutWithSameAs, baseLayout) {
  * @param {Set<string>} [visitedTypeIds] - Types already visited on this `same_as` chain (cycle guard)
  * @returns {Object|null} Resolved layout object (includes `subsections` when present), or null
  */
-function _resolveInheritedPageLayout(pageId, resourceTypeId, fieldsByType, visitedTypeIds = new Set()) {
+function _resolveInheritedPageLayout(
+  pageId,
+  resourceTypeId,
+  fieldsByType,
+  visitedTypeIds = new Set()
+) {
   if (resourceTypeId == null || resourceTypeId === "") return null;
   if (visitedTypeIds.has(resourceTypeId)) return null;
   const pageLayout = fieldsByType?.[resourceTypeId]?.[pageId];
-  if (pageLayout == null || typeof pageLayout !== "object" || Array.isArray(pageLayout)) return null;
+  if (pageLayout == null || typeof pageLayout !== "object" || Array.isArray(pageLayout))
+    return null;
 
   if (typeof pageLayout.same_as === "string" && pageLayout.same_as.trim() !== "") {
     const nextVisited = new Set(visitedTypeIds);
@@ -406,7 +415,6 @@ function getErrorParent(errors, fieldPath) {
   return errorAncestor;
 }
 
-
 // Compares two objects deeply, ignoring the keys passed in the ignoreKeys array
 // Returns true if the objects are deeply equal, false otherwise
 // If ignoreKeys is not passed, it compares the objects deeply without ignoring any keys
@@ -418,8 +426,7 @@ function getErrorParent(errors, fieldPath) {
 // passing the array index as the key path.
 // returns(boolean): true if the objects are deeply equal, false otherwise
 function areDeeplyEqual(obj1, obj2, ignoreKeys) {
-
-  if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null) {
+  if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
     return obj1 === obj2;
   }
 
@@ -439,7 +446,7 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
     if (!keys2.includes(key)) return false;
 
     if (!areDeeplyEqual(obj1[key], obj2[key], _getSubKeys(key, ignoreKeys))) {
-        return false;
+      return false;
     }
   }
 
@@ -454,48 +461,57 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
 // returns(array): array of the paths below the given key or path
 function _getSubKeys(key, ignoreKeys) {
   return ignoreKeys
-    .filter(ignoreKey => ignoreKey.startsWith(key + '.'))
-    .map(ignoreKey => ignoreKey.slice(key.length + 1));
+    .filter((ignoreKey) => ignoreKey.startsWith(key + "."))
+    .map((ignoreKey) => ignoreKey.slice(key.length + 1));
 }
 
 function isNearViewportBottom(el, offset = 0) {
   const { bottom } = el.getBoundingClientRect();
-  return (
-    (bottom + offset) >= window.innerHeight
-  );
+  return bottom + offset >= window.innerHeight;
 }
 
+const FOCUS_FIRST_ATTEMPTS_RETRY_MAX = 24;
+const FOCUS_FIRST_RETRY_MS = 50;
+
 /**
- * Make sure first page element is focused when navigating
+ * Focus the first interactive control on the current form page.
  *
- * Passed down to FormPage but also called by confirm modal
- *
- * Timeout allows time for the page to render before focusing the first element.
- * On the page that contains the file upload component, the first focusable element
- * is skipped (targetIndex 1) as a workaround for the file uploader's inaccessible first input.
+ * Used by FormPage, recovery modal close/restore, and page-change confirm cancel.
+ * Retries while the page NodeList is empty (e.g. remount), then walks candidates
+ * skipping disabled / non-focusable controls until one retains focus or attempts
+ * are exhausted.
  *
  * @param {string} currentFormPage - The current form page id
  * @param {boolean} recoveryAsked - Whether recovery has been asked (or modal closed)
- * @param {string|null} fileUploadPageId - Page id of the page that contains FileUploadComponent (optional)
  */
-const focusFirstElement = (currentFormPage, recoveryAsked = true, fileUploadPageId = null) => {
-  // FIXME: timing issue
-  setTimeout(() => {
-    if (recoveryAsked) {
-      // Workaround: file uploader has an inaccessible first input; focus the second focusable on that page.
-      const targetIndex =
-        fileUploadPageId && currentFormPage === fileUploadPageId ? 1 : 0;
-      const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
-      const newInputs = document.querySelectorAll(
-        `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`
-      );
-      const newFirstInput = newInputs[targetIndex];
-      if (newFirstInput !== undefined) {
-        newFirstInput?.focus();
-        window.scrollTo(0, 0);
+const focusFirstElement = (currentFormPage, recoveryAsked = true) => {
+  if (!recoveryAsked) return;
+  const idString = `InvenioAppRdm\\.Deposit\\.FormPage\\.${currentFormPage}`;
+  const selector = `#${idString} button, #${idString} input, #${idString} .selection.dropdown input`;
+  const isFocusableControl = (el) =>
+    !el?.disabled && el?.getAttribute?.("aria-disabled") !== "true";
+
+  let attempts = 0;
+  let focusableIndex = 0;
+  const tryFocus = () => {
+    const newFirstInputs = document.querySelectorAll(selector);
+    const newFirstInput = newFirstInputs[focusableIndex];
+    if (newFirstInput !== undefined && isFocusableControl(newFirstInput)) {
+      newFirstInput?.focus();
+      window.scrollTo(0, 0);
+      if (document.activeElement === newFirstInput) {
+        return;
       }
     }
-  }, 100);
+    if (newFirstInput !== undefined) {
+      focusableIndex += 1;
+    }
+    attempts += 1;
+    if (attempts < FOCUS_FIRST_ATTEMPTS_RETRY_MAX) {
+      window.setTimeout(tryFocus, FOCUS_FIRST_RETRY_MS);
+    }
+  };
+  window.setTimeout(tryFocus, 100);
 };
 
 /**
@@ -511,16 +527,19 @@ const focusFirstElement = (currentFormPage, recoveryAsked = true, fileUploadPage
  */
 function getReadableFields(fields) {
   // Separate fields with array indices into a separate list
-  const fieldsWithArrays = fields.filter(field => field.includes('['));
-  const fieldsWithoutArrays = fields.filter(field => !field.includes('['));
+  const fieldsWithArrays = fields.filter((field) => field.includes("["));
+  const fieldsWithoutArrays = fields.filter((field) => !field.includes("["));
 
-  const fieldsWithArraysStripped = fieldsWithArrays.map(field => field.substring(0, field.indexOf('['))
+  const fieldsWithArraysStripped = fieldsWithArrays.map((field) =>
+    field.substring(0, field.indexOf("["))
   );
 
   console.log("fieldsWithoutArrays", fieldsWithoutArrays);
   console.log("fieldsWithArraysStripped", fieldsWithArraysStripped);
-  let readableFields = fieldsWithoutArrays.map(field => readableFieldLabels[field] || field);
-  let readableFieldsWithArrays = fieldsWithArraysStripped.map(field => readableFieldLabels[field] || field);
+  let readableFields = fieldsWithoutArrays.map((field) => readableFieldLabels[field] || field);
+  let readableFieldsWithArrays = fieldsWithArraysStripped.map(
+    (field) => readableFieldLabels[field] || field
+  );
   console.log("readableFieldLabels", readableFieldLabels);
   console.log("readableFields", readableFields);
   console.log("readableFieldsWithArrays", readableFieldsWithArrays);
@@ -542,14 +561,14 @@ function _mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
   if (Array.isArray(objA)) {
     const safeB = Array.isArray(objB) ? objB : [];
     switch (arrayStrategy) {
-    case "concat":
-      mergedObj = objA.concat(safeB);
-      break;
-    case "dedup":
-      mergedObj = [...new Set([...objA, ...safeB])];
-      break;
-    case "override":
-      break;
+      case "concat":
+        mergedObj = objA.concat(safeB);
+        break;
+      case "dedup":
+        mergedObj = [...new Set([...objA, ...safeB])];
+        break;
+      case "override":
+        break;
     }
   } else if (typeof objA === "object") {
     const aKeys = Object.keys(objA);
@@ -568,16 +587,16 @@ function _mergeNestedObjects(objA, objB, arrayStrategy = "concat") {
 }
 
 /**
-  * Filter a nested object based on a whitelist of dot-separated paths.
-  * Preserves array structure when allowed paths refer to properties inside array elements.
-  */
+ * Filter a nested object based on a whitelist of dot-separated paths.
+ * Preserves array structure when allowed paths refer to properties inside array elements.
+ */
 function _filterNestedObject(errors, allowedPaths) {
   const result = {};
   const allowed = new Set(allowedPaths);
 
   // Build nested structure in target; path may contain numeric segments for array indices.
   function setDeep(target, path, value) {
-    const parts = path.split('.');
+    const parts = path.split(".");
     let ref = target;
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i];
@@ -586,7 +605,7 @@ function _filterNestedObject(errors, allowedPaths) {
         const num = parseInt(part, 10);
         if (!Array.isArray(ref)) ref = [];
         while (ref.length <= num) ref.push(undefined);
-        if (ref[num] === undefined || typeof ref[num] !== 'object') ref[num] = {};
+        if (ref[num] === undefined || typeof ref[num] !== "object") ref[num] = {};
         ref = ref[num];
       } else {
         const nextPart = parts[i + 1];
@@ -595,7 +614,7 @@ function _filterNestedObject(errors, allowedPaths) {
           if (!Array.isArray(ref[part])) ref[part] = [];
           ref = ref[part];
         } else {
-          if (!ref[part] || typeof ref[part] !== 'object') ref[part] = {};
+          if (!ref[part] || typeof ref[part] !== "object") ref[part] = {};
           ref = ref[part];
         }
       }
@@ -605,7 +624,7 @@ function _filterNestedObject(errors, allowedPaths) {
 
   // pathWithIndex: includes array indices for writing to result; pathWithoutIndex: for allowed check.
   function walk(obj, pathWithIndex, pathWithoutIndex) {
-    if (obj === null || typeof obj !== 'object') return;
+    if (obj === null || typeof obj !== "object") return;
 
     const prefixWith = pathWithIndex;
     const prefixWithout = pathWithoutIndex;
@@ -628,7 +647,7 @@ function _filterNestedObject(errors, allowedPaths) {
       const pathWithout = prefixWithout ? `${prefixWithout}.${key}` : key;
       const value = obj[key];
 
-      if (Array.isArray(value) || (value !== null && typeof value === 'object')) {
+      if (Array.isArray(value) || (value !== null && typeof value === "object")) {
         walk(value, pathWith, pathWithout);
       } else {
         if (allowed.has(pathWithout)) {
@@ -638,7 +657,7 @@ function _filterNestedObject(errors, allowedPaths) {
     }
   }
 
-  walk(errors, '', '');
+  walk(errors, "", "");
   return result;
 }
 
@@ -683,18 +702,14 @@ function collectLeafFieldPathsUnderRoot(rootPath, value) {
     if (value.length === 0) {
       return [];
     }
-    return value.flatMap((item, i) =>
-      collectLeafFieldPathsUnderRoot(`${rootPath}.${i}`, item)
-    );
+    return value.flatMap((item, i) => collectLeafFieldPathsUnderRoot(`${rootPath}.${i}`, item));
   }
   if (typeof value === "object") {
     const keys = Object.keys(value);
     if (keys.length === 0) {
       return [];
     }
-    return keys.flatMap((k) =>
-      collectLeafFieldPathsUnderRoot(`${rootPath}.${k}`, value[k])
-    );
+    return keys.flatMap((k) => collectLeafFieldPathsUnderRoot(`${rootPath}.${k}`, value[k]));
   }
   return [rootPath];
 }
