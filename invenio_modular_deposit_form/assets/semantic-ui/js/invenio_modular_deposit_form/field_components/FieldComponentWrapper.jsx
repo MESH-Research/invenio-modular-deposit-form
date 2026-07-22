@@ -65,17 +65,17 @@ const FieldComponentWrapper = ({
   );
 
   return (
-    <Overridable id={`InvenioAppRdm.Deposit.${componentName}.container`} fieldPath={fieldPath}>
-      <div
-        className={[
-          "invenio-field-wrapper",
-          `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`,
-          isRowField ? "field" : "",
-          wrapperClasses,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
+    <div
+      className={[
+        "invenio-field-wrapper",
+        `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`,
+        isRowField ? "field" : "",
+        wrapperClasses,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <Overridable id={`InvenioAppRdm.Deposit.${componentName}.container`} fieldPath={fieldPath}>
         {children &&
           React.cloneElement(children, {
             defaultFieldValue: defaultFieldValue,
@@ -89,8 +89,8 @@ const FieldComponentWrapper = ({
             required: moddedRequired,
             ...cleanedExtraProps,
           })}
-      </div>
-    </Overridable>
+      </Overridable>
+    </div>
   );
 };
 
