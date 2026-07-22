@@ -36,6 +36,7 @@ import {
   DISCARD_PID_STARTED,
   RESERVE_PID_STARTED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
+import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { scrollTop } from "@js/invenio_rdm_records/src/deposit/utils";
 import { valuesWithLinkFallbacks } from "../../../../helpers/valuesWithLinkFallbacks";
 import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
@@ -60,10 +61,20 @@ class ManagedIdentifierComponent extends Component {
     try {
       await reservePIDAction(this.draftValuesForPidAction(formik), { pidType });
     } catch (error) {
-      if (error && error.errors) {
-        formik.setErrors(error.errors);
+      let message =
+        error.errors?.status === 403
+          ? i18next.t("Session expired. Please refresh the page to log in.")
+          : (error.errors?.message ?? error.errors);
+      if (message && typeof message === "object") {
+        formik.setErrors({ ...formik.errors, ...message });
       } else {
-        scrollTop();
+        const stringMessage =
+          message ?? i18next.t("Something went wrong. Refresh the page or contact user support.");
+        formik.setErrors({
+          ...formik.errors,
+          message: stringMessage,
+          [this.props.fieldPath]: stringMessage,
+        });
       }
     }
   };
