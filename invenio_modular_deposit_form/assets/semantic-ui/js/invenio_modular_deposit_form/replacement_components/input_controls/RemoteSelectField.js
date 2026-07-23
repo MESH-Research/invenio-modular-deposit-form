@@ -52,6 +52,9 @@
 //   `/api/names`) where the server / `mergeExtraSource` already decide relevance and each query's
 //   results should replace the previous menu. Callers pass the flag instead of a custom
 //   `search={(options) => options}` and need no ref into this widget's state.
+// - update `onFocus` logic to respect `searchOnFocus` prop value.
+// - added check for non-zero-length  string to `handleSearchInputChange` so that options menu
+//   immediately opens when user types, instead of brief delay waiting for returned options.
 
 import axios from "axios";
 import _debounce from "lodash/debounce";
@@ -138,6 +141,9 @@ class RemoteSelectField extends Component {
     this.handleSearchInputChange = (e, data) => {
       const q = data?.searchQuery;
       this.latestSearchStringRef.current = q == null ? "" : String(q);
+      if (String(q ?? "").length > 0) {
+        this.setState({ open: true, isFetching: true });
+      }
       this.runDebouncedSearch(e, data);
     };
 
@@ -174,10 +180,7 @@ class RemoteSelectField extends Component {
       }
       if (this.state.searchQuery !== query) return;
       this.setState((prevState) => ({
-        suggestions: mergeOptions(
-          prevState.selectedSuggestions,
-          serializeSuggestions(localHits)
-        ),
+        suggestions: mergeOptions(prevState.selectedSuggestions, serializeSuggestions(localHits)),
         isFetching: !!extraPromise,
         error: false,
         open: true,
@@ -187,10 +190,7 @@ class RemoteSelectField extends Component {
         const extraHits = (await extraPromise) ?? [];
         if (this.state.searchQuery !== query) return;
         this.setState((prevState) => ({
-          suggestions: mergeOptions(
-            prevState.suggestions,
-            serializeSuggestions(extraHits)
-          ),
+          suggestions: mergeOptions(prevState.suggestions, serializeSuggestions(extraHits)),
           isFetching: false,
         }));
       }
@@ -276,10 +276,7 @@ class RemoteSelectField extends Component {
           }),
           () => {
             if (onValueChange) {
-              onValueChange(
-                { event: e, data: { value: q }, formikProps },
-                newSelectedSuggestions
-              );
+              onValueChange({ event: e, data: { value: q }, formikProps }, newSelectedSuggestions);
             } else {
               formikProps.form.setFieldValue(fieldPath, q);
             }
@@ -304,12 +301,12 @@ class RemoteSelectField extends Component {
     };
 
     this.onFocus = async () => {
-      this.setState({ open: true });
       const { searchOnFocus } = this.props;
-      if (searchOnFocus) {
-        const { searchQuery } = this.state;
-        await this.executeSearch(searchQuery || "");
-      }
+      if (!searchOnFocus) return;
+
+      this.setState({ open: true });
+      const { searchQuery } = this.state;
+      await this.executeSearch(searchQuery || "");
     };
 
     this.getProps = () => {
