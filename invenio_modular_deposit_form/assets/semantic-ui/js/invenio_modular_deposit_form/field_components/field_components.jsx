@@ -819,7 +819,7 @@ const SubmissionComponent = () => {
         <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
           <Card className="pt-0 pb-0">
             <Card.Content>
-              <DeleteButton fluid />
+              <DeleteButton fluid icon="trash alternate outline" />
             </Card.Content>
           </Card>
         </Overridable>

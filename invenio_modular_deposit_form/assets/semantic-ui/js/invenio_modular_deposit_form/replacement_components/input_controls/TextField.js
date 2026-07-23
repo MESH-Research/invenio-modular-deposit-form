@@ -3,7 +3,7 @@ import { FastField, Field } from "formik";
 import { Form } from "semantic-ui-react";
 import { FieldLabel } from "./FieldLabel";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { getTouchedParent } from "../../utils";
+// import { getTouchedParent } from "../../utils";
 
 const TextField = ({
   classnames,
@@ -35,8 +35,7 @@ const TextField = ({
 
   const descriptionId = description && description !== " " ? `${fieldPath}.description` : "";
   const helptextId = helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
-  const describedByText =
-    [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
+  const describedByText = [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
   const labelId = showLabel && label ? `${fieldPath}.label` : undefined;
 
   return (
@@ -71,9 +70,7 @@ const TextField = ({
             ) : null}
             {descriptionId && (
               <div className="description mb-5 mt-5" id={descriptionId}>
-                {React.isValidElement(description)
-                  ? description
-                  : i18next.t(description)}
+                {React.isValidElement(description) ? description : i18next.t(description)}
               </div>
             )}
             <Form.Input
@@ -96,9 +93,7 @@ const TextField = ({
             />
             {helptextId && (
               <div className="helptext" id={helptextId}>
-                {React.isValidElement(helpText)
-                  ? helpText
-                  : i18next.t(helpText)}
+                {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
               </div>
             )}
           </Form.Field>
