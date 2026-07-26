@@ -777,54 +777,54 @@ const SubmissionComponent = () => {
   const groupsEnabled = config?.groups_enabled ?? false;
 
   return (
-    <>
-      <Overridable
-        id="InvenioAppRdm.Deposit.CardDepositStatusBox.container"
-        record={record}
-        permissions={permissions}
-        groupsEnabled={groupsEnabled}
-      >
-        <Card className="pt-0">
-          {/* <Card.Content>
+    <Overridable
+      id="InvenioAppRdm.Deposit.CardDepositStatusBox.container"
+      record={record}
+      permissions={permissions}
+      groupsEnabled={groupsEnabled}
+    >
+      <Card className="pt-5 pr-5 pl-5 pb-20">
+        {/* <Card.Content>
             <DepositStatusBox />
           </Card.Content> */}
-          <Card.Content>
-            <Grid relaxed>
-              <Grid.Column width={16} className="rel-pt-2 pb-0">
-                <SaveButton fluid />
-              </Grid.Column>
+        <Card.Content>
+          <Grid relaxed>
+            <Grid.Column width={16} className="rel-pt-1 pb-0">
+              <SaveButton fluid />
+            </Grid.Column>
 
+            <Grid.Column width={16} className="rel-pt-1 pb-0">
+              <PublishButton fluid record={record} />
+            </Grid.Column>
+
+            {permissions?.can_delete_draft && (
+              <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
+                <Grid.Column width={16} className="rel-pt-1">
+                  <DeleteButton fluid icon="trash alternate outline" />
+                </Grid.Column>
+              </Overridable>
+            )}
+          </Grid>
+        </Card.Content>
+        <Card.Content>
+          <Grid relaxed>
+            <Grid.Column width={16} className="rel-pt-1 pb-0">
+              <PreviewButton fluid />
+            </Grid.Column>
+
+            {record.parent && (record?.is_draft === null || permissions?.can_manage) && (
               <Grid.Column width={16} className="rel-pt-1 pb-0">
-                <PreviewButton fluid />
+                <ShareDraftButton
+                  record={record}
+                  permissions={permissions}
+                  groupsEnabled={groupsEnabled}
+                />
               </Grid.Column>
-
-              <Grid.Column width={16} className="rel-pt-1 pb-0">
-                <PublishButton fluid record={record} />
-              </Grid.Column>
-
-              <Grid.Column width={16} className="rel-pt-1">
-                {record.parent && (record?.is_draft === null || permissions?.can_manage) && (
-                  <ShareDraftButton
-                    record={record}
-                    permissions={permissions}
-                    groupsEnabled={groupsEnabled}
-                  />
-                )}
-              </Grid.Column>
-            </Grid>
-          </Card.Content>
-        </Card>
-      </Overridable>
-      {permissions?.can_delete_draft && (
-        <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
-          <Card className="pt-0 pb-0">
-            <Card.Content>
-              <DeleteButton fluid icon="trash alternate outline" />
-            </Card.Content>
-          </Card>
-        </Overridable>
-      )}
-    </>
+            )}
+          </Grid>
+        </Card.Content>
+      </Card>
+    </Overridable>
   );
 };
 
