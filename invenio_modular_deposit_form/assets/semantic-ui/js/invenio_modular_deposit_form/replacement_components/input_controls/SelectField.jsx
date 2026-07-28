@@ -100,6 +100,7 @@ export class SelectField extends Component {
       onChange,
       onAddItem,
       onBlur: onBlurFromProps,
+      openOnFocus,
       multiple,
       disabled,
       required,
@@ -177,6 +178,7 @@ export class SelectField extends Component {
             }
           }
         }}
+        openOnFocus={openOnFocus}
         options={dropdownOptions}
         value={value}
         multiple={multiple}
@@ -206,8 +208,7 @@ export class SelectField extends Component {
 
     const descriptionId = description && description !== " " ? `${fieldPath}.description` : "";
     const helpTextId = helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
-    const ariaDescribedBy =
-      [descriptionId, helpTextId].filter(Boolean).join(" ") || undefined;
+    const ariaDescribedBy = [descriptionId, helpTextId].filter(Boolean).join(" ") || undefined;
     const labelId =
       showLabel && label
         ? React.isValidElement(label)
@@ -222,23 +223,21 @@ export class SelectField extends Component {
         width={width}
         className={["invenio-select-field-wrapper", classnames].filter(Boolean).join(" ")}
       >
-        {showLabel && label
-          ? React.isValidElement(label)
-            ? label
-            : (
-              <FieldLabel
-                id={`${fieldPath}.label`}
-                htmlFor={fieldPath}
-                icon={labelIcon}
-                label={label}
-              />
-            )
-          : null}
+        {showLabel && label ? (
+          React.isValidElement(label) ? (
+            label
+          ) : (
+            <FieldLabel
+              id={`${fieldPath}.label`}
+              htmlFor={fieldPath}
+              icon={labelIcon}
+              label={label}
+            />
+          )
+        ) : null}
         {descriptionId && (
           <div className="description" id={descriptionId}>
-            {React.isValidElement(description)
-              ? description
-              : i18next.t(description)}
+            {React.isValidElement(description) ? description : i18next.t(description)}
           </div>
         )}
         <FormikField

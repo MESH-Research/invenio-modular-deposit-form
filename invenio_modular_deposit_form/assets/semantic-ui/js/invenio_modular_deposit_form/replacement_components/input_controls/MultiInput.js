@@ -14,6 +14,7 @@ function MultiInput({
   label,
   labelIcon,
   noQueryMessage,
+  openOnFocus = false,
   required = false,
   ...uiProps
 }) {
@@ -49,6 +50,7 @@ function MultiInput({
       onAddItem={({ data }) => {
         setOptions([{ text: data.value, value: data.value }, ...options]);
       }}
+      openOnFocus={false}
       optimized
       options={serializeValues(getIn(values, fieldPath, []))}
       placeholder={placeholder}

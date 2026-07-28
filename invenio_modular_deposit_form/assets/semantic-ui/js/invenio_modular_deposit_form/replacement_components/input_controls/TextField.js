@@ -90,6 +90,7 @@ const TextField = ({
               {...uiProps}
               {...(describedByText ? { "aria-describedby": describedByText } : {})}
               {...(labelId ? { "aria-labelledby": labelId } : {})}
+              type="text"
             />
             {helptextId && (
               <div className="helptext" id={helptextId}>

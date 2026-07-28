@@ -19,17 +19,14 @@ const ImprintPlaceField = ({
   ...extraProps
 }) => {
   return (
-    <>
-      <TextField
-        fieldPath={fieldPath}
-        label={label}
-        labelIcon={labelIcon}
-        placeholder={placeholder}
-        type={"text"}
-        {...extraProps}
-      />
-      {description && <label className="helptext mb-0">{description}</label>}
-    </>
+    <TextField
+      fieldPath={fieldPath}
+      label={label}
+      labelIcon={labelIcon}
+      placeholder={placeholder}
+      description={description}
+      {...extraProps}
+    />
   );
 };
 

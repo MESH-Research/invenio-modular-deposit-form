@@ -8,7 +8,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { MultiInput } from "react-invenio-forms";
+import MultiInput from "@js/invenio_modular_deposit_form/replacement_components/input_controls/MultiInput.js";
 
 const SizesFieldAlternate = ({
   classnames = undefined,
@@ -16,25 +16,27 @@ const SizesFieldAlternate = ({
   additionLabel,
   label = i18next.t("Sizes"),
   description = i18next.t("Please provide the size of the resource."),
+  openOnFocus = false,
   placeholder = i18next.t("e.g., 32 x 24 cm or 1.5 GB (press 'enter' to add)"),
   icon = "crop",
   required,
   ...uiProps
 }) => {
   return (
-      <MultiInput
-        fieldPath={`${fieldPath}`}
-        {...{
-          additionLabel,
-          classnames,
-          description,
-          icon,
-          label,
-          placeholder,
-          required,
-        }}
-        {...uiProps}
-      />
+    <MultiInput
+      fieldPath={`${fieldPath}`}
+      {...{
+        additionLabel,
+        classnames,
+        description,
+        icon,
+        label,
+        openOnFocus,
+        placeholder,
+        required,
+      }}
+      {...uiProps}
+    />
   );
 };
 

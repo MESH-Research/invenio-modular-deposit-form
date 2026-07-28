@@ -45,6 +45,13 @@
     line-height: 1.25em;
   }
 
+  /* Avoid grid-layout fieldsets having excess bottom spacing */
+  .invenio-group-field.invenio-form-row {
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
   // #rdm-deposit-form .sticky-footer-static {
   /* In normal flow when the footer scroll target is in view. */
   // }
@@ -292,7 +299,9 @@
       color: @primaryColor;
       font-weight: bold;
       font-size: 1.25em;
-      margin-bottom: 1em;
+      position: relative;
+      top: -1em;
+      margin-bottom: 0;
 
       > i.icon {
         margin-right: 0.5em;

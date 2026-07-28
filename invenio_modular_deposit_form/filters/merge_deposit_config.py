@@ -16,27 +16,27 @@ from flask import current_app
 
 # Map Flask config key -> key in merged JSON (snake_case for React unpacking)
 _CONFIG_KEYS = [
+    ("MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", "default_field_values"),
     ("MODULAR_DEPOSIT_FORM_COMMON_FIELDS", "common_fields"),
-    ("MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", "fields_by_type"),
-    ("MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", "label_modifications"),
-    (
-        "MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS",
-        "placeholder_modifications",
-    ),
     (
         "MODULAR_DEPOSIT_FORM_DESCRIPTION_MODIFICATIONS",
         "description_modifications",
     ),
-    ("MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", "icon_modifications"),
-    ("MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", "help_text_modifications"),
-    ("MODULAR_DEPOSIT_FORM_DEFAULT_FIELD_VALUES", "default_field_values"),
-    ("MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", "priority_field_values"),
     ("MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS", "extra_required_fields"),
+    ("MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE", "fields_by_type"),
+    ("MODULAR_DEPOSIT_FORM_HELP_TEXT_MODIFICATIONS", "help_text_modifications"),
+    ("MODULAR_DEPOSIT_FORM_ICON_MODIFICATIONS", "icon_modifications"),
+    ("MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS", "label_modifications"),
+    ("MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
+    (
+        "MODULAR_DEPOSIT_FORM_PLACEHOLDER_MODIFICATIONS",
+        "placeholder_modifications",
+    ),
+    ("MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES", "priority_field_values"),
     (
         "MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES",
         "priority_resource_types",
     ),
-    ("MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES", "pids_config_overrides"),
     (
         "MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP",
         "show_community_banner_at_top",
