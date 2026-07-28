@@ -341,6 +341,7 @@ export class RequiredPIDField extends Component {
             helpText={unmanagedHelpText}
           />
         )}
+        {fieldError && <FeedbackLabel fieldPath={fieldPath} />}
       </>
     );
   }
