@@ -51,7 +51,7 @@ import { getIn } from "formik";
 import _debounce from "lodash/debounce";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
-import { FieldLabel } from "react-invenio-forms";
+import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
 import { Form } from "semantic-ui-react";
 import { ManagedUnmanagedSwitch } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/ManagedUnmanagedSwitch";
 import { ManagedIdentifierCmp } from "./pid_components/ManagedIdentifierCmp";
@@ -121,10 +121,14 @@ export class RequiredPIDField extends Component {
       ? "draft_unmanaged_pid_backup"
       : "draft_managed_pid_backup";
     const backup = getIn(form.values, `${ui}.${backupField}`);
-    const fallback = !userSelectedManaged ? { identifier: "", provider: PROVIDER_EXTERNAL } : {};
-    const updateValue = backup ? backup : fallback;
+    const fallback = !userSelectedManaged ? { identifier: "", provider: PROVIDER_EXTERNAL } : null;
+    const updateValue = !backup?.identifier ? fallback : backup;
 
-    form.setFieldValue(fieldPath, { ...updateValue });
+    if (updateValue === null) {
+      form.setFieldValue("pids", {});
+    } else {
+      form.setFieldValue(fieldPath, { ...updateValue });
+    }
   };
 
   /**
@@ -185,7 +189,8 @@ export class RequiredPIDField extends Component {
       Object.keys(value).length > 0 &&
       value.provider !== PROVIDER_EXTERNAL
     ) {
-      form.setFieldValue(fieldPath, {});
+      // Omit `pids.doi` entirely (not `pids.doi: {}`) so save/Yup match managed empty.
+      form.setFieldValue("pids", {});
     }
 
     return { ...(getIn(form.values, fieldPath) || {}) };
@@ -241,6 +246,7 @@ export class RequiredPIDField extends Component {
     const ui = `ui.${fieldPath}`;
     this.debounced && this.debounced.cancel();
 
+    // will restore to null if no managed PID already
     this.restoreFromBackup(userSelectedManaged);
 
     const updateValue = userSelectedManaged
