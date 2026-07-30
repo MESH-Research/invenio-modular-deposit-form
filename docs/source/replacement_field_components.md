@@ -137,7 +137,8 @@ so the touched-aware widgets and dual help text apply throughout:
 
 - `AdditionalDescriptionsField`
 - `AdditionalTitlesField`
-- `CopyrightsField`
+- `CopyrightsField` (passes through `labelIcon` from layout; upstream hardcodes
+  the icon on `FieldLabel`)
 - `DatesField`
 - `DescriptionsField`
 - `IdentifiersField`

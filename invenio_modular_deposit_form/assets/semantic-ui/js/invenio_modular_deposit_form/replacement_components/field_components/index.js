@@ -71,6 +71,11 @@
 //   Fork of upstream `deposit/fields/SubjectsField/SubjectsField.js`. Same visibility rule for
 //   `label` / `labelIcon` as replacement `TextField`.
 //
+// CopyrightsField.js
+//   Fork of upstream `deposit/fields/CopyrightsField/CopyrightsField.js`. Local `TextField`;
+//   pass through `labelIcon` (and description / helpText / placeholder / classnames) from props
+//   so layout `icon: None` can hide the label icon; upstream hardcodes the icon on `FieldLabel`.
+//
 // Any new non–import-only divergence must be summarized in this header and in
 // docs/source/replacement_field_components.md.
 export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
