@@ -37,7 +37,7 @@ export class RelatedWorksField extends Component {
         addButtonLabel={i18next.t("Add related work")}
         defaultNewValue={emptyRelatedWork}
         fieldPath={fieldPath}
-        helpText={i18next.t(
+        description={i18next.t(
           "Specify identifiers of related works. Supported identifiers include DOI, Handle, ARK, PURL, ISSN, ISBN, PubMed ID, PubMed Central ID, ADS Bibliographic Code, arXiv, Life Science Identifiers (LSID), EAN-13, ISTC, URNs, and URLs."
         )}
         label={label}

@@ -87,6 +87,7 @@ export class ArrayField extends Component {
       addButtonClassName,
       children,
       defaultNewValue,
+      description,
       fieldPath,
       label,
       labelIcon,
@@ -102,7 +103,6 @@ export class ArrayField extends Component {
       : {};
     const { nextKey } = this.state;
     const valuesToDisplay = this.getValues(values, fieldPath);
-    console.log(arrayHelpers);
 
     const wrappedArrayHelpers = {
       ...arrayHelpers,
@@ -116,10 +116,28 @@ export class ArrayField extends Component {
       },
     };
 
+    const describedById = [description ? "description" : false, helpText ? "helptext" : false]
+      .filter(Boolean)
+      .map((t) => `${fieldPath}-${t}`)
+      .join(" ");
+
     return (
-      <Form.Field {...uiProps} {...hasError}>
+      <Form.Field
+        {...uiProps}
+        {...hasError}
+        {...(describedById ? { "aria-describedby": describedById } : {})}
+      >
         <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-        {helpText && <label className="description">{helpText}</label>}
+        {description && (
+          <div id={`${fieldPath}-description`} className="description">
+            {description}
+          </div>
+        )}
+        {helpText && (
+          <div id={`${fieldPath}-helptext`} className="helptext">
+            {helpText}
+          </div>
+        )}
 
         {valuesToDisplay.map((value, index, array) => {
           const arrayPath = fieldPath;
