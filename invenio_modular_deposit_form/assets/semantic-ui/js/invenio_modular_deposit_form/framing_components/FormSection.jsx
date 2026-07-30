@@ -90,7 +90,7 @@ const FormSection = ({
         active={isOpen}
         index={0}
         onClick={() => setIsOpen(!isOpen)}
-        className="invenio-field-label"
+        className="invenio-field-label mb-0"
       >
         {!!icon && <Icon name={icon} />} {label}
         {severityBadges}
