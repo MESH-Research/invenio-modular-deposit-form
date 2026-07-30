@@ -28,6 +28,9 @@
 // - The dropdown is wrapped in `Form.Field` and the label is rendered as a separate
 //   `FieldLabel` sibling rather than passed to `Form.Dropdown` via its `label` prop, so
 //   `description` can be rendered between the label and the input.
+// - Sets `id={fieldPath}` on `Form.Dropdown` (stock does not) so `FieldLabel`'s
+//   `htmlFor={fieldPath}` resolves and so `arrayFieldFocus.focusFieldByPath` can find
+//   the control the same way replacement `TextField` does (`id` on the input).
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { FastField, Field, getIn } from "formik";
@@ -132,6 +135,7 @@ export class SelectField extends Component {
         search
         selection
         error={this.renderError(isTouched, initialValue, initialErrors, value, errors)}
+        id={fieldPath}
         name={fieldPath}
         disabled={disabled}
         required={required}

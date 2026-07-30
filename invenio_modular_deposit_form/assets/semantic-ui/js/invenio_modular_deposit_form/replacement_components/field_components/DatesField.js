@@ -8,8 +8,7 @@
 //
 // Modular fork (intentional deltas from upstream `DatesField/DatesField.js`):
 // - `ArrayField`: local fork (`replacement_components/input_controls/ArrayField`) so we get
-//   `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard focus management on
-//   add and remove.
+//   `onAfterAdd` / `onAfterRemove` for keyboard focus management on add and remove.
 // - `TextField` / `SelectField` from `replacement_components/` (not `react-invenio-forms`).
 // - `emptyDate` from `@js/invenio_rdm_records/.../DatesField/initialValues`.
 import React, { Component } from "react";
@@ -35,8 +34,6 @@ import { SelectField } from "../../replacement_components/input_controls/SelectF
 import { TextField } from "../../replacement_components/input_controls/TextField";
 
 export class DatesField extends Component {
-  addButtonRef = React.createRef();
-
   getRequiredOption = (currentValue, arrayOfValues) => {
     const { requiredOptions } = this.props;
     for (const requiredOption of requiredOptions) {
@@ -66,7 +63,6 @@ export class DatesField extends Component {
         fieldPath={fieldPath}
       >
         <ArrayField
-          addButtonRef={this.addButtonRef}
           addButtonLabel={i18next.t("Add date")}
           defaultNewValue={emptyDate}
           fieldPath={fieldPath}
@@ -78,7 +74,7 @@ export class DatesField extends Component {
           onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.date`)}
           onAfterRemove={({ isNowEmpty, removedIndex }) => {
             if (isNowEmpty) {
-              focusAddButton(this.addButtonRef);
+              focusAddButton(fieldPath);
               return;
             }
             const target = removedIndex > 0 ? removedIndex - 1 : 0;

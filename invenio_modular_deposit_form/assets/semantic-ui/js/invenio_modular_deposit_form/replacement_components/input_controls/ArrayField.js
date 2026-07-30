@@ -15,8 +15,9 @@
 //   order as upstream, with `arrayHelpers` replaced by the clone.
 // - Optional `onAfterAdd`: after the stock add-button `push` and `setState`, call
 //   `onAfterAdd({ index })` with `valuesToDisplay.length` before `push`.
-// - Optional `addButtonRef`: ref to the add-row button (e.g. focus after last row removed).
-// - `PropTypes` / `defaultProps`: `onAfterAdd`, `onAfterRemove`, `addButtonRef`.
+// - Add button `id={`${fieldPath}.add-button`}` for `focusAddButton(fieldPath)` (Form.Button
+//   does not forward refs to the DOM button).
+// - `PropTypes` / `defaultProps`: `onAfterAdd`, `onAfterRemove`.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
@@ -82,7 +83,6 @@ export class ArrayField extends Component {
       ...arrayHelpers
     } = props;
     const {
-      addButtonRef,
       addButtonLabel,
       addButtonClassName,
       children,
@@ -143,7 +143,7 @@ export class ArrayField extends Component {
 
         <Form.Group>
           <Form.Button
-            ref={addButtonRef}
+            id={`${fieldPath}.add-button`}
             type="button"
             icon
             className={addButtonClassName}
@@ -182,7 +182,6 @@ export class ArrayField extends Component {
 }
 
 ArrayField.propTypes = {
-  addButtonRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
   addButtonLabel: PropTypes.string,
   addButtonClassName: PropTypes.string,
   children: PropTypes.func.isRequired,
@@ -198,7 +197,6 @@ ArrayField.propTypes = {
 };
 
 ArrayField.defaultProps = {
-  addButtonRef: undefined,
   addButtonLabel: "Add new row",
   addButtonClassName: "align-self-end mt-15",
   helpText: "",

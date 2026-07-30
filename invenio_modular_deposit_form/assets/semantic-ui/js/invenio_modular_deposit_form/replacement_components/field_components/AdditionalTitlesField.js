@@ -8,8 +8,8 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 //
 // Modular fork: `ArrayField` is the local fork (`replacement_components/input_controls/
-// ArrayField`) so we get `addButtonRef` / `onAfterAdd` / `onAfterRemove` for keyboard
-// focus management on add and remove.
+// ArrayField`) so we get `onAfterAdd` / `onAfterRemove` for keyboard focus management on
+// add and remove.
 //
 // The per-row Language picker is `AdditionalTitleLanguagePicker` (a small functional
 // wrapper around `LanguagesField`) so it can read the Formik `ui.<fieldPath>` mirror
@@ -88,13 +88,10 @@ AdditionalTitleLanguagePicker.defaultProps = {
 };
 
 export class AdditionalTitlesField extends Component {
-  addButtonRef = React.createRef();
-
   render() {
     const { fieldPath, options, recordUI } = this.props;
     return (
       <ArrayField
-        addButtonRef={this.addButtonRef}
         addButtonLabel={i18next.t("Add titles")}
         defaultNewValue={emptyAdditionalTitle}
         fieldPath={fieldPath}
@@ -102,7 +99,7 @@ export class AdditionalTitlesField extends Component {
         onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.title`)}
         onAfterRemove={({ isNowEmpty, removedIndex }) => {
           if (isNowEmpty) {
-            focusAddButton(this.addButtonRef);
+            focusAddButton(fieldPath);
             return;
           }
           const target = removedIndex > 0 ? removedIndex - 1 : 0;

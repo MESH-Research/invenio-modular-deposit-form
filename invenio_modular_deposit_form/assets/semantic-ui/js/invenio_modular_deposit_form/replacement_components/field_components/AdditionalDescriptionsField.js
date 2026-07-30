@@ -21,6 +21,7 @@ import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 import { LanguagesField } from "./LanguagesField";
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
+import { focusAddButton } from "../../replacement_components/input_controls/arrayFieldFocus";
 
 const FOCUS_ATTEMPTS_MAX = 48;
 
@@ -49,23 +50,11 @@ function scheduleFocusRichDescriptionField(descriptionFieldPath) {
   })();
 }
 
-function focusAddDescriptionButton(buttonRef) {
-  requestAnimationFrame(() => {
-    const el = buttonRef?.current;
-    if (el && typeof el.focus === "function") {
-      el.focus();
-    }
-  });
-}
-
 export class AdditionalDescriptionsField extends Component {
-  addDescriptionAddButtonRef = React.createRef();
-
   render() {
     const { fieldPath, options, recordUI, editorConfig } = this.props;
     return (
       <ArrayField
-        addButtonRef={this.addDescriptionAddButtonRef}
         addButtonLabel={i18next.t("Add description")}
         className="additional-descriptions"
         defaultNewValue={emptyAdditionalDescription}
@@ -75,7 +64,7 @@ export class AdditionalDescriptionsField extends Component {
         }
         onAfterRemove={({ isNowEmpty, removedIndex }) => {
           if (isNowEmpty) {
-            focusAddDescriptionButton(this.addDescriptionAddButtonRef);
+            focusAddButton(fieldPath);
             return;
           }
           const targetRow = removedIndex > 0 ? removedIndex - 1 : 0;
