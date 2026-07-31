@@ -13,6 +13,7 @@ const TextField = ({
   fieldPath,
   fluid = "true",
   helpText,
+  icon, // field wrapper component puts both icon and labelIcon on
   label,
   labelIcon,
   onBlur,
