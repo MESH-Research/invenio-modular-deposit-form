@@ -478,7 +478,18 @@ const CreatibutorsFieldFlat = ({
                   className="add-button"
                   aria-labelledby={`${fieldPath}-field-description`}
                   onClick={() => {
-                    const initial = getInitialSelfPersonNames(currentUserprofile);
+                    // Prefer the in-session Remembered split over the page-load
+                    // deposit config profile, which is never refreshed after
+                    // `name_parts_local` is saved.
+                    const fromSaved = savedSelfNameSplit
+                      ? {
+                          family_name: savedSelfNameSplit.family,
+                          given_name: savedSelfNameSplit.given,
+                          guessed: false,
+                        }
+                      : null;
+                    const initial =
+                      fromSaved || getInitialSelfPersonNames(currentUserprofile);
                     const newIndex = getIn(values, fieldPath, []).length;
                     setSelfRowIndex(newIndex);
                     setSelfNameWasGuessed(!!initial.guessed);

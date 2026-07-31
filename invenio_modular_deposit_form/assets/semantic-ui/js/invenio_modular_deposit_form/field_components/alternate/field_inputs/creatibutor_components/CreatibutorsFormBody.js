@@ -14,10 +14,9 @@
 // typed family name still commits on blur. `focusFieldPathAfterSelect` when given name shows.
 // See `replacement_components/RemoteSelectField.js` and `docs/source/replacement_field_components.md`.
 
-import React, { createRef, useMemo, useState } from "react";
+import React, { createRef, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 import { Button, Form, Icon, Label } from "semantic-ui-react";
 import _get from "lodash/get";
@@ -89,30 +88,50 @@ const CreatibutorsFormBody = ({
 
   const inputRef = createRef();
 
-  const { initialValues } = useFormikContext();
-
   const isPerson = _get(values, typeFieldPath) === CREATIBUTOR_TYPE.PERSON;
   const currentFamily = String(_get(values, familyNameFieldPath, "") || "").trim();
   const currentGiven = String(_get(values, givenNameFieldPath, "") || "").trim();
-  const initialFamily = String(_get(initialValues, familyNameFieldPath, "") || "").trim();
-  const initialGiven = String(_get(initialValues, givenNameFieldPath, "") || "").trim();
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved | error
   const [saveError, setSaveError] = useState("");
 
-  // Self row + Person with a non-empty family name, and the user has actually
-  // edited family/given since the form was opened.
+  // Baseline for dirty detection: last Remembered/persisted split, else the
+  // values present when this form body mounted (Add myself / open). Do not use
+  // Formik deposit-form initialValues — newly added self rows are absent
+  // there, so "" vs filled always looks edited.
+  const mountBaselineRef = useRef({
+    family: currentFamily,
+    given: currentGiven,
+  });
+  const baselineFamily = String(
+    savedSelfNameSplit?.family ?? mountBaselineRef.current.family
+  ).trim();
+  const baselineGiven = String(
+    savedSelfNameSplit?.given ?? mountBaselineRef.current.given
+  ).trim();
+  const nameDivisionEdited =
+    currentFamily !== baselineFamily || currentGiven !== baselineGiven;
+
+  // Self row + Person with a family name, and either the split was edited or
+  // we are showing save/error feedback (so "Saved" can linger a few seconds
+  // after Remember updates the baseline).
   const showRememberButton = useMemo(() => {
     if (!isSelfRow || !isPerson || !currentUserId) return false;
     if (!currentFamily) return false;
-    return currentFamily !== initialFamily || currentGiven !== initialGiven;
+    if (
+      saveStatus === "saving" ||
+      saveStatus === "saved" ||
+      saveStatus === "error"
+    ) {
+      return true;
+    }
+    return nameDivisionEdited;
   }, [
     isSelfRow,
     isPerson,
     currentUserId,
     currentFamily,
-    currentGiven,
-    initialFamily,
-    initialGiven,
+    nameDivisionEdited,
+    saveStatus,
   ]);
 
   const handleRememberClick = async () => {
