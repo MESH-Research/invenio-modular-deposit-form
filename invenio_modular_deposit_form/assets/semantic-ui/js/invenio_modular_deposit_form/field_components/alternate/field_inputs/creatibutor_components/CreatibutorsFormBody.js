@@ -11,7 +11,9 @@
 //
 // Person family-name `RemoteSelectField`: `hideAdditionMenuItem` + `commitSearchOnBlur` so
 // semantic-ui-react does not show the synthetic “Add …” menu row (no SUIR knob for that alone);
-// typed family name still commits on blur. `focusFieldPathAfterSelect` when given name shows.
+// typed family name still commits on blur. `commitSearchOnBlur` also reconstructs mid-typeahead
+// state on focus (Formik value in the search input, text selected; debounced search unchanged).
+// `focusFieldPathAfterSelect` when given name shows.
 // See `replacement_components/RemoteSelectField.js` and `docs/source/replacement_field_components.md`.
 
 import React, { createRef, useMemo, useRef, useState } from "react";

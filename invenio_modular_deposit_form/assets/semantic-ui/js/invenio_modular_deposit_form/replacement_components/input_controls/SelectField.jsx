@@ -25,6 +25,8 @@
 //   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
 //   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
 //   and any other caller that needs extra blur logic.
+// - Same for `onFocus`: destructured and invoked as `onFocusFromProps(e, { formikProps })`
+//   so callers (e.g. `RemoteSelectField` mid-typeahead seed) can read Formik values.
 // - The dropdown is wrapped in `Form.Field` and the label is rendered as a separate
 //   `FieldLabel` sibling rather than passed to `Form.Dropdown` via its `label` prop, so
 //   `description` can be rendered between the label and the input.
@@ -103,6 +105,7 @@ export class SelectField extends Component {
       onChange,
       onAddItem,
       onBlur: onBlurFromProps,
+      onFocus: onFocusFromProps,
       openOnFocus,
       multiple,
       disabled,
@@ -144,6 +147,11 @@ export class SelectField extends Component {
           setFieldTouched(fieldPath, true, false);
           if (onBlurFromProps) {
             onBlurFromProps(e, { formikProps });
+          }
+        }}
+        onFocus={(e) => {
+          if (onFocusFromProps) {
+            onFocusFromProps(e, { formikProps });
           }
         }}
         onChange={(event, data) => {

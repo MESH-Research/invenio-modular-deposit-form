@@ -27,7 +27,7 @@ const passthroughSerialize = (hits) =>
 
 // Mount RemoteSelectField with a Formik wrapper and a callback ref that resolves once
 // the instance is available. Returns the instance plus an unmount handle.
-const mountField = async (extraProps = {}) => {
+const mountField = async (extraProps = {}, initialValues = {}) => {
   let instance = null;
   const refReady = deferred();
   const captureRef = (ref) => {
@@ -45,7 +45,7 @@ const mountField = async (extraProps = {}) => {
       debounceTime={0}
       {...extraProps}
     />,
-    { initialValues: {} }
+    { initialValues }
   );
   await refReady.promise;
   return { instance, utils };
@@ -210,5 +210,90 @@ describe("RemoteSelectField executeSearch", () => {
 
       expect(mergeExtraSource).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe("RemoteSelectField mid-typeahead on focus", () => {
+  test("onFocus seeds searchQuery from Formik field value without fetching", async () => {
+    const { instance } = await mountField(
+      { commitSearchOnBlur: true },
+      { testField: "García" }
+    );
+    instance.setState({
+      selectedSuggestions: [],
+      searchQuery: null,
+    });
+    const executeSpy = jest.spyOn(instance, "executeSearch");
+    const formikProps = {
+      form: { values: { testField: "García" } },
+    };
+
+    await instance.onFocus({}, { formikProps });
+
+    expect(instance.state.searchQuery).toBe("García");
+    expect(instance.latestSearchStringRef.current).toBe("García");
+    expect(executeSpy).not.toHaveBeenCalled();
+    expect(axios.get).not.toHaveBeenCalled();
+    executeSpy.mockRestore();
+  });
+
+  test("onFocus prefers Formik value over selectedSuggestions text", async () => {
+    const { instance } = await mountField({ commitSearchOnBlur: true });
+    instance.setState({
+      selectedSuggestions: [{ text: "Doe, Jane", value: "id-1", key: "id-1" }],
+      searchQuery: null,
+    });
+    const formikProps = {
+      form: { values: { testField: "Doe" } },
+    };
+
+    await instance.onFocus({}, { formikProps });
+
+    expect(instance.state.searchQuery).toBe("Doe");
+  });
+
+  test("onFocus falls back to selectedSuggestions when Formik value is empty", async () => {
+    const { instance } = await mountField({ commitSearchOnBlur: true });
+    instance.setState({
+      selectedSuggestions: [{ text: "García", value: "garcia", key: "garcia" }],
+      searchQuery: null,
+    });
+    const executeSpy = jest.spyOn(instance, "executeSearch");
+
+    await instance.onFocus({}, { formikProps: { form: { values: { testField: "" } } } });
+
+    expect(instance.state.searchQuery).toBe("García");
+    expect(executeSpy).not.toHaveBeenCalled();
+    expect(axios.get).not.toHaveBeenCalled();
+    executeSpy.mockRestore();
+  });
+
+  test("handleSearchInputChange updates display searchQuery immediately; fetch stays debounced", async () => {
+    jest.useFakeTimers();
+    try {
+      axios.get.mockResolvedValue({
+        data: { hits: { hits: [{ id: "local-1" }] } },
+      });
+      const { instance } = await mountField({
+        commitSearchOnBlur: true,
+        debounceTime: 500,
+      });
+
+      instance.handleSearchInputChange({}, { searchQuery: "Smi" });
+      expect(instance.state.searchQuery).toBe("Smi");
+      expect(axios.get).not.toHaveBeenCalled();
+
+      instance.handleSearchInputChange({}, { searchQuery: "Smith" });
+      expect(instance.state.searchQuery).toBe("Smith");
+      expect(axios.get).not.toHaveBeenCalled();
+
+      jest.advanceTimersByTime(500);
+      await flush();
+
+      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(axios.get.mock.calls[0][1].params.suggest).toBe("Smith");
+    } finally {
+      jest.useRealTimers();
+    }
   });
 });

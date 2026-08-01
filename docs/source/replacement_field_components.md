@@ -85,13 +85,17 @@ A few behaviors are worth knowing if you wrap or extend these widgets:
 - **`SelectField` chains a caller-provided `onBlur`.** If you pass an `onBlur`
   prop (e.g. from `RemoteSelectField`), it runs **after** `handleBlur` and
   `setFieldTouched`. You can extend blur behavior without accidentally
-  dropping touched-marking.
+  dropping touched-marking. The same chaining applies to `onFocus`
+  (`onFocus(e, { formikProps })`).
 
 - **`RemoteSelectField` opt-in props.** All default to `false` / unset:
 
   - `commitSearchOnBlur` — for single-value fields, blur commits trimmed
     search text as a free-text choice. Doesn't require Semantic UI's
-    `allowAdditions`.
+    `allowAdditions`. Also reconstructs mid-typeahead state on focus:
+    seeds the search input from the Formik field value (text selected on
+    focus, like a normal text input); display text updates on each keystroke
+    while remote fetches stay debounced. Focus alone does not fetch.
   - `hideAdditionMenuItem` — sets `allowAdditions={false}` on the
     `Form.Dropdown`, hiding Semantic UI's synthetic "Add …" row. Pair with
     `commitSearchOnBlur` (or list-only values) when free text must still apply.

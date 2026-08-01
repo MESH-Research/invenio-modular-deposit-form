@@ -25,7 +25,14 @@
 //   with `.cancel()` on unmount (stock debounces only, no ref / cancel).
 // - `commitSearchOnBlur` (default false): when true and not `multiple`, blur commits trimmed
 //   search text like a free-text value (`onValueChange` + `ui.*`). Does not require
-//   `allowAdditions` on semantic-ui-react `Form.Dropdown`.
+//   `allowAdditions` on semantic-ui-react `Form.Dropdown`. Also opts the field into
+//   **mid-typeahead-on-focus** UX: on focus, seed controlled `searchQuery` from the Formik
+//   field value (fallback: selected suggestion text) and select that text — the same
+//   state as if the user had already typed that string (browser-typical focus selection).
+//   SUIR otherwise clears `searchQuery` after selection and shows a non-editable `.text`
+//   overlay, so typing replaces instead of edits. Focus alone does **not** fetch; display
+//   `searchQuery` updates on every keystroke; remote fetches stay on `runDebouncedSearch` /
+//   `debounceTime`.
 // - `hideAdditionMenuItem` (default false): passes `allowAdditions={false}` into `SelectField` /
 //   `Form.Dropdown`. semantic-ui-react has no prop to hide only the synthetic “Add …” row in
 //   `getMenuOptions`; turning additions off removes that row. Pair with `commitSearchOnBlur` (or
@@ -57,6 +64,7 @@
 //   immediately opens when user types, instead of brief delay waiting for returned options.
 
 import axios from "axios";
+import { getIn } from "formik";
 import _debounce from "lodash/debounce";
 import _isEqual from "lodash/isEqual";
 import PropTypes from "prop-types";
@@ -93,9 +101,14 @@ class RemoteSelectField extends Component {
   constructor(props) {
     super(props);
     this.latestSearchStringRef = { current: "" };
+    // Last query actually passed to `executeSearch` / the API. Kept separate from display
+    // `state.searchQuery`, which (when `commitSearchOnBlur`) updates on every keystroke so the
+    // input stays editable without implying a fetch has started for that string.
+    this.lastFetchedQueryRef = { current: undefined };
 
     this.onSelectValue = async (event, { options, value }, callbackFunc) => {
       this.latestSearchStringRef.current = "";
+      this.lastFetchedQueryRef.current = undefined;
       const { multiple } = this.props;
       const newSelectedSuggestions = options.filter((item) =>
         multiple ? value.includes(item.value) : item.value === value
@@ -114,6 +127,7 @@ class RemoteSelectField extends Component {
 
     this.handleAddition = async (e, { value }, callbackFunc) => {
       this.latestSearchStringRef.current = "";
+      this.lastFetchedQueryRef.current = undefined;
       const { serializeAddedValue } = this.props;
       const { selectedSuggestions } = this.state;
 
@@ -139,9 +153,17 @@ class RemoteSelectField extends Component {
     }, this.props.debounceTime);
 
     this.handleSearchInputChange = (e, data) => {
-      const q = data?.searchQuery;
-      this.latestSearchStringRef.current = q == null ? "" : String(q);
-      if (String(q ?? "").length > 0) {
+      const { commitSearchOnBlur, multiple } = this.props;
+      const q = data?.searchQuery == null ? "" : String(data.searchQuery);
+      this.latestSearchStringRef.current = q;
+      // When free-text edit mode controls the dropdown `searchQuery`, update display state
+      // immediately so each keystroke edits the string. Remote fetch stays debounced below.
+      if (commitSearchOnBlur && !multiple) {
+        this.setState({
+          searchQuery: q,
+          ...(q.length > 0 ? { open: true, isFetching: true } : {}),
+        });
+      } else if (q.length > 0) {
         this.setState({ open: true, isFetching: true });
       }
       this.runDebouncedSearch(e, data);
@@ -150,17 +172,26 @@ class RemoteSelectField extends Component {
     this.executeSearch = async (searchQuery) => {
       const { preSearchChange, serializeSuggestions, mergeExtraSource } = this.props;
       const query = preSearchChange(searchQuery);
-      const { searchQuery: prevSearchQuery } = this.state;
-      if (prevSearchQuery === query) return;
+      // Duplicate-query guard must not use display `state.searchQuery` (that updates on every
+      // keystroke when `commitSearchOnBlur`). Track issued fetches separately.
+      if (this.lastFetchedQueryRef.current === query) return;
+      this.lastFetchedQueryRef.current = query;
+      // Keep the literal-string ref aligned for programmatic callers (tests, searchOnFocus).
+      this.latestSearchStringRef.current =
+        searchQuery == null ? "" : String(searchQuery);
 
       this.setState({ isFetching: true, searchQuery: query });
+
+      // Staleness: prefer the live typed string so mid-debounce keystrokes drop late responses
+      // even before the next `executeSearch` runs.
+      const isStale = () => preSearchChange(this.latestSearchStringRef.current) !== query;
 
       // Two-phase render: paint local hits into the dropdown the moment they arrive, then
       // merge in extras (e.g. ORCID) when the extra source resolves. Both round-trips overlap:
       // `mergeExtraSource` receives a *promise* of local hits so it can fire its own request
       // immediately and await `localPromise` only when it needs the data for de-duping.
       // TODO: pass an AbortSignal to mergeExtraSource for true request cancellation; today
-      // late responses are just dropped via the `searchQuery` staleness guard below.
+      // late responses are just dropped via the staleness guard below.
       const localPromise = this.fetchSuggestions(query);
       const extraPromise = mergeExtraSource
         ? Promise.resolve(mergeExtraSource(localPromise, query)).catch((e) => {
@@ -173,12 +204,12 @@ class RemoteSelectField extends Component {
       try {
         localHits = (await localPromise) ?? [];
       } catch (e) {
-        if (this.state.searchQuery !== query) return;
+        if (isStale()) return;
         console.error(e);
         this.setState({ error: true, isFetching: false });
         return;
       }
-      if (this.state.searchQuery !== query) return;
+      if (isStale()) return;
       this.setState((prevState) => ({
         suggestions: mergeOptions(prevState.selectedSuggestions, serializeSuggestions(localHits)),
         isFetching: !!extraPromise,
@@ -188,7 +219,7 @@ class RemoteSelectField extends Component {
 
       if (extraPromise) {
         const extraHits = (await extraPromise) ?? [];
-        if (this.state.searchQuery !== query) return;
+        if (isStale()) return;
         this.setState((prevState) => ({
           suggestions: mergeOptions(prevState.suggestions, serializeSuggestions(extraHits)),
           isFetching: false,
@@ -266,6 +297,7 @@ class RemoteSelectField extends Component {
           ? serializeAddedValue(q)
           : { ...createOption(q), name: q };
         const newSelectedSuggestions = [selectedSuggestion];
+        this.lastFetchedQueryRef.current = undefined;
         this.setState(
           (prevState) => ({
             open: false,
@@ -300,13 +332,41 @@ class RemoteSelectField extends Component {
       }));
     };
 
-    this.onFocus = async () => {
-      const { searchOnFocus } = this.props;
+    this.getSelectedDisplayText = () => {
+      const selected = this.state.selectedSuggestions?.[0];
+      if (!selected) return "";
+      return String(selected.text ?? selected.name ?? selected.value ?? "");
+    };
+
+    this.onFocus = async (e, { formikProps } = {}) => {
+      const { searchOnFocus, commitSearchOnBlur, multiple, fieldPath } = this.props;
+
+      // Reconstruct mid-typeahead state: search input holds the current field value
+      // with that text selected (like a normal text input on focus). No remote fetch
+      // unless `searchOnFocus` is also set.
+      if (commitSearchOnBlur && !multiple) {
+        const current = this.state.searchQuery;
+        const formikValue = formikProps
+          ? String(getIn(formikProps.form.values, fieldPath, "") || "").trim()
+          : "";
+        const seeded =
+          current != null && String(current).length > 0
+            ? String(current)
+            : formikValue || this.getSelectedDisplayText();
+        if (seeded) {
+          this.latestSearchStringRef.current = seeded;
+          this.setState({ searchQuery: seeded }, () => {
+            this.selectSearchInputText();
+          });
+        } else {
+          this.selectSearchInputText();
+        }
+      }
+
       if (!searchOnFocus) return;
 
       this.setState({ open: true });
-      const { searchQuery } = this.state;
-      await this.executeSearch(searchQuery || "");
+      await this.executeSearch(this.latestSearchStringRef.current || this.state.searchQuery || "");
     };
 
     this.getProps = () => {
@@ -388,6 +448,36 @@ class RemoteSelectField extends Component {
     }, 0);
   };
 
+  selectSearchInputText = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const { fieldPath } = this.props;
+    window.setTimeout(() => {
+      const byId = document.getElementById(fieldPath);
+      const input =
+        byId?.tagName === "INPUT"
+          ? byId
+          : byId?.querySelector?.("input.search, input") ||
+            document.querySelector(
+              `.invenio-remote-select-field input[id="${CSS.escape(fieldPath)}"]`
+            );
+      if (!input) return;
+      if (typeof input.select === "function") {
+        input.select();
+        return;
+      }
+      if (typeof input.setSelectionRange === "function") {
+        const len = (input.value || "").length;
+        try {
+          input.setSelectionRange(0, len);
+        } catch (_err) {
+          // Some input types reject setSelectionRange; ignore.
+        }
+      }
+    }, 0);
+  };
+
   componentDidUpdate(prevProps) {
     // Re-seed the dropdown from `initialSuggestions` whenever its content changes
     // after mount (e.g. localStorage recovery applies `resetForm` *after* this
@@ -421,7 +511,7 @@ class RemoteSelectField extends Component {
 
   render() {
     const { compProps, uiProps } = this.getProps();
-    const { error, suggestions, open, isFetching } = this.state;
+    const { error, suggestions, open, isFetching, searchQuery } = this.state;
 
     const classNameParts = ["invenio-remote-select-field", uiProps.className, uiProps.classnames]
       .filter(Boolean)
@@ -433,6 +523,11 @@ class RemoteSelectField extends Component {
       ? this.menuSearchFromResults
       : compProps.search;
 
+    // Mid-typeahead mode (`commitSearchOnBlur`): control SUIR's searchQuery so focus-seeded /
+    // keystroke values actually appear in the input (otherwise SUIR keeps an empty search box
+    // under the selected-label overlay).
+    const controlSearchQuery = compProps.commitSearchOnBlur && !uiProps.multiple;
+
     return (
       <SelectField
         {...uiProps}
@@ -443,6 +538,7 @@ class RemoteSelectField extends Component {
         options={suggestions}
         noResultsMessage={this.getNoResultsMessage()}
         search={menuSearch}
+        {...(controlSearchQuery ? { searchQuery: searchQuery ?? "" } : {})}
         searchInput={{
           id: compProps.fieldPath,
           autoFocus: compProps.isFocused,
