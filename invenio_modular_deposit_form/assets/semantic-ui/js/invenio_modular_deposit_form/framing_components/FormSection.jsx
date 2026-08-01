@@ -87,10 +87,13 @@ const FormSection = ({
         .join(" ")}
     >
       <Accordion.Title
+        as="button"
+        type="button"
         active={isOpen}
         index={0}
         onClick={() => setIsOpen(!isOpen)}
         className="invenio-field-label mb-0"
+        aria-expanded={isOpen}
       >
         {!!icon && <Icon name={icon} />} {label}
         {severityBadges}

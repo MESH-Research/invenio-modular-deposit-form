@@ -206,7 +206,7 @@ const TotalPagesComponent = ({ ...extraProps }) => (
     idString="ImprintPagesField"
     description={""}
     label={i18next.t("Total book pages")}
-    labelIcon="file outline"
+    icon="file outline"
     {...extraProps}
   />
 );
