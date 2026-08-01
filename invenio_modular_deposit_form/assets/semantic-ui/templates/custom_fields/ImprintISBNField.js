@@ -17,17 +17,7 @@ const ImprintISBNField = ({
   description,
   ...extraProps
 }) => {
-  return (
-    <TextField
-      fieldPath={fieldPath}
-      label={label}
-      labelIcon={labelIcon}
-      {...extraProps}
-    />
-    // {/* {description && (
-    //     <label className="helptext mb-0">{description}</label>
-    // )}  */}
-  );
+  return <TextField fieldPath={fieldPath} label={label} labelIcon={labelIcon} {...extraProps} />;
 };
 
 ImprintISBNField.propTypes = {
