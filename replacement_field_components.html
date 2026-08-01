@@ -330,12 +330,16 @@ often doesn’t carry the Formik path. The local <code class="docutils literal n
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">SelectField</span></code> chains a caller-provided <code class="docutils literal notranslate"><span class="pre">onBlur</span></code>.</strong> If you pass an <code class="docutils literal notranslate"><span class="pre">onBlur</span></code>
 prop (e.g. from <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>), it runs <strong>after</strong> <code class="docutils literal notranslate"><span class="pre">handleBlur</span></code> and
 <code class="docutils literal notranslate"><span class="pre">setFieldTouched</span></code>. You can extend blur behavior without accidentally
-dropping touched-marking.</p></li>
+dropping touched-marking. The same chaining applies to <code class="docutils literal notranslate"><span class="pre">onFocus</span></code>
+(<code class="docutils literal notranslate"><span class="pre">onFocus(e,</span> <span class="pre">{</span> <span class="pre">formikProps</span> <span class="pre">})</span></code>).</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code> opt-in props.</strong> All default to <code class="docutils literal notranslate"><span class="pre">false</span></code> / unset:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">commitSearchOnBlur</span></code> — for single-value fields, blur commits trimmed
 search text as a free-text choice. Doesn’t require Semantic UI’s
-<code class="docutils literal notranslate"><span class="pre">allowAdditions</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">allowAdditions</span></code>. Also reconstructs mid-typeahead state on focus:
+seeds the search input from the Formik field value (text selected on
+focus, like a normal text input); display text updates on each keystroke
+while remote fetches stay debounced. Focus alone does not fetch.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">hideAdditionMenuItem</span></code> — sets <code class="docutils literal notranslate"><span class="pre">allowAdditions={false}</span></code> on the
 <code class="docutils literal notranslate"><span class="pre">Form.Dropdown</span></code>, hiding Semantic UI’s synthetic “Add …” row. Pair with
 <code class="docutils literal notranslate"><span class="pre">commitSearchOnBlur</span></code> (or list-only values) when free text must still apply.</p></li>
