@@ -136,6 +136,8 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
         // snapshot. The snapshot intentionally omits these (we strip them on
         // save), and pre-existing snapshots saved by older code may have stale
         // copies; either way, the live Redux record is the source of truth.
+        // Keep the snapshot in localStorage on accept so a reload without
+        // further edits can still offer recovery; submit clears it.
         const liveRecord = store.getState().deposit?.record ?? {};
         const merged = overlayServerManagedKeys(recoveredStorageValues, liveRecord);
         async function doSetInitialValues() {
@@ -144,8 +146,12 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
         doSetInitialValues();
         setRecoveredStorageValues(null);
         focusFirstElement(currentFormPage, true);
+      } else {
+        // Decline: drop the snapshot so we don't re-prompt on the next visit.
+        window.localStorage.removeItem(
+          `rdmDepositFormValues.${currentUserprofile.id}.${values.id}`
+        );
       }
-      window.localStorage.removeItem(`rdmDepositFormValues.${currentUserprofile.id}.${values.id}`);
     },
     [
       currentFormPage,
