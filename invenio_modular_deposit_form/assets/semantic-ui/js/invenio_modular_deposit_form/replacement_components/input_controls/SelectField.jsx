@@ -248,7 +248,7 @@ export class SelectField extends Component {
           )
         ) : null}
         {descriptionId && (
-          <div className="description" id={descriptionId}>
+          <div className="description mb-5 mt-5" id={descriptionId}>
             {React.isValidElement(description) ? description : i18next.t(description)}
           </div>
         )}

@@ -291,30 +291,34 @@
 
   /* Prominent field label (alternate layout): legend-like typography on the top-level field label.
    * The third selector covers stock fields (e.g. SubjectsField) that wrap their inner `.field`
-   * in a `GroupField.main-group-field`, adding an extra hop our default selectors don't reach. */
+   * in a `GroupField.main-group-field`, adding an extra hop our default selectors don't reach.
+   * `> .content >` covers collapsible FormSections (Accordion.Content between section and fields). */
   .prominent-field-label {
-    > .invenio-field-wrapper > .field > label,
-    > .invenio-field-wrapper > .field > .ui.grid > .column > label,
-    > .invenio-field-wrapper > .fields.main-group-field > .field > label {
-      color: @primaryColor;
-      font-weight: bold;
-      font-size: 1.25em;
-      position: relative;
-      top: -1em;
-      margin-bottom: 0;
+    > .invenio-field-wrapper,
+    > .content > .invenio-field-wrapper {
+      > .field > label,
+      > .field > .ui.grid > .column > label,
+      > .fields.main-group-field > .field > label {
+        color: @primaryColor;
+        font-weight: bold;
+        font-size: 1.25em;
+        position: relative;
+        top: -1em;
+        margin-bottom: 0;
 
-      > i.icon {
-        margin-right: 0.5em;
+        > i.icon {
+          margin-right: 0.5em;
+        }
       }
-    }
 
-    /* When a stock field renders helptext as a sibling of the input column inside a horizontal
-     * `.fields.main-group-field` (e.g. stock SubjectsField), the helptext aligns to the top of
-     * the column — i.e. to the prominent label, not the input. Push it down so its first line
-     * sits at the input top. The offset matches the prominent label above:
-     *   font-size 1.25em * line-height ~1.43 + margin-bottom 1em ≈ 2.79em. */
-    > .invenio-field-wrapper > .fields.main-group-field > .helptext {
-      padding-top: ~"calc(1.25em * 1.4285 + 1em)";
+      /* When a stock field renders helptext as a sibling of the input column inside a horizontal
+       * `.fields.main-group-field` (e.g. stock SubjectsField), the helptext aligns to the top of
+       * the column — i.e. to the prominent label, not the input. Push it down so its first line
+       * sits at the input top. The offset matches the prominent label above:
+       *   font-size 1.25em * line-height ~1.43 + margin-bottom 1em ≈ 2.79em. */
+      > .fields.main-group-field > .helptext {
+        padding-top: ~"calc(1.25em * 1.4285 + 1em)";
+      }
     }
   }
 
@@ -345,7 +349,9 @@
     }
 
     // & > .invenio-field-wrapper:last-child,
-    & > .invenio-group-field:last-child {
+    // & > .content > .invenio-field-wrapper:last-child,
+    & > .invenio-group-field:last-child,
+    & > .content > .invenio-group-field:last-child {
       .field {
         margin-bottom: 0.5em !important;
       }
