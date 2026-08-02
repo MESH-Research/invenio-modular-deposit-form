@@ -12,22 +12,33 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 
 import { AdditionalTitlesField } from "./AdditionalTitlesField";
-import { FieldLabel } from "react-invenio-forms";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 export class TitlesField extends Component {
   render() {
-    const { fieldPath, options, label, required, recordUI } = this.props;
+    const {
+      fieldPath,
+      options,
+      label,
+      icon,
+      labelIcon = "book",
+      required,
+      recordUI,
+      ...restProps
+    } = this.props;
 
     return (
       <>
         <TextField
           fieldPath={fieldPath}
-          label={label ? <FieldLabel htmlFor={fieldPath} icon="book" label={label} /> : null}
+          label={label ?? null}
           required={required}
           className="title-field"
           optimized
+          icon={icon}
+          labelIcon={labelIcon}
+          {...restProps}
         />
         <AdditionalTitlesField
           options={options}
