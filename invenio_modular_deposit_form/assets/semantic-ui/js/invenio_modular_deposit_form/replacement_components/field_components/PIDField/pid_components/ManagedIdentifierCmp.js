@@ -22,6 +22,8 @@
 //   not run full submit validation or mark all fields touched for those actions.
 // - Before those dispatches, `valuesWithLinkFallbacks` merges `links` from Redux / Formik
 //   initial values when Formik values lost them (e.g. after localStorage recovery).
+// - Reserve / discard share the same Formik error mapping (403 session message, object vs
+//   string errors, fieldPath fallback) because they no longer go through DepositBootstrap.
 //
 // JSX structure (managed identifier display, reserve/unreserve buttons) matches stock.
 
@@ -37,64 +39,53 @@ import {
   RESERVE_PID_STARTED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import { scrollTop } from "@js/invenio_rdm_records/src/deposit/utils";
-import { valuesWithLinkFallbacks } from "../../../../helpers/valuesWithLinkFallbacks";
+// import { valuesWithLinkFallbacks } from "../../../../helpers/valuesWithLinkFallbacks";
 import { getFieldErrorsForDisplay } from "./fieldErrorsForDisplay";
 
 class ManagedIdentifierComponent extends Component {
-  draftValuesForPidAction(formik) {
-    const { recordLinks } = this.props;
-    return valuesWithLinkFallbacks(formik.values, {
-      recordLinks,
-      initialValuesLinks: formik.initialValues?.links,
+  /**
+   * Map a reserve/discard thunk failure onto Formik errors.
+   *
+   * @param {object} error - Thrown value from the deposit PID thunk
+   * @param {object} formik - Formik bag
+   */
+  handlePidActionError(error, formik) {
+    const message =
+      error.errors?.status === 403
+        ? i18next.t("Session expired. Please refresh the page to log in.")
+        : (error.errors?.message ?? error.errors);
+    if (message && typeof message === "object") {
+      formik.setErrors({ ...formik.errors, ...message });
+      return;
+    }
+    const stringMessage =
+      message ?? i18next.t("Something went wrong. Refresh the page or contact user support.");
+    formik.setErrors({
+      ...formik.errors,
+      message: stringMessage,
+      [this.props.fieldPath]: stringMessage,
     });
   }
 
   handleReservePID = async (event, formik) => {
-    if (event?.preventDefault) {
-      event.preventDefault();
-    }
-    if (event?.stopPropagation) {
-      event.stopPropagation();
-    }
+    event.preventDefault();
+    event.stopPropagation();
     const { pidType, reservePID: reservePIDAction } = this.props;
     try {
-      await reservePIDAction(this.draftValuesForPidAction(formik), { pidType });
+      await reservePIDAction(formik.values, { pidType });
     } catch (error) {
-      let message =
-        error.errors?.status === 403
-          ? i18next.t("Session expired. Please refresh the page to log in.")
-          : (error.errors?.message ?? error.errors);
-      if (message && typeof message === "object") {
-        formik.setErrors({ ...formik.errors, ...message });
-      } else {
-        const stringMessage =
-          message ?? i18next.t("Something went wrong. Refresh the page or contact user support.");
-        formik.setErrors({
-          ...formik.errors,
-          message: stringMessage,
-          [this.props.fieldPath]: stringMessage,
-        });
-      }
+      this.handlePidActionError(error, formik);
     }
   };
 
   handleDiscardPID = async (event, formik) => {
-    if (event?.preventDefault) {
-      event.preventDefault();
-    }
-    if (event?.stopPropagation) {
-      event.stopPropagation();
-    }
+    event.preventDefault();
+    event.stopPropagation();
     const { discardPID: discardPIDAction, pidType } = this.props;
     try {
-      await discardPIDAction(this.draftValuesForPidAction(formik), { pidType });
+      await discardPIDAction(formik.values, { pidType });
     } catch (error) {
-      if (error && error.errors) {
-        formik.setErrors(error.errors);
-      } else {
-        scrollTop();
-      }
+      this.handlePidActionError(error, formik);
     }
   };
 
