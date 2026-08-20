@@ -277,8 +277,7 @@ const FormLayoutContainer = () => {
 
         {!ctx.recoveryAsked && ctx.storageDataPresent && (
           <RecoveryModal
-            isDraft={record.status === "draft"}
-            isVersionDraft={record.status === "new_version_draft"}
+            isUnsavedDraft={record.status === "draft" && !record.id}
             confirmModalRef={ctx.confirmModalRef}
             handleStorageData={ctx.handleStorageData}
             setRecoveryAsked={ctx.handleRecoveryAsked}
