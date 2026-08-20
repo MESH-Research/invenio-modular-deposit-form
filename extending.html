@@ -301,10 +301,10 @@ replacements.</p>
 <h3>1. Make sure your assets folder has a webpack alias<a class="headerlink" href="#make-sure-your-assets-folder-has-a-webpack-alias" title="Link to this heading">¶</a></h3>
 <p>In your instance’s <code class="docutils literal notranslate"><span class="pre">site/&lt;my_instance&gt;/webpack.py</span></code>, add an alias for the directory holding your JS assets (skip this if you already have one for your instance code):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">themes</span><span class="o">=</span><span class="p">{</span>
-    <span class="s2">&quot;semantic-ui&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="s2">"semantic-ui"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">entry</span><span class="o">=</span><span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
         <span class="n">aliases</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;@js/my_instance_name&quot;</span><span class="p">:</span> <span class="s2">&quot;js/my_instance_name&quot;</span><span class="p">,</span>
+            <span class="s2">"@js/my_instance_name"</span><span class="p">:</span> <span class="s2">"js/my_instance_name"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">),</span>
 <span class="p">},</span>
@@ -327,26 +327,26 @@ replacements.</p>
 <p>The package reads three Python entry points. Each one points to a Python function that returns <strong>the path to the corresponding file</strong>, in the form <code class="docutils literal notranslate"><span class="pre">js/&lt;your-alias-name&gt;/path/to/file.js</span></code> — the same path you’d write after <code class="docutils literal notranslate"><span class="pre">&#64;js/</span></code> in a JavaScript import, but with <code class="docutils literal notranslate"><span class="pre">js/</span></code> instead of <code class="docutils literal notranslate"><span class="pre">&#64;js/</span></code>.</p>
 <p>Add a small Python module — e.g. <code class="docutils literal notranslate"><span class="pre">site/my_instance_name/deposit_extras.py</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">get_validator_path</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/validator.js&quot;</span>
+    <span class="k">return</span> <span class="s2">"js/my_instance_name/deposit_extras/validator.js"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_components_registry_path</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/componentsRegistry.js&quot;</span>
+    <span class="k">return</span> <span class="s2">"js/my_instance_name/deposit_extras/componentsRegistry.js"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_transformations_path</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s2">&quot;js/my_instance_name/deposit_extras/transformations.js&quot;</span>
+    <span class="k">return</span> <span class="s2">"js/my_instance_name/deposit_extras/transformations.js"</span>
 </pre></div>
 </div>
 <p>Then register those functions on the entry points. In <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
-<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.validator&quot;</span><span class="k">]</span>
-<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras:get_validator_path&quot;</span>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.</span><span class="s2">"invenio_modular_deposit_form.validator"</span><span class="k">]</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_instance_name.deposit_extras:get_validator_path"</span>
 
-<span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.components_registry&quot;</span><span class="k">]</span>
-<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras:get_components_registry_path&quot;</span>
+<span class="k">[project.entry-points.</span><span class="s2">"invenio_modular_deposit_form.components_registry"</span><span class="k">]</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_instance_name.deposit_extras:get_components_registry_path"</span>
 
-<span class="k">[project.entry-points.</span><span class="s2">&quot;invenio_modular_deposit_form.transformations&quot;</span><span class="k">]</span>
-<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;my_instance_name.deposit_extras:get_transformations_path&quot;</span>
+<span class="k">[project.entry-points.</span><span class="s2">"invenio_modular_deposit_form.transformations"</span><span class="k">]</span>
+<span class="n">my_instance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_instance_name.deposit_extras:get_transformations_path"</span>
 </pre></div>
 </div>
 <p>Or the equivalent in <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>:</p>
@@ -395,23 +395,23 @@ replacements.</p>
 <section id="the-componentsregistry-object">
 <h2>The componentsRegistry object<a class="headerlink" href="#the-componentsregistry-object" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> exports a named <code class="docutils literal notranslate"><span class="pre">componentsRegistry</span></code> whose keys are the strings you reference in your layout config and whose values are <code class="docutils literal notranslate"><span class="pre">[Component,</span> <span class="pre">fieldPaths]</span></code> tuples:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MyTitlesWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./components/MyTitlesWrapper&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BookSectionVolumePagesComponent</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./components/BookSectionVolumePagesComponent&quot;</span><span class="p">;</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">MyTitlesWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./components/MyTitlesWrapper"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BookSectionVolumePagesComponent</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./components/BookSectionVolumePagesComponent"</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">componentsRegistry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Replace the built-in titles section with your own wrapper.</span>
 <span class="w">  </span><span class="nx">TitlesComponent</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="nx">MyTitlesWrapper</span><span class="p">,</span>
-<span class="w">    </span><span class="p">[</span><span class="s2">&quot;metadata.title&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;metadata.additional_titles&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="p">[</span><span class="s2">"metadata.title"</span><span class="p">,</span><span class="w"> </span><span class="s2">"metadata.additional_titles"</span><span class="p">],</span>
 <span class="w">  </span><span class="p">],</span>
 
 <span class="w">  </span><span class="c1">// Add a brand-new section for a compound custom field.</span>
 <span class="w">  </span><span class="nx">BookSectionVolumePagesComponent</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="nx">BookSectionVolumePagesComponent</span><span class="p">,</span>
 <span class="w">    </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;custom_fields.journal:journal.pages&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;custom_fields.imprint:imprint.pages&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"custom_fields.journal:journal.pages"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"custom_fields.imprint:imprint.pages"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">],</span>
 <span class="w">  </span><span class="p">],</span>
 <span class="p">};</span>
@@ -427,9 +427,9 @@ replacements.</p>
 <h2>Using your component in the layout<a class="headerlink" href="#using-your-component-in-the-layout" title="Link to this heading">¶</a></h2>
 <p>Once a key is in the merged registry, you reference it by that string from <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> (or any per-resource-type override in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;section&quot;</span><span class="p">:</span> <span class="s2">&quot;discipline&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Discipline&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="s2">&quot;MyDisciplineComponent&quot;</span><span class="p">,</span>
+    <span class="s2">"section"</span><span class="p">:</span> <span class="s2">"discipline"</span><span class="p">,</span>
+    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"Discipline"</span><span class="p">,</span>
+    <span class="s2">"component"</span><span class="p">:</span> <span class="s2">"MyDisciplineComponent"</span><span class="p">,</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -464,12 +464,12 @@ replacements.</p>
 </div>
 <p>Use the registry when you need to control how props are gathered or when the section composition itself has to change. Use Overridable when the existing wrapper does what you want and you only need a different inner widget.</p>
 <p>Imports you typically need when writing a replacement:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper&quot;</span><span class="p">;</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper"</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">TextField</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">SelectField</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">RemoteSelectField</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/replacement_components&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/replacement_components"</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Prefer the package’s <a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">replacement field components</span></a> (<code class="docutils literal notranslate"><span class="pre">TextField</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>, etc.) over the stock <code class="docutils literal notranslate"><span class="pre">react-invenio-forms</span></code> widgets so visible-error gating (“touched”) stays consistent across the form.</p>
@@ -568,14 +568,14 @@ replacements.</p>
 <li><p><strong>Register the component and add it to the layout</strong> — Add your component to your instance’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> with the field path(s) it handles, then reference it in <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code> or <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code> like any other field component.</p></li>
 </ol>
 <p><strong>Example — single custom field in the instance registry:</strong></p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CustomField</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@js/invenio_modular_deposit_form/field_components/CustomField&quot;</span><span class="p">;</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CustomField</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/field_components/CustomField"</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">MyFieldComponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">props</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span>
-<span class="w">  </span><span class="o">&lt;</span><span class="nx">CustomField</span><span class="w"> </span><span class="nx">fieldName</span><span class="o">=</span><span class="s2">&quot;kcr:my_field&quot;</span><span class="w"> </span><span class="nx">idString</span><span class="o">=</span><span class="s2">&quot;MyField&quot;</span><span class="w"> </span><span class="p">{...</span><span class="nx">props</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
+<span class="w">  </span><span class="o">&lt;</span><span class="nx">CustomField</span><span class="w"> </span><span class="nx">fieldName</span><span class="o">=</span><span class="s2">"kcr:my_field"</span><span class="w"> </span><span class="nx">idString</span><span class="o">=</span><span class="s2">"MyField"</span><span class="w"> </span><span class="p">{...</span><span class="nx">props</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
 <span class="p">);</span>
 
 <span class="c1">// In componentsRegistry.js:</span>
-<span class="c1">// MyFieldComponent: [MyFieldComponent, [&quot;custom_fields.kcr:my_field&quot;]]</span>
+<span class="c1">// MyFieldComponent: [MyFieldComponent, ["custom_fields.kcr:my_field"]]</span>
 </pre></div>
 </div>
 <p>Your instance must define the field and its UI in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span></code> and <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code> as usual.</p>

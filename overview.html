@@ -560,8 +560,8 @@ whose default export (or <code class="docutils literal notranslate"><span class=
 functions</strong>, each with the signature <code class="docutils literal notranslate"><span class="pre">(values)</span> <span class="pre">=&gt;</span> <span class="pre">newValues</span></code>. Functions in the
 array are applied in order; each receives the output of the previous one.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># pyproject.toml (or setup.cfg) of your instance package</span>
-<span class="p">[</span><span class="n">project</span><span class="o">.</span><span class="n">entry</span><span class="o">-</span><span class="n">points</span><span class="o">.</span><span class="s2">&quot;invenio_modular_deposit_form.transformations&quot;</span><span class="p">]</span>
-<span class="n">my_instance</span> <span class="o">=</span> <span class="s2">&quot;my_instance.webpack:get_transformations_path&quot;</span>
+<span class="p">[</span><span class="n">project</span><span class="o">.</span><span class="n">entry</span><span class="o">-</span><span class="n">points</span><span class="o">.</span><span class="s2">"invenio_modular_deposit_form.transformations"</span><span class="p">]</span>
+<span class="n">my_instance</span> <span class="o">=</span> <span class="s2">"my_instance.webpack:get_transformations_path"</span>
 </pre></div>
 </div>
 <p>The callable <code class="docutils literal notranslate"><span class="pre">get_transformations_path</span></code> should return the filesystem path (or
@@ -572,7 +572,7 @@ webpack request string) to your <code class="docutils literal notranslate"><span
 <span class="w">    </span><span class="p">...</span><span class="nx">values</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">metadata</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="p">...</span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">publisher</span><span class="o">:</span><span class="w"> </span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">.</span><span class="nx">publisher</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;My Repository&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">publisher</span><span class="o">:</span><span class="w"> </span><span class="nx">values</span><span class="p">.</span><span class="nx">metadata</span><span class="p">.</span><span class="nx">publisher</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"My Repository"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">(</span><span class="nx">values</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">stripEmptyArrays</span><span class="p">(</span><span class="nx">values</span><span class="p">),</span>
