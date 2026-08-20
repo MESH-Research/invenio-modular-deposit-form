@@ -33,11 +33,11 @@ class DepositBootstrapComponent extends Component {
         return "";
       }
     });
-    window.addEventListener("unload", async () => {
-      // TODO: cancel all uploads
-      // Investigate if it's possible to wait for the deletion request to complete
-      // before unloading the page
-    });
+    // window.addEventListener("unload", async () => {
+    //   // TODO: cancel all uploads
+    //   // Investigate if it's possible to wait for the deletion request to complete
+    //   // before unloading the page
+    // });
   }
 
   submitContext = undefined;
@@ -117,9 +117,7 @@ class DepositBootstrapComponent extends Component {
   render() {
     const { errors, record, validate, validationSchema, children } = this.props;
     return (
-      <DepositFormSubmitContext.Provider
-        value={{ setSubmitContext: this.setSubmitContext }}
-      >
+      <DepositFormSubmitContext.Provider value={{ setSubmitContext: this.setSubmitContext }}>
         <BaseForm
           onSubmit={this.onFormSubmit}
           formik={{
@@ -130,7 +128,7 @@ class DepositBootstrapComponent extends Component {
             // the new PID in its payload, otherwise a new PID
             // is requested on each action, generating countless drafts
             enableReinitialize: true,
-            initialValues: record,
+            initialValues: { ...record }, // must be copy to avoid mutating Redux state
             validate: validate,
             validationSchema: validationSchema,
             // errors need to be repopulated after form is reinitialised
