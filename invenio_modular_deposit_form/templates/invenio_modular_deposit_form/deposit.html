@@ -31,7 +31,7 @@ see LICENSE file for more details.
   {%- endif %}
   {%- if config.APP_RDM_DEPOSIT_NG_FILES_UI_ENABLED %}{{ webpack['uppy-file-uploader.css'] }}{%- endif %}
   {%- endblock %}
-  {% set cu_dict = "" | current_user_profile_dict %}
+  {% set cu_dict = current_user.id | current_user_profile_dict %}
   {%- block page_body %}
     {%- if record %}
       <input id="deposits-record"
