@@ -11,7 +11,7 @@ import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
-import { useStore } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 import {
   AccessRightField,
   CommunityHeader,
@@ -772,8 +772,7 @@ const FormFeedbackComponent = (props) => {
  * @overridable InvenioAppRdm.Deposit.CardDepositStatusBox.container (outer); InvenioAppRdm.Deposit.CardDeleteButton.container (delete card).
  */
 const SubmissionComponent = () => {
-  const store = useStore();
-  const { config, record, permissions } = store.getState().deposit;
+  const { config, record, permissions } = useSelector((state) => state.deposit);
   const groupsEnabled = config?.groups_enabled ?? false;
 
   return (

@@ -24,7 +24,7 @@ import {
   RDMDepositRecordSerializer,
 } from "@js/invenio_rdm_records/src/deposit/api/DepositRecordSerializer";
 import { DepositService } from "@js/invenio_rdm_records/src/deposit/api/DepositService";
-import { configureStore } from "@js/invenio_rdm_records/src/deposit/store";
+import { configureStore } from "./store";
 import { RDMUploadProgressNotifier } from "@js/invenio_rdm_records/src/deposit/components/UploadProgressNotifier";
 
 export class DepositFormApp extends Component {
