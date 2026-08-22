@@ -17,16 +17,19 @@ import {
   _resolveMergedFormPageConfig,
   _scrollTop,
   areDeeplyEqual,
+  buildComputerPageNavMeta,
   collectLeafFieldPathsUnderRoot,
   filterVisibleFormPages,
   findPageIdContainingComponent,
   flattenKeysDotJoined,
   focusFirstElement,
+  getComputerVisibleFallbackPage,
   getErrorParent,
   getReadableFields,
   getResolvedFormPages,
   getTouchedParent,
   isNearViewportBottom,
+  isPageMenuHiddenAtComputer,
   moveToArrayStart,
 } from './utils.js';
 
@@ -745,5 +748,73 @@ describe('collectLeafFieldPathsUnderRoot', () => {
 
   test('null returns no paths', () => {
     expect(collectLeafFieldPathsUnderRoot('metadata.foo', null)).toEqual([]);
+  });
+});
+
+
+describe('isPageMenuHiddenAtComputer', () => {
+  test('detects tablet/mobile only menu items', () => {
+    expect(isPageMenuHiddenAtComputer('tablet mobile only')).toBe(true);
+    expect(isPageMenuHiddenAtComputer('mobile only')).toBe(true);
+  });
+
+  test('returns false when computer-tier breakpoints are included', () => {
+    expect(isPageMenuHiddenAtComputer('computer only')).toBe(false);
+    expect(isPageMenuHiddenAtComputer('tablet computer only')).toBe(false);
+    expect(isPageMenuHiddenAtComputer('large screen only')).toBe(false);
+  });
+
+  test('returns false without only / empty', () => {
+    expect(isPageMenuHiddenAtComputer('tablet mobile')).toBe(false);
+    expect(isPageMenuHiddenAtComputer('')).toBe(false);
+    expect(isPageMenuHiddenAtComputer(undefined)).toBe(false);
+  });
+});
+
+describe('getComputerVisibleFallbackPage', () => {
+  const pages = [
+    { section: '1' },
+    { section: '2' },
+    { section: '6', menuItemClasses: 'tablet mobile only' },
+  ];
+
+  test('returns previous computer-visible page', () => {
+    expect(getComputerVisibleFallbackPage(pages, '6')).toBe('2');
+  });
+
+  test('skips adjacent pages that are also computer-hidden', () => {
+    const withHidden = [
+      { section: '1' },
+      { section: '5', menuItemClasses: 'mobile only' },
+      { section: '6', menuItemClasses: 'tablet mobile only' },
+    ];
+    expect(getComputerVisibleFallbackPage(withHidden, '6')).toBe('1');
+  });
+
+  test('returns null when no fallback exists', () => {
+    expect(getComputerVisibleFallbackPage([{ section: '6', menuItemClasses: 'mobile only' }], '6')).toBeNull();
+    expect(getComputerVisibleFallbackPage([], '6')).toBeNull();
+  });
+});
+
+describe('buildComputerPageNavMeta', () => {
+  test('precomputes hidden page ids and fallback map', () => {
+    const pages = [
+      { section: '1' },
+      { section: '2' },
+      { section: '6', menuItemClasses: 'tablet mobile only' },
+    ];
+    expect(buildComputerPageNavMeta(pages)).toEqual({
+      pageIdsHiddenAtComputer: ['6'],
+      computerVisibleFallbackByPage: { 6: '2' },
+    });
+  });
+
+  test('returns empty metadata when no pages are computer-hidden', () => {
+    const pages = [{ section: '1' }, { section: '2' }];
+    expect(buildComputerPageNavMeta(pages)).toEqual({
+      pageIdsHiddenAtComputer: [],
+      computerVisibleFallbackByPage: {},
+    });
   });
 });

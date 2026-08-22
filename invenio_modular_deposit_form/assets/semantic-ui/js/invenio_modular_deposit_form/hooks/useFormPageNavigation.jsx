@@ -8,6 +8,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getIn } from "formik";
 import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReducer";
+import { SEMANTIC_UI_COMPUTER_BREAKPOINT_PX } from "../constants";
 import { collectLeafFieldPathsUnderRoot } from "../utils";
 
 /**
@@ -35,6 +36,11 @@ import { collectLeafFieldPathsUnderRoot } from "../utils";
  * - **Stale current page** — If `currentFormPage` is not in `visibleFormPages` anymore (e.g. resource
  *   type hid a placeholder step), an effect moves to the first visible page and uses
  *   `history.replaceState` so the correction does not add an extra history entry.
+ * - **Computer breakpoint** — At computer+ widths (`matchMedia` on
+ *   `SEMANTIC_UI_COMPUTER_BREAKPOINT_PX`), pages listed in `pageIdsHiddenAtComputer` (precomputed
+ *   from `menuItemClasses` when layout resolves) are remapped via `computerVisibleFallbackByPage`:
+ *   on `?page=` / popstate, and when the viewport crosses into computer+. Uses `replaceState` when
+ *   correcting an existing URL.
  * - **Modal helpers** — `handlePageChangeCancel` / `handlePageChangeConfirm` complete or abort the
  *   “leave page with errors?” flow; `confirmingPageChange` drives the `Confirm` in FormLayoutContainer.
  *
@@ -61,6 +67,17 @@ const useFormPageNavigation = (
   const visibleFormPages = formUIState?.visibleFormPages ?? [];
   const visibleFormPagesRef = useRef(visibleFormPages);
   visibleFormPagesRef.current = visibleFormPages;
+
+  const pageIdsHiddenAtComputerRef = useRef(formUIState?.pageIdsHiddenAtComputer ?? []);
+  pageIdsHiddenAtComputerRef.current = formUIState?.pageIdsHiddenAtComputer ?? [];
+
+  const computerVisibleFallbackByPageRef = useRef(
+    formUIState?.computerVisibleFallbackByPage ?? {}
+  );
+  computerVisibleFallbackByPageRef.current = formUIState?.computerVisibleFallbackByPage ?? {};
+
+  const currentFormPageRef = useRef(formUIState?.currentFormPage);
+  currentFormPageRef.current = formUIState?.currentFormPage;
 
   const pagesWithErrors = useMemo(() => getPagesWithErrors(formUIState ?? {}), [formUIState]);
   const { currentFormPage, currentFormPageFields } = formUIState ?? {};
@@ -94,6 +111,57 @@ const useFormPageNavigation = (
     [currentFormPage]
   );
 
+  /**
+   * At computer+ widths, map a page id precomputed as menu-hidden to its fallback page.
+   * No-op below the computer breakpoint.
+   *
+   * @param {string|null} pageId
+   * @returns {string|null}
+   */
+  function resolvePageForViewport(pageId) {
+    if (!pageId) {
+      return pageId;
+    }
+    if (typeof window.matchMedia !== "function") {
+      return pageId;
+    }
+    const atComputer = window.matchMedia(
+      `(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px)`
+    ).matches;
+    if (!atComputer) {
+      return pageId;
+    }
+    if (!pageIdsHiddenAtComputerRef.current.includes(pageId)) {
+      return pageId;
+    }
+    return computerVisibleFallbackByPageRef.current[pageId] ?? pageId;
+  }
+
+  /**
+   * If the current page is menu-hidden at computer+, switch to the fallback and
+   * rewrite `?page=` with replaceState. Returns the page id after correction.
+   *
+   * @param {string|null} [pageId] - Defaults to `currentFormPageRef.current`
+   * @returns {string|null}
+   */
+  function leaveComputerHiddenPage(pageId) {
+    const current = pageId ?? currentFormPageRef.current;
+    const resolved = resolvePageForViewport(current);
+    if (!resolved || resolved === current) {
+      return current;
+    }
+    dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload: resolved });
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has("page")) {
+      urlParams.append("page", resolved);
+    } else {
+      urlParams.set("page", resolved);
+    }
+    const newURL = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+    window.history.replaceState("fake-route", document.title, newURL);
+    return resolved;
+  }
+
   function handleFormPageParam() {
     const slugs = visibleFormPagesRef.current.map(({ section }) => section);
     const urlParams = new URLSearchParams(window.location.search);
@@ -107,11 +175,22 @@ const useFormPageNavigation = (
     }
 
     if (!!urlFormPage && slugs.includes(urlFormPage)) {
-      dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload: urlFormPage });
-    } else {
-      // Default to first visible page slug if available
-      urlFormPage = slugs[0] ?? null;
+      const resolved = resolvePageForViewport(urlFormPage);
+      dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload: resolved });
+      if (resolved !== urlFormPage) {
+        const rewriteParams = new URLSearchParams(window.location.search);
+        if (!rewriteParams.has("page")) {
+          rewriteParams.append("page", resolved);
+        } else {
+          rewriteParams.set("page", resolved);
+        }
+        const newURL = `${window.location.origin}${window.location.pathname}?${rewriteParams.toString()}`;
+        window.history.replaceState("fake-route", document.title, newURL);
+      }
+      return resolved;
     }
+    // Default to first visible page slug if available
+    urlFormPage = slugs[0] ?? null;
     return urlFormPage;
   }
 
@@ -156,6 +235,33 @@ const useFormPageNavigation = (
     const newURL = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
     window.history.replaceState("fake-route", document.title, newURL);
   }, [visibleFormPages, currentFormPage, dispatch]);
+
+  /**
+   * When the viewport widens to computer+, leave pages listed in `pageIdsHiddenAtComputer`.
+   * URL/`?page=` entry is handled in `handleFormPageParam` via `resolvePageForViewport`.
+   */
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+    const mediaQuery = window.matchMedia(
+      `(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px)`
+    );
+
+    const onChange = (event) => {
+      if (event.matches) {
+        leaveComputerHiddenPage();
+      }
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", onChange);
+      return () => mediaQuery.removeEventListener("change", onChange);
+    }
+    // Safari < 14
+    mediaQuery.addListener(onChange);
+    return () => mediaQuery.removeListener(onChange);
+  }, [dispatch]);
 
   const handlePageChangeCancel = useCallback(() => {
     setConfirmingPageChange(false);

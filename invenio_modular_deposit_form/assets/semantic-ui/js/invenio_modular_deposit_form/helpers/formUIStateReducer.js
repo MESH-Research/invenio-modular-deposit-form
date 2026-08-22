@@ -14,6 +14,10 @@
  *     including empty placeholder pages; see getResolvedFormPages in utils.js.
  * - visibleFormPages: filter of resolvedFormPages with non-empty subsections (stepper, sidebar,
  *     main column); derived together with resolvedFormPages in one dispatch.
+ * - pageIdsHiddenAtComputer: page ids whose stepper/menu items are CSS-hidden at computer+ widths
+ *     (from `menuItemClasses`, e.g. `tablet mobile only`); computed once per layout change.
+ * - computerVisibleFallbackByPage: map from each hidden page id to the previous computer-visible
+ *     page id; used by page navigation when viewport is computer+ or `?page=` targets a hidden step.
  * - sectionErrorsFlagged: flat list of section entries for "flagged" errors only (touched + initial-to-flag).
  *   Used by stepper, sidebar, section headers. Same shape as sectionErrorsAll.
  * - sectionErrorsAll: flat list of section entries for any error (client + initial/unchanged).
@@ -39,6 +43,8 @@ const defaultState = {
   currentTypePageConfigs: {},
   resolvedFormPages: [],
   visibleFormPages: [],
+  pageIdsHiddenAtComputer: [],
+  computerVisibleFallbackByPage: {},
   sectionErrorsFlagged: [],
   sectionErrorsAll: [],
 };
@@ -83,6 +89,8 @@ function formUIStateReducer(state, action) {
         ...state,
         resolvedFormPages: payload.resolvedFormPages ?? [],
         visibleFormPages: payload.visibleFormPages ?? [],
+        pageIdsHiddenAtComputer: payload.pageIdsHiddenAtComputer ?? [],
+        computerVisibleFallbackByPage: payload.computerVisibleFallbackByPage ?? {},
       };
     }
     case FORM_UI_ACTION.SET_CURRENT_FORM_PAGE_FIELDS:

@@ -363,6 +363,96 @@ function filterVisibleFormPages(resolvedFormPages) {
   return (resolvedFormPages ?? []).filter((p) => (p.subsections ?? []).length > 0);
 }
 
+/**
+ * Whether a form page's stepper/sidebar menu item is hidden at computer+ widths
+ * via Semantic UI responsive classes (e.g. `menuItemClasses: "tablet mobile only"`).
+ * The page itself may still be in `visibleFormPages` for hard links.
+ *
+ * @param {string} [menuItemClasses]
+ * @returns {boolean}
+ */
+function isPageMenuHiddenAtComputer(menuItemClasses) {
+  if (!menuItemClasses || typeof menuItemClasses !== "string") {
+    return false;
+  }
+  // Normalize "large screen" before tokenizing so "large" alone is not treated as
+  // a computer-tier term.
+  const normalized = menuItemClasses.toLowerCase().replace(/\blarge screen\b/g, "largeScreen");
+  const tokens = new Set(normalized.split(/\s+/).filter(Boolean));
+  if (!tokens.has("only")) {
+    return false;
+  }
+  const visibleAtComputer =
+    tokens.has("computer") || tokens.has("largeScreen") || tokens.has("widescreen");
+  if (visibleAtComputer) {
+    return false;
+  }
+  return tokens.has("mobile") || tokens.has("tablet");
+}
+
+/**
+ * Page ids whose stepper/menu items are hidden at computer+ widths.
+ *
+ * @param {Array<{section: string, menuItemClasses?: string}>} pages
+ * @returns {string[]}
+ */
+function getPageIdsHiddenAtComputer(pages) {
+  return (pages ?? [])
+    .filter((p) => isPageMenuHiddenAtComputer(p.menuItemClasses))
+    .map((p) => p.section);
+}
+
+/**
+ * Previous (or first remaining) visible page that still has a computer+ menu item.
+ * Used when leaving a mobile/tablet-only step after the viewport widens.
+ *
+ * @param {Array<{section: string, menuItemClasses?: string}>} pages
+ * @param {string} currentSection
+ * @param {Set<string>} [hiddenAtComputer] - Precomputed hidden page ids (avoids re-parsing classes)
+ * @returns {string|null}
+ */
+function getComputerVisibleFallbackPage(pages, currentSection, hiddenAtComputer = null) {
+  if (!Array.isArray(pages) || !pages.length) {
+    return null;
+  }
+  const isHidden = (page) =>
+    hiddenAtComputer
+      ? hiddenAtComputer.has(page.section)
+      : isPageMenuHiddenAtComputer(page.menuItemClasses);
+  const currentIndex = pages.findIndex((p) => p.section === currentSection);
+  const candidates =
+    currentIndex > 0 ? pages.slice(0, currentIndex).reverse().concat(pages.slice(currentIndex + 1)) : pages;
+  for (const page of candidates) {
+    if (page.section === currentSection) {
+      continue;
+    }
+    if (!isHidden(page)) {
+      return page.section;
+    }
+  }
+  return null;
+}
+
+/**
+ * Precompute computer-breakpoint nav metadata from merged visible pages. Parsed once when
+ * layout changes (`useCurrentResourceTypeFields`); navigation reads the result from form UI state.
+ *
+ * @param {Array<{section: string, menuItemClasses?: string}>} visibleFormPages
+ * @returns {{ pageIdsHiddenAtComputer: string[], computerVisibleFallbackByPage: Object<string, string> }}
+ */
+function buildComputerPageNavMeta(visibleFormPages) {
+  const pageIdsHiddenAtComputer = getPageIdsHiddenAtComputer(visibleFormPages);
+  const hiddenAtComputer = new Set(pageIdsHiddenAtComputer);
+  const computerVisibleFallbackByPage = {};
+  for (const pageId of pageIdsHiddenAtComputer) {
+    const fallback = getComputerVisibleFallbackPage(visibleFormPages, pageId, hiddenAtComputer);
+    if (fallback) {
+      computerVisibleFallbackByPage[pageId] = fallback;
+    }
+  }
+  return { pageIdsHiddenAtComputer, computerVisibleFallbackByPage };
+}
+
 /** Dot-path segment that is a non-negative integer array index (Formik/Yup style). */
 const ARRAY_INDEX_PATH_SEGMENT = /^\d+$/;
 
@@ -722,6 +812,7 @@ export {
   _resolveMergedFormPageConfig,
   _scrollTop,
   areDeeplyEqual,
+  buildComputerPageNavMeta,
   collectLeafFieldPathsUnderRoot,
   fieldMatches,
   filterVisibleFormPages,
@@ -729,11 +820,14 @@ export {
   flattenKeysDotJoined,
   flattenWrappers,
   focusFirstElement,
+  getComputerVisibleFallbackPage,
+  getPageIdsHiddenAtComputer,
   getErrorParent,
   getFormSectionElementId,
   getReadableFields,
   getResolvedFormPages,
   getTouchedParent,
   isNearViewportBottom,
+  isPageMenuHiddenAtComputer,
   moveToArrayStart,
 };

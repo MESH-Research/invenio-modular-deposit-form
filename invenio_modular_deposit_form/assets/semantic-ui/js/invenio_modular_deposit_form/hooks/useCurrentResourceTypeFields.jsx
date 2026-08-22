@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useStore } from "react-redux";
 import { FORM_UI_ACTION } from "../helpers/formUIStateReducer";
 import {
+  buildComputerPageNavMeta,
   filterVisibleFormPages,
   flattenWrappers,
   getResolvedFormPages,
@@ -61,7 +62,8 @@ function dispatchPerPageFormikFieldPaths({
  * per-page field paths for FormErrorManager / nav.
  *
  * Resolves merged layout **once** per effect (`getResolvedFormPages`), stores full list as
- * `resolvedFormPages` and the non-empty subset as `visibleFormPages` in one dispatch.
+ * `resolvedFormPages`, the non-empty subset as `visibleFormPages`, and computer-breakpoint nav
+ * metadata (`pageIdsHiddenAtComputer`, `computerVisibleFallbackByPage`) in one dispatch.
  *
  * @param {Object} formik - Formik instance (`values.metadata.resource_type` is the source of truth)
  * @param {Function} dispatch - Dispatch for form UI state only (FORM_UI_ACTION / formUIStateReducer), not Redux
@@ -114,10 +116,17 @@ const useCurrentResourceTypeFields = (formik, dispatch, fieldsByType, components
       resourceTypeId
     );
     const visibleFormPages = filterVisibleFormPages(resolvedFormPages);
+    const { pageIdsHiddenAtComputer, computerVisibleFallbackByPage } =
+      buildComputerPageNavMeta(visibleFormPages);
 
     dispatch({
       type: FORM_UI_ACTION.SET_FORM_PAGES_LAYOUT,
-      payload: { resolvedFormPages, visibleFormPages },
+      payload: {
+        resolvedFormPages,
+        visibleFormPages,
+        pageIdsHiddenAtComputer,
+        computerVisibleFallbackByPage,
+      },
     });
 
     dispatchPerPageFormikFieldPaths({

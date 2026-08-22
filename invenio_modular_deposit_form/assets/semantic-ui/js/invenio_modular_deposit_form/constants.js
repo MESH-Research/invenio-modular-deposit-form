@@ -35,6 +35,14 @@ const SIDEBAR_DEFAULTS_WIDTHS = {
   widescreen: 3,
 };
 
+/**
+ * Semantic UI / Invenio `@computerBreakpoint` in px (`invenio_theme` / `invenio_app_rdm`
+ * default is 1280). Used by `matchMedia` when syncing form page state with CSS
+ * visibility (`tablet mobile only` menu items vs computer+ sidebars). Keep in
+ * sync with the active Less `@computerBreakpoint` if the site overrides it.
+ */
+const SEMANTIC_UI_COMPUTER_BREAKPOINT_PX = 1280;
+
 /*
  * Default keys of `RDM_RECORDS_IDENTIFIERS_SCHEMES` in
  * `invenio_rdm_records.config` (stock InvenioRDM). Used when record identifier
@@ -87,6 +95,7 @@ export {
   DEFAULT_TITLE_MAX_LENGTH,
   RECORD_FIELD_ERROR_ROOTS,
   RDM_RECORD_ACCESS_LEVELS,
+  SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
   SEVERITIES,
   SIDEBAR_DEFAULTS_WIDTHS,
 };
