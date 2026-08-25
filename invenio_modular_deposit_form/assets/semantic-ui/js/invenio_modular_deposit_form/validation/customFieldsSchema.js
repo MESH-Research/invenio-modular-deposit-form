@@ -38,8 +38,8 @@ function buildCustomFieldsSchema(recordSchemeIds) {
         title: yupString().notRequired(),
         volume: yupString().notRequired(),
         issue: yupString().notRequired(),
-        pages: yupString().issn().notRequired(),
-        issn: yupString().notRequired(),
+        pages: yupString().notRequired(),
+        issn: yupString().issn().notRequired(),
       })
       .notRequired(),
     "thesis:thesis": yupObject()
