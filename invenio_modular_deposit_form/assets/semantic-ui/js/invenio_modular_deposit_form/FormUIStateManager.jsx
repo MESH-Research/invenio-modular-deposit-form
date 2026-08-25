@@ -63,11 +63,33 @@ const FormUIStateManager = ({ children }) => {
 
   // Dynamic form state
   const formik = useFormikContext();
+  const { initialValues, validateForm } = formik;
 
   // Initial UI state: first page id + empty type/layout (useCurrentResourceTypeFields fills type
   // and layout after mount). Lazy init runs once on mount — avoids calling getInitialFormUIState
   // on every re-render (React ignores the second arg after mount, but the expression would still run).
   const [state, dispatch] = useReducer(formUIStateReducer, formPagesCommon, getInitialFormUIState);
+
+  // After a successful draft save, Formik validate used validateForDraftSave (presence/emptiness
+  // errors stripped so save could proceed). enableReinitialize then resets the form. Re-run full
+  // client validation once submitContext is clear so required/min errors return for display;
+  // FormErrorManager syncTouched then re-flags those fields under DRAFT_SAVE_SUCCEEDED.
+  // Defer past Formik's parent enableReinitialize effect (child effects run first).
+  useEffect(() => {
+    if (actionState !== "DRAFT_SAVE_SUCCEEDED") {
+      return undefined;
+    }
+    let cancelled = false;
+    const restoreClientErrors = async () => {
+      await Promise.resolve();
+      if (cancelled) return;
+      await validateForm();
+    };
+    restoreClientErrors();
+    return () => {
+      cancelled = true;
+    };
+  }, [actionState, initialValues, validateForm]);
 
   // Keep client and server errors in sync and track which errors to display.
   // Draft-blocking meta comes from ClientValidationMetaContext (set during Formik validate).

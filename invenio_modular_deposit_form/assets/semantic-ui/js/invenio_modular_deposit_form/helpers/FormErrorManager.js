@@ -115,7 +115,9 @@ function fieldPathToSection(formSectionFields, fieldPath) {
  *   untouched again, so error flagging on the form (which is based on the touched state) would be
  *   briefly lost and only regained when the field is touched again. To avoid this, we set all
  *   fields with errors in the formik error state to `touched` after submit-related action states.
- *   This is handled by {@link FormErrorManager#syncTouchedForErrorFields}.
+ *   This is handled by {@link FormErrorManager#syncTouchedForErrorFields}. After draft save,
+ *   FormUIStateManager first re-runs full client validation so presence errors filtered for the
+ *   save gate are present again before that touch sync.
  *
  * Output (refactor): two flat lists of section entries, both of shape
  *   { page, section, error_fields: string[], info_fields: string[], warning_fields: string[] }.
@@ -153,8 +155,9 @@ class FormErrorManager {
   /**
    * After submit-related action states, sync touched for all current record-field errors so
    * field UIs / stepper / sidebar flag them. Covers backend `*VALIDATION_ERRORS*` and
-   * `DRAFT_SAVE_SUCCEEDED` (enableReinitialize wipes touched; full Yup then restores presence
-   * errors that draft-save filtered out). Does not run on ordinary client-side validate passes.
+   * `DRAFT_SAVE_SUCCEEDED` (enableReinitialize wipes touched; FormUIStateManager re-runs
+   * `validateForm` with the full schema so presence errors that draft-save filtered out return,
+   * then this re-touches them). Does not run on ordinary client-side validate passes.
    */
   syncTouchedForErrorFields = () => {
     const actionState = this.store?.deposit?.actionState;
@@ -185,13 +188,17 @@ class FormErrorManager {
    * - initialErrorFieldsUnflagged: all fields that have initial errors and are not unchanged
    * - initialErrorFieldsToFlag: all fields that have initial errors and are not unchanged or already in client-side error state
    * - hasClientValidationErrors: any record-field error (current or unchanged backend); excludes global API failures
- * - hasDraftBlockingClientErrors: from ClientValidationMetaContext (Yup types outside the
- *   draft-save allowlist, e.g. not `required` / `min`), passed in from FormUIStateManager
+   * - hasDraftBlockingClientErrors: from ClientValidationMetaContext (Yup types outside the
+   *   draft-save allowlist, e.g. not `required` / `min`), passed in from FormUIStateManager
    *
    * @returns {Object} - the field state object
    */
   errorsToFieldSets = () => {
     const { errors, touched, initialErrors, initialValues, values } = this.formik;
+    console.log("errordebug: Raw errors:", errors);
+    console.log("errordebug: Raw touched:", touched);
+    console.log("errordebug: Raw initialErrors:", initialErrors);
+    console.log("errordebug: Raw initialValues:", initialValues);
     const errorFields = flattenDefinedRecordErrorPaths(errors);
     // Formik may set a leaf to `false` (explicitly untouched); do not count those paths as touched.
     const touchedFields = flattenKeysDotJoined(touched, {
@@ -227,8 +234,7 @@ class FormErrorManager {
     const hasClientValidationErrors =
       errorFields.length > 0 || initialErrorFieldsUnchanged.length > 0;
     const hasDraftBlockingClientErrors =
-      errorFields.length > 0 &&
-      Boolean(this.clientValidationMeta?.hasDraftBlockingClientErrors);
+      errorFields.length > 0 && Boolean(this.clientValidationMeta?.hasDraftBlockingClientErrors);
     return {
       errorFields,
       touchedErrorFields,
