@@ -6,7 +6,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import PropTypes from "prop-types";
-import React, { Component } from "react";
+import React, { Component, memo } from "react";
 import { BaseForm } from "react-invenio-forms";
 import { connect } from "react-redux";
 import {
@@ -23,6 +23,11 @@ import {
   submitReview as submitReviewAction,
 } from "@js/invenio_rdm_records/src/deposit/state/actions";
 import { scrollTop } from "@js/invenio_rdm_records/src/deposit/utils";
+import {
+  validateForDraftSave,
+  validateSchemaToFormikErrors,
+} from "../../../validation/validateForDraftSave";
+import { useSetClientValidationMeta } from "../../../ClientValidationMetaContext";
 
 class DepositBootstrapComponent extends Component {
   componentDidMount() {
@@ -114,6 +119,40 @@ class DepositBootstrapComponent extends Component {
     }
   };
 
+  /**
+   * Formik `validate` handler. Uses the Yup schema from props, but returns a
+   * Formik errors object (never a raw Yup promise). On SAVE and PREVIEW,
+   * presence/emptiness failures (`required`, `min`) are filtered out so incomplete
+   * drafts can still be saved (preview always saves a draft first).
+   *
+   * Writes draft-blocking meta to {@link ClientValidationMetaProvider} (only when
+   * the boolean changes) before returning string errors to Formik.
+   *
+   * @param {import("yup").ObjectSchema|undefined} schema
+   * @param {Function|undefined} validateFunc - optional override from props
+   * @param {object} values
+   * @returns {Promise<Object>}
+   */
+  validationFunc = async (schema = undefined, validateFunc = undefined, values = {}) => {
+    const { setHasDraftBlockingClientErrors } = this.props;
+
+    if (typeof validateFunc === "function") {
+      setHasDraftBlockingClientErrors(false);
+      return validateFunc(values);
+    }
+
+    const actionName = this.submitContext?.actionName;
+    const isDraftSavePath =
+      actionName === DepositFormSubmitActions.SAVE ||
+      actionName === DepositFormSubmitActions.PREVIEW;
+    const result = isDraftSavePath
+      ? await validateForDraftSave(schema, values)
+      : await validateSchemaToFormikErrors(schema, values);
+
+    setHasDraftBlockingClientErrors(result.hasDraftBlockingClientErrors);
+    return result.errors;
+  };
+
   render() {
     const { errors, record, validate, validationSchema, children } = this.props;
     return (
@@ -129,8 +168,9 @@ class DepositBootstrapComponent extends Component {
             // is requested on each action, generating countless drafts
             enableReinitialize: true,
             initialValues: { ...record }, // must be copy to avoid mutating Redux state
-            validate: validate,
-            validationSchema: validationSchema,
+            // Prefer Formik `validate` over `validationSchema` so SAVE/PREVIEW can
+            // filter presence/emptiness failures while still using the same Yup schema.
+            validate: (values) => this.validationFunc(validationSchema, validate, values),
             // errors need to be repopulated after form is reinitialised
             ...(errors && { initialErrors: errors }),
           }}
@@ -156,6 +196,7 @@ DepositBootstrapComponent.propTypes = {
   fileUploadOngoing: PropTypes.bool,
   validate: PropTypes.func,
   validationSchema: PropTypes.object,
+  setHasDraftBlockingClientErrors: PropTypes.func.isRequired,
 };
 
 DepositBootstrapComponent.defaultProps = {
@@ -174,6 +215,7 @@ const mapStateToProps = (state) => {
     formState: state.deposit.formState,
     fileUploadOngoing: isFileUploadInProgress,
     files: files,
+    validationSchema: state.deposit.config?.validationSchema,
   };
 };
 
@@ -190,7 +232,25 @@ const mapDispatchToProps = (dispatch) => ({
   discardPIDAction: (values, { pidType }) => dispatch(discardPID(values, { pidType })),
 });
 
-export const DepositBootstrap = connect(
+const ConnectedDepositBootstrap = connect(
   mapStateToProps,
   mapDispatchToProps
 )(DepositBootstrapComponent);
+
+/**
+ * Injects {@link useSetClientValidationMeta} into the connected Bootstrap class.
+ * Must render under {@link ClientValidationMetaProvider}. Subscribes to the setter
+ * context only. Memoized so a draft-blocking boolean flip (provider setState) does
+ * not re-render the Formik tree; FormUIStateManager still updates via the value context.
+ */
+const DepositBootstrap = memo(function DepositBootstrap(props) {
+  const setHasDraftBlockingClientErrors = useSetClientValidationMeta();
+  return (
+    <ConnectedDepositBootstrap
+      {...props}
+      setHasDraftBlockingClientErrors={setHasDraftBlockingClientErrors}
+    />
+  );
+});
+
+export { DepositBootstrap };

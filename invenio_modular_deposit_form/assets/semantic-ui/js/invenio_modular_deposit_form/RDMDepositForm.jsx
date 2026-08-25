@@ -136,13 +136,12 @@ export const RDMDepositForm = ({
 
   return (
     <DepositFormApp
-      config={configForStore}
+      config={{ ...configForStore, validationSchema }}
       record={record}
       preselectedCommunity={preselectedCommunity}
       files={files}
       permissions={permissions}
       errors={record.errors}
-      validationSchema={validationSchema}
     >
       <FormUIStateManager>
         <FormLayoutContainer />

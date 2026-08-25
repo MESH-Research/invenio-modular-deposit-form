@@ -320,6 +320,13 @@ describe("FormErrorManager", () => {
         { page: "3", section: "main", error_fields: ["custom_fields.kcr:ai_usage.ai_used"], info_fields: [], warning_fields: [] },
       ],
     });
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: FORM_UI_ACTION.SET_SUBMISSION_BUTTON_STATE,
+      payload: {
+        hasClientValidationErrors: true,
+        hasDraftBlockingClientErrors: false,
+      },
+    });
   });
 
   describe("constructor", () => {
@@ -347,7 +354,32 @@ describe("FormErrorManager", () => {
         initialErrorFieldsUnchanged: ["metadata.title", "metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"],
         initialErrorFieldsUnflagged: ["metadata.creators"],
         initialErrorFieldsToFlag: ["metadata.publisher", "custom_fields.kcr:ai_usage.ai_used"],
+        hasClientValidationErrors: true,
+        hasDraftBlockingClientErrors: false,
       });
+    });
+
+    it("sets hasDraftBlockingClientErrors from client validation meta", () => {
+      const formik = {
+        ...mockFormikContext,
+        errors: {
+          metadata: {
+            title: "A title is required",
+            identifiers: {
+              1: { identifier: "Must be a valid URL" },
+            },
+          },
+        },
+        touched: { metadata: { title: true, identifiers: { 1: { identifier: true } } } },
+        initialErrors: {},
+        initialValues: { metadata: { title: "", identifiers: [] } },
+        values: { metadata: { title: "", identifiers: [{}, { identifier: "bad" }] } },
+      };
+      const fieldSets = new FormErrorManager(formik, mockStore, {
+        hasDraftBlockingClientErrors: true,
+      }).errorsToFieldSets();
+      expect(fieldSets.hasClientValidationErrors).toBe(true);
+      expect(fieldSets.hasDraftBlockingClientErrors).toBe(true);
     });
 
     it("drops undefined Yup array slots so index 0 is not an error path when only index 1 fails", () => {
@@ -457,6 +489,73 @@ describe("FormErrorManager", () => {
       new FormErrorManager(formik, store).updateFormErrorState(dispatch);
       expect(mockSetFieldError).not.toHaveBeenCalledWith("message", expect.anything());
       expect(mockSetFieldError).not.toHaveBeenCalledWith("status", expect.anything());
+    });
+  });
+
+  describe("syncTouchedForErrorFields", () => {
+    beforeEach(() => {
+      mockFormikContext.setFieldTouched.mockClear();
+    });
+
+    it.each([
+      ["DRAFT_HAS_VALIDATION_ERRORS", true],
+      ["DRAFT_LOADED_WITH_VALIDATION_ERRORS", true],
+      ["DRAFT_SAVE_SUCCEEDED", true],
+      ["DRAFT_SAVE_FAILED", false],
+      [null, false],
+    ])("shouldSyncTouchedForActionState(%s) → %s", (actionState, expected) => {
+      expect(FormErrorManager.shouldSyncTouchedForActionState(actionState)).toBe(expected);
+    });
+
+    it("re-touches presence errors after DRAFT_SAVE_SUCCEEDED (reinitialize wiped touched)", () => {
+      const formik = {
+        ...mockFormikContext,
+        errors: {
+          metadata: {
+            creators: "At least one creator must be listed",
+            title: "A title is required",
+          },
+        },
+        touched: {},
+        initialErrors: {},
+        initialValues: { metadata: { creators: [], title: "" } },
+        values: { metadata: { creators: [], title: "" } },
+      };
+      const store = {
+        getState: () => ({
+          deposit: {
+            actionState: "DRAFT_SAVE_SUCCEEDED",
+            config: { formSectionFields },
+          },
+        }),
+      };
+      new FormErrorManager(formik, store).updateFormErrorState(jest.fn());
+      expect(mockFormikContext.setFieldTouched).toHaveBeenCalledWith(
+        "metadata.creators",
+        true
+      );
+      expect(mockFormikContext.setFieldTouched).toHaveBeenCalledWith(
+        "metadata.title",
+        true
+      );
+    });
+
+    it("does not re-touch on ordinary client validate (null actionState)", () => {
+      const formik = {
+        ...mockFormikContext,
+        errors: {
+          metadata: { creators: "At least one creator must be listed" },
+        },
+        touched: {},
+        initialErrors: {},
+        initialValues: { metadata: { creators: [] } },
+        values: { metadata: { creators: [] } },
+      };
+      new FormErrorManager(formik, mockStore).updateFormErrorState(jest.fn());
+      expect(mockFormikContext.setFieldTouched).not.toHaveBeenCalledWith(
+        "metadata.creators",
+        true
+      );
     });
   });
 });

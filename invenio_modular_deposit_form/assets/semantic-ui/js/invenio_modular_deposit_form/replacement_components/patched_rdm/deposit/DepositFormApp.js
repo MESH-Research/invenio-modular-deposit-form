@@ -26,6 +26,7 @@ import {
 import { DepositService } from "@js/invenio_rdm_records/src/deposit/api/DepositService";
 import { configureStore } from "./store";
 import { RDMUploadProgressNotifier } from "@js/invenio_rdm_records/src/deposit/components/UploadProgressNotifier";
+import { ClientValidationMetaProvider } from "../../../ClientValidationMetaContext";
 
 export class DepositFormApp extends Component {
   constructor(props) {
@@ -90,14 +91,14 @@ export class DepositFormApp extends Component {
   }
 
   render() {
-    const { children, validate, validationSchema } = this.props;
+    const { children, validate } = this.props;
 
     return (
       <Provider store={this.store}>
         <I18nextProvider i18n={i18next}>
-          <DepositBootstrap validate={validate} validationSchema={validationSchema}>
-            {children}
-          </DepositBootstrap>
+          <ClientValidationMetaProvider>
+            <DepositBootstrap validate={validate}>{children}</DepositBootstrap>
+          </ClientValidationMetaProvider>
         </I18nextProvider>
       </Provider>
     );
@@ -125,7 +126,6 @@ DepositFormApp.propTypes = {
   recordSerializer: PropTypes.instanceOf(DepositRecordSerializer),
   children: PropTypes.node,
   validate: PropTypes.func,
-  validationSchema: PropTypes.object,
 };
 
 DepositFormApp.defaultProps = {
@@ -140,5 +140,4 @@ DepositFormApp.defaultProps = {
   files: undefined,
   children: undefined,
   validate: undefined,
-  validationSchema: undefined,
 };

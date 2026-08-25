@@ -5,9 +5,8 @@
 // you can redistribute them and/or modify them
 // under the terms of the MIT License; see LICENSE file for more details.
 
-import React, { Fragment, useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import _get from "lodash/get";
-import _isEmpty from "lodash/isEmpty";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
@@ -16,7 +15,6 @@ import {
   AccessRightField,
   CommunityHeader,
   DeleteButton,
-  DepositStatusBox,
   FileUploader,
   LicenseField,
   PreviewButton,
@@ -377,20 +375,22 @@ const FileUploaderInner = ({ label, icon, fileErrorPaths, useUppy, commonFileUpl
  */
 const FileUploadComponent = ({ ...extraProps }) => {
   const store = useStore();
-  const { touched, setFieldTouched, values, validateField } = useFormikContext();
+  const { touched, setFieldTouched, values, validateForm } = useFormikContext();
   const filesEnabled = values?.files?.enabled;
   const prevFilesEnabledRef = useRef(undefined);
 
   // Stock FileUploaderToolbar calls setFieldValue twice in one handler; the second
   // validateOnChange run merges from stale state and can re-apply a files error.
-  // After commit, values are correct — re-validate the `files` branch when enabled toggles.
+  // After commit, values are correct — re-run form validate when enabled toggles.
+  // Use validateForm (not validateField): DepositBootstrap only provides form-level
+  // `validate`, so Formik's validateField is a no-op without validationSchema.
   useEffect(() => {
     const prev = prevFilesEnabledRef.current;
     prevFilesEnabledRef.current = filesEnabled;
     if (prev !== undefined && prev !== filesEnabled) {
-      void validateField("files");
+      void validateForm();
     }
-  }, [filesEnabled, validateField]);
+  }, [filesEnabled, validateForm]);
 
   const { formUIState } = useFormUIState();
   const { config, permissions, record } = store.getState().deposit;
@@ -773,7 +773,22 @@ const FormFeedbackComponent = (props) => {
  */
 const SubmissionComponent = () => {
   const { config, record, permissions } = useSelector((state) => state.deposit);
+  const filesState = useSelector((state) => state.files);
   const groupsEnabled = config?.groups_enabled ?? false;
+  const { formUIState } = useFormUIState();
+  const { isSubmitting } = useFormikContext();
+
+  // Upload progress is Redux-only; Yup covers empty-files when files.enabled is true.
+  const filesArray = Object.values(filesState?.entries ?? {});
+  const publishBlockedByInProgressUploads =
+    filesArray.length > 0 && !filesArray.every((file) => file.status === "finished");
+
+  const saveDisabled =
+    isSubmitting || formUIState.hasDraftBlockingClientErrors;
+  const publishDisabled =
+    isSubmitting ||
+    publishBlockedByInProgressUploads ||
+    formUIState.hasClientValidationErrors;
 
   return (
     <Overridable
@@ -789,11 +804,11 @@ const SubmissionComponent = () => {
         <Card.Content>
           <Grid relaxed>
             <Grid.Column width={16} className="rel-pt-1 pb-0">
-              <SaveButton fluid />
+              <SaveButton fluid disabled={saveDisabled} />
             </Grid.Column>
 
             <Grid.Column width={16} className="rel-pt-1 pb-0">
-              <PublishButton fluid record={record} />
+              <PublishButton fluid record={record} disabled={publishDisabled} />
             </Grid.Column>
 
             {permissions?.can_delete_draft && (
@@ -808,7 +823,7 @@ const SubmissionComponent = () => {
         <Card.Content>
           <Grid relaxed>
             <Grid.Column width={16} className="rel-pt-1 pb-0">
-              <PreviewButton fluid />
+              <PreviewButton fluid disabled={saveDisabled} />
             </Grid.Column>
 
             {record.parent && (record?.is_draft === null || permissions?.can_manage) && (

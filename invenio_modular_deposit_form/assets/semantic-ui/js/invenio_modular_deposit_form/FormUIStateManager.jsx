@@ -15,7 +15,7 @@ import React, {
   useState,
 } from "react";
 import { useFormikContext } from "formik";
-import { useStore } from "react-redux";
+import { useSelector, useStore } from "react-redux";
 
 import { focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
@@ -25,6 +25,7 @@ import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFiel
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
 import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";
 import { useIsInViewport } from "./hooks/useIsInViewport";
+import { useClientValidationMetaValue } from "./ClientValidationMetaContext";
 
 const FormUIStateContext = createContext();
 
@@ -46,6 +47,8 @@ const FormUIStateContext = createContext();
 const FormUIStateManager = ({ children }) => {
   const store = useStore();
   const { config } = store.getState().deposit ?? {};
+  const actionState = useSelector((state) => state.deposit?.actionState);
+  const hasDraftBlockingClientErrors = useClientValidationMetaValue();
 
   // Static layout and ui configuration
   const componentsRegistry = config?.componentsRegistry ?? {};
@@ -66,9 +69,12 @@ const FormUIStateManager = ({ children }) => {
   // on every re-render (React ignores the second arg after mount, but the expression would still run).
   const [state, dispatch] = useReducer(formUIStateReducer, formPagesCommon, getInitialFormUIState);
 
-  // Keep client and server errors in sync and track which errors to display
+  // Keep client and server errors in sync and track which errors to display.
+  // Draft-blocking meta comes from ClientValidationMetaContext (set during Formik validate).
   useEffect(() => {
-    new FormErrorManager(formik, store).updateFormErrorState(dispatch);
+    new FormErrorManager(formik, store, {
+      hasDraftBlockingClientErrors,
+    }).updateFormErrorState(dispatch);
   }, [
     formik.errors,
     formik.touched,
@@ -76,6 +82,8 @@ const FormUIStateManager = ({ children }) => {
     formik.initialValues,
     formik.values,
     formSectionFields,
+    actionState,
+    hasDraftBlockingClientErrors,
   ]);
 
   // Autosave form data in browser local storage

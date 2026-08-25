@@ -20,8 +20,7 @@ function isRecordFieldErrorPath(path) {
 /**
  * All dot paths under `errors` / `initialErrors` that denote a real leaf error on a record
  * field (see {@link RECORD_FIELD_ERROR_ROOTS}). Uses {@link flattenKeysDotJoined} with
- * {@link FLATTEN_RECORD_ERRORS_OPTIONS} (descend into array indices; omit `undefined` slots via
- * `includeLeaf`).
+ * `descendArrays: true` and `includeLeaf: (v) => v !== undefined` (omit Yup array holes).
  *
  * @param {Object|null|undefined} errorsObj - `errors` or `initialErrors`
  * @param {string} [label] - label for debug logs (e.g. `"errors"` / `"initialErrors"`)
@@ -37,12 +36,10 @@ function flattenDefinedRecordErrorPaths(errorsObj, label = "errors") {
     return [];
   }
 
-  const options = {
+  const raw = flattenKeysDotJoined(errorsObj, {
     descendArrays: true,
     includeLeaf: (v) => v !== undefined,
-  };
-
-  const raw = flattenKeysDotJoined(errorsObj, options);
+  });
   console.log(
     "[FormErrorManager] flattenDefinedRecordErrorPaths",
     label,
@@ -61,7 +58,7 @@ function flattenDefinedRecordErrorPaths(errorsObj, label = "errors") {
 
 /**
  * Resolve severity for a field path from the errors object at that path.
- * Error values may be a string (legacy) or an object { message, severity?, description? }.
+ * Error values may be a string (client Yup) or an object `{ message, severity?, description? }` (backend).
  * Backend and validation can set severity to "error" | "warning" | "info"; if missing, treated as "error".
  * @param {Object} errors - Formik errors or initialErrors
  * @param {string} path - Dot-notation field path
@@ -114,11 +111,11 @@ function fieldPathToSection(formSectionFields, fieldPath) {
  * - This class will set the touched state appropriately for backend errors that haven't actually been touched yet
  *   but should be displayed. (i.e. the initial value that caused the error has not changed)
  *
- * - On form submission all fields are automatically untouched again, so error flagging on the form
- *   (which is based on the touched state) would be briefly lost after submission and only regained
- *   when the field is touched again. To avoid this, we need to set all fields with errors in the formik
- *   error state to `touched` after the form is submitted. This is handled by
- *   syncTouchedForBackendValidationErrors().
+ * - On form submission (and after successful draft save reinitialize) fields are automatically
+ *   untouched again, so error flagging on the form (which is based on the touched state) would be
+ *   briefly lost and only regained when the field is touched again. To avoid this, we set all
+ *   fields with errors in the formik error state to `touched` after submit-related action states.
+ *   This is handled by {@link FormErrorManager#syncTouchedForErrorFields}.
  *
  * Output (refactor): two flat lists of section entries, both of shape
  *   { page, section, error_fields: string[], info_fields: string[], warning_fields: string[] }.
@@ -129,26 +126,39 @@ function fieldPathToSection(formSectionFields, fieldPath) {
 class FormErrorManager {
   /**
    * FormErrorManager constructor
-   * @param {Array<{ pageId, sectionId, fields }>} formSectionFields - full section config for path->section lookup (all types)
    * @param {Object} formik - Formik context (errors, touched, initialErrors, initialValues, values, setFieldError, setFieldTouched)
    * @param {Object} store - Redux store (for reading deposit.actionState)
+   * @param {{ hasDraftBlockingClientErrors?: boolean }} [clientValidationMeta] - from last Formik validate on this form
    */
-  constructor(formik, store) {
+  constructor(formik, store, clientValidationMeta = {}) {
     this.formik = formik;
     this.store = store.getState();
     this.formSectionFields = this.store.deposit?.config?.formSectionFields ?? [];
+    this.clientValidationMeta = clientValidationMeta;
   }
 
   /**
-   * When we have backend validation errors (submit or load), sync touched for all current error
-   * fields so the stepper/sidebar can flag them. Only runs when Redux actionState indicates
-   * server-side validation errors; does not run on every client-side validation change.
+   * Whether Redux `actionState` means we should re-touch current error fields after Formik
+   * cleared `touched` (backend validation failures, or successful draft save + reinitialize).
+   *
+   * @param {string|null|undefined} actionState
+   * @returns {boolean}
    */
-  syncTouchedForBackendValidationErrors = () => {
+  static shouldSyncTouchedForActionState(actionState) {
+    if (!actionState) return false;
+    const state = String(actionState);
+    return state.includes("VALIDATION_ERRORS") || state === "DRAFT_SAVE_SUCCEEDED";
+  }
+
+  /**
+   * After submit-related action states, sync touched for all current record-field errors so
+   * field UIs / stepper / sidebar flag them. Covers backend `*VALIDATION_ERRORS*` and
+   * `DRAFT_SAVE_SUCCEEDED` (enableReinitialize wipes touched; full Yup then restores presence
+   * errors that draft-save filtered out). Does not run on ordinary client-side validate passes.
+   */
+  syncTouchedForErrorFields = () => {
     const actionState = this.store?.deposit?.actionState;
-    const hasBackendValidationErrors =
-      actionState && String(actionState).includes("VALIDATION_ERRORS");
-    if (!hasBackendValidationErrors) return;
+    if (!FormErrorManager.shouldSyncTouchedForActionState(actionState)) return;
     const { errors, touched, setFieldTouched } = this.formik;
     const errorFields = errors ? flattenDefinedRecordErrorPaths(errors) : [];
     if (errorFields.length === 0) return;
@@ -174,6 +184,9 @@ class FormErrorManager {
    * - initialErrorFieldsUnchanged: all fields that have initial errors and are unchanged
    * - initialErrorFieldsUnflagged: all fields that have initial errors and are not unchanged
    * - initialErrorFieldsToFlag: all fields that have initial errors and are not unchanged or already in client-side error state
+   * - hasClientValidationErrors: any record-field error (current or unchanged backend); excludes global API failures
+ * - hasDraftBlockingClientErrors: from ClientValidationMetaContext (Yup types outside the
+ *   draft-save allowlist, e.g. not `required` / `min`), passed in from FormUIStateManager
    *
    * @returns {Object} - the field state object
    */
@@ -211,6 +224,11 @@ class FormErrorManager {
         )
       ),
     ];
+    const hasClientValidationErrors =
+      errorFields.length > 0 || initialErrorFieldsUnchanged.length > 0;
+    const hasDraftBlockingClientErrors =
+      errorFields.length > 0 &&
+      Boolean(this.clientValidationMeta?.hasDraftBlockingClientErrors);
     return {
       errorFields,
       touchedErrorFields,
@@ -219,6 +237,8 @@ class FormErrorManager {
       initialErrorFieldsUnchanged,
       initialErrorFieldsUnflagged,
       initialErrorFieldsToFlag,
+      hasClientValidationErrors,
+      hasDraftBlockingClientErrors,
     };
   };
 
@@ -351,17 +371,10 @@ class FormErrorManager {
    * @param {Function} dispatch - Form UI reducer dispatch (dispatches SET_SECTION_ERRORS_FLAGGED, SET_SECTION_ERRORS_ALL)
    */
   updateFormErrorState = (dispatch) => {
-    console.log("Starting error values:");
-    console.log("values:", this.formik.values);
-    console.log("errors:", this.formik.errors);
-    console.log("touched:", this.formik.touched);
-    this.syncTouchedForBackendValidationErrors();
+    this.syncTouchedForErrorFields();
 
     const errorFieldSets = this.errorsToFieldSets();
-    console.log("errorFieldSets", errorFieldSets);
     this.addBackendErrors(errorFieldSets.initialErrorFieldsToFlag);
-    console.log("after addBackendErrors — errors:", this.formik.errors);
-    console.log("after addBackendErrors — touched:", this.formik.touched);
 
     const sectionErrorsFlagged = this.getSectionErrorState(
       errorFieldSets.touchedErrorFields,
@@ -371,10 +384,15 @@ class FormErrorManager {
       errorFieldSets.errorFields,
       errorFieldSets.initialErrorFieldsUnchanged
     );
-    console.log("sectionErrorsFlagged", sectionErrorsFlagged);
-    console.log("sectionErrorsAll", sectionErrorsAll);
     dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED, payload: sectionErrorsFlagged });
     dispatch({ type: FORM_UI_ACTION.SET_SECTION_ERRORS_ALL, payload: sectionErrorsAll });
+    dispatch({
+      type: FORM_UI_ACTION.SET_SUBMISSION_BUTTON_STATE,
+      payload: {
+        hasClientValidationErrors: errorFieldSets.hasClientValidationErrors,
+        hasDraftBlockingClientErrors: errorFieldSets.hasDraftBlockingClientErrors,
+      },
+    });
   };
 }
 

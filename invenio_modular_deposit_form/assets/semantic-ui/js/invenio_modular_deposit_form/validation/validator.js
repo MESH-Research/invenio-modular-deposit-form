@@ -123,15 +123,9 @@ const pidEntrySchema = yupObject()
  */
 function buildValidationSchema(config = {}) {
   const titleMaxLength = Number(config.max_title_length) || DEFAULT_TITLE_MAX_LENGTH;
-  const creatorSchemeIds = getIdentifierSchemeIds(
-    config,
-    "metadata.creators.identifiers.scheme"
-  );
+  const creatorSchemeIds = getIdentifierSchemeIds(config, "metadata.creators.identifiers.scheme");
   const recordSchemeIds = getIdentifierSchemeIds(config, "metadata.identifiers.scheme");
-  const locationSchemeIds = getIdentifierSchemeIds(
-    config,
-    "metadata.locations.identifiers.scheme"
-  );
+  const locationSchemeIds = getIdentifierSchemeIds(config, "metadata.locations.identifiers.scheme");
   const titleTypeValues = getVocabOptionValues(
     config?.vocabularies?.metadata?.titles?.type ?? config?.vocabularies?.titles?.type
   );
@@ -151,15 +145,11 @@ function buildValidationSchema(config = {}) {
           "creator-role-vocabulary",
           i18next.t("Creator role must match a configured role value."),
           (value) =>
-            value == null ||
-            String(value).trim() === "" ||
-            creatorRoleValues.includes(value)
+            value == null || String(value).trim() === "" || creatorRoleValues.includes(value)
         )
       : yupString().test(
           "creator-role-without-vocab",
-          i18next.t(
-            "A creator role is not allowed when no creator role vocabulary is configured."
-          ),
+          i18next.t("A creator role is not allowed when no creator role vocabulary is configured."),
           (value) => value == null || String(value).trim() === ""
         );
 

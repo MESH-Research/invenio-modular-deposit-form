@@ -22,6 +22,10 @@
  *   Used by stepper, sidebar, section headers. Same shape as sectionErrorsAll.
  * - sectionErrorsAll: flat list of section entries for any error (client + initial/unchanged).
  *   Used by nav guard to know if a page has errors before the user has touched fields.
+ * - hasClientValidationErrors: whether any record-field error exists (client or unchanged backend);
+ *   excludes global API failures (e.g. CSRF `message`). Used to disable Publish.
+ * - hasDraftBlockingClientErrors: from ClientValidationMetaContext (last Formik validate /
+ *   raw Yup types); copied into form UI state by FormErrorManager. Used to disable Save.
  *
  * Section entry shape: { page, section, error_fields, info_fields, warning_fields } (each value string[]).
  */
@@ -33,6 +37,7 @@ const FORM_UI_ACTION = {
   SET_CURRENT_TYPE_PAGE_CONFIGS: "SET_CURRENT_TYPE_PAGE_CONFIGS",
   SET_SECTION_ERRORS_ALL: "SET_SECTION_ERRORS_ALL",
   SET_SECTION_ERRORS_FLAGGED: "SET_SECTION_ERRORS_FLAGGED",
+  SET_SUBMISSION_BUTTON_STATE: "SET_SUBMISSION_BUTTON_STATE",
   SET_FORM_PAGES_LAYOUT: "SET_FORM_PAGES_LAYOUT",
 };
 
@@ -47,6 +52,8 @@ const defaultState = {
   computerVisibleFallbackByPage: {},
   sectionErrorsFlagged: [],
   sectionErrorsAll: [],
+  hasClientValidationErrors: false,
+  hasDraftBlockingClientErrors: false,
 };
 
 /**
@@ -79,6 +86,22 @@ function formUIStateReducer(state, action) {
       return { ...state, sectionErrorsFlagged: action.payload ?? [] };
     case FORM_UI_ACTION.SET_SECTION_ERRORS_ALL:
       return { ...state, sectionErrorsAll: action.payload ?? [] };
+    case FORM_UI_ACTION.SET_SUBMISSION_BUTTON_STATE: {
+      const payload = action.payload ?? {};
+      const hasClientValidationErrors = payload.hasClientValidationErrors ?? false;
+      const hasDraftBlockingClientErrors = payload.hasDraftBlockingClientErrors ?? false;
+      if (
+        state.hasClientValidationErrors === hasClientValidationErrors &&
+        state.hasDraftBlockingClientErrors === hasDraftBlockingClientErrors
+      ) {
+        return state;
+      }
+      return {
+        ...state,
+        hasClientValidationErrors,
+        hasDraftBlockingClientErrors,
+      };
+    }
     case FORM_UI_ACTION.SET_CURRENT_RESOURCE_TYPE:
       return { ...state, currentResourceType: action.payload };
     case FORM_UI_ACTION.SET_CURRENT_TYPE_PAGE_CONFIGS:
