@@ -52,6 +52,14 @@ const EPHEMERAL_TOAST_MS = 5000;
 const ACTION_TOAST_TRANSITION_MS = 400;
 
 /**
+ * User-facing copy when the API rejects the request for CSRF reasons
+ * (stale tab / expired cookie). Kept until refresh — not ephemeral.
+ */
+const CSRF_STALE_TAB_MESSAGE = i18next.t(
+  "Sorry, your browser tab is stale. For security reasons, please refresh your browser and try again."
+);
+
+/**
  * Action toasts are driven only by Redux `deposit.actionState`.
  * Publish/submit/preview/delete have no `*_SUCCEEDED` — on success the thunks navigate away
  * while `*_STARTED` remains; failure replaces it with `*_FAILED`.
@@ -298,6 +306,117 @@ const INITIAL_SAVE_HINT = {
 };
 
 /**
+ * Build the FadeCollapseStack push payload for the current Redux action state,
+ * or `null` when there is no toast (caller should dismiss).
+ *
+ * CSRF backend messages get a fixed stale-tab copy and are never ephemeral.
+ *
+ * @param {string} actionState
+ * @param {object|null|undefined} backendErrors - `state.deposit.errors`
+ * @returns {{ props: object, autoHideMs: number|null, meta: object } | null}
+ */
+function resolveActionToast(actionState, backendErrors) {
+  const toastConfig = ACTION_TOASTS[actionState];
+  if (!toastConfig) {
+    return null;
+  }
+  const backendMessage = backendErrors?.message || backendErrors?._schema;
+  const csrfError =
+    toastConfig.feedback === "error" && backendMessage?.toLowerCase().includes("csrf");
+  let message = toastConfig.message;
+  if (csrfError) {
+    message = CSRF_STALE_TAB_MESSAGE;
+  } else if (toastConfig.feedback === "error" && backendMessage) {
+    message = backendMessage;
+  }
+  if (!message) {
+    return null;
+  }
+  const ephemeral = csrfError ? false : Boolean(toastConfig.ephemeral);
+  return {
+    props: {
+      feedback: toastConfig.feedback,
+      loading: Boolean(toastConfig.loading),
+      message,
+    },
+    autoHideMs: ephemeral ? EPHEMERAL_TOAST_MS : null,
+    meta: {
+      ephemeral,
+      feedback: toastConfig.feedback,
+      loading: Boolean(toastConfig.loading),
+    },
+  };
+}
+
+/**
+ * Never-saved drafts with no other feedback yet, and missing title/files prerequisites.
+ *
+ * @param {object} opts
+ * @param {string|undefined} opts.recordId
+ * @param {string} opts.actionState
+ * @param {boolean} opts.hasVisibleActionToast
+ * @param {object|null} opts.validationIntro
+ * @param {object} opts.values - Formik values
+ * @returns {boolean}
+ */
+function shouldShowInitialSaveHint({
+  recordId,
+  actionState,
+  hasVisibleActionToast,
+  validationIntro,
+  values,
+}) {
+  return (
+    !recordId &&
+    !ACTION_TOASTS[actionState] &&
+    !hasVisibleActionToast &&
+    !validationIntro &&
+    !hasFirstSavePrerequisites(values)
+  );
+}
+
+/**
+ * Dismiss ephemeral toasts on Formik edit: success on `dirty`, errors when values change
+ * after the toast appeared (baseline capture).
+ *
+ * @param {object} opts
+ * @param {boolean} opts.dirty
+ * @param {object} opts.values
+ * @param {Array} opts.items - FadeCollapseStack items
+ * @param {Function} opts.dismiss
+ */
+function useDismissEphemeralToasts({ dirty, values, items, dismiss }) {
+  useEffect(() => {
+    if (!dirty) {
+      return;
+    }
+    dismiss((item) => item.visible && item.meta?.ephemeral && item.meta?.feedback !== "error");
+  }, [dirty, dismiss]);
+
+  const errorBaselineRef = useRef(null);
+  useEffect(() => {
+    const visibleError = items.find(
+      (item) => item.visible && item.meta?.ephemeral && item.meta?.feedback === "error"
+    );
+    if (!visibleError) {
+      errorBaselineRef.current = null;
+      return;
+    }
+    if (errorBaselineRef.current === null) {
+      errorBaselineRef.current = { id: visibleError.id, values };
+      return;
+    }
+    if (
+      errorBaselineRef.current.id === visibleError.id &&
+      !isEqual(values, errorBaselineRef.current.values)
+    ) {
+      dismiss((item) => item.id === visibleError.id);
+      errorBaselineRef.current = null;
+    }
+  }, [values, items, dismiss]);
+}
+
+/**
  * Sidebar feedback: action toast stack (save/publish/…) on top, validation section list below.
  * On never-saved drafts, shows an info hint when title/files prerequisites are unmet and
  * nothing else is displayed yet.
@@ -336,64 +455,16 @@ const FormFeedback = ({
     durationMs: ACTION_TOAST_TRANSITION_MS,
   });
 
-  // Push a toast when Redux actionState maps to one; hide any prior visible toasts.
   useEffect(() => {
-    const toastConfig = ACTION_TOASTS[actionState];
-    if (!toastConfig) {
+    const toast = resolveActionToast(actionState, backendErrors);
+    if (!toast) {
       dismiss();
       return;
     }
-    const backendMessage = backendErrors?.message || backendErrors?._schema;
-    const message =
-      toastConfig.feedback === "error" && backendMessage ? backendMessage : toastConfig.message;
-    if (!message) {
-      return;
-    }
-    push({
-      props: {
-        feedback: toastConfig.feedback,
-        loading: Boolean(toastConfig.loading),
-        message,
-      },
-      autoHideMs: toastConfig.ephemeral ? EPHEMERAL_TOAST_MS : null,
-      meta: {
-        ephemeral: Boolean(toastConfig.ephemeral),
-        feedback: toastConfig.feedback,
-        loading: Boolean(toastConfig.loading),
-      },
-    });
+    push(toast);
   }, [actionState, backendErrors?.message, backendErrors?._schema, push, dismiss]);
 
-  // Success ephemerals: dismiss on real user edit (dirty). Ignore Formik reinitialize after save.
-  useEffect(() => {
-    if (!dirty) {
-      return;
-    }
-    dismiss((item) => item.visible && item.meta?.ephemeral && item.meta?.feedback !== "error");
-  }, [dirty, dismiss]);
-
-  // Error ephemerals: dismiss when Formik values change after the toast appeared.
-  const errorBaselineRef = useRef(null);
-  useEffect(() => {
-    const visibleError = items.find(
-      (item) => item.visible && item.meta?.ephemeral && item.meta?.feedback === "error"
-    );
-    if (!visibleError) {
-      errorBaselineRef.current = null;
-      return;
-    }
-    if (errorBaselineRef.current === null) {
-      errorBaselineRef.current = { id: visibleError.id, values };
-      return;
-    }
-    if (
-      errorBaselineRef.current.id === visibleError.id &&
-      !isEqual(values, errorBaselineRef.current.values)
-    ) {
-      dismiss((item) => item.id === visibleError.id);
-      errorBaselineRef.current = null;
-    }
-  }, [values, items, dismiss]);
+  useDismissEphemeralToasts({ dirty, values, items, dismiss });
 
   const validationIntro = showValidation
     ? getValidationIntro(
@@ -406,13 +477,13 @@ const FormFeedback = ({
       )
     : null;
 
-  const hasVisibleActionToast = items.some((item) => item.visible);
-  const showInitialSaveHint =
-    !recordId &&
-    !ACTION_TOASTS[actionState] &&
-    !hasVisibleActionToast &&
-    !validationIntro &&
-    !hasFirstSavePrerequisites(values);
+  const showInitialSaveHint = shouldShowInitialSaveHint({
+    recordId,
+    actionState,
+    hasVisibleActionToast: items.some((item) => item.visible),
+    validationIntro,
+    values,
+  });
 
   if (!items.length && !validationIntro && !showInitialSaveHint) {
     return null;
