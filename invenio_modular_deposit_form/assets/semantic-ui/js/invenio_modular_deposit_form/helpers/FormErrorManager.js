@@ -195,10 +195,10 @@ class FormErrorManager {
    */
   errorsToFieldSets = () => {
     const { errors, touched, initialErrors, initialValues, values } = this.formik;
-    console.log("errordebug: Raw errors:", errors);
-    console.log("errordebug: Raw touched:", touched);
-    console.log("errordebug: Raw initialErrors:", initialErrors);
-    console.log("errordebug: Raw initialValues:", initialValues);
+    // console.log("errordebug: Raw errors:", errors);
+    // console.log("errordebug: Raw touched:", touched);
+    // console.log("errordebug: Raw initialErrors:", initialErrors);
+    // console.log("errordebug: Raw initialValues:", initialValues);
     const errorFields = flattenDefinedRecordErrorPaths(errors);
     // Formik may set a leaf to `false` (explicitly untouched); do not count those paths as touched.
     const touchedFields = flattenKeysDotJoined(touched, {
