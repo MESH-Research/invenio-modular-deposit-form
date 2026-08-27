@@ -148,8 +148,6 @@ const FormUIStateManager = ({ children }) => {
       handlePageChangeConfirm: navigation.handlePageChangeConfirm,
       handleRecoveryAsked: recovery.handleRecoveryAsked,
       handleStorageData: recovery.handleStorageData,
-      previousFormPage: navigation.previousFormPage,
-      nextFormPage: navigation.nextFormPage,
       pageTargetRef,
       pageTargetRefCallback,
       pageTargetInViewport,

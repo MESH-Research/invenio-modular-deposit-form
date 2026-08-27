@@ -14,15 +14,18 @@ import { useFormUIState } from "../FormUIStateManager.jsx";
 /**
  * Back / Continue navigation bar for multi-page deposit form (e.g. in form footer region).
  * Gets runtime data from useFormUIState; accepts classnames and other props from config.
+ * Back / Next use `formUIState.previousFormPage` and `formUIState.nextFormPage` (viewport-aware,
+ * stored in the form UI reducer).
  */
 const FormPageNavigationBar = ({ classnames, ...props }) => {
   const {
+    formUIState,
     pageTargetInViewport,
-    previousFormPage,
-    nextFormPage,
     handleFormPageChange,
     storageDataPresent,
   } = useFormUIState();
+  const { nextFormPage, previousFormPage } = formUIState;
+
   return (
     <div
       className={`ui container ${

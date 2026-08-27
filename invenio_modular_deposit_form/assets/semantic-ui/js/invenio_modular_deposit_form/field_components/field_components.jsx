@@ -42,8 +42,8 @@ import {
   TitlesField,
   VersionField,
 } from "../replacement_components/field_components";
-import { FundingField } from "@js/invenio_vocabularies";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
+import { FundingFieldAlternate } from "./alternate/field_inputs/FundingFieldAlternate";
 import { Card, Form, Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { getTouchedParent } from "../utils";
@@ -447,9 +447,11 @@ const FileUploadComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Funding (metadata.funding). Uses FundingField from invenio_vocabularies.
- * Options are not passed in: award/funder choices come from the backend via
- * searchConfig (e.g. /api/awards for award search, /api/funders in custom award form).
+ * Funding (metadata.funding). Uses FundingFieldAlternate (creatibutor-style
+ * list-item buttons / reorder) while reusing FundingModal from
+ * invenio_vocabularies. Options are not passed in: award/funder choices come
+ * from the backend via searchConfig (e.g. /api/awards for award search,
+ * /api/funders in custom award form).
  * @overridable InvenioAppRdm.Deposit.FundingField.container (via FieldComponentWrapper)
  */
 const FundingComponent = ({ ...extraProps }) => {
@@ -459,7 +461,7 @@ const FundingComponent = ({ ...extraProps }) => {
       fieldPath="metadata.funding"
       {...extraProps}
     >
-      <FundingField
+      <FundingFieldAlternate
         searchConfig={{
           searchApi: {
             axios: {
@@ -783,12 +785,9 @@ const SubmissionComponent = () => {
   const publishBlockedByInProgressUploads =
     filesArray.length > 0 && !filesArray.every((file) => file.status === "finished");
 
-  const saveDisabled =
-    isSubmitting || formUIState.hasDraftBlockingClientErrors;
+  const saveDisabled = isSubmitting || formUIState.hasDraftBlockingClientErrors;
   const publishDisabled =
-    isSubmitting ||
-    publishBlockedByInProgressUploads ||
-    formUIState.hasClientValidationErrors;
+    isSubmitting || publishBlockedByInProgressUploads || formUIState.hasClientValidationErrors;
 
   return (
     <Overridable

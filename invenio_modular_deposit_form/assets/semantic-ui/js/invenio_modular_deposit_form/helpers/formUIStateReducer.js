@@ -6,6 +6,10 @@
  *
  * State:
  * - currentFormPage: current form page id (section id from form pages config).
+ * - previousFormPage: viewport-aware id of the previous page before `currentFormPage` (or null); set
+ *     with current on every `SET_CURRENT_FORM_PAGE`. At computer+ widths, skips `pageIdsHiddenAtComputer`.
+ * - nextFormPage: viewport-aware id of the next page after `currentFormPage` (or null); set with
+ *     current on every `SET_CURRENT_FORM_PAGE`. At computer+ widths, skips `pageIdsHiddenAtComputer`.
  * - currentFormPageFields: resolved Formik field paths per page for current type { [pageId]: string[] }.
  * - currentResourceType: current resource type id.
  * - currentTypePageConfigs: per-page layout entries for the current resource type
@@ -43,6 +47,8 @@ const FORM_UI_ACTION = {
 
 const defaultState = {
   currentFormPage: "",
+  previousFormPage: null,
+  nextFormPage: "",
   currentFormPageFields: {},
   currentResourceType: "",
   currentTypePageConfigs: {},
@@ -61,7 +67,8 @@ const defaultState = {
  * `currentResourceType`, `currentTypePageConfigs`, `resolvedFormPages`, `visibleFormPages`, and
  * per-page field maps are filled on mount/update by {@link useCurrentResourceTypeFields} from
  * Formik `metadata.resource_type` and Redux `fields_by_type`.
- * currentFormPage is the first configured page id (provisional until visibility sync effects run).
+ * `currentFormPage` / `nextFormPage` are the first two configured page ids; `previousFormPage` is
+ * null (provisional until visibility sync and `useFormPageNavigation` resolve them for the viewport).
  *
  * @param {Array} formPages - form pages from deposit config (common_fields FormPages subsections)
  * @returns {Object} initial state for formUIStateReducer
@@ -70,6 +77,8 @@ function getInitialFormUIState(formPages = []) {
   return {
     ...defaultState,
     currentFormPage: formPages[0]?.section ?? "",
+    previousFormPage: null,
+    nextFormPage: formPages[1]?.section ?? null,
   };
 }
 
@@ -81,7 +90,12 @@ function getInitialFormUIState(formPages = []) {
 function formUIStateReducer(state, action) {
   switch (action.type) {
     case FORM_UI_ACTION.SET_CURRENT_FORM_PAGE:
-      return { ...state, currentFormPage: action.payload };
+      return {
+        ...state,
+        currentFormPage: action.payload.currentFormPage,
+        previousFormPage: action.payload.previousFormPage,
+        nextFormPage: action.payload.nextFormPage,
+      };
     case FORM_UI_ACTION.SET_SECTION_ERRORS_FLAGGED:
       return { ...state, sectionErrorsFlagged: action.payload ?? [] };
     case FORM_UI_ACTION.SET_SECTION_ERRORS_ALL:
