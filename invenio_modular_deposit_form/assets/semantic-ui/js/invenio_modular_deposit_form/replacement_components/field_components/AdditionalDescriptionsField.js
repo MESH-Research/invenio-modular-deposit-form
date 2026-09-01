@@ -25,7 +25,11 @@ import { focusAddButton } from "../../replacement_components/input_controls/arra
 
 const FOCUS_ATTEMPTS_MAX = 48;
 
-/** TinyMCE (RichEditor) mounts async; focus the iframe and matching editor once it exists. */
+/**
+ * TinyMCE (RichEditor) mounts async; focus the iframe and matching editor once it exists.
+ *
+ * @param {string} descriptionFieldPath - Formik path of the description rich-input field.
+ */
 function scheduleFocusRichDescriptionField(descriptionFieldPath) {
   const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
   void (async () => {
@@ -50,6 +54,13 @@ function scheduleFocusRichDescriptionField(descriptionFieldPath) {
   })();
 }
 
+/**
+ * Deposit form field for additional descriptions (`metadata.additional_descriptions`).
+ *
+ * Uses `RichInputField` (TinyMCE); the editor does not sanitize HTML for XSS.
+ * Sanitization happens on the backend via the `SanitizedHTML` marshmallow field
+ * (bleach) when the record is created or updated.
+ */
 export class AdditionalDescriptionsField extends Component {
   render() {
     const { fieldPath, options, recordUI, editorConfig } = this.props;

@@ -8,10 +8,18 @@
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { FieldLabel, RichInputField } from "react-invenio-forms";
+import { RichInputField } from "../input_controls/RichInputField.js";
+import { FieldLabel } from "../input_controls/FieldLabel.js";
 import { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
+/**
+ * Deposit form field for the main record description (`metadata.description`).
+ *
+ * Uses `RichInputField` (TinyMCE); the editor does not sanitize HTML for XSS.
+ * Sanitization happens on the backend via the `SanitizedHTML` marshmallow field
+ * (bleach) when the record is created or updated.
+ */
 export class DescriptionsField extends Component {
   render() {
     const { fieldPath, label, labelIcon, options, editorConfig, recordUI } = this.props;
