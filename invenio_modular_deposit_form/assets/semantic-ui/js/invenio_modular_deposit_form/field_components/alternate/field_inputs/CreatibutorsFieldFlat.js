@@ -21,11 +21,7 @@ import PropTypes from "prop-types";
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
-import {
-  getFamilyName,
-  getGivenName,
-  guessPersonNamesFromFullName,
-} from "../../../helpers/names";
+import { getFamilyName, getGivenName, guessPersonNamesFromFullName } from "../../../helpers/names";
 
 function sortOptions(options) {
   return options.sort((o1, o2) => o1.text.localeCompare(o2.text));
@@ -400,16 +396,19 @@ const CreatibutorsFieldFlat = ({
         required={!!required}
         render={(arrayHelpers) => (
           <>
-            {label && (
-              <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="mb-15" />
-            )}
+            {label && <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="" />}
             {description && (
-              <span id={`${fieldPath}-field-description`} className="description rel-mb-2">
+              <span id={`${fieldPath}-field-description`} className="description mb-10">
                 {description}
               </span>
             )}
 
-            <TransitionGroup as={List} className="creators-list" duration={500} animation="fade">
+            <TransitionGroup
+              as={List}
+              className="creators-list mb-0"
+              duration={500}
+              animation="fade"
+            >
               {getIn(arrayHelpers.form.values, fieldPath, []).map((value, index) => {
                 const fieldPathPrefix = `${fieldPath}.${index}`;
                 const displayName = creatibutorNameDisplay(value);
@@ -455,7 +454,7 @@ const CreatibutorsFieldFlat = ({
             </TransitionGroup>
 
             {!(newItemIndex > -1 && showEditForms.includes(newItemIndex)) && (
-              <div>
+              <div className="mt-10">
                 <Button
                   type="button"
                   icon
@@ -488,8 +487,7 @@ const CreatibutorsFieldFlat = ({
                           guessed: false,
                         }
                       : null;
-                    const initial =
-                      fromSaved || getInitialSelfPersonNames(currentUserprofile);
+                    const initial = fromSaved || getInitialSelfPersonNames(currentUserprofile);
                     const newIndex = getIn(values, fieldPath, []).length;
                     setSelfRowIndex(newIndex);
                     setSelfNameWasGuessed(!!initial.guessed);

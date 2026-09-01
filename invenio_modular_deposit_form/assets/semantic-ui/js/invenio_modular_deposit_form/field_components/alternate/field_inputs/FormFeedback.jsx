@@ -40,10 +40,7 @@ import {
   RESERVE_PID_FAILED,
 } from "@js/invenio_rdm_records/src/deposit/state/types";
 import { useFormUIState } from "../../../FormUIStateManager.jsx";
-import {
-  FadeCollapseStack,
-  useFadeCollapseStack,
-} from "../../../helpers/FadeCollapseStack";
+import { FadeCollapseStack, useFadeCollapseStack } from "../../../helpers/FadeCollapseStack";
 import { FormFeedbackSummary } from "./form_feedback_components/FormFeedbackSummary";
 
 /** How long success/failure toasts stay visible if the user does not edit. */
@@ -532,10 +529,10 @@ function ActionToastMessage({ feedback, hideMessageIcon, loading, message }) {
       {loading ? (
         <Loader active inline size="small" />
       ) : !hideMessageIcon ? (
-        <Icon name={icon} />
+        <Icon name={icon} className="mr-0 ml-15 pt-10" />
       ) : null}
       <Message.Content>
-        <Message.Header className="rel-mt-1 rel-ml-1">{message}</Message.Header>
+        <p className="pt-15 pr-15 pl-15">{message}</p>
       </Message.Content>
     </Message>
   );
@@ -566,7 +563,7 @@ function ValidationMessage({
     >
       {!hideMessageIcon ? <Icon name={icon} /> : null}
       <Message.Content>
-        <Message.Header className="rel-mt-1 rel-ml-1">{message}</Message.Header>
+        <Message.Header className="rel-mt-1 rel-ml-1 mr-10">{message}</Message.Header>
         <Message.List className="mt-15 mb-0 rel-ml-1">
           <FormFeedbackSummary
             sectionsConfig={sectionsConfig}
@@ -596,7 +593,7 @@ FormFeedback.propTypes = {
 
 FormFeedback.defaultProps = {
   fieldPath: undefined,
-  hideMessageIcon: true,
+  hideMessageIcon: false,
   labels: undefined,
   className: undefined,
   classnames: undefined,

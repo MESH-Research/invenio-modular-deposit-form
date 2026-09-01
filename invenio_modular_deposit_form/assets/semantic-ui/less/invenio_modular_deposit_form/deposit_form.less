@@ -39,6 +39,15 @@
 }
 
 #rdm-deposit-form {
+  /* Basic top-level field layout */
+  .field {
+    margin-bottom: 0;
+  }
+
+  .invenio-fieldset.invenio-form-section {
+    margin: 0;
+  }
+
   /* Error tooltips */
   .ui[class*="pointing above"].label {
     margin-bottom: 0.5em;
@@ -73,6 +82,7 @@
       flex: 1 1 0;
       white-space: normal;
       min-width: 0;
+      font-weight: normal;
     }
 
     /* Tighter padding on tablet so step labels have more room before wrapping. */
@@ -303,11 +313,14 @@
         font-weight: bold;
         font-size: 1.25em;
         position: relative;
-        top: -1em;
-        margin-bottom: 0;
+        top: 0;
+        margin-bottom: 0.5rem;
 
         > i.icon {
-          margin-right: 0.5em;
+          margin-right: 0;
+          &.small {
+            line-height: 0.8em;
+          }
         }
       }
 
@@ -337,6 +350,10 @@
     // .invenio-form-section.info {
     //   border-left: 3px solid #2185d0;
     // }
+    & > legend {
+      padding-top: 1rem;
+      margin-bottom: -5px;
+    }
 
     .form-section-severity-badges {
       margin-left: 0.5em;
@@ -378,23 +395,37 @@
         // Description sits above the input; pull it close to the label and
         // leave a small gap before the input.
         .description {
-          margin-top: -0.8em;
-          margin-bottom: 1em;
+          margin-top: 0re;
+          margin-bottom: 1rem;
         }
 
         // Helptext sits below the input; small breathing room above, none below.
         .helptext {
-          margin-top: 0.5em;
+          margin-top: 0.5rem;
           margin-bottom: 0;
         }
       }
-      // &.files-field .storage-col {
-      //   .ui.horizontal.list > .item:last-child {
-      //     @media all and (min-width: @largestTabletScreen) and (max-width: @largestSmallMonitor) {
-      //       margin-left: 0;
-      //     }
-      //   }
-      // }
+      &.files-field {
+        .invenio-field-label i.icon {
+          width: 0.8em;
+          margin-right: 0.7em;
+        }
+        & > .ui.grid.file-uploader {
+          margin-top: -5px;
+        }
+        .storage-col {
+          & > .header {
+            @media all and (max-width: @largestTabletScreen) {
+              display: none;
+            }
+          }
+          // .ui.horizontal.list > .item:last-child {
+          //   @media all and (max-width: @largestTabletScreen) {
+          //     margin-left: 0;
+          //   }
+          // }
+        }
+      }
       &.metadata-title-field {
         .field.additional-titles {
           > .fields > .field.mt-15:has(button) {
@@ -446,12 +477,6 @@
       }
       &.metadata-creators-field,
       &.metadata-contributors-field {
-        .creators-list,
-        .contributors-list {
-          .drag-anchor {
-            padding-top: 0.3em;
-          }
-        }
         .creator-identifiers,
         .contributor-identifiers {
           .close-btn {

@@ -148,7 +148,7 @@ function FundingFieldAlternateForm(props) {
     <DndProvider backend={HTML5Backend}>
       <Form.Field required={required} className={className}>
         <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
-        <List className="awards-list mt-10">
+        <List className="awards-list mt-10 mb-0">
           {fundingList.map((value, index) => {
             // if award does not exist or has no id, it's a custom one
             const awardType = value?.award?.id ? "standard" : "custom";
@@ -175,47 +175,49 @@ function FundingFieldAlternateForm(props) {
           })}
         </List>
 
-        <Overridable id="InvenioVocabularies.FundingField.AddAwardFundingModal.Container">
-          <FundingModal
-            searchConfig={searchConfig}
-            trigger={
-              <Button
-                type="button"
-                key="standard"
-                icon
-                labelPosition="left"
-                className={`mb-5 ${className}`}
-              >
-                <Icon name="add" />
-                {i18next.t("Add")}
-              </Button>
-            }
-            onAwardChange={pushFunding}
-            mode="standard"
-            action="add"
-            deserializeAward={deserializeAward}
-            deserializeFunder={deserializeFunder}
-            computeFundingContents={computeFundingContents}
-          />
-        </Overridable>
+        <div className="mt-10">
+          <Overridable id="InvenioVocabularies.FundingField.AddAwardFundingModal.Container">
+            <FundingModal
+              searchConfig={searchConfig}
+              trigger={
+                <Button
+                  type="button"
+                  key="standard"
+                  icon
+                  labelPosition="left"
+                  className={`mb-5 ${className}`}
+                >
+                  <Icon name="add" />
+                  {i18next.t("Add")}
+                </Button>
+              }
+              onAwardChange={pushFunding}
+              mode="standard"
+              action="add"
+              deserializeAward={deserializeAward}
+              deserializeFunder={deserializeFunder}
+              computeFundingContents={computeFundingContents}
+            />
+          </Overridable>
 
-        <Overridable id="InvenioVocabularies.FundingField.AddCustomFundingModal.Container">
-          <FundingModal
-            searchConfig={searchConfig}
-            trigger={
-              <Button type="button" key="custom" icon labelPosition="left" className={className}>
-                <Icon name="add" />
-                {i18next.t("Add custom")}
-              </Button>
-            }
-            onAwardChange={pushFunding}
-            mode="custom"
-            action="add"
-            deserializeAward={deserializeAward}
-            deserializeFunder={deserializeFunder}
-            computeFundingContents={computeFundingContents}
-          />
-        </Overridable>
+          <Overridable id="InvenioVocabularies.FundingField.AddCustomFundingModal.Container">
+            <FundingModal
+              searchConfig={searchConfig}
+              trigger={
+                <Button type="button" key="custom" icon labelPosition="left" className={className}>
+                  <Icon name="add" />
+                  {i18next.t("Add custom")}
+                </Button>
+              }
+              onAwardChange={pushFunding}
+              mode="custom"
+              action="add"
+              deserializeAward={deserializeAward}
+              deserializeFunder={deserializeFunder}
+              computeFundingContents={computeFundingContents}
+            />
+          </Overridable>
+        </div>
 
         {fundingError && <FeedbackLabel fieldPath={fieldPath} />}
       </Form.Field>

@@ -99,7 +99,7 @@ const CreatibutorsFieldFlatItem = ({
   const renderRole = (role) => {
     if (role) {
       const friendlyRole = roleOptions?.find(({ value }) => value === role)?.text ?? role;
-      return <Label className="ml-5">{friendlyRole}</Label>;
+      return <Label className="ml-5 ui inline horizontal label">{friendlyRole}</Label>;
     }
     return null;
   };

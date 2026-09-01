@@ -61,13 +61,11 @@ const FormStepper = ({ classnames, ...props }) => {
     text: `${index + 1}. ${i18next.t(label ?? section)}`,
   }));
   const currentPage = formPages.find((p) => p.section === currentFormPage);
-  const currentPageTitle = currentPage
-    ? i18next.t(currentPage.label ?? currentPage.section)
-    : "";
+  const currentPageTitle = currentPage ? i18next.t(currentPage.label ?? currentPage.section) : "";
 
   return (
     <Grid.Column className={classnames ?? ""} {...props}>
-      <Step.Group className="upload-form-pager" fluid={true} size="small" unstackable>
+      <Step.Group className="upload-form-pager mb-0" fluid={true} size="small" unstackable>
         {formPages.map(({ section, label, menuItemClasses }, index) => {
           const counts = pageCounts[section];
           const severityClass = counts?.severity ? `has-${counts.severity}` : "";
@@ -86,7 +84,9 @@ const FormStepper = ({ classnames, ...props }) => {
                 severityClass,
                 menuItemClasses,
                 section === lastVisibleSection ? "last-visible" : "",
-              ].filter(Boolean).join(" ")}
+              ]
+                .filter(Boolean)
+                .join(" ")}
               data-section={section}
               type="button"
             >
@@ -98,9 +98,7 @@ const FormStepper = ({ classnames, ...props }) => {
                    * rules from invenio_theme/site.overrides (Semantic UI's
                    * built-in `mobile only` / `mobile hidden` classes only
                    * apply to grid descendants). */}
-                  <span className="upload-form-stepper-step-number mobile only">
-                    {index + 1}
-                  </span>
+                  <span className="upload-form-stepper-step-number mobile only">{index + 1}</span>
                   <span className="upload-form-stepper-step-label tablet computer only">
                     {i18next.t(label ?? section)}
                   </span>

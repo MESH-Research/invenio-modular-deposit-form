@@ -280,7 +280,7 @@ function ResourceTypeSelectorFieldInner({
               </div>
             )}
             <div
-              className="ui compact fluid icon labeled six item menu rel-mb-1"
+              className="ui compact fluid icon labeled six item menu mb-0 mt-10"
               role="radiogroup"
               tabIndex={-1}
               aria-invalid={showError || undefined}
@@ -302,7 +302,7 @@ function ResourceTypeSelectorFieldInner({
                     tabIndex={getRadioTabIndex(index)}
                     aria-checked={checked}
                     onClick={handleItemClick}
-                    className={`ui button item ${checked ? "active" : ""}`}
+                    className={`ui button item ${checked ? "active" : ""} pl-10 pr-10`}
                     formNoValidate
                   >
                     <Icon aria-hidden="true" name={buttonType.icon} />
@@ -345,6 +345,7 @@ function ResourceTypeSelectorFieldInner({
                 aria-label={showLabel && label ? undefined : assistiveGroupName}
                 aria-describedby={describedBy || undefined}
                 aria-invalid={showError || undefined}
+                className="mt-10"
               />
             )}
             {showError && (

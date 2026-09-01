@@ -95,7 +95,8 @@ const FormSection = ({
         className="invenio-field-label mb-0"
         aria-expanded={isOpen}
       >
-        {!!icon && <Icon name={icon} />} {label}
+        {label}
+        {!!icon && <Icon name={icon} className="ml-10 mr-0" />}
         {severityBadges}
         <Icon name="dropdown" className="accordion-dropdown-icon" />
       </Accordion.Title>
@@ -124,12 +125,11 @@ const FormSection = ({
         .filter(Boolean)
         .join(" ")}
     >
-      {showSrOnlyLegend && (
-        <legend className="sr-only">{srLegendText}</legend>
-      )}
+      {showSrOnlyLegend && <legend className="sr-only">{srLegendText}</legend>}
       {showVisibleLegend && (
         <legend className="field-label-class title invenio-field-label">
-          {!!icon && <Icon name={icon} />} {label}
+          {label}
+          {!!icon && <Icon name={icon} size="small" className="ml-10 mr-0" />}
           {severityBadges}
         </legend>
       )}

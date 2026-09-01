@@ -9,14 +9,14 @@ import React, { useEffect, useMemo, useRef } from "react";
 import _get from "lodash/get";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
-import { FeedbackLabel, FieldLabel } from "react-invenio-forms";
+import { FeedbackLabel } from "react-invenio-forms";
+import { FieldLabel } from "../replacement_components/input_controls/FieldLabel.js";
 import { useSelector, useStore } from "react-redux";
 import {
   AccessRightField,
   CommunityHeader,
   DeleteButton,
   FileUploader,
-  LicenseField,
   PreviewButton,
   PublicationDateField,
   PublishButton,
@@ -44,6 +44,7 @@ import {
 } from "../replacement_components/field_components";
 import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
 import { FundingFieldAlternate } from "./alternate/field_inputs/FundingFieldAlternate";
+import { LicenseFieldAlternate } from "./alternate/field_inputs/LicenseFieldAlternate";
 import { Card, Form, Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
 import { getTouchedParent } from "../utils";
@@ -51,6 +52,10 @@ import { FieldComponentWrapper } from "./FieldComponentWrapper";
 
 /**
  * Main description/abstract field (metadata.description). Replacement DescriptionsField (field_components).
+ *
+ * Rich text is not sanitized in the editor; the backend `SanitizedHTML` field
+ * (bleach) cleans HTML on create/update.
+ *
  * @overridable InvenioAppRdm.Deposit.DescriptionsField.container (via FieldComponentWrapper)
  */
 const AbstractComponent = ({ ...extraProps }) => {
@@ -591,13 +596,15 @@ const LanguagesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Licenses (metadata.rights). Uses stock LicenseField.
+ * Licenses (metadata.rights). Uses LicenseFieldAlternate (creatibutor-style
+ * list-item buttons / reorder) while reusing LicenseModal from
+ * invenio_rdm_records.
  * @overridable InvenioAppRdm.Deposit.LicenseField.container (via FieldComponentWrapper)
  */
 const LicensesComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper componentName="LicenseField" {...extraProps} fieldPath="metadata.rights">
-      <LicenseField
+      <LicenseFieldAlternate
         fieldPath="metadata.rights"
         searchConfig={{
           searchApi: {

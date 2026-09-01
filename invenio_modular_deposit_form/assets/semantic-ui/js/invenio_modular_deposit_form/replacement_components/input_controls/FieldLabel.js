@@ -19,8 +19,8 @@ export class FieldLabel extends Component {
     const { htmlFor, icon, label, className, ...rest } = this.props;
     return (
       <label htmlFor={htmlFor} className={className} {...rest}>
-        {icon ? <Icon name={icon} /> : null}
         {label}
+        {icon ? <Icon name={icon} className="small ml-10" /> : null}
       </label>
     );
   }
