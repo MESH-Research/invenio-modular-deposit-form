@@ -11,11 +11,7 @@
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import {
-  FieldLabel,
-  GroupField,
-  SubjectAutocompleteDropdown,
-} from "react-invenio-forms";
+import { FieldLabel, GroupField, SubjectAutocompleteDropdown } from "react-invenio-forms";
 import { Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
@@ -25,8 +21,7 @@ export class SubjectsField extends Component {
   };
 
   render() {
-    const { fieldPath, label, labelIcon, limitToOptions, ...dropdownProps } =
-      this.props;
+    const { fieldPath, label, labelIcon, limitToOptions, ...dropdownProps } = this.props;
     const { limitTo } = this.state;
     const displaySuggestFromField = limitToOptions.length > 2; // 2 because of "all", that is always present
     const labelEl =
@@ -39,7 +34,7 @@ export class SubjectsField extends Component {
         {displaySuggestFromField && (
           <Form.Field width={5} className="subjects-field">
             {labelEl}
-            <GroupField>
+            <GroupField className="mb-0">
               <Form.Field
                 width={8}
                 style={{ marginBottom: "auto", marginTop: "auto" }}

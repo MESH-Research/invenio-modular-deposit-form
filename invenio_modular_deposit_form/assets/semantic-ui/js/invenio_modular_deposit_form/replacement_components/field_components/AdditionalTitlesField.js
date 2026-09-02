@@ -93,6 +93,7 @@ export class AdditionalTitlesField extends Component {
     return (
       <ArrayField
         addButtonLabel={i18next.t("Add titles")}
+        addButtonClassName={"mt-5"}
         defaultNewValue={emptyAdditionalTitle}
         fieldPath={fieldPath}
         className="additional-titles"
@@ -110,7 +111,7 @@ export class AdditionalTitlesField extends Component {
           const fieldPathPrefix = `${fieldPath}.${indexPath}`;
 
           return (
-            <GroupField fieldPath={fieldPath} optimized>
+            <GroupField fieldPath={fieldPath} optimized className="mb-0">
               <TextField
                 fieldPath={`${fieldPathPrefix}.title`}
                 label={i18next.t("Additional title")}

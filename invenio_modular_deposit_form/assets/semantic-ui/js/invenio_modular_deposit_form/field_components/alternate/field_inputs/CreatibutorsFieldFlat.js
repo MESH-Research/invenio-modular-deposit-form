@@ -15,7 +15,7 @@ import { useStore } from "react-redux";
 import { getIn, FieldArray, useFormikContext } from "formik";
 import { Button, Form, Icon, Label, List, TransitionGroup } from "semantic-ui-react";
 import _get from "lodash/get";
-import { FieldLabel } from "react-invenio-forms";
+import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel.js";
 import PropTypes from "prop-types";
 
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";

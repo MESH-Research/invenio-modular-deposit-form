@@ -40,11 +40,11 @@ import PropTypes from "prop-types";
 import React, { Component } from "react";
 import {
   FeedbackLabel,
-  FieldLabel,
   mergeOptions,
   ensureSelectedValuesInOptions,
   createOption,
 } from "react-invenio-forms";
+import { FieldLabel } from "./FieldLabel";
 import { Form } from "semantic-ui-react";
 
 export class SelectField extends Component {

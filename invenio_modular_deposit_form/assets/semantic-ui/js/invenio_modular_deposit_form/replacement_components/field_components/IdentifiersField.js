@@ -17,7 +17,7 @@
 //   (bundle path; same object as upstream `./initialValues`).
 import PropTypes from "prop-types";
 import React, { Component } from "react";
-import { FieldLabel, GroupField } from "react-invenio-forms";
+import { GroupField } from "react-invenio-forms";
 import { Button, Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { emptyIdentifier } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/initialValues";
@@ -27,6 +27,7 @@ import {
   focusAddButton,
   focusFieldByPath,
 } from "../../replacement_components/input_controls/arrayFieldFocus";
+import { FieldLabel } from "../../replacement_components/input_controls/FieldLabel";
 import { SelectField } from "../../replacement_components/input_controls/SelectField";
 import { TextField } from "../../replacement_components/input_controls/TextField";
 

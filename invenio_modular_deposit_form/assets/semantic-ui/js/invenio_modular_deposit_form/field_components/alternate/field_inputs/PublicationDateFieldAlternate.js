@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Field, getIn, useFormikContext } from "formik";
-import { FieldLabel } from "react-invenio-forms";
+import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel.js";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Checkbox, Dropdown, Form, Label } from "semantic-ui-react";
 
@@ -305,7 +305,7 @@ const PublicationDateFieldAlternate = ({
                 />
               ) : null}
               {description && (
-                <div id={`${fieldPath}.description`} className="description rel-mb-1">
+                <div id={`${fieldPath}.description`} className="description">
                   {i18next.t(description)}
                 </div>
               )}

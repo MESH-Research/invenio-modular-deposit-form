@@ -167,7 +167,7 @@ const FormFeedbackSummary = ({
     const label = multiPage
       ? pagePart === sectionPart
         ? sectionPart
-        : `${pagePart} / ${sectionPart}`
+        : sectionPart /* was `${pagePart} > ${sectionPart}` */
       : sectionPart;
     const severityClass =
       errorsCount > 0
@@ -184,7 +184,7 @@ const FormFeedbackSummary = ({
           type="button"
           transparent
           basic
-          className={`p-5 ${severityClass}`}
+          className={`pt-5 pr-10 pl-10 pb-5 mb-5 ${severityClass} validation-error-feedback-link`}
           onClick={(e) => {
             if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
               handleFormPageChange(e, { value: pageId });
@@ -194,38 +194,43 @@ const FormFeedbackSummary = ({
           }}
         >
           {label}{" "}
-          {errorsCount > 0 && (
-            <Label
-              size="tiny"
-              circular
-              className={`${getSeverityBadgeType("error")} rel-ml-1`}
-              key="error"
-            >
-              {errorsCount} {getSeverityLabel("error")}
-              {errorsCount !== 1 ? "s" : ""}
-            </Label>
-          )}
-          {warningsCount > 0 && (
-            <Label
-              size="tiny"
-              circular
-              className={`${getSeverityBadgeType("warning")} rel-ml-1`}
-              key="warning"
-            >
-              {warningsCount} {getSeverityLabel("warning")}
-              {warningsCount !== 1 ? "s" : ""}
-            </Label>
-          )}
-          {infoCount > 0 && (
-            <Label
-              size="tiny"
-              circular
-              className={`${getSeverityBadgeType("info")} rel-ml-1`}
-              key="info"
-            >
-              {infoCount} {getSeverityLabel("info")}
-              {infoCount !== 1 ? "s" : ""}
-            </Label>
+          {false && (
+            <>
+              {/* TODO: Decide whether to enable count badges here */}
+              {errorsCount > 0 && (
+                <Label
+                  size="tiny"
+                  circular
+                  className={`${getSeverityBadgeType("error")} rel-ml-1`}
+                  key="error"
+                >
+                  {errorsCount} {getSeverityLabel("error")}
+                  {errorsCount !== 1 ? "s" : ""}
+                </Label>
+              )}
+              {warningsCount > 0 && (
+                <Label
+                  size="tiny"
+                  circular
+                  className={`${getSeverityBadgeType("warning")} rel-ml-1`}
+                  key="warning"
+                >
+                  {warningsCount} {getSeverityLabel("warning")}
+                  {warningsCount !== 1 ? "s" : ""}
+                </Label>
+              )}
+              {infoCount > 0 && (
+                <Label
+                  size="tiny"
+                  circular
+                  className={`${getSeverityBadgeType("info")} rel-ml-1`}
+                  key="info"
+                >
+                  {infoCount} {getSeverityLabel("info")}
+                  {infoCount !== 1 ? "s" : ""}
+                </Label>
+              )}
+            </>
           )}
         </Button>
       </List.Item>

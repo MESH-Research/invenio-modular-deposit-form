@@ -189,12 +189,12 @@ const ACTION_TOASTS = {
  */
 function getErrorsIntroMessage(hasDraftBlockingClientErrors, hasSelectedCommunity) {
   if (hasDraftBlockingClientErrors) {
-    return i18next.t("Before saving, please fix the issues in");
+    return i18next.t("Before saving, please fix these issues");
   }
   if (hasSelectedCommunity) {
-    return i18next.t("Before submitting, please fix the issues in");
+    return i18next.t("Before submitting, please fix these issues");
   }
-  return i18next.t("Before publishing, please fix the issues in");
+  return i18next.t("Before publishing, please fix these issues");
 }
 
 const VALIDATION_INTROS = {
@@ -561,16 +561,16 @@ function ValidationMessage({
       icon={!hideMessageIcon}
       id={`${type}-validation-feedback-div`}
     >
-      {!hideMessageIcon ? <Icon name={icon} /> : null}
-      <Message.Content>
-        <Message.Header className="rel-mt-1 rel-ml-1 mr-10">{message}</Message.Header>
-        <Message.List className="mt-15 mb-0 rel-ml-1">
+      <Message.Content className="rel-ml-1 mr-15 rel-mt-1">
+        <Message.Header className="">{message}</Message.Header>
+        <Message.List className="mt-10 mb-0">
           <FormFeedbackSummary
             sectionsConfig={sectionsConfig}
             currentResourceType={currentResourceType}
           />
         </Message.List>
       </Message.Content>
+      {!hideMessageIcon ? <Icon name={icon} className="mr-15 ml-0 pt-10" /> : null}
     </Message>
   );
 }

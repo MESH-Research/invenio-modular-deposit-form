@@ -26,7 +26,7 @@ import { Form, Icon } from "semantic-ui-react";
 import _filter from "lodash/filter";
 import _isEmpty from "lodash/isEmpty";
 import _matches from "lodash/matches";
-import { FieldLabel } from "react-invenio-forms";
+import { FieldLabel } from "./FieldLabel";
 
 export class ArrayField extends Component {
   constructor(props) {
