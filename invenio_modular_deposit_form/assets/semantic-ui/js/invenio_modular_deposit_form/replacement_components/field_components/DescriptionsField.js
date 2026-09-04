@@ -12,6 +12,7 @@ import { RichInputField } from "../input_controls/RichInputField.js";
 import { FieldLabel } from "../input_controls/FieldLabel.js";
 import { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { TINYMCE_CONFIG } from "../../constants.js";
 
 /**
  * Deposit form field for the main record description (`metadata.description`).
@@ -26,16 +27,16 @@ export class DescriptionsField extends Component {
     return (
       <>
         <RichInputField
-          className="description-field rel-mb-1"
+          className="description-field mb-12"
           fieldPath={fieldPath}
-          editorConfig={editorConfig}
+          editorConfig={editorConfig || TINYMCE_CONFIG}
           label={label ? <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} /> : null}
           optimized
         />
         <AdditionalDescriptionsField
           recordUI={recordUI}
           options={options}
-          editorConfig={editorConfig}
+          editorConfig={editorConfig || TINYMCE_CONFIG}
           fieldPath="metadata.additional_descriptions"
         />
       </>

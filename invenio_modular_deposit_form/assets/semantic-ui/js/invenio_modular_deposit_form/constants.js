@@ -6,6 +6,26 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 /**
+ * Default TinyMCE configuration options.
+ */
+const TINYMCE_CONFIG = {
+  toolbar:
+    "blocks | bold italic codesample blockquote table | bullist numlist | outdent indent | link | wordcount | undo redo | code | custom_preview",
+  removePlugins: [
+    "Image",
+    "ImageCaption",
+    "ImageStyle",
+    "ImageToolbar",
+    "ImageUpload",
+    "MediaEmbed",
+    "Table",
+    "TableToolbar",
+    "TableProperties",
+    "TableCellProperties",
+  ],
+};
+
+/**
  * Top-level keys that correspond to Formik values / Yup validation on the deposit record.
  */
 const RECORD_FIELD_ERROR_ROOTS = Object.freeze([
@@ -98,4 +118,5 @@ export {
   SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
   SEVERITIES,
   SIDEBAR_DEFAULTS_WIDTHS,
+  TINYMCE_CONFIG,
 };
