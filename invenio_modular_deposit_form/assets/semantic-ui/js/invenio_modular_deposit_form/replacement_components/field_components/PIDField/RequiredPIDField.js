@@ -54,7 +54,7 @@ import React, { Component } from "react";
 import { FeedbackLabel } from "react-invenio-forms";
 import { FieldLabel } from "../../input_controls/FieldLabel";
 import { Form } from "semantic-ui-react";
-import { ManagedUnmanagedSwitch } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/ManagedUnmanagedSwitch";
+import { ManagedUnmanagedSwitch } from "./pid_components/ManagedUnmanagedSwitch";
 import { ManagedIdentifierCmp } from "./pid_components/ManagedIdentifierCmp";
 import { UnmanagedIdentifierCmp } from "./pid_components/UnmanagedIdentifierCmp";
 import { getFieldErrorsForDisplay } from "./pid_components/fieldErrorsForDisplay";
@@ -307,11 +307,17 @@ export class RequiredPIDField extends Component {
       <>
         {fieldLabel && (
           <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
-            <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
+            <FieldLabel htmlFor={`${fieldPath}-field`} icon={pidIcon} label={fieldLabel} />
           </Form.Field>
         )}
         {this.canBeManagedAndUnmanaged && (
           <ManagedUnmanagedSwitch
+            id={`${fieldPath}-switch`}
+            ariaControls={
+              _isManagedSelected
+                ? `${fieldPath}-managed-identifier`
+                : `${fieldPath}-unmanaged-identifier`
+            }
             disabled={
               (isEditingPublishedRecord || hasManagedIdentifier) && (hasDoi || isDoiCreated)
             }
@@ -323,6 +329,7 @@ export class RequiredPIDField extends Component {
 
         {canBeManaged && _isManagedSelected && (
           <ManagedIdentifierCmp
+            id={`${fieldPath}-managed-identifier`}
             disabled={hasDoi && isEditingPublishedRecord}
             btnLabelDiscardPID={btnLabelDiscardPID}
             btnLabelGetPID={btnLabelGetPID}
@@ -339,6 +346,7 @@ export class RequiredPIDField extends Component {
 
         {canBeUnmanaged && !_isManagedSelected && (
           <UnmanagedIdentifierCmp
+            id={`${fieldPath}-unmanaged-identifier`}
             field={field}
             form={form}
             fieldPath={fieldPath}

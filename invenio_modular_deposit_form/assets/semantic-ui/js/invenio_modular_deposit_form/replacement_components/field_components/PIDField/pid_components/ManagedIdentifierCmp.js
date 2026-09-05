@@ -98,6 +98,7 @@ class ManagedIdentifierComponent extends Component {
       disabled,
       field,
       helpText,
+      id,
       identifier,
       pidPlaceholder,
       pidType,
@@ -128,20 +129,20 @@ class ManagedIdentifierComponent extends Component {
 
     return (
       <>
-        <Form.Group inline className="rel-ml-1">
+        <Form.Group id={id} inline className="ml-0" aria-describedby={`${id}-helptext`}>
           {hasIdentifier ? (
-            <Form.Field>
+            <Form.Field className="mb-0">
               <label>{identifier}</label>
             </Form.Field>
-          ) : (
-            <Form.Field width={4}>
-              <Form.Input disabled value="" placeholder={pidPlaceholder} width={16} />
-            </Form.Field>
-          )}
+          ) : null}
 
-          <Form.Field>{identifier ? UnreserveBtn : ReserveBtn}</Form.Field>
+          {identifier ? UnreserveBtn : ReserveBtn}
         </Form.Group>
-        {helpText && <label className="helptext mt-0 mb-0">{helpText}</label>}
+        {helpText && (
+          <div id={`${id}-helptext`} className="helptext">
+            {helpText}
+          </div>
+        )}
       </>
     );
   }

@@ -77,24 +77,23 @@ export class UnmanagedIdentifierCmp extends Component {
 
   render() {
     const { localIdentifier } = this.state;
-    const { field, form, fieldPath, helpText, pidPlaceholder, disabled } = this.props;
+    const { field, form, fieldPath, helpText, id, pidPlaceholder, disabled } = this.props;
     const fieldError = getFieldErrorsForDisplay(form, fieldPath, field);
     const inputName = field?.name ?? fieldPath;
     return (
       <>
-        <Form.Field width={8} error={fieldError}>
-          <Form.Input
-            name={inputName}
-            onBlur={this.onBlur}
-            onChange={(e, { value }) => this.onChange(value)}
-            value={localIdentifier}
-            placeholder={pidPlaceholder}
-            width={16}
-            error={fieldError}
-            disabled={disabled}
-          />
-        </Form.Field>
-        {helpText && <label className="helptext rel-mt-1 mb-0">{helpText}</label>}
+        <Form.Input
+          id={id}
+          name={inputName}
+          onBlur={this.onBlur}
+          onChange={(e, { value }) => this.onChange(value)}
+          value={localIdentifier}
+          placeholder={pidPlaceholder}
+          width={8}
+          error={fieldError}
+          disabled={disabled}
+        />
+        {helpText && <label className="helptext">{helpText}</label>}
       </>
     );
   }
