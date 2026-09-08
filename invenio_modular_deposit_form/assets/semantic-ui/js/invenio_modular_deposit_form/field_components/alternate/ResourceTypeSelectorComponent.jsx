@@ -8,6 +8,7 @@ import React, { useMemo } from "react";
 import { useStore } from "react-redux";
 import ResourceTypeSelectorField from "./field_inputs/ResourceTypeSelectorField";
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
+import { useFormUIState } from "../../FormUIStateManager.jsx";
 
 /** Five shortcut buttons plus “Other…”. */
 const MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS = 5;
@@ -47,12 +48,21 @@ function buildShortcutResourceTypeIds({
 
   const inVocab = new Set(vocabOrderedIds);
   const validFromConfig = candidateIds.filter((id) => inVocab.has(id));
-  const chosen = new Set(validFromConfig);
-  const result = [...validFromConfig];
-  for (const id of vocabOrderedIds) {
-    if (result.length >= max) {
-      break;
+  const chosen = new Set();
+  const result = [];
+
+  // Add from config first, respecting max
+  for (const id of validFromConfig) {
+    if (result.length >= max) break;
+    if (!chosen.has(id)) {
+      result.push(id);
+      chosen.add(id);
     }
+  }
+
+  // Fill remaining slots from vocab
+  for (const id of vocabOrderedIds) {
+    if (result.length >= max) break;
     if (!chosen.has(id)) {
       result.push(id);
       chosen.add(id);
@@ -85,6 +95,8 @@ function ResourceTypeSelectorComponent({
   ...extraProps
 }) {
   const store = useStore();
+  const { formUIState } = useFormUIState();
+  const { atTablet, atComputer, atLargeScreen } = formUIState;
   const config = store.getState().deposit?.config ?? {};
   const resourceTypeVocabulary =
     config?.vocabularies?.metadata?.resource_type ?? EMPTY_RESOURCE_TYPES;
@@ -93,15 +105,22 @@ function ResourceTypeSelectorComponent({
 
   const options = optionsProp ?? resourceTypeVocabulary;
 
+  const maxShortcuts = useMemo(() => {
+    if (atLargeScreen) return 6;
+    if (atComputer) return 5;
+    if (atTablet) return 4;
+    return 3; // Mobile
+  }, [atLargeScreen, atComputer, atTablet]);
+
   const shortcutResourceTypeIds = useMemo(
     () =>
       buildShortcutResourceTypeIds({
-        max: MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS,
+        max: maxShortcuts,
         options,
         priorityResourceTypes,
         shortcutResourceTypeIdsProp,
       }),
-    [shortcutResourceTypeIdsProp, priorityResourceTypes, options]
+    [shortcutResourceTypeIdsProp, priorityResourceTypes, options, maxShortcuts]
   );
 
   return (
