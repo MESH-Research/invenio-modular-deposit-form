@@ -209,19 +209,16 @@ When writing a custom layout component:
 
 ## Available hooks and contexts
 
-When writing a custom component, these are the imports the package treats as part of its public surface for extenders:
+The package treats the following as its public surface for extenders:
 
-| Import                                                                                                               | Purpose                                                                                                                                                              |
-| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `import { FieldComponentWrapper } from "@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper"`    | Wrap a custom field widget so it receives the layout's label/icon/placeholder/help-text mods and exposes the matching Overridable slot.                              |
-| `import { CustomField } from "@js/invenio_modular_deposit_form/field_components/CustomField"`                        | Render an InvenioRDM custom field by name, resolving its widget and props from `RDM_CUSTOM_FIELDS_UI`. See [Handling custom fields](#handling-custom-fields).        |
-| `import { useCurrentFieldMods } from "@js/invenio_modular_deposit_form/hooks/useCurrentFieldMods"`                   | Read the `MODULAR_DEPOSIT_FORM_*_MODIFICATIONS`, `*_FIELD_VALUES`, and `EXTRA_REQUIRED_FIELDS` values for the current resource type.                                 |
-| `import { useCurrentResourceTypeFields } from "@js/invenio_modular_deposit_form/hooks/useCurrentResourceTypeFields"` | Resolve the section list for the currently selected resource type (with `same_as` followed).                                                                         |
-| `import { useFormPageNavigation } from "@js/invenio_modular_deposit_form/hooks/useFormPageNavigation"`               | Read or control the current form page in a multi-page layout.                                                                                                        |
-| `import { useCustomFieldWidget } from "@js/invenio_modular_deposit_form/hooks/useCustomFieldWidget"`                 | The lookup hook used internally by `CustomField`; useful when one component needs to compose several custom fields.                                                  |
-| `import { useFormUIState, FormUIStateContext } from "@js/invenio_modular_deposit_form/FormUIStateManager"`           | Current resource type, current page, and combined client + server error state. Use this in custom layout components instead of re-implementing the same derivations. |
+- **`FieldComponentWrapper`** — wrap a custom field widget so it receives the layout's label/icon/placeholder/help-text mods and exposes the matching Overridable slot.
+- **`CustomField`** — render an InvenioRDM custom field by name. See [Handling custom fields](#handling-custom-fields).
+- **`useFormUIState`** — the current resource type, the current page and its neighbours, the viewport breakpoint, and the combined client + server error state. This is the one to reach for in a custom layout component.
+- **Error selectors** — `getPageFlaggedErrorCounts` and friends, for rendering your own error badges or summaries.
+- **Supporting hooks** — `useCurrentFieldMods`, `useCurrentResourceTypeFields`, `useCustomFieldWidget`, `useFormSubmissionTransformer`, `useIsInViewport`, `useStickyFooterOverlapFix`.
+- **Replacement input widgets** — `TextField`, `SelectField`, `RemoteSelectField`, `TextArea`, `MultiInput`, `ArrayField`, `Input`, `Dropdown`, and `AutocompleteDropdown`, under `@js/invenio_modular_deposit_form/replacement_components`. See [Replacement field components](replacement_field_components.md) for how they differ from upstream.
 
-Replacement input widgets (`TextField`, `SelectField`, `RemoteSelectField`, `TextArea`, `MultiInput`, `Input`, `Dropdown`, `AutocompleteDropdown`) live under `@js/invenio_modular_deposit_form/replacement_components` — see [Replacement field components](replacement_field_components.md) for the behavioural differences from upstream.
+**[Component developer API](component-api.md) is the full reference** — import paths, signatures, return shapes, and a field-by-field breakdown of the `formUIState` object.
 
 (handling-custom-fields)=
 
@@ -230,8 +227,6 @@ Replacement input widgets (`TextField`, `SelectField`, `RemoteSelectField`, `Tex
 Custom field values are stored under `custom_fields` in the record and must be accessed via the correct field path (e.g. `custom_fields.kcr:my_field`). To implement your own custom field widgets while reusing the standard InvenioRDM custom field configuration, use the **CustomField** component.
 
 ### Prerequisites
-
-**Enable custom fields for every component you use.** The form looks up each custom field's widget and props from `RDM_CUSTOM_FIELDS_UI`. You must define the field in `RDM_CUSTOM_FIELDS` and add a section (or add the field to an existing section) in `RDM_CUSTOM_FIELDS_UI` for **every** custom field component in your layout—including the **built-in** ones (journal, imprint, meeting, thesis, codemeta/software). If you use `JournalTitleComponent`, `BookTitleComponent`, `MeetingTitleComponent`, etc., the corresponding sections and fields must be present in your instance's `RDM_CUSTOM_FIELDS_UI`; otherwise the components cannot resolve their widgets.
 
 **Enable custom fields for every component you use.** The form looks up each custom field's widget and props from `RDM_CUSTOM_FIELDS_UI`. You must define the field in `RDM_CUSTOM_FIELDS` and add a section (or add the field to an existing section) in `RDM_CUSTOM_FIELDS_UI` for **every** custom field component in your layout—including the **built-in** ones (journal, imprint, meeting, thesis, codemeta/software). If you use `JournalTitleComponent`, `BookTitleComponent`, `MeetingTitleComponent`, etc., the corresponding sections and fields must be present in your instance's `RDM_CUSTOM_FIELDS_UI`; otherwise the components cannot resolve their widgets. The form finds the field config by **field name** only (e.g. `thesis:thesis.university`), so section structure does not affect lookup.
 

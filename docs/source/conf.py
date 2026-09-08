@@ -30,6 +30,12 @@ autosectionlabel_prefix_document = True
 autosectionlabel_maxdepth = 4
 
 # MyST parser configuration
+
+# Generate implicit anchors for headings up to this depth, so that in-page and
+# cross-page links of the form `configuration.md#some-heading` resolve. Without
+# this, only explicit `(target)=` labels are linkable.
+myst_heading_anchors = 4
+
 myst_enable_extensions = [
     "colon_fence",
     "deflist",

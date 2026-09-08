@@ -22,8 +22,6 @@
 | Descriptions | `InvenioAppRdm.Deposit.DescriptionsField.container` |
 | Form feedback | `InvenioAppRdm.Deposit.FormFeedback.container` |
 | File upload | `InvenioAppRdm.Deposit.FileUploader.container` |
-
-**Modular package default (paths relative to `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/`):** the deposit `FormFeedback` slot is filled by **`FormFeedback`** in `replacement_components/alternate_components/FormFeedback.jsx`, with the section summary in `replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx`. See [Built-in field widget components](field_components.md#form-feedback-errors-and-action-state) for the optional **`hideMessageIcon`** prop.
 | Funding | `InvenioAppRdm.Deposit.FundingField.container` |
 | Identifiers | `InvenioAppRdm.Deposit.IdentifiersField.container` |
 | License | `InvenioAppRdm.Deposit.LicenseField.container` |
@@ -34,10 +32,24 @@
 | Titles | `InvenioAppRdm.Deposit.TitlesField.container` |
 | Version | `InvenioAppRdm.Deposit.VersionField.container` |
 
-**Example:** Replace the whole dates section with our alternate implementation:
+**Modular package default for form feedback** (paths relative to
+`invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/`):
+the deposit `FormFeedback` slot is filled by **`FormFeedback`** in
+`field_components/alternate/field_inputs/FormFeedback.jsx`, with the section
+summary in
+`field_components/alternate/field_inputs/form_feedback_components/FormFeedbackSummary.jsx`.
+See [Built-in field widget components](field_components.md#form-feedback-errors-and-action-state)
+for the optional **`hideMessageIcon`** prop.
+
+**Example:** Replace the whole dates section with the package's alternate
+dates field (import from its real path under `field_components/alternate/` —
+there is no `field_components/overridable/` barrel):
 
 ```js
-overriddenComponents["InvenioAppRdm.Deposit.DateField.container"] = OverrideAdditionalDatesComponent;
+import { AdditionalDatesAlternateComponent } from "@js/invenio_modular_deposit_form/field_components/alternate/AdditionalDatesAlternateComponent";
+
+overriddenComponents["InvenioAppRdm.Deposit.DateField.container"] =
+  AdditionalDatesAlternateComponent;
 ```
 
 **Props your override receives:** When you override a slot, react-overridable passes your component the **same props the default child would get**: the props that were on the default child (from FieldComponentWrapper’s `React.cloneElement` or the parent wrapper). So you receive `fieldPath`, `label`, `labelIcon`, `description`, `helpText`, `required`, and any section-specific props (e.g. `options`, `recordUI` for titles) without re-implementing the wrapper or reading from the store for those. You do **not** need to wrap your override in FieldComponentWrapper again.
