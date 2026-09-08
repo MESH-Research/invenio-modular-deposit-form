@@ -19,13 +19,22 @@ import { useSelector, useStore } from "react-redux";
 
 import { focusFirstElement } from "./utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
-import { formUIStateReducer, getInitialFormUIState } from "./helpers/formUIStateReducer";
+import {
+  FORM_UI_ACTION,
+  formUIStateReducer,
+  getInitialFormUIState,
+} from "./helpers/formUIStateReducer";
 import { useFormSubmissionTransformer } from "./hooks/useFormSubmissionTransformer";
 import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFields";
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
 import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";
 import { useIsInViewport } from "./hooks/useIsInViewport";
 import { useClientValidationMetaValue } from "./ClientValidationMetaContext";
+import {
+  SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
+  SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX,
+  SEMANTIC_UI_MOBILE_BREAKPOINT_PX,
+} from "./constants";
 
 const FormUIStateContext = createContext();
 
@@ -127,6 +136,66 @@ const FormUIStateManager = ({ children }) => {
 
   // Manage updating of resource type
   useCurrentResourceTypeFields(formik, dispatch, fieldsByType, componentsRegistry);
+
+  // Manage breakpoint state
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+    const mobileQuery = window.matchMedia(`(max-width: ${SEMANTIC_UI_MOBILE_BREAKPOINT_PX - 1}px)`);
+    const tabletQuery = window.matchMedia(
+      `(min-width: ${SEMANTIC_UI_MOBILE_BREAKPOINT_PX}px) and (max-width: ${
+        SEMANTIC_UI_COMPUTER_BREAKPOINT_PX - 1
+      }px)`
+    );
+    const computerQuery = window.matchMedia(
+      `(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px) and (max-width: ${
+        SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX - 1
+      }px)`
+    );
+    const largeScreenQuery = window.matchMedia(
+      `(min-width: ${SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX}px)`
+    );
+
+    const onChange = () => {
+      dispatch({
+        type: FORM_UI_ACTION.SET_VIEWPORT_INFO,
+        payload: {
+          atMobile: mobileQuery.matches,
+          atTablet: tabletQuery.matches,
+          atComputer: computerQuery.matches,
+          atLargeScreen: largeScreenQuery.matches,
+        },
+      });
+    };
+
+    // Force initial sync in case matches changed during render/mount transition
+    onChange();
+
+    if (typeof computerQuery.addEventListener === "function") {
+      mobileQuery.addEventListener("change", onChange);
+      tabletQuery.addEventListener("change", onChange);
+      computerQuery.addEventListener("change", onChange);
+      largeScreenQuery.addEventListener("change", onChange);
+      return () => {
+        mobileQuery.removeEventListener("change", onChange);
+        tabletQuery.removeEventListener("change", onChange);
+        computerQuery.removeEventListener("change", onChange);
+        largeScreenQuery.removeEventListener("change", onChange);
+      };
+    }
+    // Safari < 14
+    mobileQuery.addListener(onChange);
+    tabletQuery.addListener(onChange);
+    computerQuery.addListener(onChange);
+    largeScreenQuery.addListener(onChange);
+    return () => {
+      mobileQuery.removeListener(onChange);
+      tabletQuery.removeListener(onChange);
+      computerQuery.removeListener(onChange);
+      largeScreenQuery.removeListener(onChange);
+    };
+  }, [dispatch]);
 
   const pageTargetRef = useRef(null);
   const [pageTargetElement, setPageTargetElement] = useState(null);

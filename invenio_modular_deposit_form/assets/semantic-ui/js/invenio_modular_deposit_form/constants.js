@@ -61,7 +61,9 @@ const SIDEBAR_DEFAULTS_WIDTHS = {
  * visibility (`tablet mobile only` menu items vs computer+ sidebars). Keep in
  * sync with the active Less `@computerBreakpoint` if the site overrides it.
  */
+const SEMANTIC_UI_MOBILE_BREAKPOINT_PX = 768;
 const SEMANTIC_UI_COMPUTER_BREAKPOINT_PX = 1280;
+const SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX = 1680;
 
 /*
  * Default keys of `RDM_RECORDS_IDENTIFIERS_SCHEMES` in
@@ -116,6 +118,8 @@ export {
   RECORD_FIELD_ERROR_ROOTS,
   RDM_RECORD_ACCESS_LEVELS,
   SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
+  SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX,
+  SEMANTIC_UI_MOBILE_BREAKPOINT_PX,
   SEVERITIES,
   SIDEBAR_DEFAULTS_WIDTHS,
   TINYMCE_CONFIG,

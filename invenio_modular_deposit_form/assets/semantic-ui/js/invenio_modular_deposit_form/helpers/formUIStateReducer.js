@@ -7,9 +7,11 @@
  * State:
  * - currentFormPage: current form page id (section id from form pages config).
  * - previousFormPage: viewport-aware id of the previous page before `currentFormPage` (or null); set
- *     with current on every `SET_CURRENT_FORM_PAGE`. At computer+ widths, skips `pageIdsHiddenAtComputer`.
+ *     with current on every `SET_CURRENT_FORM_PAGE`. At computer width and above, skips
+ *     `pageIdsHiddenAtComputer`.
  * - nextFormPage: viewport-aware id of the next page after `currentFormPage` (or null); set with
- *     current on every `SET_CURRENT_FORM_PAGE`. At computer+ widths, skips `pageIdsHiddenAtComputer`.
+ *     current on every `SET_CURRENT_FORM_PAGE`. At computer width and above, skips
+ *     `pageIdsHiddenAtComputer`.
  * - currentFormPageFields: resolved Formik field paths per page for current type { [pageId]: string[] }.
  * - currentResourceType: current resource type id.
  * - currentTypePageConfigs: per-page layout entries for the current resource type
@@ -22,6 +24,15 @@
  *     (from `menuItemClasses`, e.g. `tablet mobile only`); computed once per layout change.
  * - computerVisibleFallbackByPage: map from each hidden page id to the previous computer-visible
  *     page id; used by page navigation when viewport is computer+ or `?page=` targets a hidden step.
+ * - atMobile / atTablet / atComputer / atLargeScreen: which Semantic UI breakpoint band the viewport
+ *     currently occupies. **Mutually exclusive** — each is a bounded band, not cumulative, so
+ *     `atComputer` is false above the large screen breakpoint. Seeded from `matchMedia` in
+ *     `getInitialFormUIState` and kept current by the `SET_VIEWPORT_INFO` listener in
+ *     `FormUIStateManager`. Consumers wanting "computer **and wider**" must OR `atComputer` with
+ *     `atLargeScreen` (see `atComputerOrWider` in `useFormPageNavigation`).
+ * - viewportTier: index of the active band in ascending width order; see `getViewportTier`.
+ * - viewportDirection: "widen" | "shrink" | "none" — how the last breakpoint change moved the
+ *     viewport, for components that animate or reflow differently in each direction.
  * - sectionErrorsFlagged: flat list of section entries for "flagged" errors only (touched + initial-to-flag).
  *   Used by stepper, sidebar, section headers. Same shape as sectionErrorsAll.
  * - sectionErrorsAll: flat list of section entries for any error (client + initial/unchanged).
@@ -43,6 +54,7 @@ const FORM_UI_ACTION = {
   SET_SECTION_ERRORS_FLAGGED: "SET_SECTION_ERRORS_FLAGGED",
   SET_SUBMISSION_BUTTON_STATE: "SET_SUBMISSION_BUTTON_STATE",
   SET_FORM_PAGES_LAYOUT: "SET_FORM_PAGES_LAYOUT",
+  SET_VIEWPORT_INFO: "SET_VIEWPORT_INFO",
 };
 
 const defaultState = {
@@ -60,7 +72,40 @@ const defaultState = {
   sectionErrorsAll: [],
   hasClientValidationErrors: false,
   hasDraftBlockingClientErrors: false,
+  atMobile: false,
+  atTablet: false,
+  atComputer: false,
+  atLargeScreen: false,
 };
+
+import {
+  SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
+  SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX,
+  SEMANTIC_UI_MOBILE_BREAKPOINT_PX,
+} from "../constants";
+
+/** Viewport tier names in ascending width order; `viewportTier` is an index into this list. */
+const VIEWPORT_TIERS = ["mobile", "tablet", "computer", "largeScreen"];
+
+/**
+ * Ordinal of the active viewport tier, so tiers can be compared numerically to tell a
+ * widening resize from a shrinking one.
+ *
+ * The `at*` flags are mutually exclusive breakpoint bands, so at most one is true. When
+ * none is (no `matchMedia`), the narrowest tier is assumed.
+ *
+ * @param {Object} flags - Breakpoint flags, as carried on form UI state.
+ * @param {boolean} [flags.atTablet]
+ * @param {boolean} [flags.atComputer]
+ * @param {boolean} [flags.atLargeScreen]
+ * @returns {number} Index into {@link VIEWPORT_TIERS}.
+ */
+function getViewportTier({ atTablet, atComputer, atLargeScreen }) {
+  if (atLargeScreen) return VIEWPORT_TIERS.indexOf("largeScreen");
+  if (atComputer) return VIEWPORT_TIERS.indexOf("computer");
+  if (atTablet) return VIEWPORT_TIERS.indexOf("tablet");
+  return VIEWPORT_TIERS.indexOf("mobile");
+}
 
 /**
  * Build initial form UI state from form pages config only.
@@ -74,22 +119,81 @@ const defaultState = {
  * @returns {Object} initial state for formUIStateReducer
  */
 function getInitialFormUIState(formPages = []) {
+  const atMobile =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(`(max-width: ${SEMANTIC_UI_MOBILE_BREAKPOINT_PX - 1}px)`).matches
+      : false;
+  const atTablet =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(
+          `(min-width: ${SEMANTIC_UI_MOBILE_BREAKPOINT_PX}px) and (max-width: ${
+            SEMANTIC_UI_COMPUTER_BREAKPOINT_PX - 1
+          }px)`
+        ).matches
+      : false;
+  const atComputer =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(
+          `(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px) and (max-width: ${
+            SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX - 1
+          }px)`
+        ).matches
+      : false;
+  const atLargeScreen =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(`(min-width: ${SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX}px)`).matches
+      : false;
   return {
     ...defaultState,
     currentFormPage: formPages[0]?.section ?? "",
     previousFormPage: null,
     nextFormPage: formPages[1]?.section ?? null,
+    atMobile,
+    atTablet,
+    atComputer,
+    atLargeScreen,
+    viewportTier: getViewportTier({ atMobile, atTablet, atComputer, atLargeScreen }),
+    viewportDirection: "none",
   };
 }
 
 /**
  * Reducer for form UI state. Handles: SET_CURRENT_FORM_PAGE, SET_SECTION_ERRORS_FLAGGED,
  * SET_SECTION_ERRORS_ALL, SET_CURRENT_RESOURCE_TYPE, SET_CURRENT_TYPE_PAGE_CONFIGS, SET_FORM_PAGES_LAYOUT,
- * SET_CURRENT_FORM_PAGE_FIELDS.
- */
+ * SET_CURRENT_FORM_PAGE_FIELDS, SET_VIEWPORT_INFO. */
 function formUIStateReducer(state, action) {
   switch (action.type) {
+    case FORM_UI_ACTION.SET_VIEWPORT_INFO: {
+      const { atMobile, atTablet, atComputer, atLargeScreen } = action.payload;
+      if (
+        state.atMobile === atMobile &&
+        state.atTablet === atTablet &&
+        state.atComputer === atComputer &&
+        state.atLargeScreen === atLargeScreen
+      ) {
+        return state;
+      }
+      const oldTier = state.viewportTier;
+      const newTier = getViewportTier(action.payload);
+      const viewportDirection = newTier > oldTier ? "widen" : newTier < oldTier ? "shrink" : "none";
+      return {
+        ...state,
+        atMobile,
+        atTablet,
+        atComputer,
+        atLargeScreen,
+        viewportTier: newTier,
+        viewportDirection,
+      };
+    }
     case FORM_UI_ACTION.SET_CURRENT_FORM_PAGE:
+      if (
+        state.currentFormPage === action.payload.currentFormPage &&
+        state.previousFormPage === action.payload.previousFormPage &&
+        state.nextFormPage === action.payload.nextFormPage
+      ) {
+        return state;
+      }
       return {
         ...state,
         currentFormPage: action.payload.currentFormPage,

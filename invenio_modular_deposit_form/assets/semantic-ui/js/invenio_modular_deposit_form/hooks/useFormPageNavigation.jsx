@@ -8,7 +8,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getIn } from "formik";
 import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReducer";
-import { SEMANTIC_UI_COMPUTER_BREAKPOINT_PX } from "../constants";
 import { collectLeafFieldPathsUnderRoot } from "../utils";
 
 /**
@@ -36,11 +35,12 @@ import { collectLeafFieldPathsUnderRoot } from "../utils";
  * - **Stale current page** — If `currentFormPage` is not in `visibleFormPages` anymore (e.g. resource
  *   type hid a placeholder step), an effect moves to the first visible page (viewport-resolved) and
  *   uses `history.replaceState` so the correction does not add an extra history entry.
- * - **Computer breakpoint** — At computer+ widths (`matchMedia` on
- *   `SEMANTIC_UI_COMPUTER_BREAKPOINT_PX`), pages in `pageIdsHiddenAtComputer` are remapped via
- *   `computerVisibleFallbackByPage` for current, and previous/next skip those ids. On any
- *   cross of the computer breakpoint (widen or shrink), `syncFormPageForViewport` re-resolves
- *   current + previous + next and `replaceState`s the URL when current changes.
+ * - **Computer breakpoint** — At computer width and above (the `atComputer` / `atLargeScreen`
+ *   flags on form UI state, maintained by `FormUIStateManager`), pages in
+ *   `pageIdsHiddenAtComputer` are remapped via `computerVisibleFallbackByPage` for current, and
+ *   previous/next skip those ids. Whenever any breakpoint flag changes (widen or shrink),
+ *   `syncFormPageForViewport` re-resolves current + previous + next and `replaceState`s the URL
+ *   when current changes.
  * - **Modal helpers** — `handlePageChangeCancel` / `handlePageChangeConfirm` complete or abort the
  *   “leave page with errors?” flow; `confirmingPageChange` drives the `Confirm` in FormLayoutContainer.
  *
@@ -77,6 +77,19 @@ const useFormPageNavigation = (
   const currentFormPageRef = useRef(formUIState?.currentFormPage);
   currentFormPageRef.current = formUIState?.currentFormPage;
 
+  /**
+   * True at the computer breakpoint **and every width above it**.
+   *
+   * `formUIState.atComputer` is one mutually-exclusive band (computer up to the large
+   * screen breakpoint), but `isPageMenuHiddenAtComputer` treats a menu item as hidden at
+   * computer width and wider, so it stays hidden on large screens too. Navigation has to
+   * use the same cumulative sense, or above the large screen breakpoint Back/Next would
+   * walk onto a step with no visible menu entry.
+   */
+  const atComputerOrWider = !!(formUIState?.atComputer || formUIState?.atLargeScreen);
+  const atComputerOrWiderRef = useRef(atComputerOrWider);
+  atComputerOrWiderRef.current = atComputerOrWider;
+
   const pagesWithErrors = useMemo(() => getPagesWithErrors(formUIState ?? {}), [formUIState]);
   const { currentFormPage, currentFormPageFields } = formUIState ?? {};
   const [destFormPage, setDestFormPage] = useState(null);
@@ -109,20 +122,18 @@ const useFormPageNavigation = (
   /**
    * At computer+ widths, if `pageId` is menu-hidden, walk `pageNums` in `direction` (+1 next,
    * -1 previous) until a non-hidden id (or null). Otherwise return `pageId` unchanged.
-   * Below computer width (or without `matchMedia`), returns `pageId` as-is.
+   * Below computer width, returns `pageId` as-is.
    *
    * Uses `pageNumsRef` so media/`popstate` listeners registered once still see the current list.
    *
    * @param {string|null|undefined} pageId - Candidate adjacent page id
    * @param {1|-1} direction - Walk forward for next, backward for previous
-   * @param {boolean|null} [atComputer=null] - When null, reads `matchMedia` for the computer breakpoint
+   * @param {boolean|null} [atComputer=null] - When null, reads the current `atComputerOrWider` value
    * @returns {string|null|undefined}
    */
   function resolveAdjacentPageForViewport(pageId, direction, atComputer = null) {
-    if (atComputer === null && typeof window.matchMedia === "function") {
-      atComputer = window.matchMedia(
-        `(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px)`
-      ).matches;
+    if (atComputer === null) {
+      atComputer = atComputerOrWiderRef.current;
     }
     if (!pageId || !atComputer) {
       return pageId;
@@ -156,8 +167,7 @@ const useFormPageNavigation = (
     const naivePrevious = idx > 0 ? pages[idx - 1] : null;
     const naiveNext = idx >= 0 && idx + 1 < pages.length ? pages[idx + 1] : null;
     return {
-      previousFormPage:
-        resolveAdjacentPageForViewport(naivePrevious, -1, atComputer) ?? null,
+      previousFormPage: resolveAdjacentPageForViewport(naivePrevious, -1, atComputer) ?? null,
       nextFormPage: resolveAdjacentPageForViewport(naiveNext, 1, atComputer) ?? null,
     };
   }
@@ -167,7 +177,7 @@ const useFormPageNavigation = (
    *
    * At computer+ widths, remaps a menu-hidden `pageId` via `computerVisibleFallbackByPage`, then
    * derives previous/next from that resolved current via {@link resolveAdjacentPagesForCurrent}.
-   * Below computer width (or without `matchMedia`), returns `pageId` and its adjacent ids.
+   * Below computer width, returns `pageId` and its adjacent ids.
    *
    * Return keys match `SET_CURRENT_FORM_PAGE` payload fields so callers can
    * `dispatch({ type, payload: resolvePageForViewport(...) })`.
@@ -183,10 +193,7 @@ const useFormPageNavigation = (
     if (!pageId) {
       return { currentFormPage: pageId, previousFormPage: null, nextFormPage: null };
     }
-    const atComputer =
-      typeof window.matchMedia === "function"
-        ? window.matchMedia(`(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px)`).matches
-        : false;
+    const atComputer = atComputerOrWiderRef.current;
     let currentFormPage = pageId;
     if (atComputer && pageIdsHiddenAtComputerRef.current.includes(pageId)) {
       currentFormPage = computerVisibleFallbackByPageRef.current[pageId] ?? pageId;
@@ -306,27 +313,17 @@ const useFormPageNavigation = (
   }, [visibleFormPages, currentFormPage, dispatch]);
 
   /**
-   * When the viewport crosses the computer breakpoint in either direction, re-resolve current,
+   * When the viewport crosses a breakpoint in either direction, re-resolve current,
    * previous, and next (leave hidden pages on widen; restore mobile-only targets on shrink).
    */
   useEffect(() => {
-    if (typeof window.matchMedia !== "function") {
-      return undefined;
-    }
-    const mediaQuery = window.matchMedia(`(min-width: ${SEMANTIC_UI_COMPUTER_BREAKPOINT_PX}px)`);
-
-    const onChange = () => {
-      syncFormPageForViewport();
-    };
-
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", onChange);
-      return () => mediaQuery.removeEventListener("change", onChange);
-    }
-    // Safari < 14
-    mediaQuery.addListener(onChange);
-    return () => mediaQuery.removeListener(onChange);
-  }, [dispatch]);
+    syncFormPageForViewport();
+  }, [
+    formUIState.atMobile,
+    formUIState.atTablet,
+    formUIState.atComputer,
+    formUIState.atLargeScreen,
+  ]);
 
   const handlePageChangeCancel = useCallback(() => {
     setConfirmingPageChange(false);
@@ -417,12 +414,7 @@ const useFormPageNavigation = (
       handlePageChangeCancel,
       handlePageChangeConfirm,
     }),
-    [
-      confirmingPageChange,
-      handleFormPageChange,
-      handlePageChangeCancel,
-      handlePageChangeConfirm,
-    ]
+    [confirmingPageChange, handleFormPageChange, handlePageChangeCancel, handlePageChangeConfirm]
   );
 };
 
