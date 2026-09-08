@@ -26,10 +26,22 @@ Available presets:
 | `COMMON_FIELDS_DEFAULT_PAGED`               | `FIELDS_BY_TYPE_DEFAULT_PAGED`   | Multi-page form with the stepper inside the form header on mobile/tablet only and a sidebar page menu on larger screens. |
 | `COMMON_FIELDS_DEFAULT_PAGED_TOP_STEPPER`   | `FIELDS_BY_TYPE_DEFAULT_PAGED`   | Same field layout as `DEFAULT_PAGED` but with the stepper always at the top instead of in the sidebar.                   |
 | `COMMON_FIELDS_DEFAULT_SINGLE`              | `FIELDS_BY_TYPE_DEFAULT_PAGED`   | Single-page form (everything visible at once, like the stock InvenioRDM form).                                           |
+| `COMMON_FIELDS_ZENODO_PAGED`                | _(none shipped)_                 | Multi-page form whose page grouping emulates the Zenodo deposit form.                                                    |
 
-`ALTERNATE_PAGED` is in `invenio_modular_deposit_form.config.alternate_paged`;
-the other three are in `invenio_modular_deposit_form.config.default`. To
-customize one of the presets, copy it into your instance config and edit it
+Module locations: `ALTERNATE_PAGED` is in
+`invenio_modular_deposit_form.config.alternate_paged`, `ZENODO_PAGED` is in
+`invenio_modular_deposit_form.config.zenodo`, and the three `DEFAULT_*` presets
+are in `invenio_modular_deposit_form.config.default`.
+
+```{note}
+The Zenodo preset ships **no matching `FIELDS_BY_TYPE`**. Either leave
+`MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE` at its default, or pair it with
+`FIELDS_BY_TYPE_DEFAULT_PAGED` and check that the page `section` ids in that
+mapping match the page ids in the Zenodo layout — per-type overrides are keyed
+by page id, so mismatched ids are silently ignored.
+```
+
+To customize one of the presets, copy it into your instance config and edit it
 there — see [Creating a custom form layout](#creating-a-custom-form-layout) for
 the schema.
 
@@ -129,10 +141,13 @@ object in the top-level list.
 - **FormHeader** — `"component": "FormHeader"`. Rendered above the form (below
   the community banner if shown), full width.
 - **FormLeftSidebar** — `"component": "FormLeftSidebar"`. Rendered in a left
-  column (default 3 grid units on computer, 16 on mobile). Optional responsive
-  column keys: `mobile`, `tablet`, `computer`, `largeScreen`, `widescreen`.
-- **FormRightSidebar** — `"component": "FormRightSidebar"`. Same as left
-  sidebar. The default package layout uses it with **FormFeedbackComponent**
+  column (default 3 grid units on computer and above, 16 on mobile and tablet).
+  Optional responsive column keys: `mobile`, `tablet`, `computer`,
+  `largeScreen`, `widescreen`. Also accepts **`sticky`** (default `true`), which
+  keeps the sidebar in view as the main column scrolls; set it to `false` for a
+  sidebar that should scroll away with the page.
+- **FormRightSidebar** — `"component": "FormRightSidebar"`. Same as the left
+  sidebar, including `sticky`. The default package layout uses it with **FormFeedbackComponent**
   (form feedback above; implementation paths and optional **`hideMessageIcon`**
   in
   [field_components.md](field_components.md#form-feedback-errors-and-action-state)),
@@ -155,6 +170,11 @@ visibility or styling. Use the same responsive visibility classes as
 invenio-theme/invenio-app-rdm: `mobile only`, `tablet only`, `computer only`,
 etc. **Column width** config keys use camelCase (`largeScreen` not
 `largeMonitor`).
+
+`FormSidebarPageMenu` additionally accepts **`showBadgeLabels`**, which controls
+whether its severity badges show a word ("2 errors") or just the count. It also
+accepts a **`label`** used as the menu's accessible name (the shipped layouts
+pass `_("Steps")`).
 
 Example:
 
@@ -237,6 +257,15 @@ by `startExpanded`.
   show the section open initially, or `false` to show it collapsed.
 - **classnames** — Optional CSS classes added to the container.
 
+```{note}
+**`SectionWrapper`** is an alias for `FormSection` in the component registry.
+The two names render the same component and take the same properties; you may
+see either in existing layouts.
+
+`FormSection` always adds the `invenio-form-section` class itself, so there is
+no need to include it in `classnames`.
+```
+
 #### FormRow
 
 A `FormRow` component renders a Semantic UI `Form.Group`. It holds one or more
@@ -247,6 +276,14 @@ Like `FormSection`, the `FormRow` dictionary may contain the basic component
 properties and `"classnames"`. Properties `"label"`, `"show_heading"`, and
 `"icon"` are ignored. To get a fieldset with an overall legend, wrap the row in
 a `FormSection`.
+
+```{warning}
+Do not leave an **empty dictionary** `{}` in a `FormRow`'s `subsections` — a
+child with no `component` key cannot be resolved in a row and will break the
+form at render time. An empty dictionary elsewhere (in a region's or a page's
+`subsections`) is harmless and renders nothing; the shipped layouts use
+`"subsections": [{}]` on an otherwise-empty sidebar to reserve its column width.
+```
 
 #### Wrapped field widget component
 
@@ -273,23 +310,89 @@ that exists in the combined component registry.
 Most form field components can accept: **description**, **helpText**,
 **placeholder**, **icon**, **label**, **required** (defaults to `false` unless
 required in Yup schema or Invenio JSONSchema), **classnames**, **showLabel**
-(defaults to `true`).
+(defaults to `true`), **wrapperClasses**, and the width keys described in
+[Field widths](#field-widths).
+
+`classnames` lands on the inner widget; **`wrapperClasses`** lands on the
+wrapper `<div>` that carries the width classes. Use `wrapperClasses` when you
+need to style the field's slot in the row rather than the input itself.
+
+Setting **`label`**, **`description`**, or **`helpText`** to `None` (or to an
+empty string) suppresses that element. This is how the shipped layouts remove a
+built-in help text they don't want — for example `"helpText": None` on
+`PublisherComponent`.
 
 **Any additional keys** in the dictionary for a field widget **will be passed
-through to the widget component as props**. Props are overridden in the
-sequence: built-in defaults → React field_components definition → invenio.cfg
-values (lowest to highest priority).
+through to the widget component as props**.
+
+#### Prop precedence
+
+When the same prop is set in more than one place, the later entries win:
+
+1. **Inner widget defaults** — e.g. `showLabel = true` in `TextField`.
+2. **The component's own definition** in the package's `field_components.jsx`.
+3. **Your layout dictionary** in `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` or
+   `MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE`.
+4. **The `MODULAR_DEPOSIT_FORM_*_MODIFICATIONS` maps** in `invenio.cfg`, for the
+   currently selected resource type.
+
+```{note}
+Step 4 beats step 3 for `label`, `description`, `helpText`, `placeholder`, and
+`required`. If a field's label refuses to change when you edit the layout dict,
+check whether `MODULAR_DEPOSIT_FORM_LABEL_MODIFICATIONS` has an entry for that
+field path under the resource type you are testing with.
+```
 
 ### Field widths
 
-Within a FormRow, declare widths using the `"classnames"` property and Semantic
-UI grid classes:
+Within a FormRow there are two ways to declare widths. Both work; the numeric
+keys are usually easier to read and are what the shipped layouts use.
 
-1. For equal-width fields, give the FormRow a `"classnames"` value that includes
-   `"equal width"`.
-2. For different widths, give each field component a `"classnames"` value that
-   includes `"X wide"` (e.g. `"two wide"`). You may use responsive width classes
-   for different breakpoints.
+**Option 1 (recommended): numeric width keys.** Give a field component a
+**`width`** key with an integer from 1 to 16. The layout converts it to the
+matching Semantic UI class on the field's wrapper:
+
+```python
+{
+    "component": "FormRow",
+    "subsections": [
+        {"section": "book_title", "component": "BookTitleComponent", "width": 12},
+        {"section": "section_pages", "component": "SectionPagesComponent", "width": 4},
+    ],
+},
+```
+
+Field components also accept the same **per-breakpoint width keys** as the
+layout regions — `mobile`, `tablet`, `computer`, `largeScreen`, `widescreen` —
+so one field can take different widths at different viewport sizes:
+
+```python
+{
+    "section": "issn",
+    "component": "JournalISSNComponent",
+    "mobile": 16,
+    "tablet": 8,
+    "computer": 6,
+},
+```
+
+`width` sets an unqualified width that applies at every breakpoint; the
+breakpoint keys override it at their own sizes. You can combine them.
+
+**Option 2: Semantic UI classes.** Put `"X wide"` (e.g. `"two wide"`) in a field
+component's **`classnames`**, or give the FormRow itself a `classnames` value
+containing **`"equal width"`** so all its children share the row evenly. The
+shipped layouts use `"equal width"` on the row very frequently, and mix it with
+explicit `width` values on individual children.
+
+```{note}
+`width` and the per-breakpoint width keys apply to **field components** only.
+`FormRow` and `FormSection` do not accept them — a `FormRow` is always full
+width and is styled through `classnames`. The layout **regions** (`FormPages`,
+`FormLeftSidebar`, `FormRightSidebar`, `SpacerColumn`) accept the per-breakpoint
+keys but not `width`; see
+[Per-breakpoint column widths](#per-breakpoint-column-widths).
+```
 
 ### Compound field components
 
@@ -320,8 +423,8 @@ other built-in component.
 
 ## Responsive layout
 
-The form layout supports two complementary mechanisms for varying what is shown
-by viewport width:
+The form layout supports three complementary mechanisms for varying what is
+shown by viewport width:
 
 1. **Per-breakpoint column widths** — set widths on a layout region
    (`FormPages`, `FormLeftSidebar`, `FormRightSidebar`) so the column collapses
@@ -330,9 +433,15 @@ by viewport width:
    `classnames` (for any region/component) or `menuItemClasses` (for a
    `FormPage`'s stepper/sidebar entry) so the element is hidden via
    `display: none` at the breakpoints you choose.
+3. **JavaScript viewport state** — React components can read live breakpoint
+   flags from `useFormUIState` and change what they render (column counts,
+   which control to show, animation direction) as the window is resized. The
+   form's own page navigation already does this; custom field and layout
+   components can too.
 
 Use widths to control how the grid lays out; use classes to hide individual
-elements without re-laying-out the columns.
+elements without re-laying-out the columns; use the JS state when a component
+needs to *change its behaviour*, not merely whether it is visible.
 
 ### Per-breakpoint column widths
 
@@ -359,6 +468,16 @@ The `"only"` key is a shortcut for zeroing widths at every breakpoint
 When you use `"only"`, omit the now-redundant smaller-breakpoint keys (any value
 you do supply is ignored — the zeroing wins).
 
+```{important}
+The width-zeroing behaviour of `"only"` runs **only for the top-level
+`FormLeftSidebar` and `FormRightSidebar` objects** in
+`MODULAR_DEPOSIT_FORM_COMMON_FIELDS`. Anywhere else — on a `SpacerColumn`, a
+`FormStepper`, a nested `FormTitle` — `"only"` is passed straight through to
+Semantic UI as the `Grid.Column` `only` prop, which toggles CSS visibility but
+does **not** change the width math. On those components, declare the widths you
+want at each breakpoint explicitly rather than relying on `"only"` to zero them.
+```
+
 If `FormPages` does not declare per-breakpoint widths, its width at each
 breakpoint is `16 − <left sidebar width> − <right sidebar width>` at that
 breakpoint, so collapsing a sidebar via `"only"` automatically widens the main
@@ -374,9 +493,12 @@ responsive-width margin, or reserve gutter space. It is most useful inside
 `FormHeader`, `FormTitle`, `FormFooter`, and any `FormRow` where you need an
 alignment other than the default left edge.
 
-A `SpacerColumn` accepts the same width keys, the `"only"` shortcut, and the
-same `classnames` (Semantic UI responsive helpers) as any other column. It takes
-no `subsections` and renders as a single empty `<div class="… column">`.
+A `SpacerColumn` accepts the same width keys and the same `classnames` (Semantic
+UI responsive helpers) as any other column. It takes no `subsections` and renders
+as a single empty `<div class="… column">`. It also accepts `"only"`, but as
+Semantic UI's visibility prop rather than the sidebar width-zeroing shortcut —
+always give a spacer an explicit width at every breakpoint where it should
+occupy space.
 
 **Aligning a top stepper with the sidebars.** When a page has a left and/or
 right sidebar at large widths, a stepper placed in `FormHeader` needs leading
@@ -453,19 +575,52 @@ For finer-grained control — hiding a single component without affecting grid
 widths — use Semantic UI's responsive utility classes via `classnames`. The
 element stays in the DOM; only its `display` is toggled.
 
-| Class                                                                                           | Visible at                                                                                                                                                               |
-| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `mobile only`                                                                                   | Mobile only (≤767px).                                                                                                                                                    |
-| `tablet only`                                                                                   | Tablet only (768–991px).                                                                                                                                                 |
-| `computer only`                                                                                 | Computer **and larger** (≥992px) — _not_ strict "only computer".                                                                                                         |
-| `large screen only`                                                                             | Large screen **and larger** (≥1200px).                                                                                                                                   |
-| `widescreen only`                                                                               | Widescreen only (≥1920px).                                                                                                                                               |
-| `mobile hidden`, `tablet hidden`, `computer hidden`, `large screen hidden`, `widescreen hidden` | Everywhere except the named breakpoint.                                                                                                                                  |
-| `tablet mobile only` (and similar two-/three-word combinations)                                 | Only at the named breakpoints (composes the per-breakpoint hides).                                                                                                       |
-| **`computer-only-strict`** _(custom helper)_                                                    | Computer breakpoint only (992–1199px) — hidden on mobile, tablet, large screen, and widescreen. Use when you need a strict "only computer" that excludes large monitors. |
+#### The breakpoints these classes refer to
+
+The pixel values below are **not** Semantic UI's stock defaults. `invenio-theme`
+and `invenio-app-rdm` both override two of them, and every Semantic UI
+visibility class is derived from these variables:
+
+| Less variable                  | Invenio value | Stock Semantic UI |
+| ------------------------------ | ------------- | ----------------- |
+| `@mobileBreakpoint`            | 320px         | 320px             |
+| `@tabletBreakpoint`            | 768px         | 768px             |
+| **`@computerBreakpoint`**      | **1280px**    | 992px             |
+| **`@largeMonitorBreakpoint`**  | **1680px**    | 1200px            |
+| `@widescreenMonitorBreakpoint` | 1920px        | 1920px            |
+
+```{important}
+If your instance overrides the theme breakpoints in its own `site.variables`,
+you must also change the matching constants in the package's
+`js/invenio_modular_deposit_form/constants.js`:
+
+- `SEMANTIC_UI_MOBILE_BREAKPOINT_PX` ↔ `@tabletBreakpoint` (currently 768)
+- `SEMANTIC_UI_COMPUTER_BREAKPOINT_PX` ↔ `@computerBreakpoint` (currently 1280)
+- `SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX` ↔ `@largeMonitorBreakpoint` (currently 1680)
+
+Those constants are what the form's JavaScript uses for viewport-aware page
+navigation and for the `atMobile` / `atTablet` / `atComputer` / `atLargeScreen`
+flags on form UI state (see below). Nothing detects a mismatch — the CSS and
+the JavaScript would simply disagree about where each breakpoint begins.
+```
+
+#### The classes
+
+| Class                                                                                           | Visible at                                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mobile only`                                                                                   | Mobile only (≤767px).                                                                                                                                                     |
+| `tablet only`                                                                                   | Tablet only (768–1279px).                                                                                                                                                 |
+| `computer only`                                                                                 | Computer **and larger** (≥1280px) — _not_ strict "only computer".                                                                                                         |
+| `large screen only`                                                                             | Large screen **and larger** (≥1680px).                                                                                                                                    |
+| `widescreen only`                                                                               | Widescreen only (≥1920px).                                                                                                                                                |
+| `mobile hidden`, `tablet hidden`, `computer hidden`, `large screen hidden`, `widescreen hidden` | Everywhere except the named breakpoint.                                                                                                                                   |
+| `tablet mobile only` (and similar two-/three-word combinations)                                 | Only at the named breakpoints (composes the per-breakpoint hides).                                                                                                        |
+| **`computer-only-strict`** _(custom helper)_                                                    | Computer breakpoint only (1280–1679px) — hidden on mobile, tablet, large screen, and widescreen. Use when you need a strict "only computer" that excludes large monitors. |
 
 `computer-only-strict` is defined in this package's `deposit_form.less`; the
-others are built into Semantic UI's grid styles.
+others are built into Semantic UI's grid styles. All of them shift automatically
+if the theme's breakpoint variables change, so prefer the class names over
+hand-written media queries.
 
 For components that render as a `Grid.Column` (`FormStepper`, custom
 column-rendering components), include `"column"` in `classnames` so Semantic
@@ -485,14 +640,62 @@ UI's column display rules apply alongside the visibility class:
 },
 ```
 
-### Showing/hiding a page menu item without hiding the page
+### JavaScript viewport state
 
-A `FormPage` accepts an optional **`menuItemClasses`** key. The string is
-applied to the page's stepper step (`FormStepper`) **and** sidebar menu item
-(`FormSidebarPageMenu`) only — not to the page content. This lets you hide the
-navigation entry at some breakpoints while keeping the page reachable via direct
-URL (`?page=<section>`), the next/back footer navigation
-(`FormPageNavigationBar`), and any other links pointing at it.
+Widths and CSS classes only change layout and visibility. Some behaviours need
+the component itself to react — for example choosing how many cards fit in a
+row, or remapping which page Back/Next should land on. For that, the form keeps
+live breakpoint flags on form UI state:
+
+| Flag / field         | Meaning                                                                 |
+| -------------------- | ----------------------------------------------------------------------- |
+| `atMobile`           | Viewport is in the mobile band.                                         |
+| `atTablet`           | Viewport is in the tablet band.                                         |
+| `atComputer`         | Viewport is in the computer band (not large screen and above).          |
+| `atLargeScreen`      | Viewport is at the large screen breakpoint or wider.                    |
+| `viewportTier`       | Ordinal of the active band (0–3), for comparing widen vs shrink.        |
+| `viewportDirection`  | `"widen"`, `"shrink"`, or `"none"` for the last band change.            |
+
+`FormUIStateManager` seeds them from `matchMedia` on mount and updates them on
+every breakpoint change, so anything that reads them via `useFormUIState`
+re-renders on the same tick as the rest of the form. Built-in consumers include
+page navigation (see below) and field components that adjust their internal
+grid from the same flags.
+
+```{warning}
+The four `at*` flags are **mutually exclusive bands**, not cumulative
+thresholds. `atComputer` is false on a large monitor. For "computer width or
+wider" — which matches how Semantic UI's `computer only` class behaves — test
+`atComputer || atLargeScreen`, or compare `viewportTier`.
+```
+
+Custom layout and field components should prefer these flags over registering
+another `matchMedia` listener. Import paths, return shapes, and examples are in
+[Component developer API — Viewport](component-api.md#viewport).
+
+(viewport-aware-page-navigation)=
+
+### Viewport-aware page navigation
+
+Pages can appear and disappear as the browser window is resized, and the form's
+navigation adjusts to match **in real time** — no page reload. Two independent
+mechanisms decide whether a page is part of the flow.
+
+#### 1. Pages hidden by resource type
+
+A page drops out of the flow entirely when its merged subsection list is empty
+for the selected resource type. This is the placeholder-page mechanism described
+in [Optional pages and resource types](#optional-pages-and-resource-types).
+Such pages are absent from the stepper, the sidebar menu, the Back/Next
+sequence, and the main column. If the depositor is *on* such a page when they
+change the resource type, the form moves them to the first remaining page and
+rewrites the URL in place (no extra browser-history entry).
+
+#### 2. Pages whose menu item is hidden by breakpoint
+
+A `FormPage` accepts an optional **`menuItemClasses`** key. The string is applied
+to the page's stepper step (`FormStepper`) and its sidebar menu item
+(`FormSidebarPageMenu`) — **not** to the page content.
 
 ```python
 {
@@ -504,9 +707,54 @@ URL (`?page=<section>`), the next/back footer navigation
 },
 ```
 
-With the example above the "Save & Publish" step appears in the menu only at
-mobile/tablet widths; at computer+ widths the menu item disappears but the page
-remains addressable.
+When the class string hides the menu item at **computer width and above**, the
+form treats that page as out of the flow at those widths and adapts the rest of
+the navigation to match:
+
+- **Back/Next skip it.** `FormPageNavigationBar` reads pre-resolved previous and
+  next page ids, so at computer+ widths the buttons step over the hidden page to
+  the nearest page that still has a menu item.
+- **Direct links are redirected.** Loading `?page=6` at computer width lands the
+  depositor on the nearest preceding page that *is* visible, and the address bar
+  is corrected with `replaceState`.
+- **Resizing re-resolves everything.** Crossing the computer breakpoint in
+  either direction recomputes the current, previous, and next pages. Widening
+  moves the depositor off a now-hidden page; narrowing restores it as a
+  Back/Next destination and as a direct-link target.
+- **The mobile dropdown is the exception.** The page-title dropdown that
+  `FormStepper` renders at mobile width deliberately lists *every* page in the
+  flow, including menu-hidden ones, so mobile navigation matches what the
+  desktop sidebar offers.
+
+```{warning}
+This adaptation is triggered by **parsing the class string**, and the parser
+recognizes one specific shape. A page is treated as hidden at computer width
+only when `menuItemClasses`:
+
+1. contains the token **`only`**, **and**
+2. contains **no** `computer`, `large screen`, or `widescreen` token, **and**
+3. contains **`mobile`** or **`tablet`**.
+
+So `"tablet mobile only"` and `"mobile only"` work. **`"computer hidden"` does
+not** — it hides the menu item visually, but Back/Next will still walk the
+depositor onto a step with no visible menu entry. Use the `… only` form for any
+page you want removed from the flow.
+```
+
+```{note}
+"Computer width" here means the JavaScript constant
+`SEMANTIC_UI_COMPUTER_BREAKPOINT_PX` (1280px), which must be kept in sync by
+hand with the Less `@computerBreakpoint`. See
+[The breakpoints these classes refer to](#the-breakpoints-these-classes-refer-to).
+```
+
+#### Choosing between the two
+
+Use **resource-type placeholders** when a step is irrelevant to certain kinds of
+work — a "Journal details" page that only journal articles need. Use
+**`menuItemClasses`** when the same controls belong in a sidebar on wide screens
+and on their own step on narrow ones; the next section works that pattern
+through end to end.
 
 ### Worked example: shifting save/access/feedback between sidebar and page
 
@@ -550,8 +798,78 @@ Add both objects to `MODULAR_DEPOSIT_FORM_COMMON_FIELDS` (place
 `_SAVE_AND_PUBLISH_PAGE` inside `FormPages.subsections`). At computer+ widths
 the user sees the right sidebar as before; at tablet/mobile widths the sidebar
 disappears and the user reaches the same controls via the new page entry.
-Because the page itself is not responsively hidden, an existing hard link to
-`?page=6` keeps working at every breakpoint.
+
+Because `menuItemClasses` removes page 6 from the flow at computer+ widths, the
+navigation stays coherent in both states: at tablet/mobile the Next button on
+page 5 leads to page 6, while at computer+ page 5 is the last step and a link to
+`?page=6` redirects to page 5 — where the same submission and access controls
+are already on screen in the sidebar. Resizing the window across 1280px moves
+the depositor between the two arrangements without losing form values. See
+[Viewport-aware page navigation](#viewport-aware-page-navigation).
+
+## CSS classes you can pass in `classnames`
+
+`classnames` is the main styling lever in the layout config, and the strings you
+will see in the shipped presets come from four different places. Knowing which
+is which saves a lot of guesswork.
+
+### Classes defined by this package
+
+These are in the package's `deposit_form.less` and are safe to use from
+`classnames`:
+
+| Class                     | Put it on            | Effect                                                                                                                            |
+| ------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **`prominent-field-label`** | A field or section | Renders the field's top-level label in the primary colour, bold, at 1.25em, so it reads as a heading rather than an input label. |
+| **`stackable-tablet`**    | A `FormRow`          | Stacks the row's fields vertically at tablet width and below instead of keeping them side by side.                                |
+| **`computer-only-strict`** | Any component       | Visible only at 1280–1679px. See [The classes](#the-classes).                                                                     |
+
+`invenio-form-section` is also a package class, but `FormSection` adds it
+automatically — you do not need to pass it.
+
+### Semantic UI built-ins
+
+`basic` (a flat segment with no shadow or border), `equal width`, `column`,
+`sixteen wide column` and the other `N wide` widths, plus all the responsive
+visibility classes listed in
+[CSS visibility classes](#css-visibility-classes-classnames).
+
+```{tip}
+When a component renders as a `Grid.Column` — `FormStepper`, `SpacerColumn`, and
+custom column-rendering components — include **`column`** in `classnames` so
+Semantic UI's column rules apply alongside whatever else you add.
+```
+
+### invenio-theme spacing utilities
+
+invenio-theme generates a family of spacing helpers that work anywhere in the
+form: `mt-0`…`mt-30`, `mb-*`, `pt-*`, `pb-*` in 5px steps, and the `rel-*`
+variants (`rel-mt-1`…`rel-mt-10`, `rel-ml-*`, `rel-mr-*`, `rel-pb-*`) in `em`
+steps. The shipped layouts use these freely, e.g. `"basic pt-0 mt-0"` to close
+the gap between two stacked sections.
+
+This package also defines the **`*-12`** step (`m-12`, `mt-12`, `mb-12`,
+`ml-12`, `mr-12`, `p-12`, `pt-12`, `pb-12`, `pl-12`, `pr-12`), which stock
+invenio-theme does not emit. Defaults are **10px** so they stay on the stock
+5px grid. Instances may remap them (KCWorks sets `*-12` to 0.75rem / 12px
+inside `#rdm-deposit-form`).
+
+```{warning}
+An instance may **remap** the numeric helpers inside the deposit form. KCWorks,
+for example, remaps them to a rem-based scale within `#rdm-deposit-form`, so
+`pt-10` there is 0.5rem rather than 10px, and `pt-12` is 0.75rem rather than
+this package's default 10px. The `rel-*` helpers are not remapped.
+If spacing does not match what you expect, check your instance's form
+overrides before assuming the helper is broken.
+```
+
+### Conventional markers with no styling
+
+**`default-layout`** appears throughout the shipped presets and on every region
+in some instance layouts, but **no stylesheet defines it**. It is a hook left in
+place for instances that want to target the default arrangement from their own
+CSS. Copying it does nothing on its own, and removing it from a layout you have
+copied changes nothing visually.
 
 ## Changing layout by resource type
 
@@ -687,7 +1005,7 @@ note below).
 Default: `True`.
 
 When `True`, the form loads your `validator.js` (see [Validation](validation.md)
-and [Adding your own components](extending.md#module-contracts)) and runs the
+and [Adding your own components](extending.md#what-goes-in-each-extension-file)) and runs the
 resulting Yup schema on every change. When `False`, no client schema is loaded;
 field errors only appear after submit returns server-side validation errors.
 
@@ -697,12 +1015,13 @@ Changing this value requires rebuilding assets (`invenio webpack build`) — the
 
 ### `MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL`
 
-Default: `True`.
+Default: `False`.
 
 When `True`, attempting to navigate to another page in a multi-page form while
 the current page has unresolved errors opens a confirmation modal asking the
-user to either fix the errors or proceed. When `False`, the errors are still
-flagged on the leaving page but no modal interrupts navigation.
+user to either fix the errors or proceed. When `False` (the default), the errors
+are still flagged on the leaving page — in the navigation badges and the form
+feedback summary — but no modal interrupts navigation.
 
 ### `MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP`
 

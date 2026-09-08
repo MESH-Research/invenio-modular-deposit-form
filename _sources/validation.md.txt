@@ -4,7 +4,10 @@ Invenio Modular Deposit Form allows for client-side (in-browser) validation of f
 
 ## Enabling client-side validation
 
-To enable client-side form validation, set the `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION` config variable to `True` in your instance's `invenio.cfg` file.
+Client-side form validation is **on by default**
+(`MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION` defaults to `True`). Set that
+variable to `False` in your instance's `invenio.cfg` to switch it off, and
+rebuild assets afterwards — the choice is resolved at build time.
 
 ## How the schema reaches Formik
 

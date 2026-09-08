@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component-api.html">Component developer API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
@@ -268,12 +269,15 @@ InvenioRDM instance directory.</p>
 <p>After installation, the extension sets <code class="docutils literal notranslate"><span class="pre">APP_RDM_DEPOSIT_FORM_TEMPLATE</span></code> to use
 this package’s deposit template by default.</p>
 </section>
-<section id="enable-client-side-validation-optional">
-<h2>Enable client-side validation (optional)<a class="headerlink" href="#enable-client-side-validation-optional" title="Link to this heading">¶</a></h2>
-<p>Client-side validation is opt-in. Set the following in your <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="o">=</span> <span class="kc">True</span>
+<section id="client-side-validation-optional">
+<h2>Client-side validation (optional)<a class="headerlink" href="#client-side-validation-optional" title="Link to this heading">¶</a></h2>
+<p>Client-side validation is <strong>on by default</strong>. To turn it off and rely on
+server-side validation only, set the following in your <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
+<p>Changing this value requires rebuilding assets, because the choice is baked in
+at build time. See <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a>.</p>
 </section>
 </section>
 
@@ -342,7 +346,7 @@ this package’s deposit template by default.</p>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#using-uv">Using uv</a></li>
 <li><a class="reference internal" href="#using-pipenv">Using pipenv</a></li>
-<li><a class="reference internal" href="#enable-client-side-validation-optional">Enable client-side validation (optional)</a></li>
+<li><a class="reference internal" href="#client-side-validation-optional">Client-side validation (optional)</a></li>
 </ul>
 </li>
 </ul>

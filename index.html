@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component-api.html">Component developer API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
@@ -270,16 +271,15 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#using-uv">Using uv</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#using-pipenv">Using pipenv</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#enable-client-side-validation-optional">Enable client-side validation (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#client-side-validation-optional">Client-side validation (optional)</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="using.html">Using Invenio Modular Deposit Form</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="using.html#where-bundled-defaults-come-from">Where bundled defaults come from</a></li>
 <li class="toctree-l2"><a class="reference internal" href="using.html#what-you-will-see-first">What you will see first</a></li>
-<li class="toctree-l2"><a class="reference internal" href="using.html#client-side-validation-optional">Client-side validation (optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using.html#client-side-validation">Client-side validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="using.html#autosave-browser-local-storage">Autosave (browser local storage)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="using.html#customizing-the-form-layout">Customizing the form layout</a></li>
-<li class="toctree-l2"><a class="reference internal" href="using.html#customizing-the-validation-schema">Customizing the validation schema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="using.html#metadata-transformations-on-submit">Metadata transformations on submit</a></li>
 </ul>
 </li>
@@ -287,6 +287,7 @@
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#quick-start-shipped-layout-presets">Quick start: shipped layout presets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#creating-a-custom-form-layout">Creating a custom form layout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#responsive-layout">Responsive layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#css-classes-you-can-pass-in-classnames">CSS classes you can pass in <code class="docutils literal notranslate"><span class="pre">classnames</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#changing-layout-by-resource-type">Changing layout by resource type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#per-field-modifications-by-resource-type">Per-field modifications by resource type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="configuration.html#other-configuration-flags">Other configuration flags</a></li>
@@ -295,10 +296,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="field_components.html#stock-component-wrappers">Stock component wrappers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="field_components.html#the-component-registry">The component registry</a></li>
 <li class="toctree-l2"><a class="reference internal" href="field_components.html#multiple-components-for-the-same-field-or-region">Multiple components for the same field or region</a></li>
-<li class="toctree-l2"><a class="reference internal" href="field_components.html#contrib-components">Contrib components</a></li>
-<li class="toctree-l2"><a class="reference internal" href="field_components.html#overridable-components">Overridable components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="field_components.html#overridable-slots-vs-alternate-components">Overridable slots vs alternate components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="field_components.html#alternate-components">Alternate components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="field_components.html#custom-field-components">Custom field components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="field_components.html#gotchas">Gotchas</a></li>
@@ -323,6 +323,15 @@
 <li class="toctree-l2"><a class="reference internal" href="extending.html#custom-layout-components">Custom layout components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extending.html#available-hooks-and-contexts">Available hooks and contexts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extending.html#handling-custom-fields">Handling custom fields</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="component-api.html">Component developer API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="component-api.html#wrappers">Wrappers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component-api.html#the-form-ui-state-context">The form UI state context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component-api.html#hooks">Hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component-api.html#replacement-input-widgets">Replacement input widgets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component-api.html#constants">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component-api.html#writing-a-custom-layout-component">Writing a custom layout component</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a><ul>

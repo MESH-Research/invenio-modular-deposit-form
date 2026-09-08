@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component-api.html">Component developer API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
@@ -332,6 +333,13 @@ informational notices on that page, and the item receives a CSS class
 accordingly.</p>
 <p>None of these components are injected automatically. They appear only where the
 layout config includes them.</p>
+<p>The three navigation components stay consistent with each other as the viewport
+changes. A page can be dropped from the flow either because the selected
+resource type leaves it empty or because its menu item is hidden at wide
+viewports, and in both cases the stepper, the sidebar menu, the footer
+previous/next buttons, and the <code class="docutils literal notranslate"><span class="pre">?page=</span></code> URL all adapt together, live, as the
+window is resized. See
+<a class="reference internal" href="configuration.html#id1"><span class="std std-ref">Viewport-aware page navigation</span></a>.</p>
 <figure class="align-default">
 <a class="reference internal image-reference" href="_images/modular-deposit-form-3.jpg"><img alt="Rendering form fields in the layout following the configured page structure" src="_images/modular-deposit-form-3.jpg" style="width: 100%;" />
 </a>
@@ -463,10 +471,10 @@ validated as the depositor works through the form and errors are shown
 immediately on each field rather than only after submission. The
 severity-aware badges on the navigation components reflect the running
 validation state as the form is filled in.</p>
-<p>Client-side validation is opt-in:</p>
+<p>Client-side validation is <strong>enabled by default</strong>. To turn it off:</p>
 <ol class="arabic simple">
-<li><p>Set <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="pre">=</span> <span class="pre">True</span></code> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code>
-(set <code class="docutils literal notranslate"><span class="pre">False</span></code> to rely on server-side validation only until submit).</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span> <span class="pre">=</span> <span class="pre">False</span></code> in <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> to
+rely on server-side validation only until submit.</p></li>
 <li><p>Rebuild front-end assets so the change is picked up.</p></li>
 </ol>
 <section id="the-default-schema">
@@ -522,11 +530,11 @@ config, and use Yup’s <code class="docutils literal notranslate"><span class="
 on top.</p>
 <p>See <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a> for a full guide and <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>
 for how to register the entry point.</p>
-<div class="admonition-placeholder-validation-flow-diagram admonition">
-<p class="admonition-title">Placeholder — validation flow diagram</p>
-<p>A diagram showing: user input → Yup schema → Formik errors → per-field error
-display + FormFeedbackComponent + nav badge counts would go here.</p>
-</div>
+<p>In outline, the flow is: the depositor edits a field; Yup validates the changed
+values against the schema; the results populate Formik’s <code class="docutils literal notranslate"><span class="pre">errors</span></code>; and each
+error surfaces in three places at once — inline on the field itself (once the
+field has been touched), in the summary rendered by <code class="docutils literal notranslate"><span class="pre">FormFeedbackComponent</span></code>, and
+as a badge count on the navigation entry for the page that owns the field.</p>
 </section>
 </section>
 <section id="autosave">

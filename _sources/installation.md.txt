@@ -18,11 +18,15 @@ pipenv install "git+https://github.com/MESH-Research/invenio-modular-deposit-for
 After installation, the extension sets `APP_RDM_DEPOSIT_FORM_TEMPLATE` to use
 this package's deposit template by default.
 
-## Enable client-side validation (optional)
+## Client-side validation (optional)
 
-Client-side validation is opt-in. Set the following in your `invenio.cfg`:
+Client-side validation is **on by default**. To turn it off and rely on
+server-side validation only, set the following in your `invenio.cfg`:
 
 ```python
-MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True
+MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = False
 ```
+
+Changing this value requires rebuilding assets, because the choice is baked in
+at build time. See [Validation](validation.md).
 

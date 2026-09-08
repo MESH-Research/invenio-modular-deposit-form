@@ -56,11 +56,11 @@ the file header in each source module.
 
 ## Top-level replacement widgets
 
-`replacement_components/index.js` re-exports the core widgets and a small set
-of stock-name adapters:
+`replacement_components/input_controls/index.js` (re-exported from
+`replacement_components/index.js`) exposes:
 
 - **Core widgets:** `TextField`, `TextArea`, `SelectField`, `RemoteSelectField`,
-  `MultiInput`.
+  `MultiInput`, `ArrayField`.
 - **Stock-name adapters:** `Input`, `Dropdown`, `AutocompleteDropdown`. These
   are thin wrappers that delegate to `TextField`, `SelectField`, and
   `RemoteSelectField`, respectively. They exist so backend custom-field
@@ -68,9 +68,21 @@ of stock-name adapters:
   the touched-aware local widgets without you having to change those names in
   YAML or in `RDM_CUSTOM_FIELDS_UI`.
 
-All of these expose **`description`** (rendered above the control) and
-**`helpText`** (rendered below) as separate props. Two known exceptions keep
-their own helptext behavior: `PIDField` and `ResourceTypeSelectorField`.
+`ArrayField` is the local fork of the react-invenio-forms array helper: it adds
+touched-aware error gating (same idea as `TextField`) and optional
+`onAfterAdd` / `onAfterRemove` callbacks. Several replacement field components
+(Dates, Identifiers, Related works, Additional titles/descriptions) import it
+directly.
+
+**`RichInputField`** (TinyMCE) also lives under `input_controls/` and is used by
+`DescriptionsField` / `AdditionalDescriptionsField`, but it is **not**
+re-exported from the barrel — import it by path if you need it. Same
+touched-aware error display rule as `TextArea`.
+
+All of the barrel-exported widgets expose **`description`** (rendered above the
+control) and **`helpText`** (rendered below) as separate props. Two known
+exceptions keep their own helptext behavior: `PIDField` and
+`ResourceTypeSelectorField`.
 
 ### `SelectField` and `RemoteSelectField` — notes worth knowing
 
@@ -132,30 +144,38 @@ The barrel is at:
 
 `invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/replacement_components/field_components/index.js`
 
-### Stock copies that only swap in the local input widgets
+### Mostly import-swap copies (plus small layout fixes)
 
-The following are mostly thin copies of the upstream field whose only
-meaningful change is to `import` this package's `TextField` / `SelectField` /
-`RemoteSelectField` (and a few helpers like `emptyDate` / `emptyIdentifier`)
-so the touched-aware widgets and dual help text apply throughout:
+The following are copies of the upstream field whose main job is to `import`
+this package's `TextField` / `SelectField` / `RemoteSelectField` / `ArrayField`
+(and helpers like `emptyDate` / `emptyIdentifier`) so the touched-aware widgets
+and dual help text apply. A few also carry a small layout fix noted inline:
 
-- `AdditionalDescriptionsField`
-- `AdditionalTitlesField`
+- `AdditionalDescriptionsField` (uses local `RichInputField` + `ArrayField`)
+- `AdditionalTitlesField` (local `ArrayField`)
 - `CopyrightsField` (passes through `labelIcon` from layout; upstream hardcodes
   the icon on `FieldLabel`)
-- `DatesField`
-- `DescriptionsField`
-- `IdentifiersField`
+- `DatesField` (local `ArrayField`; `emptyDate` from `@js`)
+- `DescriptionsField` (uses local `RichInputField`)
+- `IdentifiersField` (local `ArrayField`; bare `<GroupField>` row wrapper)
 - `LanguagesField` (uses local `RemoteSelectField` instead of the stock select)
 - `PublisherField`
-- `RelatedWorksField` (row `ResourceTypeField` from this folder, replacement
-  `SelectField`)
+- `RelatedWorksField` (local `ArrayField`; row `ResourceTypeField` from this
+  folder; hides the array header when `label` is unset)
 - `ResourceTypeField`
+- `SubjectsField` (omits the title row when `label` is null/empty, matching
+  replacement `TextField`)
 - `TitlesField`
 - `VersionField`
 
 If you customize layouts, you'd typically reach for these via the components
 registry — see [Built-in field widget components](field_components.md).
+
+```{note}
+`replacement_components/field_components/SizesField.js` exists on disk but is
+**not** exported from the barrel and is unused. The live sizes UI is
+`SizesComponent` → `field_components/alternate/field_inputs/SizesField`.
+```
 
 ### Forks with substantive behavior changes
 
@@ -242,7 +262,7 @@ that disagrees with the rest of the form.
 ## Form feedback components (cross-reference)
 
 The form-feedback UI used in this package's layouts (`FormFeedback`,
-`FormFeedbackSummary`) lives under `replacement_components/alternate_components/`
+`FormFeedbackSummary`) lives under `field_components/alternate/field_inputs/`
 rather than `replacement_components/field_components/`. See
 [Form feedback (errors and action state)](field_components.md#form-feedback-errors-and-action-state)
 for behavior and props.

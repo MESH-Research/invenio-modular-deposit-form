@@ -1,0 +1,821 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Client-side form validation" href="validation.html"><link rel="prev" title="Adding your own components and validator" href="extending.html">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Component developer API - Invenio Modular Deposit Form 0.3.4-dev0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     ⚠️  This is a beta package. Please report issues on <a href='https://github.com/MESH-Research/invenio-modular-deposit-form' target='_blank'>GitHub</a>. 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Invenio Modular Deposit Form 0.3.4-dev0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">Invenio Modular Deposit Form 0.3.4-dev0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using.html">Using Invenio Modular Deposit Form</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Component developer API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="https://github.com/MESH-Research/invenio-modular-deposit-form/blob/main/docs/source/component-api.md?plain=true" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/MESH-Research/invenio-modular-deposit-form/edit/main/docs/source/component-api.md" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section class="tex2jax_ignore mathjax_ignore" id="component-developer-api">
+<h1>Component developer API<a class="headerlink" href="#component-developer-api" title="Link to this heading">¶</a></h1>
+<p>This page is the reference for the hooks, contexts, and state that the package
+exposes to people writing their own React components for the deposit form. If
+you are configuring the form from <code class="docutils literal notranslate"><span class="pre">invenio.cfg</span></code> rather than writing JavaScript,
+you want <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a> instead; if you are looking for how
+to <em>register</em> a component you have written, see <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>.</p>
+<p>Everything on this page is importable from
+<code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/…</span></code>, which is available to your instance’s
+assets once the package is installed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the package’s supported surface for extenders. Other internals are
+reachable — nothing is hidden — but they may change without notice.</p>
+</div>
+<section id="wrappers">
+<h2>Wrappers<a class="headerlink" href="#wrappers" title="Link to this heading">¶</a></h2>
+<section id="fieldcomponentwrapper">
+<h3><code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code><a class="headerlink" href="#fieldcomponentwrapper" title="Link to this heading">¶</a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FieldComponentWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/field_components/FieldComponentWrapper"</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Wraps a field widget so it picks up the label, icon, placeholder, description,
+and help-text overrides for the current resource type, receives the width
+classes from the layout config, and exposes an <code class="docutils literal notranslate"><span class="pre">Overridable</span></code> slot. Use it
+whenever you write a component that represents a metadata field, so your field
+behaves like the built-in ones.</p>
+<p>It consumes (does not forward) the layout width keys <code class="docutils literal notranslate"><span class="pre">width</span></code>, <code class="docutils literal notranslate"><span class="pre">mobile</span></code>,
+<code class="docutils literal notranslate"><span class="pre">tablet</span></code>, <code class="docutils literal notranslate"><span class="pre">computer</span></code>, <code class="docutils literal notranslate"><span class="pre">largeScreen</span></code>, and <code class="docutils literal notranslate"><span class="pre">widescreen</span></code>, turning them into
+Semantic UI classes on the wrapper element. Everything else you pass is cloned
+onto the child widget.</p>
+</section>
+<section id="customfield">
+<h3><code class="docutils literal notranslate"><span class="pre">CustomField</span></code><a class="headerlink" href="#customfield" title="Link to this heading">¶</a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CustomField</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/field_components/CustomField"</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Renders an InvenioRDM custom field by name, resolving its widget and props from
+<code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>. See
+<a class="reference internal" href="extending.html#id4"><span class="std std-ref">Handling custom fields</span></a> for a full
+walkthrough.</p>
+</section>
+</section>
+<section id="the-form-ui-state-context">
+<h2>The form UI state context<a class="headerlink" href="#the-form-ui-state-context" title="Link to this heading">¶</a></h2>
+<section id="useformuistate">
+<h3><code class="docutils literal notranslate"><span class="pre">useFormUIState()</span></code><a class="headerlink" href="#useformuistate" title="Link to this heading">¶</a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useFormUIState</span><span class="p">,</span><span class="w"> </span><span class="nx">FormUIStateContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/FormUIStateManager"</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The main entry point for custom <strong>layout</strong> components. Throws if called outside
+<code class="docutils literal notranslate"><span class="pre">FormUIStateManager</span></code>, so it is safe to destructure without guards.</p>
+<p>Prefer reading from this context over re-deriving the same values from Redux or
+Formik yourself — the context is what keeps the navigation components, the page
+body, and the feedback summary consistent with each other.</p>
+<p>It returns:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>What it is</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">formUIState</span></code></p></td>
+<td><p>object</p></td>
+<td><p>The whole UI state object; see <a class="reference internal" href="#the-formuistate-object">the field reference</a> below.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">formUIDispatch</span></code></p></td>
+<td><p>function</p></td>
+<td><p>Dispatch for the UI reducer. See <a class="reference internal" href="#dispatching-your-own-updates">Dispatching</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">handleFormPageChange</span></code></p></td>
+<td><p>function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(event,</span> <span class="pre">{</span> <span class="pre">value</span> <span class="pre">})</span> <span class="pre">=&gt;</span> <span class="pre">void</span></code> — navigate to the page whose id is <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">handlePageChangeCancel</span></code> / <code class="docutils literal notranslate"><span class="pre">handlePageChangeConfirm</span></code></p></td>
+<td><p>function</p></td>
+<td><p>Resolve the “leave a page with errors?” confirmation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">confirmingPageChange</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Whether that confirmation is currently open.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">confirmModalRef</span></code></p></td>
+<td><p>ref</p></td>
+<td><p>Focus target for the confirmation modal.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">recoveryAsked</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Whether the autosave restore prompt has been answered this session.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">handleRecoveryAsked</span></code></p></td>
+<td><p>function</p></td>
+<td><p>Mark the restore prompt as answered.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">storageDataPresent</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Whether unsaved values are currently held in local storage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">handleStorageData</span></code></p></td>
+<td><p>function</p></td>
+<td><p>Apply or discard the locally stored values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pageTargetRef</span></code> / <code class="docutils literal notranslate"><span class="pre">pageTargetRefCallback</span></code></p></td>
+<td><p>ref / function</p></td>
+<td><p>Attach to the element that marks the end of the page body.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pageTargetInViewport</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Whether that element is on screen — used to switch the footer nav bar between fixed and static.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="the-formuistate-object">
+<span id="id1"></span><h3>The <code class="docutils literal notranslate"><span class="pre">formUIState</span></code> object<a class="headerlink" href="#the-formuistate-object" title="Link to this heading">¶</a></h3>
+<section id="pages-and-navigation">
+<h4>Pages and navigation<a class="headerlink" href="#pages-and-navigation" title="Link to this heading">¶</a></h4>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">currentFormPage</span></code></p></td>
+<td><p>string</p></td>
+<td><p>Id (the layout <code class="docutils literal notranslate"><span class="pre">section</span></code>) of the page being shown.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">previousFormPage</span></code></p></td>
+<td><p>string | null</p></td>
+<td><p>Viewport-aware; <code class="docutils literal notranslate"><span class="pre">null</span></code> on the first page.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nextFormPage</span></code></p></td>
+<td><p>string | null</p></td>
+<td><p>Viewport-aware; <code class="docutils literal notranslate"><span class="pre">null</span></code> on the last page.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resolvedFormPages</span></code></p></td>
+<td><p>array</p></td>
+<td><p>Every merged page for the current resource type, in config order, <strong>including empty ones</strong>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">visibleFormPages</span></code></p></td>
+<td><p>array</p></td>
+<td><p>The subset with non-empty subsections. This is what the stepper, sidebar menu, and page body use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pageIdsHiddenAtComputer</span></code></p></td>
+<td><p>string[]</p></td>
+<td><p>Pages whose menu item is hidden at computer width and above, derived from <code class="docutils literal notranslate"><span class="pre">menuItemClasses</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">computerVisibleFallbackByPage</span></code></p></td>
+<td><p>object</p></td>
+<td><p>Maps each such page id to the page a wide viewport should land on instead.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">currentFormPageFields</span></code></p></td>
+<td><p>object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">[pageId]:</span> <span class="pre">string[]</span> <span class="pre">}</span></code> — Formik field paths owned by each page.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Iterate <code class="docutils literal notranslate"><span class="pre">visibleFormPages</span></code>, not <code class="docutils literal notranslate"><span class="pre">resolvedFormPages</span></code>, unless you specifically
+need the placeholder pages. See
+<a class="reference internal" href="configuration.html#id1"><span class="std std-ref">Viewport-aware page navigation</span></a>
+for what makes a page visible.</p>
+</div>
+</section>
+<section id="viewport">
+<h4>Viewport<a class="headerlink" href="#viewport" title="Link to this heading">¶</a></h4>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atMobile</span></code>, <code class="docutils literal notranslate"><span class="pre">atTablet</span></code>, <code class="docutils literal notranslate"><span class="pre">atComputer</span></code>, <code class="docutils literal notranslate"><span class="pre">atLargeScreen</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Which breakpoint band the viewport is in.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">viewportTier</span></code></p></td>
+<td><p>number</p></td>
+<td><p>Index of that band in ascending width order, <code class="docutils literal notranslate"><span class="pre">0</span></code>–<code class="docutils literal notranslate"><span class="pre">3</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">viewportDirection</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;widen&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;shrink&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> for the last band change.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>The four flags are mutually exclusive bands, not cumulative thresholds.</strong>
+<code class="docutils literal notranslate"><span class="pre">atComputer</span></code> is true only between the computer and large screen breakpoints, so
+it is <strong>false</strong> on a large monitor. If you want “computer width or wider” —
+which is usually what you want, because it matches how the Semantic UI
+<code class="docutils literal notranslate"><span class="pre">computer</span> <span class="pre">only</span></code> class behaves — test <code class="docutils literal notranslate"><span class="pre">atComputer</span> <span class="pre">||</span> <span class="pre">atLargeScreen</span></code>, or compare
+<code class="docutils literal notranslate"><span class="pre">viewportTier</span></code> against the tier you care about.</p>
+</div>
+<p>These are maintained by <code class="docutils literal notranslate"><span class="pre">matchMedia</span></code> listeners in <code class="docutils literal notranslate"><span class="pre">FormUIStateManager</span></code> and are
+seeded synchronously on mount, so they are correct on first render rather than
+after a resize. They are the reason the form’s navigation re-resolves live as
+the window is resized, and they are the recommended way for your own components
+to react to viewport changes: prefer reading them over registering another
+<code class="docutils literal notranslate"><span class="pre">matchMedia</span></code> listener, so your component changes on the same tick as the rest of
+the form.</p>
+<p><code class="docutils literal notranslate"><span class="pre">viewportDirection</span></code> exists for components that need to behave differently
+depending on which way the viewport moved — for example, collapsing a panel when
+shrinking but not re-expanding it when widening.</p>
+</section>
+<section id="resource-type">
+<h4>Resource type<a class="headerlink" href="#resource-type" title="Link to this heading">¶</a></h4>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">currentResourceType</span></code></p></td>
+<td><p>string</p></td>
+<td><p>The selected resource type id.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">currentTypePageConfigs</span></code></p></td>
+<td><p>object</p></td>
+<td><p>That type’s per-page entries from <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="errors">
+<h4>Errors<a class="headerlink" href="#errors" title="Link to this heading">¶</a></h4>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sectionErrorsFlagged</span></code></p></td>
+<td><p>array</p></td>
+<td><p>Errors that should be <strong>shown</strong> — touched fields plus initial-flag cases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sectionErrorsAll</span></code></p></td>
+<td><p>array</p></td>
+<td><p>Every error, including on fields the user has not touched yet.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hasClientValidationErrors</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Any record-field error; used to disable Publish.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hasDraftBlockingClientErrors</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p>Errors severe enough to block saving a draft; used to disable Save.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Both error lists hold entries shaped
+<code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">page,</span> <span class="pre">section,</span> <span class="pre">error_fields,</span> <span class="pre">info_fields,</span> <span class="pre">warning_fields</span> <span class="pre">}</span></code>, where each
+<code class="docutils literal notranslate"><span class="pre">*_fields</span></code> value is an array of Formik field paths.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">sectionErrorsFlagged</span></code> for anything the depositor sees, and
+<code class="docutils literal notranslate"><span class="pre">sectionErrorsAll</span></code> only when you need to know about errors before the user has
+interacted with a field.</p>
+</section>
+</section>
+<section id="error-selectors">
+<h3>Error selectors<a class="headerlink" href="#error-selectors" title="Link to this heading">¶</a></h3>
+<p>Rather than walking the two error arrays yourself, use the selectors the
+built-in navigation components use. Each takes the whole <code class="docutils literal notranslate"><span class="pre">formUIState</span></code>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">getPageFlaggedErrorCounts</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getPagesWithFlaggedErrors</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getPagesWithErrors</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getSectionErrorsByPage</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getSectionErrorsBySectionKey</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/helpers/formUIStateReducer"</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Selector</p></th>
+<th class="head"><p>Returns</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">getPageFlaggedErrorCounts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">[pageId]:</span> <span class="pre">{</span> <span class="pre">errors,</span> <span class="pre">warnings,</span> <span class="pre">info,</span> <span class="pre">severity</span> <span class="pre">}</span> <span class="pre">}</span></code> — what the nav badges render.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">getPagesWithFlaggedErrors</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">[pageId]:</span> <span class="pre">string[]</span> <span class="pre">}</span></code> of shown-error field paths.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">getPagesWithErrors</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">[pageId]:</span> <span class="pre">string[]</span> <span class="pre">}</span></code> of all error field paths, touched or not.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">getSectionErrorsByPage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">[pageId]:</span> <span class="pre">sectionEntry[]</span> <span class="pre">}</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">getSectionErrorsBySectionKey</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">[sectionKey]:</span> <span class="pre">sectionEntry</span> <span class="pre">}</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">severity</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;error&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;warning&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;info&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">null</span></code>, matching the
+<code class="docutils literal notranslate"><span class="pre">has-error</span></code> / <code class="docutils literal notranslate"><span class="pre">has-warning</span></code> / <code class="docutils literal notranslate"><span class="pre">has-info</span></code> classes on nav items.</p>
+<p>Wrap selector calls in <code class="docutils literal notranslate"><span class="pre">useMemo</span></code> keyed on <code class="docutils literal notranslate"><span class="pre">formUIState</span></code>, as the built-in
+components do — they rebuild their result on every call.</p>
+</section>
+<section id="dispatching-your-own-updates">
+<span id="id2"></span><h3>Dispatching your own updates<a class="headerlink" href="#dispatching-your-own-updates" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">formUIDispatch</span></code> and the <code class="docutils literal notranslate"><span class="pre">FORM_UI_ACTION</span></code> constants are exposed, but <strong>treat
+them as read-mostly</strong>. The page, viewport, and error fields are all owned by
+hooks inside <code class="docutils literal notranslate"><span class="pre">FormUIStateManager</span></code>, and dispatching them yourself will be
+overwritten on the next resize, resource-type change, or validation pass. Change
+the page with <code class="docutils literal notranslate"><span class="pre">handleFormPageChange</span></code> rather than by dispatching
+<code class="docutils literal notranslate"><span class="pre">SET_CURRENT_FORM_PAGE</span></code>.</p>
+</section>
+</section>
+<section id="hooks">
+<h2>Hooks<a class="headerlink" href="#hooks" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Hook</p></th>
+<th class="head"><p>Signature</p></th>
+<th class="head"><p>Use it to</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">useCurrentFieldMods</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span> <span class="pre">=&gt;</span> <span class="pre">mods</span></code></p></td>
+<td><p>Read the <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_*_MODIFICATIONS</span></code> values for the current resource type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">useCurrentResourceTypeFields</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(formik,</span> <span class="pre">dispatch,</span> <span class="pre">fieldsByType,</span> <span class="pre">registry)</span></code></p></td>
+<td><p>Resolve the page list for the selected type. Called once by the form; you rarely need it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">useCustomFieldWidget</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(fieldName,</span> <span class="pre">componentProps)</span> <span class="pre">=&gt;</span> <span class="pre">result</span></code></p></td>
+<td><p>Resolve one custom field’s widget and props. Use when composing several custom fields in one component.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">useFormPageNavigation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(formUIState,</span> <span class="pre">dispatch,</span> <span class="pre">…)</span></code></p></td>
+<td><p>Internal engine behind page navigation. Consume its output via <code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code>, don’t call it directly.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">useFormSubmissionTransformer</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span> <span class="pre">=&gt;</span> <span class="pre">transform</span></code></p></td>
+<td><p>Apply the registered submit-time transformation chain to a values object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">useIsInViewport</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(element)</span> <span class="pre">=&gt;</span> <span class="pre">boolean</span></code></p></td>
+<td><p>Track whether a DOM element is on screen.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">useLocalStorageRecovery</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(userProfile,</span> <span class="pre">currentFormPage)</span> <span class="pre">=&gt;</span> <span class="pre">state</span></code></p></td>
+<td><p>Internal autosave/restore engine. Read its results from <code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code> instead.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">useStickyFooterOverlapFix</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">()</span> <span class="pre">=&gt;</span> <span class="pre">void</span></code></p></td>
+<td><p>Stop a sticky footer from covering the bottom of the form.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All hooks live under <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/hooks/&lt;name&gt;</span></code>, except
+<code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code>, which is exported from <code class="docutils literal notranslate"><span class="pre">FormUIStateManager</span></code>.</p>
+<section id="usecurrentfieldmods">
+<h3><code class="docutils literal notranslate"><span class="pre">useCurrentFieldMods</span></code><a class="headerlink" href="#usecurrentfieldmods" title="Link to this heading">¶</a></h3>
+<p>Returns the modification maps already narrowed to the current resource type, so
+each value is either an object keyed by field path or <code class="docutils literal notranslate"><span class="pre">undefined</span></code>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">labelMods</span></code>, <code class="docutils literal notranslate"><span class="pre">iconMods</span></code>, <code class="docutils literal notranslate"><span class="pre">helpTextMods</span></code>, <code class="docutils literal notranslate"><span class="pre">placeholderMods</span></code>, <code class="docutils literal notranslate"><span class="pre">descriptionMods</span></code>,
+<code class="docutils literal notranslate"><span class="pre">defaultFieldValues</span></code>, <code class="docutils literal notranslate"><span class="pre">priorityFieldValues</span></code>, <code class="docutils literal notranslate"><span class="pre">extraRequiredFields</span></code></p>
+<p>If you wrap your widget in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>, the first five are applied
+for you; call this hook directly only when you need to read them yourself — for
+instance to honour <code class="docutils literal notranslate"><span class="pre">defaultFieldValues</span></code> or <code class="docutils literal notranslate"><span class="pre">priorityFieldValues</span></code>, which no
+built-in widget currently consumes.</p>
+</section>
+<section id="usecustomfieldwidget">
+<h3><code class="docutils literal notranslate"><span class="pre">useCustomFieldWidget</span></code><a class="headerlink" href="#usecustomfieldwidget" title="Link to this heading">¶</a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Widget</span><span class="p">,</span><span class="w"> </span><span class="nx">fieldPath</span><span class="p">,</span><span class="w"> </span><span class="nx">props</span><span class="p">,</span><span class="w"> </span><span class="nx">loading</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCustomFieldWidget</span><span class="p">(</span>
+<span class="w">  </span><span class="s2">"journal:journal.title"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">componentProps</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p>Looks the field up by name across every section of <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>, so
+the section structure in your config does not affect resolution.</p>
+</section>
+</section>
+<section id="replacement-input-widgets">
+<h2>Replacement input widgets<a class="headerlink" href="#replacement-input-widgets" title="Link to this heading">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">ArrayField</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">AutocompleteDropdown</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Dropdown</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">Input</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">MultiInput</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">RemoteSelectField</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SelectField</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">TextArea</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">TextField</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/replacement_components"</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Prefer these over the stock <code class="docutils literal notranslate"><span class="pre">react-invenio-forms</span></code> equivalents when writing a
+replacement widget, so that touched-aware error display stays consistent across
+the form. See
+<a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">Replacement field components</span></a> for how they
+differ from upstream.</p>
+</section>
+<section id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Link to this heading">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">SEMANTIC_UI_MOBILE_BREAKPOINT_PX</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SEMANTIC_UI_COMPUTER_BREAKPOINT_PX</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SEVERITIES</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SIDEBAR_DEFAULTS_WIDTHS</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@js/invenio_modular_deposit_form/constants"</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The three breakpoint constants mirror the Less theme variables and are what the
+viewport flags are computed from. If your instance overrides the theme
+breakpoints, these must be changed to match — see
+<a class="reference internal" href="configuration.html#the-breakpoints-these-classes-refer-to"><span class="std std-ref">the breakpoint table</span></a>.</p>
+</section>
+<section id="writing-a-custom-layout-component">
+<h2>Writing a custom layout component<a class="headerlink" href="#writing-a-custom-layout-component" title="Link to this heading">¶</a></h2>
+<p>Beyond reading state, a custom layout component has two obligations:</p>
+<ul class="simple">
+<li><p><strong>Forward <code class="docutils literal notranslate"><span class="pre">children</span></code> unchanged.</strong> The package resolves the child section tree
+from the layout config and passes the rendered elements down; a component that
+drops <code class="docutils literal notranslate"><span class="pre">children</span></code> silently empties everything configured beneath it.</p></li>
+<li><p><strong>Accept <code class="docutils literal notranslate"><span class="pre">classnames</span></code></strong> and apply it to your outermost element, so instances
+can style and responsively hide your component the same way they do the
+built-ins.</p></li>
+</ul>
+<p>Register the finished component in your instance’s <code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> and
+reference it by name from the layout config. See
+<a class="reference internal" href="extending.html#id2"><span class="std std-ref">Custom layout components</span></a>.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="validation.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Client-side form validation</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="extending.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Adding your own components and validator</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2026, MESH Research
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/MESH-Research/invenio-modular-deposit-form" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Component developer API</a><ul>
+<li><a class="reference internal" href="#wrappers">Wrappers</a><ul>
+<li><a class="reference internal" href="#fieldcomponentwrapper"><code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code></a></li>
+<li><a class="reference internal" href="#customfield"><code class="docutils literal notranslate"><span class="pre">CustomField</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#the-form-ui-state-context">The form UI state context</a><ul>
+<li><a class="reference internal" href="#useformuistate"><code class="docutils literal notranslate"><span class="pre">useFormUIState()</span></code></a></li>
+<li><a class="reference internal" href="#the-formuistate-object">The <code class="docutils literal notranslate"><span class="pre">formUIState</span></code> object</a><ul>
+<li><a class="reference internal" href="#pages-and-navigation">Pages and navigation</a></li>
+<li><a class="reference internal" href="#viewport">Viewport</a></li>
+<li><a class="reference internal" href="#resource-type">Resource type</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#error-selectors">Error selectors</a></li>
+<li><a class="reference internal" href="#dispatching-your-own-updates">Dispatching your own updates</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hooks">Hooks</a><ul>
+<li><a class="reference internal" href="#usecurrentfieldmods"><code class="docutils literal notranslate"><span class="pre">useCurrentFieldMods</span></code></a></li>
+<li><a class="reference internal" href="#usecustomfieldwidget"><code class="docutils literal notranslate"><span class="pre">useCustomFieldWidget</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#replacement-input-widgets">Replacement input widgets</a></li>
+<li><a class="reference internal" href="#constants">Constants</a></li>
+<li><a class="reference internal" href="#writing-a-custom-layout-component">Writing a custom layout component</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=1263365b"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    </body>
+</html>

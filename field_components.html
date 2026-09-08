@@ -205,6 +205,7 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Built-in field widget components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extending.html">Adding your own components and validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component-api.html">Component developer API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
@@ -256,44 +257,163 @@
 <p class="admonition-title">See also</p>
 <p>For the <strong>local replacement forks</strong> of upstream <code class="docutils literal notranslate"><span class="pre">invenio_rdm_records</span></code> field components (<code class="docutils literal notranslate"><span class="pre">PIDField</span></code>, <code class="docutils literal notranslate"><span class="pre">TitlesField</span></code>, …), see <a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">Replacement field components</span></a>.</p>
 </div>
+<section id="the-component-registry">
+<h2>The component registry<a class="headerlink" href="#the-component-registry" title="Link to this heading">¶</a></h2>
+<p>The package maintains a <code class="docutils literal notranslate"><span class="pre">componentsRegistry</span></code> that maps component names to React
+components. <strong>A name is usable in your layout config only if it is in the
+registry</strong> — a component that exists in the package source but is not registered
+cannot be referenced by name from <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_COMMON_FIELDS</span></code>.</p>
+<p>The complete set of names registered by this package is listed below. Your
+instance can add to it, or override any of these names, via its own
+<code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> (see <a class="reference internal" href="extending.html"><span class="std std-doc">Extending</span></a>).</p>
+<section id="core-metadata-field-components">
+<h3>Core metadata field components<a class="headerlink" href="#core-metadata-field-components" title="Link to this heading">¶</a></h3>
+<p>Each of these wraps a stock InvenioRDM or invenio-vocabularies field widget and
+inserts it into the form layout following your configuration.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Metadata field(s)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">AbstractComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.description</span></code>, additional descriptions</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AccessComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">access</span></code> (unwrapped — see below)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">AccessRightsComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">access</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AdditionalDatesComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.dates</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">AdditionalDatesAlternateComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.dates</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AlternateIdentifiersComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.identifiers</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CommunitiesComponent</span></code></p></td>
+<td><p>community selection</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ContributorsComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.contributors</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ContributorsComponentFlat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.contributors</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CopyrightsComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.copyright</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CreatorsComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.creators</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CreatorsComponentFlat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.creators</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DeleteComponent</span></code></p></td>
+<td><p>— (delete action)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DoiComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pids.doi</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FileUploadComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">files</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">FormFeedbackComponent</span></code></p></td>
+<td><p>— (error and action feedback)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FundingComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.funding</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">HorizontalAccessComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">access</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HorizontalSubmissionComponent</span></code></p></td>
+<td><p>— (submit area)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LanguagesComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.languages</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LicensesComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.rights</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PublicationDateComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.publication_date</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PublicationDateAlternateComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.publication_date</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PublisherComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.publisher</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RelatedWorksComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.related_identifiers</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ResourceTypeComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.resource_type</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.resource_type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SizesComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.sizes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SubjectsComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.subjects</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SubmissionComponent</span></code></p></td>
+<td><p>— (submit area)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TitlesComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.title</span></code>, <code class="docutils literal notranslate"><span class="pre">metadata.additional_titles</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VersionComponent</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">metadata.version</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where the same logical field or region has more than one component (access,
+submit area, form feedback, dates, resource type, creators/contributors), see
+<strong>Multiple components for the same field or region</strong> below.</p>
+</section>
+<section id="layout-and-navigation-components">
+<h3>Layout and navigation components<a class="headerlink" href="#layout-and-navigation-components" title="Link to this heading">¶</a></h3>
+<p>These carry no metadata fields and exist so that regions and navigation can be
+placed from the layout config. They are documented in
+<a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">FormRow</span></code>, <code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>, <code class="docutils literal notranslate"><span class="pre">FormPageNavigationBar</span></code>, <code class="docutils literal notranslate"><span class="pre">FormSidebarPageMenu</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FormTitle</span></code>, <code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">FormPages</span></code>, <code class="docutils literal notranslate"><span class="pre">FormPage</span></code>, <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">FormFooter</span></code>, <code class="docutils literal notranslate"><span class="pre">FormLeftSidebar</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FormRightSidebar</span></code>, and <code class="docutils literal notranslate"><span class="pre">FormSection</span></code> (alias <code class="docutils literal notranslate"><span class="pre">SectionWrapper</span></code>) are <strong>not</strong>
+registry entries — they are resolved directly by the layout renderer. You still
+reference them by name in the config in the usual way.</p>
+</div>
+</section>
+<section id="compound-components">
+<h3>Compound components<a class="headerlink" href="#compound-components" title="Link to this heading">¶</a></h3>
+<p>Each renders a pre-configured block of several related fields as a single
+layout section:</p>
+<p><code class="docutils literal notranslate"><span class="pre">CombinedDatesComponent</span></code> (publication date + additional dates),
+<code class="docutils literal notranslate"><span class="pre">CombinedJournalComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">CombinedImprintComponent</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CombinedMeetingComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">CombinedThesisComponent</span></code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The documentation from this point on is in rough draft form and is currently being edited. Check back shortly for updates.</p>
+<p>Earlier versions of this page listed <code class="docutils literal notranslate"><span class="pre">AdditionalDescriptionComponent</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ReferencesComponent</span></code>, and <code class="docutils literal notranslate"><span class="pre">CommunitiesAlternateComponent</span></code> as built-ins.
+<code class="docutils literal notranslate"><span class="pre">AdditionalDescriptionComponent</span></code> and <code class="docutils literal notranslate"><span class="pre">CommunitiesAlternateComponent</span></code> do not
+exist (use <code class="docutils literal notranslate"><span class="pre">AbstractComponent</span></code> for descriptions). <code class="docutils literal notranslate"><span class="pre">ReferencesComponent</span></code> is
+defined in <code class="docutils literal notranslate"><span class="pre">field_components/field_components.jsx</span></code> but is <strong>not</strong> in the default
+registry — to use it by name, register it in your instance’s
+<code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code>.</p>
 </div>
-<section id="stock-component-wrappers">
-<h2>Stock component wrappers<a class="headerlink" href="#stock-component-wrappers" title="Link to this heading">¶</a></h2>
-<p>The package maintains a componentsRegistry that maps available field-level components to strings you can use in your layout configuration. Components are included for all of the field widgets from the stock InvenioRDM deposit form (defined in <code class="docutils literal notranslate"><span class="pre">field_components/field_components.jsx</span></code>). Each wraps a stock Invenio RDM or vocabularies field and inserts it into the form layout following your configuration:</p>
-<ul class="simple">
-<li><p>AbstractComponent</p></li>
-<li><p>AccessComponent</p></li>
-<li><p>AccessRightsComponent</p></li>
-<li><p>AdditionalDatesComponent</p></li>
-<li><p>AdditionalDescriptionComponent</p></li>
-<li><p>AlternateIdentifiersComponent</p></li>
-<li><p>CommunitiesComponent</p></li>
-<li><p>CommunitiesAlternateComponent</p></li>
-<li><p>ContributorsComponent</p></li>
-<li><p>CopyrightsComponent</p></li>
-<li><p>CreatorsComponent</p></li>
-<li><p>PublicationDateComponent</p></li>
-<li><p>DeleteComponent</p></li>
-<li><p>DoiComponent</p></li>
-<li><p>FileUploadComponent</p></li>
-<li><p>FormFeedbackComponent</p></li>
-<li><p>FundingComponent</p></li>
-<li><p>HorizontalSubmissionComponent</p></li>
-<li><p>LanguagesComponent</p></li>
-<li><p>LicensesComponent</p></li>
-<li><p>PublisherComponent</p></li>
-<li><p>ReferencesComponent</p></li>
-<li><p>RelatedWorksComponent</p></li>
-<li><p>ResourceTypeComponent</p></li>
-<li><p>SubjectsComponent</p></li>
-<li><p>SubmissionComponent</p></li>
-<li><p>TitlesComponent</p></li>
-<li><p>VersionComponent</p></li>
-</ul>
-<p>Where the same logical field or region has more than one component (access, submit area, form feedback), see <strong>Multiple components for the same field or region</strong> below.</p>
+</section>
 </section>
 <section id="multiple-components-for-the-same-field-or-region">
 <h2>Multiple components for the same field or region<a class="headerlink" href="#multiple-components-for-the-same-field-or-region" title="Link to this heading">¶</a></h2>
@@ -303,14 +423,14 @@
 <ul class="simple">
 <li><p><strong>AccessRightsComponent</strong> — Wraps the stock <code class="docutils literal notranslate"><span class="pre">AccessRightField</span></code> in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>, reads <code class="docutils literal notranslate"><span class="pre">record</span></code>, <code class="docutils literal notranslate"><span class="pre">permissions</span></code>, and <code class="docutils literal notranslate"><span class="pre">config</span></code> from the deposit store, and passes <code class="docutils literal notranslate"><span class="pre">recordRestrictionGracePeriod</span></code>, <code class="docutils literal notranslate"><span class="pre">allowRecordRestriction</span></code>, and <code class="docutils literal notranslate"><span class="pre">showMetadataAccess</span></code> into the field. <strong>Use this</strong> in your layout (e.g. in the right sidebar) so the visibility field is fully wired.</p></li>
 <li><p><strong>AccessComponent</strong> — Registered name for the raw <code class="docutils literal notranslate"><span class="pre">AccessRightField</span></code> with no wrapper. It does not receive <code class="docutils literal notranslate"><span class="pre">record</span></code>, <code class="docutils literal notranslate"><span class="pre">recordRestrictionGracePeriod</span></code>, or <code class="docutils literal notranslate"><span class="pre">allowRecordRestriction</span></code> from the layout, so it is not suitable for the default config. It remains in the registry for instances that reference it by name or that pass those props another way.</p></li>
+<li><p><strong>HorizontalAccessComponent</strong> — Alternate two-column access layout under <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>. Registered; swap it in via the layout <code class="docutils literal notranslate"><span class="pre">component</span></code> name.</p></li>
 </ul>
 </section>
 <section id="submit-area-save-preview-publish-delete">
 <h3>Submit area (save, preview, publish, delete)<a class="headerlink" href="#submit-area-save-preview-publish-delete" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><strong>SubmissionComponent</strong> — Matches the stock invenio-app-rdm sidebar: a Card with DepositStatusBox (draft/published status), then a button grid (Save | Preview, Publish, Share), then an optional second Card with DeleteButton. No form feedback inside the component (use FormFeedbackComponent above it in the sidebar). This is the <strong>default</strong> in the package layout.</p></li>
-<li><p><strong>HorizontalSubmissionComponent</strong> — Two-column layout: one column with FormFeedback (when there are errors or action state), Save, Preview, Publish, Share, and Delete buttons; the other column with helptext about drafts and publishing. Use this in your layout config if you prefer this layout instead of the stock-style cards.</p></li>
-<li><p><strong>OverrideSubmissionComponent</strong> (in <code class="docutils literal notranslate"><span class="pre">field_components/overridable/</span></code>) — Overridable variant that uses SubmitButtonModal and the same horizontal layout; register it via the Overridable slot <code class="docutils literal notranslate"><span class="pre">InvenioAppRdm.Deposit.CardDepositStatusBox.container</span></code> or as the component for the submit section in the registry.</p></li>
+<li><p><strong>HorizontalSubmissionComponent</strong> — Alternate layout under <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>: reuses <code class="docutils literal notranslate"><span class="pre">SubmissionComponent</span></code> in one column and draft/publish help text in the other (help collapses to an info popup on mobile). Form feedback is <strong>not</strong> embedded here — pair it with <code class="docutils literal notranslate"><span class="pre">FormFeedbackComponent</span></code> elsewhere in the layout, as the bundled presets do.</p></li>
 </ul>
 </section>
 <section id="form-feedback-errors-and-action-state">
@@ -318,35 +438,63 @@
 <ul class="simple">
 <li><p><strong>FormFeedbackComponent</strong> — Standalone block that shows form feedback (validation errors, non-validation errors, and action state). It renders nothing when there is nothing to show. Use it as a <strong>separate subsection</strong> in the right sidebar (e.g. above SubmissionComponent) so feedback appears above the submit buttons without being part of the submit component itself. The default layout uses it that way.</p>
 <ul>
-<li><p><strong>Implementation (modular package):</strong> Renders <strong><code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code></strong> from <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/FormFeedback.jsx</span></code> (paths relative to <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/</span></code>). The per-section list inside the message comes from <strong><code class="docutils literal notranslate"><span class="pre">FormFeedbackSummary</span></code></strong> in <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx</span></code>.</p></li>
+<li><p><strong>Implementation (modular package):</strong> Renders <strong><code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code></strong> from <code class="docutils literal notranslate"><span class="pre">field_components/alternate/field_inputs/FormFeedback.jsx</span></code> (paths relative to <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/</span></code>). The per-section list inside the message comes from <strong><code class="docutils literal notranslate"><span class="pre">FormFeedbackSummary</span></code></strong> in <code class="docutils literal notranslate"><span class="pre">field_components/alternate/field_inputs/form_feedback_components/FormFeedbackSummary.jsx</span></code>.</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">hideMessageIcon</span></code>:</strong> Optional prop forwarded to <code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code>. Default <strong><code class="docutils literal notranslate"><span class="pre">true</span></code></strong>: the Semantic UI <code class="docutils literal notranslate"><span class="pre">Message</span></code> has no leading icon (compact sidebar). Set <strong><code class="docutils literal notranslate"><span class="pre">false</span></code></strong> to show the severity icon from <code class="docutils literal notranslate"><span class="pre">feedbackConfig</span></code> (check / info / warning / times circle).</p></li>
 </ul>
 </li>
 </ul>
 </section>
 </section>
-<section id="contrib-components">
-<h2>Contrib components<a class="headerlink" href="#contrib-components" title="Link to this heading">¶</a></h2>
-<p>Additional components are defined in <code class="docutils literal notranslate"><span class="pre">field_components/contrib/</span></code> for metadata fields that have no stock InvenioRDM equivalent (e.g. SizesField):</p>
-<ul class="simple">
-<li><p>SizesComponent</p></li>
-</ul>
-</section>
-<section id="overridable-components">
-<h2>Overridable components<a class="headerlink" href="#overridable-components" title="Link to this heading">¶</a></h2>
-<p>All of the stock form field components listed above can be overridden using the regular ReactOverridable mechanism. A sampling of override components, offering variations on the stock field widgets, are defined in <code class="docutils literal notranslate"><span class="pre">field_components/overridable/</span></code>:</p>
-<ul class="simple">
-<li><p><strong>OverrideAdditionalDatesComponent</strong> — uses DatesFieldAlternate</p></li>
-<li><p><strong>CommunitiesAlternateComponent</strong> — <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>; <code class="docutils literal notranslate"><span class="pre">CommunityField</span></code>. For <code class="docutils literal notranslate"><span class="pre">CommunityHeader.container</span></code> mapping when the layout uses stock <code class="docutils literal notranslate"><span class="pre">CommunitiesComponent</span></code>, use <strong>CommunitiesAlternateField</strong> from the same module (inner field only).</p></li>
-<li><p><strong>Languages</strong> — default <strong><code class="docutils literal notranslate"><span class="pre">LanguagesComponent</span></code></strong> uses replacement <strong><code class="docutils literal notranslate"><span class="pre">LanguagesField</span></code></strong> (no separate <strong><code class="docutils literal notranslate"><span class="pre">OverrideLanguagesComponent</span></code></strong>; no <code class="docutils literal notranslate"><span class="pre">LanguagesField.container</span></code> entry in instance mapping unless you add one).</p></li>
-<li><p><strong>ResourceTypeSelectorComponent</strong> — <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>; button-style resource type (<code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorField</span></code>). For the deposit overridable slot, map <code class="docutils literal notranslate"><span class="pre">ResourceTypeField.container</span></code> to <code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorField</span></code> (inner field only; layout still provides <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code>).</p></li>
-<li><p><strong>OverrideSubmissionComponent</strong> — uses SubmitButtonModal and custom form feedback; same horizontal layout as HorizontalSubmissionComponent. See <strong>Multiple components for the same field or region</strong> (submit area) above.</p></li>
-</ul>
-<p>In your instance’s <code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code> file, you can import any of these components from <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/field_components/overridable</span></code>. See <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a> for slot ids.</p>
+<section id="overridable-slots-vs-alternate-components">
+<h2>Overridable slots vs alternate components<a class="headerlink" href="#overridable-slots-vs-alternate-components" title="Link to this heading">¶</a></h2>
+<p>Two different mechanisms, often confused:</p>
+<p><strong>ReactOverridable slots</strong> — stock InvenioRDM ids in your instance’s
+<code class="docutils literal notranslate"><span class="pre">mapping.js</span></code>. Any field wrapped in <code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code> (and several
+standalone regions such as form feedback) exposes a slot. Slot ids are listed
+in the <a class="reference internal" href="override-guide.html"><span class="std std-doc">Override guide</span></a>. Import whatever React component you
+want to put in the slot from its real path under this package (there is no
+<code class="docutils literal notranslate"><span class="pre">field_components/overridable/</span></code> barrel).</p>
+<p><strong>Alternate layout components</strong> — registered under a different <code class="docutils literal notranslate"><span class="pre">component</span></code>
+name in <code class="docutils literal notranslate"><span class="pre">componentsRegistry</span></code>. Swap them in the layout dict without touching
+<code class="docutils literal notranslate"><span class="pre">mapping.js</span></code>. They live under <code class="docutils literal notranslate"><span class="pre">field_components/alternate/</span></code>:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Registry name</p></th>
+<th class="head"><p>What it replaces / adds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">AdditionalDatesAlternateComponent</span></code></p></td>
+<td><p>Additional dates, using <code class="docutils literal notranslate"><span class="pre">DatesFieldAlternate</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PublicationDateAlternateComponent</span></code></p></td>
+<td><p>Publication date alternate input</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorComponent</span></code></p></td>
+<td><p>Button-style resource type picker (<code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorField</span></code>). For the deposit overridable slot alone, you can also map <code class="docutils literal notranslate"><span class="pre">ResourceTypeField.container</span></code> to <code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorField</span></code> (inner field only).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CreatorsComponentFlat</span></code> / <code class="docutils literal notranslate"><span class="pre">ContributorsComponentFlat</span></code></p></td>
+<td><p>Inline (non-modal) creatibutors — see below</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">HorizontalAccessComponent</span></code> / <code class="docutils literal notranslate"><span class="pre">HorizontalSubmissionComponent</span></code></p></td>
+<td><p>Alternate access / submit layouts — see above</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SizesComponent</span></code></p></td>
+<td><p>Dimensions / sizes for <code class="docutils literal notranslate"><span class="pre">metadata.sizes</span></code> (no stock InvenioRDM field for this path). Uses <code class="docutils literal notranslate"><span class="pre">field_components/alternate/field_inputs/SizesField</span></code>, not the unused <code class="docutils literal notranslate"><span class="pre">replacement_components/field_components/SizesField.js</span></code> orphan.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">LanguagesComponent</span></code> already uses the replacement <code class="docutils literal notranslate"><span class="pre">LanguagesField</span></code>; there is no
+separate languages alternate. To override languages via a slot, add a
+<code class="docutils literal notranslate"><span class="pre">LanguagesField.container</span></code> entry in <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> yourself.</p>
 </section>
 <section id="alternate-components">
 <h2>Alternate components<a class="headerlink" href="#alternate-components" title="Link to this heading">¶</a></h2>
-<p>Alternate components live in <code class="docutils literal notranslate"><span class="pre">replacement_components/alternate_components/</span></code> and offer a different UX for the same logical field. They are registered in the componentsRegistry alongside their standard counterparts, so you can swap between them by changing the component name in your layout config.</p>
+<p>The registered alternates above offer a different UX for the same logical
+field or region. Swap them by changing the <code class="docutils literal notranslate"><span class="pre">component</span></code> name in your layout
+config.</p>
 <section id="creatorscomponentflat-contributorscomponentflat">
 <h3>CreatorsComponentFlat / ContributorsComponentFlat<a class="headerlink" href="#creatorscomponentflat-contributorscomponentflat" title="Link to this heading">¶</a></h3>
 <p>These use <strong>CreatibutorsFieldFlat</strong> instead of the stock <code class="docutils literal notranslate"><span class="pre">CreatibutorsField</span></code>. The default layout config uses <code class="docutils literal notranslate"><span class="pre">CreatorsComponentFlat</span></code> for creators. To revert to the modal-based version, change <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;CreatorsComponentFlat&quot;</span></code> back to <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;CreatorsComponent&quot;</span></code> in your <code class="docutils literal notranslate"><span class="pre">common_fields</span></code> config. For contributors, use <code class="docutils literal notranslate"><span class="pre">ContributorsComponentFlat</span></code> in place of <code class="docutils literal notranslate"><span class="pre">ContributorsComponent</span></code>.</p>
@@ -413,6 +561,7 @@
 <li><p>JournalVolumeComponent</p></li>
 <li><p>MeetingAcronymComponent</p></li>
 <li><p>MeetingDatesComponent</p></li>
+<li><p>MeetingIdentifiersComponent</p></li>
 <li><p>MeetingPlaceComponent</p></li>
 <li><p>MeetingSessionComponent</p></li>
 <li><p>MeetingSessionPartComponent</p></li>
@@ -431,7 +580,7 @@
 <section id="gotchas">
 <h2>Gotchas<a class="headerlink" href="#gotchas" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>By default the imprint:imprint.pages field is used for <em>total pages</em> in a publication, while the journal:journal.pages field is used for <em>page numbers in a larger work</em>. So the BookSectionPages component uses the journal:journal.pages field. If this does not match your InvenioRDM schema, you may override this component.</p></li>
+<li><p>By default the imprint:imprint.pages field is used for <em>total pages</em> in a publication, while the journal:journal.pages field is used for <em>page numbers in a larger work</em>. So <strong><code class="docutils literal notranslate"><span class="pre">SectionPagesComponent</span></code></strong> uses the journal:journal.pages field. If this does not match your InvenioRDM schema, you may override this component.</p></li>
 <li><p><strong>PID / DOI (<code class="docutils literal notranslate"><span class="pre">DoiComponent</span></code> → replacement <code class="docutils literal notranslate"><span class="pre">PIDField</span></code>)</strong> — Visible validation errors follow the same <strong>touched</strong> rules as <code class="docutils literal notranslate"><span class="pre">TextField</span></code>. The replacement fork sets Formik <strong><code class="docutils literal notranslate"><span class="pre">touched</span></code></strong> on unmanaged-input blur and when managed/unmanaged (or optional DOI) radios change; see <a class="reference internal" href="replacement_field_components.html#formik-touched-pidfield"><span class="std std-ref">Where the touched wiring lives</span></a>.</p></li>
 </ul>
 </section>
@@ -500,15 +649,19 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Built-in field widget components</a><ul>
-<li><a class="reference internal" href="#stock-component-wrappers">Stock component wrappers</a></li>
+<li><a class="reference internal" href="#the-component-registry">The component registry</a><ul>
+<li><a class="reference internal" href="#core-metadata-field-components">Core metadata field components</a></li>
+<li><a class="reference internal" href="#layout-and-navigation-components">Layout and navigation components</a></li>
+<li><a class="reference internal" href="#compound-components">Compound components</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#multiple-components-for-the-same-field-or-region">Multiple components for the same field or region</a><ul>
 <li><a class="reference internal" href="#access-visibility">Access (visibility)</a></li>
 <li><a class="reference internal" href="#submit-area-save-preview-publish-delete">Submit area (save, preview, publish, delete)</a></li>
 <li><a class="reference internal" href="#form-feedback-errors-and-action-state">Form feedback (errors and action state)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#contrib-components">Contrib components</a></li>
-<li><a class="reference internal" href="#overridable-components">Overridable components</a></li>
+<li><a class="reference internal" href="#overridable-slots-vs-alternate-components">Overridable slots vs alternate components</a></li>
 <li><a class="reference internal" href="#alternate-components">Alternate components</a><ul>
 <li><a class="reference internal" href="#creatorscomponentflat-contributorscomponentflat">CreatorsComponentFlat / ContributorsComponentFlat</a></li>
 </ul>

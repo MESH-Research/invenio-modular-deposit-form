@@ -89,6 +89,14 @@ accordingly.
 None of these components are injected automatically. They appear only where the
 layout config includes them.
 
+The three navigation components stay consistent with each other as the viewport
+changes. A page can be dropped from the flow either because the selected
+resource type leaves it empty or because its menu item is hidden at wide
+viewports, and in both cases the stepper, the sidebar menu, the footer
+previous/next buttons, and the `?page=` URL all adapt together, live, as the
+window is resized. See
+[Viewport-aware page navigation](configuration.md#viewport-aware-page-navigation).
+
 ```{figure} _static/modular-deposit-form-3.jpg
 :alt: Rendering form fields in the layout following the configured page structure
 :width: 100%
@@ -233,10 +241,10 @@ immediately on each field rather than only after submission. The
 severity-aware badges on the navigation components reflect the running
 validation state as the form is filled in.
 
-Client-side validation is opt-in:
+Client-side validation is **enabled by default**. To turn it off:
 
-1. Set `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = True` in `invenio.cfg`
-   (set `False` to rely on server-side validation only until submit).
+1. Set `MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION = False` in `invenio.cfg` to
+   rely on server-side validation only until submit.
 2. Rebuild front-end assets so the change is picked up.
 
 ### The default schema
@@ -295,10 +303,11 @@ on top.
 See [Validation](validation.md) for a full guide and [Extending](extending.md)
 for how to register the entry point.
 
-```{admonition} Placeholder — validation flow diagram
-A diagram showing: user input → Yup schema → Formik errors → per-field error
-display + FormFeedbackComponent + nav badge counts would go here.
-```
+In outline, the flow is: the depositor edits a field; Yup validates the changed
+values against the schema; the results populate Formik's `errors`; and each
+error surfaces in three places at once — inline on the field itself (once the
+field has been touched), in the summary rendered by `FormFeedbackComponent`, and
+as a badge count on the navigation entry for the page that owns the field.
 
 ## Autosave
 

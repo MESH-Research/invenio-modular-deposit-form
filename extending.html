@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Client-side form validation" href="validation.html"><link rel="prev" title="Replacement field components" href="replacement_field_components.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Component developer API" href="component-api.html"><link rel="prev" title="Replacement field components" href="replacement_field_components.html">
 
     <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
         <title>Adding your own components and validator - Invenio Modular Deposit Form 0.3.4-dev0 documentation</title>
@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="field_components.html">Built-in field widget components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="replacement_field_components.html">Replacement field components</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Adding your own components and validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="component-api.html">Component developer API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validation.html">Client-side form validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="override-guide.html">What to Override When (modular deposit form)</a></li>
@@ -261,7 +262,7 @@ reference by name from <code class="docutils literal notranslate"><span class="p
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">transformations.js</span></code></strong> — pure functions that rewrite Formik values
 immediately before submit.</p></li>
 </ul>
-<p>Each is <strong>independently optional</strong>: if you don’t register one, the package falls back to a no-op stub. See <a class="reference internal" href="#registering-your-extension-files"><span class="xref myst">Registering your extension files</span></a> for the steps.</p>
+<p>Each is <strong>independently optional</strong>: if you don’t register one, the package falls back to a no-op stub. See <a class="reference internal" href="#registering-your-extension-files">Registering your extension files</a> for the steps.</p>
 <section id="what-goes-in-each-extension-file">
 <span id="module-contracts"></span><h2>What goes in each extension file<a class="headerlink" href="#what-goes-in-each-extension-file" title="Link to this heading">¶</a></h2>
 <p>Each file is expected to export a specific kind of customization object:</p>
@@ -486,47 +487,22 @@ replacements.</p>
 </section>
 <section id="available-hooks-and-contexts">
 <span id="id3"></span><h2>Available hooks and contexts<a class="headerlink" href="#available-hooks-and-contexts" title="Link to this heading">¶</a></h2>
-<p>When writing a custom component, these are the imports the package treats as part of its public surface for extenders:</p>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Import</p></th>
-<th class="head"><p>Purpose</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">FieldComponentWrapper</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/field_components/FieldComponentWrapper&quot;</span></code></p></td>
-<td><p>Wrap a custom field widget so it receives the layout’s label/icon/placeholder/help-text mods and exposes the matching Overridable slot.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">CustomField</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/field_components/CustomField&quot;</span></code></p></td>
-<td><p>Render an InvenioRDM custom field by name, resolving its widget and props from <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>. See <a class="reference internal" href="#handling-custom-fields">Handling custom fields</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useCurrentFieldMods</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useCurrentFieldMods&quot;</span></code></p></td>
-<td><p>Read the <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_*_MODIFICATIONS</span></code>, <code class="docutils literal notranslate"><span class="pre">*_FIELD_VALUES</span></code>, and <code class="docutils literal notranslate"><span class="pre">EXTRA_REQUIRED_FIELDS</span></code> values for the current resource type.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useCurrentResourceTypeFields</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useCurrentResourceTypeFields&quot;</span></code></p></td>
-<td><p>Resolve the section list for the currently selected resource type (with <code class="docutils literal notranslate"><span class="pre">same_as</span></code> followed).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useFormPageNavigation</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useFormPageNavigation&quot;</span></code></p></td>
-<td><p>Read or control the current form page in a multi-page layout.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useCustomFieldWidget</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/hooks/useCustomFieldWidget&quot;</span></code></p></td>
-<td><p>The lookup hook used internally by <code class="docutils literal notranslate"><span class="pre">CustomField</span></code>; useful when one component needs to compose several custom fields.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">{</span> <span class="pre">useFormUIState,</span> <span class="pre">FormUIStateContext</span> <span class="pre">}</span> <span class="pre">from</span> <span class="pre">&quot;&#64;js/invenio_modular_deposit_form/FormUIStateManager&quot;</span></code></p></td>
-<td><p>Current resource type, current page, and combined client + server error state. Use this in custom layout components instead of re-implementing the same derivations.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Replacement input widgets (<code class="docutils literal notranslate"><span class="pre">TextField</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, <code class="docutils literal notranslate"><span class="pre">MultiInput</span></code>, <code class="docutils literal notranslate"><span class="pre">Input</span></code>, <code class="docutils literal notranslate"><span class="pre">Dropdown</span></code>, <code class="docutils literal notranslate"><span class="pre">AutocompleteDropdown</span></code>) live under <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/replacement_components</span></code> — see <a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">Replacement field components</span></a> for the behavioural differences from upstream.</p>
+<p>The package treats the following as its public surface for extenders:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">FieldComponentWrapper</span></code></strong> — wrap a custom field widget so it receives the layout’s label/icon/placeholder/help-text mods and exposes the matching Overridable slot.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">CustomField</span></code></strong> — render an InvenioRDM custom field by name. See <a class="reference internal" href="#handling-custom-fields">Handling custom fields</a>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code></strong> — the current resource type, the current page and its neighbours, the viewport breakpoint, and the combined client + server error state. This is the one to reach for in a custom layout component.</p></li>
+<li><p><strong>Error selectors</strong> — <code class="docutils literal notranslate"><span class="pre">getPageFlaggedErrorCounts</span></code> and friends, for rendering your own error badges or summaries.</p></li>
+<li><p><strong>Supporting hooks</strong> — <code class="docutils literal notranslate"><span class="pre">useCurrentFieldMods</span></code>, <code class="docutils literal notranslate"><span class="pre">useCurrentResourceTypeFields</span></code>, <code class="docutils literal notranslate"><span class="pre">useCustomFieldWidget</span></code>, <code class="docutils literal notranslate"><span class="pre">useFormSubmissionTransformer</span></code>, <code class="docutils literal notranslate"><span class="pre">useIsInViewport</span></code>, <code class="docutils literal notranslate"><span class="pre">useStickyFooterOverlapFix</span></code>.</p></li>
+<li><p><strong>Replacement input widgets</strong> — <code class="docutils literal notranslate"><span class="pre">TextField</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, <code class="docutils literal notranslate"><span class="pre">MultiInput</span></code>, <code class="docutils literal notranslate"><span class="pre">ArrayField</span></code>, <code class="docutils literal notranslate"><span class="pre">Input</span></code>, <code class="docutils literal notranslate"><span class="pre">Dropdown</span></code>, and <code class="docutils literal notranslate"><span class="pre">AutocompleteDropdown</span></code>, under <code class="docutils literal notranslate"><span class="pre">&#64;js/invenio_modular_deposit_form/replacement_components</span></code>. See <a class="reference internal" href="replacement_field_components.html"><span class="std std-doc">Replacement field components</span></a> for how they differ from upstream.</p></li>
+</ul>
+<p><strong><a class="reference internal" href="component-api.html"><span class="std std-doc">Component developer API</span></a> is the full reference</strong> — import paths, signatures, return shapes, and a field-by-field breakdown of the <code class="docutils literal notranslate"><span class="pre">formUIState</span></code> object.</p>
 </section>
 <section id="handling-custom-fields">
 <span id="id4"></span><h2>Handling custom fields<a class="headerlink" href="#handling-custom-fields" title="Link to this heading">¶</a></h2>
 <p>Custom field values are stored under <code class="docutils literal notranslate"><span class="pre">custom_fields</span></code> in the record and must be accessed via the correct field path (e.g. <code class="docutils literal notranslate"><span class="pre">custom_fields.kcr:my_field</span></code>). To implement your own custom field widgets while reusing the standard InvenioRDM custom field configuration, use the <strong>CustomField</strong> component.</p>
 <section id="prerequisites">
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h3>
-<p><strong>Enable custom fields for every component you use.</strong> The form looks up each custom field’s widget and props from <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>. You must define the field in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span></code> and add a section (or add the field to an existing section) in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code> for <strong>every</strong> custom field component in your layout—including the <strong>built-in</strong> ones (journal, imprint, meeting, thesis, codemeta/software). If you use <code class="docutils literal notranslate"><span class="pre">JournalTitleComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">BookTitleComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">MeetingTitleComponent</span></code>, etc., the corresponding sections and fields must be present in your instance’s <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>; otherwise the components cannot resolve their widgets.</p>
 <p><strong>Enable custom fields for every component you use.</strong> The form looks up each custom field’s widget and props from <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>. You must define the field in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS</span></code> and add a section (or add the field to an existing section) in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code> for <strong>every</strong> custom field component in your layout—including the <strong>built-in</strong> ones (journal, imprint, meeting, thesis, codemeta/software). If you use <code class="docutils literal notranslate"><span class="pre">JournalTitleComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">BookTitleComponent</span></code>, <code class="docutils literal notranslate"><span class="pre">MeetingTitleComponent</span></code>, etc., the corresponding sections and fields must be present in your instance’s <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>; otherwise the components cannot resolve their widgets. The form finds the field config by <strong>field name</strong> only (e.g. <code class="docutils literal notranslate"><span class="pre">thesis:thesis.university</span></code>), so section structure does not affect lookup.</p>
 <p>For the <strong>single-field custom components</strong> that this package provides for the built-in contrib fields (journal, imprint, meeting, codemeta), you can either write your own <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code> entries or <strong>reuse ready-made helpers shipped with this extension</strong>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">invenio_modular_deposit_form.custom_fields.ui.journal_fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -589,12 +565,12 @@ replacements.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="validation.html">
+          <a class="next-page" href="component-api.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Client-side form validation</div>
+                <div class="title">Component developer API</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

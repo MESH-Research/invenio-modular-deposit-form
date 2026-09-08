@@ -11,6 +11,7 @@ configuration
 field_components
 replacement_field_components
 extending
+component-api
 validation
 architecture
 override-guide
