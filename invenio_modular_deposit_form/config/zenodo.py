@@ -5,19 +5,21 @@
 # and/or modify it under the terms of the MIT License; see LICENSE file for
 # more details.
 
-"""
-A form layout configuration emulating the Zenodo form, but with pages.
+"""A form layout configuration emulating the Zenodo form, but with pages.
 
 To use this layout, import it into your instance's invenio.cfg file and assign it as the
 value for the common fields layout:
 
 ````
-from invenio_modular_deposit_form.config.default import COMMON_FIELDS_ZENODO_PAGED
+from invenio_modular_deposit_form.config.zenodo import COMMON_FIELDS_ZENODO_PAGED
 
 MODULAR_DEPOSIT_FORM_COMMON_FIELDS = COMMON_FIELDS_ZENODO_PAGED
 ````
 
-To use the non-paged version, use COMMON_FIELD_ZENODO_UNPAGED instead.
+This module ships no matching ``FIELDS_BY_TYPE`` layout. Leave
+``MODULAR_DEPOSIT_FORM_FIELDS_BY_TYPE`` at its default, or pair this layout with
+``FIELDS_BY_TYPE_DEFAULT_PAGED`` from ``invenio_modular_deposit_form.config.default``
+and make sure the page ``section`` ids in that mapping match the ids below.
 """
 
 from invenio_modular_deposit_form.config.default import _PAGED_FORM_TITLE
