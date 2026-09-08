@@ -5,7 +5,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import React, { useMemo, useState, useLayoutEffect } from "react";
-import { Button, Dropdown, Grid, Label, Step } from "semantic-ui-react";
+import { Button, Dropdown, Grid, Label, Menu, Step } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import PropTypes from "prop-types";
 import { useFormUIState } from "../FormUIStateManager.jsx";
@@ -148,15 +148,18 @@ const FormStepper = ({ classnames, ...props }) => {
       {/* Mobile-only page-title dropdown beneath the numbered stepper.
        * Trigger is a borderless heading-style label with a right-aligned
        * caret so it reads as a page title that is also a navigation menu. */}
-      <Dropdown
-        className="upload-form-pager-mobile-title mobile only"
-        text={currentPageTitle}
-        value={currentFormPage}
-        onChange={handleFormPageChange}
-        options={dropdownOptions}
-        selectOnBlur={false}
-        aria-label={i18next.t("Jump to form page")}
-      />
+      <Menu className="mt-10 mobile only">
+        <Dropdown
+          item
+          className="upload-form-pager-mobile-title mobile only rel-pl-1 rel-pr-1 pt-12 pb-12"
+          text={currentPageTitle}
+          value={currentFormPage}
+          onChange={handleFormPageChange}
+          options={dropdownOptions}
+          selectOnBlur={false}
+          aria-label={i18next.t("Jump to form page")}
+        />
+      </Menu>
     </Grid.Column>
   );
 };

@@ -127,7 +127,7 @@ export class ArrayField extends Component {
         {...hasError}
         {...(describedById ? { "aria-describedby": describedById } : {})}
       >
-        <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+        {label && <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
         {description && (
           <div id={`${fieldPath}-description`} className="description">
             {description}

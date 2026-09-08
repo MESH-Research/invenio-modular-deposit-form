@@ -42,7 +42,7 @@ import {
   TitlesField,
   VersionField,
 } from "../replacement_components/field_components";
-import { ShareDraftButton } from "@js/invenio_app_rdm/deposit/ShareDraftButton";
+import { ShareDraftButton } from "../replacement_components/ShareDraftButton";
 import { FundingFieldAlternate } from "./alternate/field_inputs/FundingFieldAlternate";
 import { LicenseFieldAlternate } from "./alternate/field_inputs/LicenseFieldAlternate";
 import { Card, Form, Grid } from "semantic-ui-react";
@@ -74,6 +74,8 @@ const AbstractComponent = ({ ...extraProps }) => {
         recordUI={_get(record, "ui", null)}
         label={extraProps.label || "Description"}
         editorConfig={{
+          toolbar:
+            "blocks | bold italic codesample blockquote table | bullist numlist | outdent indent | link | wordcount | undo redo | code | custom_preview",
           removePlugins: [
             "Image",
             "ImageCaption",
@@ -292,13 +294,13 @@ const ShareDraftButtonComponent = () => {
   const store = useStore();
   const { config, record, permissions } = store.getState().deposit;
   const groupsEnabled = config.groups_enabled ?? false;
-  const requireSecretLinksExpiration = config.require_secret_links_expiration;
   return record.parent === undefined ? null : (
     <ShareDraftButton
       record={record ?? {}}
       permissions={permissions ?? {}}
       groupsEnabled={groupsEnabled}
-      requireSecretLinksExpiration={requireSecretLinksExpiration}
+      labelPosition="right"
+      className="right labeled"
     />
   );
 };
@@ -353,10 +355,17 @@ const DoiComponent = ({ ...extraProps }) => {
  * `.invenio-field-wrapper` div (matching DoiComponent etc.) — required
  * for the prominent-field-label CSS selector to match.
  */
-const FileUploaderInner = ({ label, icon, fileErrorPaths, useUppy, commonFileUploaderProps }) => (
+const FileUploaderInner = ({
+  label,
+  icon,
+  fileErrorPaths,
+  required,
+  useUppy,
+  commonFileUploaderProps,
+}) => (
   <>
     {label && (
-      <Form.Field>
+      <Form.Field required={required}>
         <FieldLabel htmlFor="files" icon={icon} label={label} />
       </Form.Field>
     )}
@@ -810,17 +819,26 @@ const SubmissionComponent = () => {
         <Card.Content>
           <Grid relaxed>
             <Grid.Column width={16} className="rel-pt-1 pb-0">
-              <SaveButton fluid disabled={saveDisabled} />
+              <SaveButton fluid disabled={saveDisabled} className="primary right labeled" />
             </Grid.Column>
 
             <Grid.Column width={16} className="rel-pt-1 pb-0">
-              <PublishButton fluid record={record} disabled={publishDisabled} />
+              <PublishButton
+                fluid
+                record={record}
+                disabled={publishDisabled}
+                className="right labeled"
+              />
             </Grid.Column>
 
             {permissions?.can_delete_draft && (
               <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
                 <Grid.Column width={16} className="rel-pt-1">
-                  <DeleteButton fluid icon="trash alternate outline" />
+                  <DeleteButton
+                    fluid
+                    icon="trash alternate outline"
+                    labelPosition="right"
+                  />
                 </Grid.Column>
               </Overridable>
             )}
@@ -829,7 +847,7 @@ const SubmissionComponent = () => {
         <Card.Content>
           <Grid relaxed>
             <Grid.Column width={16} className="rel-pt-1 pb-0">
-              <PreviewButton fluid disabled={saveDisabled} />
+              <PreviewButton fluid disabled={saveDisabled} className="right labeled" />
             </Grid.Column>
 
             {record.parent && (record?.is_draft === null || permissions?.can_manage) && (
@@ -838,6 +856,8 @@ const SubmissionComponent = () => {
                   record={record}
                   permissions={permissions}
                   groupsEnabled={groupsEnabled}
+                  labelPosition="right"
+                  className="right labeled"
                 />
               </Grid.Column>
             )}

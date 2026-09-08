@@ -60,9 +60,10 @@ const DateDropdowns = ({
   handleDropdownChange,
   error,
   classnames,
+  width,
 }) => {
   return (
-    <Form.Field className={classnames}>
+    <Form.Field className={classnames} width={width}>
       <FieldLabel
         htmlFor={`${fieldPath}.inputs.${name}`}
         label={`${useRange ? i18next.t(position) + " " : ""}${i18next.t(unit)}`}
@@ -255,18 +256,21 @@ const PublicationDateFieldAlternate = ({
       unit: "Year",
       value: yearValue,
       options: yearOptions,
+      width: "2",
     },
     {
       name: "startMonth",
       unit: "Month",
       value: monthValue,
       options: monthOptions,
+      width: "5",
     },
     {
       name: "startDay",
       unit: "Day",
       value: dayValue,
       options: slicedDayOptions,
+      width: "2",
     },
   ];
   const endDropdowns = [
@@ -275,18 +279,21 @@ const PublicationDateFieldAlternate = ({
       unit: "Year",
       value: endYearValue,
       options: yearOptions,
+      width: "2",
     },
     {
       name: "endMonth",
       unit: "Month",
       value: endMonthValue,
       options: monthOptions,
+      width: "5",
     },
     {
       name: "endDay",
       unit: "Day",
       value: endDayValue,
       options: slicedDayOptions,
+      width: "2",
     },
   ];
 
@@ -309,7 +316,7 @@ const PublicationDateFieldAlternate = ({
                   {i18next.t(description)}
                 </div>
               )}
-              <Form.Group className="invenio-group-field invenio-form-row mb-0 equal width">
+              <Form.Group className="invenio-group-field invenio-form-row mb-12">
                 {startDropdowns.map((dropdown, idx) => (
                   <DateDropdowns
                     key={idx}
@@ -331,11 +338,12 @@ const PublicationDateFieldAlternate = ({
                       setFieldTouched(fieldPath, true);
                     }}
                     checked={useRange}
+                    className="pt-25"
                   />
                 </Form.Field>
               </Form.Group>
               {!!useRange && (
-                <Form.Group className="invenio-group-field invenio-form-row mb-0 equal width">
+                <Form.Group className="invenio-group-field invenio-form-row mb-0">
                   {endDropdowns.map((dropdown, idx) => (
                     <DateDropdowns
                       key={idx}
@@ -346,7 +354,6 @@ const PublicationDateFieldAlternate = ({
                       handleDropdownChange={handleDropdownChange}
                       error={!!meta.error}
                       aria-describedby={`${fieldPath}.helptext`}
-                      classnames="mt-10"
                     />
                   ))}
                   <Form.Field></Form.Field>

@@ -20,7 +20,7 @@ const AdditionalDatesAlternateComponent = ({
   const options = optionsProp ?? vocabularies.metadata.dates;
   extraProps = {
     ...extraProps,
-    wrapperClasses: ["mt-12", extraProps.wrapperClasses].filter(Boolean).join(" "),
+    wrapperClasses: ["mt-20", extraProps.wrapperClasses].filter(Boolean).join(" "),
   };
 
   return (

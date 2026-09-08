@@ -73,7 +73,7 @@ export class RelatedWorksField extends Component {
 
           return (
             <Grid className="related-work">
-              <Grid.Row>
+              <Grid.Row className="pb-0">
                 <Grid.Column computer={10} tablet={10} mobile={14}>
                   <TextField
                     fieldPath={`${fieldPathPrefix}.identifier`}

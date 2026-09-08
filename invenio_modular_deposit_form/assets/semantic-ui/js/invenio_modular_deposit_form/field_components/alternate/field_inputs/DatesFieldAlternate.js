@@ -104,7 +104,7 @@ const DatesFieldAlternate = ({
             const hasRequiredTypeValue = _has(requiredOption, "type");
             const hasRequiredDescriptionValue = _has(requiredOption, "description");
             return (
-              <Form.Group key={index} optimized>
+              <Form.Group key={index} optimized className="mb-12">
                 <TextField
                   fieldPath={`${fieldPathPrefix}.date`}
                   id={`${fieldPathPrefix}.date`}
@@ -112,7 +112,7 @@ const DatesFieldAlternate = ({
                   placeholder={placeholderDate}
                   disabled={hasRequiredDateValue}
                   required
-                  width={5}
+                  width={6}
                 />
                 <SelectField
                   fieldPath={`${fieldPathPrefix}.type`}
@@ -121,7 +121,7 @@ const DatesFieldAlternate = ({
                   options={sortOptions(options.type)}
                   disabled={hasRequiredTypeValue}
                   required
-                  width={5}
+                  width={4}
                   optimized
                 />
                 <TextField
@@ -129,7 +129,7 @@ const DatesFieldAlternate = ({
                   id={`${fieldPathPrefix}.description`}
                   label={i18next.t("Description")}
                   disabled={hasRequiredDescriptionValue}
-                  width={5}
+                  width={6}
                 />
                 <Form.Field>
                   <Button

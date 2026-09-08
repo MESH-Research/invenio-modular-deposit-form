@@ -15,6 +15,7 @@ import { SelectField } from "../../../replacement_components/input_controls/Sele
 import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel";
 import { Field, getIn, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
+import { useFormUIState } from "../../../FormUIStateManager.jsx";
 
 const EMPTY_RESOURCE_TYPES = [];
 
@@ -66,6 +67,8 @@ function ResourceTypeSelectorFieldInner({
     : [];
   const options = optionsProp ?? EMPTY_RESOURCE_TYPES;
   const { values, setFieldValue } = useFormikContext();
+  const { formUIState } = useFormUIState();
+  const { atMobile, atTablet, atComputer, atLargeScreen, viewportTier, viewportDirection } = formUIState;
   const currentTypeId = getIn(values, fieldPath);
   const [otherToggleActive, setOtherToggleActive] = useState(false);
   const radioRefs = useRef([]);
@@ -251,6 +254,9 @@ function ResourceTypeSelectorFieldInner({
   const assistiveGroupName =
     typeof label === "string" && label.trim() !== "" ? label : i18next.t("Resource type");
 
+  const numberWords = ["zero", "one", "two", "three", "four", "five", "six"];
+  const menuWidthClass = `${numberWords[radioCount]} item`;
+
   return (
     <Field id={fieldPath} name={fieldPath}>
       {({ meta }) => {
@@ -280,7 +286,7 @@ function ResourceTypeSelectorFieldInner({
               </div>
             )}
             <div
-              className="ui compact fluid icon labeled six item menu mb-0 mt-10"
+              className={`ui compact fluid icon labeled ${menuWidthClass} menu mb-0 mt-10`}
               role="radiogroup"
               tabIndex={-1}
               aria-invalid={showError || undefined}

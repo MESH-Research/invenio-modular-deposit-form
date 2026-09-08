@@ -41,24 +41,34 @@
 #rdm-deposit-form {
   /* Basic top-level field layout */
   .field {
-    margin-bottom: 0;
+    margin-top: 0; // FIXME: redundant
+    margin-bottom: 1rem;
+  }
+
+  .fields {
+    &.stackable-tablet {
+      @media (max-width: @largestTabletScreen) {
+        flex-direction: column;
+      }
+    }
+
+    &.invenio-group-field.invenio-form-row,
+    &.inline {
+      margin-bottom: 0;
+    }
   }
 
   .invenio-fieldset.invenio-form-section {
     margin: 0;
+    // & > .invenio-field-wrapper:has(+ .invenio-field-wrapper) {
+    //   margin-bottom: 12px;
+    // }
   }
 
   /* Error tooltips */
   .ui[class*="pointing above"].label {
     margin-bottom: 0.5em;
     line-height: 1.25em;
-  }
-
-  /* Avoid grid-layout fieldsets having excess bottom spacing */
-  .invenio-group-field.invenio-form-row {
-    &:last-of-type {
-      margin-bottom: 0;
-    }
   }
 
   // #rdm-deposit-form .sticky-footer-static {
@@ -213,19 +223,19 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-top: 0.75em;
-    padding: 0.25em 0;
-    color: #000;
+    color: @white;
     font-weight: bold;
     font-size: 1.4em;
     line-height: 1.25em;
-    background: transparent;
+    background: @ivy;
     border: 0;
     box-shadow: none;
     cursor: pointer;
+    border-radius: 0.25rem;
+    letter-spacing: 1px;
 
     > .text {
-      color: #000;
+      color: @ivory;
       font-weight: bold;
     }
 
@@ -234,7 +244,7 @@
     > .dropdown.icon {
       margin: 0 0 0 0.5em;
       font-size: 0.85em;
-      color: #000;
+      color: ivory;
     }
 
     > .menu {
@@ -289,6 +299,12 @@
           top: -0.15em;
         }
       }
+    }
+  }
+
+  .deposit-right-sidebar {
+    .invenio-fieldset.invenio-form-section.basic {
+      padding: 0;
     }
   }
 
@@ -383,37 +399,34 @@
     }
 
     .invenio-field-wrapper {
-      .field {
+      .helptext,
+      .description {
+        display: block;
+        color: #757575 !important;
+        font-size: 0.9em !important;
+        font-weight: 400 !important;
+      }
+
+      // Description sits above the input; pull it close to the label and
+      // leave a small gap before the input.
+      .description {
+        margin-top: -0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      // Helptext sits below the input; small breathing room above, none below.
+      .helptext {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+      }
+
+      .field,
+      .fields {
         .no-label {
           margin-top: 21px;
         }
-
-        .helptext,
-        .description {
-          display: block;
-          color: #757575 !important;
-          font-size: 0.9em !important;
-          font-weight: 400 !important;
-        }
-
-        // Description sits above the input; pull it close to the label and
-        // leave a small gap before the input.
-        .description {
-          margin-top: -0.5rem;
-          margin-bottom: 0.5rem;
-        }
-
-        // Helptext sits below the input; small breathing room above, none below.
-        .helptext {
-          margin-top: 0.5rem;
-          margin-bottom: 0;
-        }
       }
       &.files-field {
-        .invenio-field-label i.icon {
-          width: 0.8em;
-          margin-right: 0.7em;
-        }
         & > .ui.grid.file-uploader {
           margin-top: -5px;
         }
@@ -485,6 +498,44 @@
         .contributor-identifiers {
           .close-btn {
             margin-top: 1.5em;
+          }
+        }
+      }
+      &.metadata-rights-field {
+        & > .field {
+          & > .ui.list {
+            margin-bottom: 0.75rem;
+          }
+        }
+      }
+      &.pids-doi-field {
+        // Target the managed identifier field container directly
+        [id^="pids\.doi-"] .field,
+        #pids\.doi-managed-identifier,
+        #pids\.doi-unmanaged-identifier {
+          margin-bottom: 0.25rem;
+          margin-top: 0.25rem;
+        }
+        #pids\.doi-switch {
+          & > label {
+            margin-bottom: 0.25rem !important;
+          }
+        }
+        @media (min-width: @computerBreakpoint) {
+          margin-bottom: 0.25rem;
+          margin-top: 0.25rem;
+          #pids\.doi-switch {
+            label {
+              margin-top: 0;
+              margin-bottom: 0 !important;
+            }
+            .fields {
+              min-width: 50%;
+              .field {
+                margin-top: 0;
+                margin-bottom: 0;
+              }
+            }
           }
         }
       }
