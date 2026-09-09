@@ -26,6 +26,9 @@ module.exports = {
       "<rootDir>/__mocks__/invenio_rdm_records_deposit_reducer.js",
     "^@js/invenio_rdm_records/src/deposit/state/types$":
       "<rootDir>/__mocks__/invenio_rdm_records_deposit_types.js",
+    // AdditionalTitlesField defaultNewValue (must precede catch-all stub).
+    "^@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues$":
+      "<rootDir>/../invenio-rdm-records/invenio_rdm_records/assets/semantic-ui/js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues.js",
     "^@js/invenio_rdm_records$": "<rootDir>/__mocks__/invenio_rdm_records.js",
     "^@js/invenio_rdm_records/(.*)$": "<rootDir>/__mocks__/invenio_rdm_records.js",
     "^@js/invenio_vocabularies$": "<rootDir>/__mocks__/invenio_vocabularies_stub.js",
