@@ -1,8 +1,6 @@
-#!/usr/bin/env bash
-#
-# Run Jest for this package (same role as run-js-tests.sh in the parent kcworks-next repo).
+#!/bin/bash
+# invenio-modular-deposit-form JS tests (pnpm). From the monorepo, prefer
+# ``./run-tests.sh --js-only`` / ``scripts/run-js-suites.sh``.
 set -euo pipefail
-cd "$(dirname "$0")"
-
-# Run the tests (Jest + babel-jest; no webpack/rspack bundle step)
-pnpm test
+cd "$(dirname "${BASH_SOURCE[0]}")"
+pnpm run test "$@"
