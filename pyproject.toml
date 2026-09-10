@@ -5,7 +5,7 @@ requires = ["babel>2.8", "setuptools>=61,<82", "wheel"]
 
 [project]
 name = "invenio-modular-deposit-form"
-version = "0.3.4-dev0"
+version = "0.4.0"
 description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
 readme = "README.md"
 keywords = ["deposit-form", "extensions", "invenio", "inveniordm", "ui"]
@@ -203,7 +203,7 @@ ini_options.log_cli_level = "DEBUG"
 ini_options.isort_show_files = true
 
 [tool.bumpver]
-current_version = "0.3.4-dev0"
+current_version = "0.4.0"
 version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
 commit_message = "Bumping version {old_version} -> {new_version}."
 tag_message = "{new_version}"
