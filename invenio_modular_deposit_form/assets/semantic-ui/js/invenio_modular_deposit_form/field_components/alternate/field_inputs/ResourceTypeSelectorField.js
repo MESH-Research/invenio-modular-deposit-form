@@ -15,7 +15,6 @@ import { SelectField } from "../../../replacement_components/input_controls/Sele
 import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel";
 import { Field, getIn, useFormikContext } from "formik";
 import { Icon, Label } from "semantic-ui-react";
-import { useFormUIState } from "../../../FormUIStateManager.jsx";
 
 const EMPTY_RESOURCE_TYPES = [];
 
@@ -67,8 +66,6 @@ function ResourceTypeSelectorFieldInner({
     : [];
   const options = optionsProp ?? EMPTY_RESOURCE_TYPES;
   const { values, setFieldValue } = useFormikContext();
-  const { formUIState } = useFormUIState();
-  const { atMobile, atTablet, atComputer, atLargeScreen, viewportTier, viewportDirection } = formUIState;
   const currentTypeId = getIn(values, fieldPath);
   const [otherToggleActive, setOtherToggleActive] = useState(false);
   const radioRefs = useRef([]);
@@ -254,7 +251,7 @@ function ResourceTypeSelectorFieldInner({
   const assistiveGroupName =
     typeof label === "string" && label.trim() !== "" ? label : i18next.t("Resource type");
 
-  const numberWords = ["zero", "one", "two", "three", "four", "five", "six"];
+  const numberWords = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight"];
   const menuWidthClass = `${numberWords[radioCount]} item`;
 
   return (

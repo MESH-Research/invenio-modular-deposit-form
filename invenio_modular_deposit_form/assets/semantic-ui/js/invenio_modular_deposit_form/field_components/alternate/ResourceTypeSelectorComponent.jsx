@@ -10,9 +10,6 @@ import ResourceTypeSelectorField from "./field_inputs/ResourceTypeSelectorField"
 import { FieldComponentWrapper } from "../FieldComponentWrapper";
 import { useFormUIState } from "../../FormUIStateManager.jsx";
 
-/** Five shortcut buttons plus “Other…”. */
-const MAX_RESOURCE_TYPE_SHORTCUT_BUTTONS = 5;
-
 const EMPTY_RESOURCE_TYPES = [];
 const EMPTY_PRIORITY_TYPES = [];
 
