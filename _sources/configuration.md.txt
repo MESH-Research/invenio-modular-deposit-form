@@ -147,9 +147,9 @@ object in the top-level list.
   keeps the sidebar in view as the main column scrolls; set it to `false` for a
   sidebar that should scroll away with the page.
 - **FormRightSidebar** — `"component": "FormRightSidebar"`. Same as the left
-  sidebar, including `sticky`. The default package layout uses it with **FormFeedbackComponent**
-  (form feedback above; implementation paths and optional **`hideMessageIcon`**
-  in
+  sidebar, including `sticky`. The default package layout uses it with
+  **FormFeedbackComponent** (form feedback above; implementation paths and
+  optional **`hideMessageIcon`** in
   [field_components.md](field_components.md#form-feedback-errors-and-action-state)),
   **SubmissionComponent** (stock-style submit card), and
   **AccessRightsComponent** (Visibility). See
@@ -434,14 +434,14 @@ shown by viewport width:
    `FormPage`'s stepper/sidebar entry) so the element is hidden via
    `display: none` at the breakpoints you choose.
 3. **JavaScript viewport state** — React components can read live breakpoint
-   flags from `useFormUIState` and change what they render (column counts,
-   which control to show, animation direction) as the window is resized. The
-   form's own page navigation already does this; custom field and layout
-   components can too.
+   flags from `useFormUIState` and change what they render (column counts, which
+   control to show, animation direction) as the window is resized. The form's
+   own page navigation already does this; custom field and layout components can
+   too.
 
 Use widths to control how the grid lays out; use classes to hide individual
 elements without re-laying-out the columns; use the JS state when a component
-needs to *change its behaviour*, not merely whether it is visible.
+needs to _change its behaviour_, not merely whether it is visible.
 
 ### Per-breakpoint column widths
 
@@ -494,11 +494,11 @@ responsive-width margin, or reserve gutter space. It is most useful inside
 alignment other than the default left edge.
 
 A `SpacerColumn` accepts the same width keys and the same `classnames` (Semantic
-UI responsive helpers) as any other column. It takes no `subsections` and renders
-as a single empty `<div class="… column">`. It also accepts `"only"`, but as
-Semantic UI's visibility prop rather than the sidebar width-zeroing shortcut —
-always give a spacer an explicit width at every breakpoint where it should
-occupy space.
+UI responsive helpers) as any other column. It takes no `subsections` and
+renders as a single empty `<div class="… column">`. It also accepts `"only"`,
+but as Semantic UI's visibility prop rather than the sidebar width-zeroing
+shortcut — always give a spacer an explicit width at every breakpoint where it
+should occupy space.
 
 **Aligning a top stepper with the sidebars.** When a page has a left and/or
 right sidebar at large widths, a stepper placed in `FormHeader` needs leading
@@ -607,7 +607,7 @@ the JavaScript would simply disagree about where each breakpoint begins.
 #### The classes
 
 | Class                                                                                           | Visible at                                                                                                                                                                |
-| ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mobile only`                                                                                   | Mobile only (≤767px).                                                                                                                                                     |
 | `tablet only`                                                                                   | Tablet only (768–1279px).                                                                                                                                                 |
 | `computer only`                                                                                 | Computer **and larger** (≥1280px) — _not_ strict "only computer".                                                                                                         |
@@ -647,20 +647,20 @@ the component itself to react — for example choosing how many cards fit in a
 row, or remapping which page Back/Next should land on. For that, the form keeps
 live breakpoint flags on form UI state:
 
-| Flag / field         | Meaning                                                                 |
-| -------------------- | ----------------------------------------------------------------------- |
-| `atMobile`           | Viewport is in the mobile band.                                         |
-| `atTablet`           | Viewport is in the tablet band.                                         |
-| `atComputer`         | Viewport is in the computer band (not large screen and above).          |
-| `atLargeScreen`      | Viewport is at the large screen breakpoint or wider.                    |
-| `viewportTier`       | Ordinal of the active band (0–3), for comparing widen vs shrink.        |
-| `viewportDirection`  | `"widen"`, `"shrink"`, or `"none"` for the last band change.            |
+| Flag / field        | Meaning                                                          |
+| ------------------- | ---------------------------------------------------------------- |
+| `atMobile`          | Viewport is in the mobile band.                                  |
+| `atTablet`          | Viewport is in the tablet band.                                  |
+| `atComputer`        | Viewport is in the computer band (not large screen and above).   |
+| `atLargeScreen`     | Viewport is at the large screen breakpoint or wider.             |
+| `viewportTier`      | Ordinal of the active band (0–3), for comparing widen vs shrink. |
+| `viewportDirection` | `"widen"`, `"shrink"`, or `"none"` for the last band change.     |
 
 `FormUIStateManager` seeds them from `matchMedia` on mount and updates them on
 every breakpoint change, so anything that reads them via `useFormUIState`
 re-renders on the same tick as the rest of the form. Built-in consumers include
-page navigation (see below) and field components that adjust their internal
-grid from the same flags.
+page navigation (see below) and field components that adjust their internal grid
+from the same flags.
 
 ```{warning}
 The four `at*` flags are **mutually exclusive bands**, not cumulative
@@ -685,16 +685,16 @@ mechanisms decide whether a page is part of the flow.
 
 A page drops out of the flow entirely when its merged subsection list is empty
 for the selected resource type. This is the placeholder-page mechanism described
-in [Optional pages and resource types](#optional-pages-and-resource-types).
-Such pages are absent from the stepper, the sidebar menu, the Back/Next
-sequence, and the main column. If the depositor is *on* such a page when they
-change the resource type, the form moves them to the first remaining page and
-rewrites the URL in place (no extra browser-history entry).
+in [Optional pages and resource types](#optional-pages-and-resource-types). Such
+pages are absent from the stepper, the sidebar menu, the Back/Next sequence, and
+the main column. If the depositor is _on_ such a page when they change the
+resource type, the form moves them to the first remaining page and rewrites the
+URL in place (no extra browser-history entry).
 
 #### 2. Pages whose menu item is hidden by breakpoint
 
-A `FormPage` accepts an optional **`menuItemClasses`** key. The string is applied
-to the page's stepper step (`FormStepper`) and its sidebar menu item
+A `FormPage` accepts an optional **`menuItemClasses`** key. The string is
+applied to the page's stepper step (`FormStepper`) and its sidebar menu item
 (`FormSidebarPageMenu`) — **not** to the page content.
 
 ```python
@@ -715,14 +715,14 @@ the navigation to match:
   next page ids, so at computer+ widths the buttons step over the hidden page to
   the nearest page that still has a menu item.
 - **Direct links are redirected.** Loading `?page=6` at computer width lands the
-  depositor on the nearest preceding page that *is* visible, and the address bar
+  depositor on the nearest preceding page that _is_ visible, and the address bar
   is corrected with `replaceState`.
 - **Resizing re-resolves everything.** Crossing the computer breakpoint in
   either direction recomputes the current, previous, and next pages. Widening
   moves the depositor off a now-hidden page; narrowing restores it as a
   Back/Next destination and as a direct-link target.
 - **The mobile dropdown is the exception.** The page-title dropdown that
-  `FormStepper` renders at mobile width deliberately lists *every* page in the
+  `FormStepper` renders at mobile width deliberately lists _every_ page in the
   flow, including menu-hidden ones, so mobile navigation matches what the
   desktop sidebar offers.
 
@@ -818,11 +818,11 @@ is which saves a lot of guesswork.
 These are in the package's `deposit_form.less` and are safe to use from
 `classnames`:
 
-| Class                     | Put it on            | Effect                                                                                                                            |
-| ------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Class                       | Put it on          | Effect                                                                                                                           |
+| --------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
 | **`prominent-field-label`** | A field or section | Renders the field's top-level label in the primary colour, bold, at 1.25em, so it reads as a heading rather than an input label. |
-| **`stackable-tablet`**    | A `FormRow`          | Stacks the row's fields vertically at tablet width and below instead of keeping them side by side.                                |
-| **`computer-only-strict`** | Any component       | Visible only at 1280–1679px. See [The classes](#the-classes).                                                                     |
+| **`stackable-tablet`**      | A `FormRow`        | Stacks the row's fields vertically at tablet width and below instead of keeping them side by side.                               |
+| **`computer-only-strict`**  | Any component      | Visible only at 1280–1679px. See [The classes](#the-classes).                                                                    |
 
 `invenio-form-section` is also a package class, but `FormSection` adds it
 automatically — you do not need to pass it.
@@ -850,9 +850,9 @@ the gap between two stacked sections.
 
 This package also defines the **`*-12`** step (`m-12`, `mt-12`, `mb-12`,
 `ml-12`, `mr-12`, `p-12`, `pt-12`, `pb-12`, `pl-12`, `pr-12`), which stock
-invenio-theme does not emit. Defaults are **10px** so they stay on the stock
-5px grid. Instances may remap them (KCWorks sets `*-12` to 0.75rem / 12px
-inside `#rdm-deposit-form`).
+invenio-theme does not emit. Defaults are **10px** so they stay on the stock 5px
+grid. Instances may remap them (KCWorks sets `*-12` to 0.75rem / 12px inside
+`#rdm-deposit-form`).
 
 ```{warning}
 An instance may **remap** the numeric helpers inside the deposit form. KCWorks,
@@ -1005,9 +1005,10 @@ note below).
 Default: `True`.
 
 When `True`, the form loads your `validator.js` (see [Validation](validation.md)
-and [Adding your own components](extending.md#what-goes-in-each-extension-file)) and runs the
-resulting Yup schema on every change. When `False`, no client schema is loaded;
-field errors only appear after submit returns server-side validation errors.
+and [Adding your own components](extending.md#what-goes-in-each-extension-file))
+and runs the resulting Yup schema on every change. When `False`, no client
+schema is loaded; field errors only appear after submit returns server-side
+validation errors.
 
 ```{note}
 Changing this value requires rebuilding assets (`invenio webpack build`) — the choice is baked in at build time by `webpack_extras.get_validator_path()`.
@@ -1043,7 +1044,9 @@ exposes as shortcut buttons (in addition to the always-present "Other…" contro
 that opens the full vocabulary select).
 
 ```{important}
-Only the **first five** ids in the tuple are rendered as buttons. Additional ids are ignored. List your most-specific or highest-traffic types first.
+Only the **first six** ids in the tuple are ever rendered as buttons. The
+number depends on the current viewport width. Additional ids are ignored. List
+your most-specific or highest-traffic types first.
 ```
 
 Ids must come from your instance's `resource_types` vocabulary.

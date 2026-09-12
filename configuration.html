@@ -418,9 +418,9 @@ Optional responsive column keys: <code class="docutils literal notranslate"><spa
 keeps the sidebar in view as the main column scrolls; set it to <code class="docutils literal notranslate"><span class="pre">false</span></code> for a
 sidebar that should scroll away with the page.</p></li>
 <li><p><strong>FormRightSidebar</strong> — <code class="docutils literal notranslate"><span class="pre">&quot;component&quot;:</span> <span class="pre">&quot;FormRightSidebar&quot;</span></code>. Same as the left
-sidebar, including <code class="docutils literal notranslate"><span class="pre">sticky</span></code>. The default package layout uses it with <strong>FormFeedbackComponent</strong>
-(form feedback above; implementation paths and optional <strong><code class="docutils literal notranslate"><span class="pre">hideMessageIcon</span></code></strong>
-in
+sidebar, including <code class="docutils literal notranslate"><span class="pre">sticky</span></code>. The default package layout uses it with
+<strong>FormFeedbackComponent</strong> (form feedback above; implementation paths and
+optional <strong><code class="docutils literal notranslate"><span class="pre">hideMessageIcon</span></code></strong> in
 <a class="reference internal" href="field_components.html#form-feedback-errors-and-action-state"><span class="std std-ref">field_components.md</span></a>),
 <strong>SubmissionComponent</strong> (stock-style submit card), and
 <strong>AccessRightsComponent</strong> (Visibility). See
@@ -685,10 +685,10 @@ or grows at each breakpoint.</p></li>
 <code class="docutils literal notranslate"><span class="pre">FormPage</span></code>’s stepper/sidebar entry) so the element is hidden via
 <code class="docutils literal notranslate"><span class="pre">display:</span> <span class="pre">none</span></code> at the breakpoints you choose.</p></li>
 <li><p><strong>JavaScript viewport state</strong> — React components can read live breakpoint
-flags from <code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code> and change what they render (column counts,
-which control to show, animation direction) as the window is resized. The
-form’s own page navigation already does this; custom field and layout
-components can too.</p></li>
+flags from <code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code> and change what they render (column counts, which
+control to show, animation direction) as the window is resized. The form’s
+own page navigation already does this; custom field and layout components can
+too.</p></li>
 </ol>
 <p>Use widths to control how the grid lays out; use classes to hide individual
 elements without re-laying-out the columns; use the JS state when a component
@@ -740,11 +740,11 @@ responsive-width margin, or reserve gutter space. It is most useful inside
 <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">FormTitle</span></code>, <code class="docutils literal notranslate"><span class="pre">FormFooter</span></code>, and any <code class="docutils literal notranslate"><span class="pre">FormRow</span></code> where you need an
 alignment other than the default left edge.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">SpacerColumn</span></code> accepts the same width keys and the same <code class="docutils literal notranslate"><span class="pre">classnames</span></code> (Semantic
-UI responsive helpers) as any other column. It takes no <code class="docutils literal notranslate"><span class="pre">subsections</span></code> and renders
-as a single empty <code class="docutils literal notranslate"><span class="pre">&lt;div</span> <span class="pre">class=&quot;…</span> <span class="pre">column&quot;&gt;</span></code>. It also accepts <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code>, but as
-Semantic UI’s visibility prop rather than the sidebar width-zeroing shortcut —
-always give a spacer an explicit width at every breakpoint where it should
-occupy space.</p>
+UI responsive helpers) as any other column. It takes no <code class="docutils literal notranslate"><span class="pre">subsections</span></code> and
+renders as a single empty <code class="docutils literal notranslate"><span class="pre">&lt;div</span> <span class="pre">class=&quot;…</span> <span class="pre">column&quot;&gt;</span></code>. It also accepts <code class="docutils literal notranslate"><span class="pre">&quot;only&quot;</span></code>,
+but as Semantic UI’s visibility prop rather than the sidebar width-zeroing
+shortcut — always give a spacer an explicit width at every breakpoint where it
+should occupy space.</p>
 <p><strong>Aligning a top stepper with the sidebars.</strong> When a page has a left and/or
 right sidebar at large widths, a stepper placed in <code class="docutils literal notranslate"><span class="pre">FormHeader</span></code> needs leading
 and trailing spacers so it begins at the same x-position as the main column and
@@ -964,8 +964,8 @@ live breakpoint flags on form UI state:</p>
 <p><code class="docutils literal notranslate"><span class="pre">FormUIStateManager</span></code> seeds them from <code class="docutils literal notranslate"><span class="pre">matchMedia</span></code> on mount and updates them on
 every breakpoint change, so anything that reads them via <code class="docutils literal notranslate"><span class="pre">useFormUIState</span></code>
 re-renders on the same tick as the rest of the form. Built-in consumers include
-page navigation (see below) and field components that adjust their internal
-grid from the same flags.</p>
+page navigation (see below) and field components that adjust their internal grid
+from the same flags.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The four <code class="docutils literal notranslate"><span class="pre">at*</span></code> flags are <strong>mutually exclusive bands</strong>, not cumulative
@@ -986,16 +986,16 @@ mechanisms decide whether a page is part of the flow.</p>
 <h4>1. Pages hidden by resource type<a class="headerlink" href="#pages-hidden-by-resource-type" title="Link to this heading">¶</a></h4>
 <p>A page drops out of the flow entirely when its merged subsection list is empty
 for the selected resource type. This is the placeholder-page mechanism described
-in <a class="reference internal" href="#optional-pages-and-resource-types">Optional pages and resource types</a>.
-Such pages are absent from the stepper, the sidebar menu, the Back/Next
-sequence, and the main column. If the depositor is <em>on</em> such a page when they
-change the resource type, the form moves them to the first remaining page and
-rewrites the URL in place (no extra browser-history entry).</p>
+in <a class="reference internal" href="#optional-pages-and-resource-types">Optional pages and resource types</a>. Such
+pages are absent from the stepper, the sidebar menu, the Back/Next sequence, and
+the main column. If the depositor is <em>on</em> such a page when they change the
+resource type, the form moves them to the first remaining page and rewrites the
+URL in place (no extra browser-history entry).</p>
 </section>
 <section id="pages-whose-menu-item-is-hidden-by-breakpoint">
 <h4>2. Pages whose menu item is hidden by breakpoint<a class="headerlink" href="#pages-whose-menu-item-is-hidden-by-breakpoint" title="Link to this heading">¶</a></h4>
-<p>A <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> accepts an optional <strong><code class="docutils literal notranslate"><span class="pre">menuItemClasses</span></code></strong> key. The string is applied
-to the page’s stepper step (<code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>) and its sidebar menu item
+<p>A <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> accepts an optional <strong><code class="docutils literal notranslate"><span class="pre">menuItemClasses</span></code></strong> key. The string is
+applied to the page’s stepper step (<code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>) and its sidebar menu item
 (<code class="docutils literal notranslate"><span class="pre">FormSidebarPageMenu</span></code>) — <strong>not</strong> to the page content.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">"section"</span><span class="p">:</span> <span class="s2">"6"</span><span class="p">,</span>
@@ -1164,9 +1164,9 @@ steps. The shipped layouts use these freely, e.g. <code class="docutils literal 
 the gap between two stacked sections.</p>
 <p>This package also defines the <strong><code class="docutils literal notranslate"><span class="pre">*-12</span></code></strong> step (<code class="docutils literal notranslate"><span class="pre">m-12</span></code>, <code class="docutils literal notranslate"><span class="pre">mt-12</span></code>, <code class="docutils literal notranslate"><span class="pre">mb-12</span></code>,
 <code class="docutils literal notranslate"><span class="pre">ml-12</span></code>, <code class="docutils literal notranslate"><span class="pre">mr-12</span></code>, <code class="docutils literal notranslate"><span class="pre">p-12</span></code>, <code class="docutils literal notranslate"><span class="pre">pt-12</span></code>, <code class="docutils literal notranslate"><span class="pre">pb-12</span></code>, <code class="docutils literal notranslate"><span class="pre">pl-12</span></code>, <code class="docutils literal notranslate"><span class="pre">pr-12</span></code>), which stock
-invenio-theme does not emit. Defaults are <strong>10px</strong> so they stay on the stock
-5px grid. Instances may remap them (KCWorks sets <code class="docutils literal notranslate"><span class="pre">*-12</span></code> to 0.75rem / 12px
-inside <code class="docutils literal notranslate"><span class="pre">#rdm-deposit-form</span></code>).</p>
+invenio-theme does not emit. Defaults are <strong>10px</strong> so they stay on the stock 5px
+grid. Instances may remap them (KCWorks sets <code class="docutils literal notranslate"><span class="pre">*-12</span></code> to 0.75rem / 12px inside
+<code class="docutils literal notranslate"><span class="pre">#rdm-deposit-form</span></code>).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>An instance may <strong>remap</strong> the numeric helpers inside the deposit form. KCWorks,
@@ -1350,9 +1350,10 @@ note below).</p>
 <h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code><a class="headerlink" href="#modular-deposit-form-use-client-validation" title="Link to this heading">¶</a></h3>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the form loads your <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> (see <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a>
-and <a class="reference internal" href="extending.html#what-goes-in-each-extension-file"><span class="std std-ref">Adding your own components</span></a>) and runs the
-resulting Yup schema on every change. When <code class="docutils literal notranslate"><span class="pre">False</span></code>, no client schema is loaded;
-field errors only appear after submit returns server-side validation errors.</p>
+and <a class="reference internal" href="extending.html#what-goes-in-each-extension-file"><span class="std std-ref">Adding your own components</span></a>)
+and runs the resulting Yup schema on every change. When <code class="docutils literal notranslate"><span class="pre">False</span></code>, no client
+schema is loaded; field errors only appear after submit returns server-side
+validation errors.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Changing this value requires rebuilding assets (<code class="docutils literal notranslate"><span class="pre">invenio</span> <span class="pre">webpack</span> <span class="pre">build</span></code>) — the choice is baked in at build time by <code class="docutils literal notranslate"><span class="pre">webpack_extras.get_validator_path()</span></code>.</p>
@@ -1385,7 +1386,9 @@ exposes as shortcut buttons (in addition to the always-present “Other…” co
 that opens the full vocabulary select).</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Only the <strong>first five</strong> ids in the tuple are rendered as buttons. Additional ids are ignored. List your most-specific or highest-traffic types first.</p>
+<p>Only the <strong>first six</strong> ids in the tuple are ever rendered as buttons. The
+number depends on the current viewport width. Additional ids are ignored. List
+your most-specific or highest-traffic types first.</p>
 </div>
 <p>Ids must come from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary.</p>
 </section>
