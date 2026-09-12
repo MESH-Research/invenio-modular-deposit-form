@@ -436,11 +436,9 @@
               display: none;
             }
           }
-          // .ui.horizontal.list > .item:last-child {
-          //   @media all and (max-width: @largestTabletScreen) {
-          //     margin-left: 0;
-          //   }
-          // }
+        }
+        .uppy-u-reset {
+          z-index: 11;
         }
       }
       &.metadata-title-field {
@@ -541,6 +539,8 @@
       }
 
       &.metadata-resource_type-field {
+        position: relative;
+        z-index: 20; // to allow display to overlap uppy file widget below
         .ui.icon.menu {
           border: none;
           box-shadow: none;
