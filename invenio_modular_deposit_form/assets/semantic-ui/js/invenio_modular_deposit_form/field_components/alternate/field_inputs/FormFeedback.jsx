@@ -522,7 +522,7 @@ function ActionToastMessage({ feedback, hideMessageIcon, loading, message }) {
     <Message
       visible
       {...{ [type]: true }}
-      className="flashed pb-15"
+      className="p-0"
       icon={!hideMessageIcon || loading}
       id={`${type}-action-feedback-div`}
     >
@@ -532,7 +532,7 @@ function ActionToastMessage({ feedback, hideMessageIcon, loading, message }) {
         <Icon name={icon} className="mr-0 ml-15 pt-10" />
       ) : null}
       <Message.Content>
-        <p className="pt-15 pr-15 pl-15">{message}</p>
+        <p className="pt-15 pr-15 pl-15 pb-15">{message}</p>
       </Message.Content>
     </Message>
   );
@@ -557,11 +557,11 @@ function ValidationMessage({
     <Message
       visible
       {...{ [type]: true }}
-      className="flashed pb-15"
+      className="p-0"
       icon={!hideMessageIcon}
       id={`${type}-validation-feedback-div`}
     >
-      <Message.Content className="rel-ml-1 mr-15 rel-mt-1">
+      <Message.Content className="rel-ml-1 mr-15 pb-15 rel-mt-1">
         <Message.Header className="">{message}</Message.Header>
         <Message.List className="mt-10 mb-0">
           <FormFeedbackSummary

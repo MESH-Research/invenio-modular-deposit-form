@@ -184,7 +184,7 @@ const FormFeedbackSummary = ({
           type="button"
           transparent
           basic
-          className={`pt-5 pr-10 pl-10 pb-5 mb-5 ${severityClass} validation-error-feedback-link`}
+          className={`p-10 mb-5 ${severityClass} validation-error-feedback-link`}
           onClick={(e) => {
             if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
               handleFormPageChange(e, { value: pageId });
