@@ -13,13 +13,15 @@ import { areDeeplyEqual, focusFirstElement } from "../utils";
 const AUTOSAVE_DEBOUNCE_MS = 500;
 
 // Server-managed/computed fields that are part of the Formik deposit schema but
-// are owned by the backend (populated from the API response, not edited by the
-// user). They must never be rehydrated from a stale localStorage snapshot:
-// stripping them on save keeps the snapshot lean, and overlaying them from the
-// live Redux record on restore prevents downstream consumers (e.g. upstream
+// are owned by the backend or Redux (populated from the API / files store, not
+// edited by the user). They must never be rehydrated from a stale localStorage
+// snapshot: stripping them on save keeps the snapshot lean, and overlaying
+// them from live state on restore prevents downstream consumers (e.g. upstream
 // ShareDraftButton's `Object.keys(values.expanded)`) from blowing up when a
 // restored snapshot would otherwise leave them undefined.
+// `files.count` is mirrored from Redux `files.entries` by SyncFilesCountFromRedux.
 const SERVER_MANAGED_FORMIK_KEYS = ["expanded", "links"];
+const COMPARE_IGNORE_KEYS = ["ui", ...SERVER_MANAGED_FORMIK_KEYS, "files.count"];
 
 const stripServerManagedKeys = (values) => {
   if (!values || typeof values !== "object") return values;
@@ -27,17 +29,25 @@ const stripServerManagedKeys = (values) => {
   for (const key of SERVER_MANAGED_FORMIK_KEYS) {
     delete result[key];
   }
+  if (result.files && typeof result.files === "object") {
+    result.files = { ...result.files };
+    delete result.files.count;
+  }
   return result;
 };
 
-const overlayServerManagedKeys = (snapshot, record) => {
+const overlayServerManagedKeys = (snapshot, record, fileEntryCount) => {
   const overlay = {};
   for (const key of SERVER_MANAGED_FORMIK_KEYS) {
     if (record && record[key] !== undefined) {
       overlay[key] = record[key];
     }
   }
-  return { ...snapshot, ...overlay };
+  const merged = { ...snapshot, ...overlay };
+  if (fileEntryCount !== undefined) {
+    merged.files = { ...(merged.files ?? {}), count: fileEntryCount };
+  }
+  return merged;
 };
 
 /** Custom hook for recovering form values from local storage
@@ -52,9 +62,9 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
   const confirmModalRef = useRef();
   const [recoveredStorageValues, setRecoveredStorageValues] = useState(null);
   const [storageDataPresent, setStorageDataPresent] = useState(false);
-  const { values, initialValues, isSubmitting, setValues, setInitialValues, resetForm } =
-    useFormikContext();
+  const { values, initialValues, isSubmitting, resetForm } = useFormikContext();
   const storageValuesKey = `rdmDepositFormValues.${user}.${initialValues?.id}`;
+  const storageValuesDefaultKey = `rdmDepositFormValues.${user}.undefined`;
   const autosaveTimeoutRef = useRef(null);
   const store = useStore();
 
@@ -71,7 +81,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
   // `links` don't trigger spurious autosaves with no user content change.
   useEffect(() => {
     if (!recoveryAsked) return;
-    if (areDeeplyEqual(initialValues, values, ["ui", ...SERVER_MANAGED_FORMIK_KEYS])) return;
+    if (areDeeplyEqual(initialValues, values, COMPARE_IGNORE_KEYS)) return;
 
     autosaveTimeoutRef.current = setTimeout(() => {
       window.localStorage.setItem(
@@ -100,15 +110,15 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
   // `values` after mount (e.g. resource type / publication date / DOI), and
   // also avoids false negatives where a user's only edit happens to be in one
   // of those fields. We ignore `ui` (transient client-only Formik state) and
-  // SERVER_MANAGED_FORMIK_KEYS (which we deliberately strip on save and
-  // overlay from the live record on restore — see handleStorageData).
+  // COMPARE_IGNORE_KEYS (server-managed paths we strip on save and overlay
+  // from live state on restore — see handleStorageData).
   useEffect(() => {
     const storageValues = window.localStorage.getItem(storageValuesKey);
     const storageValuesObj = JSON.parse(storageValues);
     if (
       !recoveryAsked &&
       !!storageValuesObj &&
-      !areDeeplyEqual(storageValuesObj, initialValues, ["ui", ...SERVER_MANAGED_FORMIK_KEYS])
+      !areDeeplyEqual(storageValuesObj, initialValues, COMPARE_IGNORE_KEYS)
     ) {
       setRecoveredStorageValues(storageValuesObj);
       setStorageDataPresent(true);
@@ -127,6 +137,11 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
     if (storageDataPresent) {
       window.localStorage.removeItem(storageValuesKey);
     }
+    // Clear any values stored before the record had a recid;
+    // This will wipe 1st drafts of previous records, but otherwise
+    // we will end up with counterintuitive offers to restore after
+    // saving or publishing.
+    window.localStorage.removeItem(storageValuesDefaultKey);
   }, [isSubmitting]);
 
   const handleStorageData = useCallback(
@@ -138,8 +153,14 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
         // copies; either way, the live Redux record is the source of truth.
         // Keep the snapshot in localStorage on accept so a reload without
         // further edits can still offer recovery; submit clears it.
-        const liveRecord = store.getState().deposit?.record ?? {};
-        const merged = overlayServerManagedKeys(recoveredStorageValues, liveRecord);
+        const reduxState = store.getState();
+        const liveRecord = reduxState.deposit?.record ?? {};
+        const fileEntryCount = Object.keys(reduxState.files?.entries ?? {}).length;
+        const merged = overlayServerManagedKeys(
+          recoveredStorageValues,
+          liveRecord,
+          fileEntryCount
+        );
         async function doSetInitialValues() {
           resetForm({ values: merged });
         }
@@ -153,14 +174,7 @@ function useLocalStorageRecovery(currentUserprofile, currentFormPage) {
         );
       }
     },
-    [
-      currentFormPage,
-      currentUserprofile.id,
-      recoveredStorageValues,
-      resetForm,
-      store,
-      values.id,
-    ]
+    [currentFormPage, currentUserprofile.id, recoveredStorageValues, resetForm, store, values.id]
   );
 
   return useMemo(

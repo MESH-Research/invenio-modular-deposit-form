@@ -515,24 +515,22 @@ function getErrorParent(errors, fieldPath) {
 // comparing the objects. Array items in the object can be ignored by
 // passing the array index as the key path.
 // returns(boolean): true if the objects are deeply equal, false otherwise
-function areDeeplyEqual(obj1, obj2, ignoreKeys) {
+function areDeeplyEqual(obj1, obj2, ignoreKeys = []) {
   if (typeof obj1 !== "object" || typeof obj2 !== "object" || obj1 === null || obj2 === null) {
     return obj1 === obj2;
   }
 
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
+  // Drop ignored keys on both sides before comparing shape. Otherwise an
+  // ignored key present on only one object fails the length check and is
+  // never skipped (e.g. values.files.count vs initialValues.files).
+  const keys1 = Object.keys(obj1).filter((key) => !ignoreKeys.includes(key));
+  const keys2 = Object.keys(obj2).filter((key) => !ignoreKeys.includes(key));
 
   if (keys1.length !== keys2.length) return false;
 
-  for (let key of keys1) {
-    // Skip only on an exact ignore-list match for this level. Dotted paths
-    // (e.g. "metadata.resource_type") are handled by recursing with
-    // _getSubKeys so we don't accidentally skip the entire parent subtree.
-    if (ignoreKeys.includes(key)) {
-      continue;
-    }
-
+  for (const key of keys1) {
+    // Dotted paths (e.g. "metadata.resource_type") are handled by recursing
+    // with _getSubKeys so we don't skip the entire parent subtree.
     if (!keys2.includes(key)) return false;
 
     if (!areDeeplyEqual(obj1[key], obj2[key], _getSubKeys(key, ignoreKeys))) {
@@ -549,7 +547,7 @@ function areDeeplyEqual(obj1, obj2, ignoreKeys) {
 // param key(string): key string or dot-separated key path
 // param ignoreKeys(array): array of dot-separated key paths
 // returns(array): array of the paths below the given key or path
-function _getSubKeys(key, ignoreKeys) {
+function _getSubKeys(key, ignoreKeys = []) {
   return ignoreKeys
     .filter((ignoreKey) => ignoreKey.startsWith(key + "."))
     .map((ignoreKey) => ignoreKey.slice(key.length + 1));
