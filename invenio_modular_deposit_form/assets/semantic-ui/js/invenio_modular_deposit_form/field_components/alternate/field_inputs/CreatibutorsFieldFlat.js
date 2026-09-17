@@ -22,6 +22,7 @@ import { CreatibutorsFieldFlatItem } from "./creatibutor_components/Creatibutors
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { getFamilyName, getGivenName, guessPersonNamesFromFullName } from "../../../helpers/names";
+import { useFormUIState } from "../../../FormUIStateManager";
 
 function sortOptions(options) {
   return options.sort((o1, o2) => o1.text.localeCompare(o2.text));
@@ -254,6 +255,8 @@ const CreatibutorsFieldFlat = ({
   const [selfNameWasGuessed, setSelfNameWasGuessed] = useState(false);
   const { errors, initialErrors, initialValues, setFieldTouched, touched, values } =
     useFormikContext();
+  const { formUIState } = useFormUIState();
+  const { atMobile } = formUIState;
 
   const error = _get(errors, fieldPath, null);
   const initialError = getIn(initialErrors, fieldPath, null);
@@ -454,7 +457,7 @@ const CreatibutorsFieldFlat = ({
             </TransitionGroup>
 
             {!(newItemIndex > -1 && showEditForms.includes(newItemIndex)) && (
-              <div className="mt-10">
+              <div className={`mt-10 ${atMobile ? "centered" : ""}`}>
                 <Button
                   type="button"
                   icon
@@ -467,7 +470,7 @@ const CreatibutorsFieldFlat = ({
                   }}
                 >
                   <Icon name="add" />
-                  {addButtonLabel}
+                  {atMobile ? i18next.t("Contributor") : addButtonLabel}
                 </Button>
                 <Button
                   type="button"
@@ -501,7 +504,7 @@ const CreatibutorsFieldFlat = ({
                   }}
                 >
                   <Icon name="add" />
-                  {i18next.t("Add myself")}
+                  {atMobile ? i18next.t("Myself") : i18next.t("Add myself")}
                 </Button>
               </div>
             )}

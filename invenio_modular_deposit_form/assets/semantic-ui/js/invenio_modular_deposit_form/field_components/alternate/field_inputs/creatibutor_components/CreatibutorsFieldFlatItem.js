@@ -8,11 +8,12 @@
 
 import React, { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import { Button, Label, List, Ref } from "semantic-ui-react";
+import { Button, Icon, Label, List, Ref } from "semantic-ui-react";
 import { CreatibutorsInlineForm } from "./CreatibutorsInlineForm";
 import PropTypes from "prop-types";
 import _get from "lodash/get";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { useFormUIState } from "../../../../FormUIStateManager";
 
 function getErrorMessages(itemErrors) {
   const errorMessages = [];
@@ -71,6 +72,9 @@ const CreatibutorsFieldFlatItem = ({
 }) => {
   const identifiersList = _get(values, `${fieldPathPrefix}.person_or_org.identifiers`, []);
   const dropRef = useRef(null);
+  const { formUIState } = useFormUIState();
+  const { atMobile } = formUIState;
+  const isEditing = showEditForms.includes(index);
   // eslint-disable-next-line no-unused-vars
   const [_, drag, preview] = useDrag({
     item: { index, type: "creatibutor" },
@@ -117,18 +121,22 @@ const CreatibutorsFieldFlatItem = ({
       >
         {!isNewItem && (
           <>
-            <List.Content floated="right">
+            <List.Content floated="right" className={atMobile ? "flex column ml-10" : ""}>
               <Button
                 size="mini"
                 primary
                 type="button"
+                className={atMobile ? "icon mb-5" : ""}
                 onClick={() => {
-                  showEditForms.includes(index)
+                  isEditing
                     ? handleCancel(removeCreatibutor, index)
                     : handleOpenForm(index);
                 }}
               >
-                {i18next.t(showEditForms.includes(index) ? cancelLabel : editLabel)}
+                <span className="computer tablet only">
+                  {i18next.t(isEditing ? cancelLabel : editLabel)}
+                </span>
+                <Icon name={isEditing ? "cancel" : "pencil"} className="mobile only" />
               </Button>
               <Button
                 size="mini"
@@ -137,6 +145,7 @@ const CreatibutorsFieldFlatItem = ({
                 icon="close"
                 aria-label={i18next.t("Remove contributor")}
                 negative
+                className={atMobile ? "mb-5" : ""}
               />
               <Button
                 size="mini"
@@ -145,6 +154,7 @@ const CreatibutorsFieldFlatItem = ({
                 onClick={() => creatibutorUp(moveCreatibutor, index)}
                 icon="arrow up"
                 aria-label={i18next.t("Move contributor up")}
+                className={atMobile ? "mb-5" : ""}
               />
               <Button
                 size="mini"

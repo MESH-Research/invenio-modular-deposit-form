@@ -16,6 +16,7 @@ import { FieldLabel } from "../../../replacement_components/input_controls/Field
 import Overridable from "react-overridable";
 import FundingModal from "@js/invenio_vocabularies/src/contrib/forms/Funding/FundingModal";
 import { i18next } from "@translations/invenio_vocabularies/i18next";
+import { useFormUIState } from "../../../FormUIStateManager";
 
 import { FundingFieldAlternateItem } from "./FundingFieldAlternateItem";
 
@@ -40,6 +41,9 @@ function FundingFieldAlternateForm(props) {
     computeFundingContents: computeFundingContentsFunc,
     searchConfig,
   } = props;
+
+  const { formUIState } = useFormUIState();
+  const { atMobile } = formUIState;
 
   // Maintain stable React keys for list items to avoid triggering
   // component remounts when one item's funding content changes. Formik
@@ -176,7 +180,7 @@ function FundingFieldAlternateForm(props) {
           })}
         </List>
 
-        <div className="mt-10">
+        <div className={`mt-10 ${atMobile ? "centered" : ""}`}>
           <Overridable id="InvenioVocabularies.FundingField.AddAwardFundingModal.Container">
             <FundingModal
               searchConfig={searchConfig}
@@ -189,7 +193,7 @@ function FundingFieldAlternateForm(props) {
                   className={`mb-5 ${className}`}
                 >
                   <Icon name="add" />
-                  {i18next.t("Add")}
+                  {atMobile ? i18next.t("Award") : i18next.t("Add")}
                 </Button>
               }
               onAwardChange={pushFunding}
@@ -207,7 +211,7 @@ function FundingFieldAlternateForm(props) {
               trigger={
                 <Button type="button" key="custom" icon labelPosition="left" className={className}>
                   <Icon name="add" />
-                  {i18next.t("Add custom")}
+                  {atMobile ? i18next.t("Custom") : i18next.t("Add custom")}
                 </Button>
               }
               onAwardChange={pushFunding}

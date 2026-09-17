@@ -26,7 +26,17 @@
   }
 }
 
-/* Footer nav: fixed when IO marks sentinel out of view (standalone selector if markup shifts). */
+/* Footer nav: fixed when IO marks sentinel out of view (standalone selector if markup shifts).
+ * Zero vertical margins: sticky shell is a Semantic UI Grid, whose default
+ * margin-bottom: -1rem would otherwise pull 1rem of the bar past the viewport. */
+#rdm-deposit-form .sticky-footer-fixed,
+.sticky-footer-fixed,
+#rdm-deposit-form .sticky-footer-static,
+.sticky-footer-static {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 #rdm-deposit-form .sticky-footer-fixed,
 .sticky-footer-fixed {
   position: fixed;
@@ -36,9 +46,37 @@
   z-index: 1000;
   background: #fff;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
+  @media (max-width: @largestMobileScreen) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    .ui.segment {
+      border: none;
+      border-radius: 0;
+    }
+  }
+}
+
+#rdm-deposit-form #rdm-deposit-form-footer {
+  @media (max-width: @largestMobileScreen) {
+    padding: 0;
+    .sticky-footer-static {
+      padding: 0 !important;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+      .ui.segment {
+        border: none;
+        border-radius: 0;
+      }
+    }
+  }
 }
 
 #rdm-deposit-form {
+  @media (max-width: @largestMobileScreen) {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
   /* Basic top-level field layout */
   .field {
     margin-top: 0; // FIXME: redundant
@@ -60,9 +98,10 @@
 
   .invenio-fieldset.invenio-form-section {
     margin: 0;
-    // & > .invenio-field-wrapper:has(+ .invenio-field-wrapper) {
-    //   margin-bottom: 12px;
-    // }
+    @media (max-width: @largestMobileScreen) {
+      padding-left: 0;
+      padding-right: 0;
+    }
   }
 
   /* Error tooltips */
@@ -71,14 +110,15 @@
     line-height: 1.25em;
   }
 
-  // #rdm-deposit-form .sticky-footer-static {
-  /* In normal flow when the footer scroll target is in view. */
-  // }
-
   .deposit-form-nav-bar .nav-bar-message {
     align-items: center;
     display: flex;
     justify-content: center;
+    @media (max-width: @largestMobileScreen) {
+      .nav-bar-message-text {
+        display: none;
+      }
+    }
   }
 
   .upload-form-pager {
@@ -498,8 +538,12 @@
             margin-top: 1.5em;
           }
         }
+        & > .field > .ui.list {
+          margin-bottom: 0.75rem;
+        }
       }
-      &.metadata-rights-field {
+      &.metadata-rights-field,
+      &.metadata-funding-field {
         & > .field {
           & > .ui.list {
             margin-bottom: 0.75rem;

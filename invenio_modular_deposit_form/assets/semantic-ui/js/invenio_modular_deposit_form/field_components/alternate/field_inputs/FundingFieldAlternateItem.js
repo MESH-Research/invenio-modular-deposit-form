@@ -10,6 +10,7 @@ import { useDrag, useDrop } from "react-dnd";
 import { Button, Icon, Label, List, Ref } from "semantic-ui-react";
 import FundingModal from "@js/invenio_vocabularies/src/contrib/forms/Funding/FundingModal";
 import { i18next } from "@translations/invenio_vocabularies/i18next";
+import { useFormUIState } from "../../../FormUIStateManager";
 
 /**
  * Drag-and-drop funding row with modal edit and button reorder controls.
@@ -45,6 +46,8 @@ export const FundingFieldAlternateItem = ({
   fundingDown,
 }) => {
   const dropRef = React.useRef(null);
+  const { formUIState } = useFormUIState();
+  const { atMobile } = formUIState;
   // eslint-disable-next-line no-unused-vars
   const [_, drag, preview] = useDrag({
     item: { index, type: "award" },
@@ -78,7 +81,7 @@ export const FundingFieldAlternateItem = ({
   return (
     <Ref innerRef={dropRef}>
       <List.Item className={hidden ? "deposit-drag-listitem hidden" : "deposit-drag-listitem"}>
-        <List.Content floated="right">
+        <List.Content floated="right" className={atMobile ? "flex column ml-10" : ""}>
           <FundingModal
             searchConfig={searchConfig}
             onAwardChange={(selectedFunding) => {
@@ -87,8 +90,9 @@ export const FundingFieldAlternateItem = ({
             mode={awardType}
             action="edit"
             trigger={
-              <Button size="mini" primary type="button">
-                {i18next.t("Change award")}
+              <Button size="mini" primary type="button" className={atMobile ? "icon mb-5" : ""}>
+                <span className="computer tablet only">{i18next.t("Change award")}</span>
+                <Icon name="exchange" className="mobile only" />
               </Button>
             }
             deserializeAward={deserializeAward}
@@ -103,6 +107,7 @@ export const FundingFieldAlternateItem = ({
             icon="close"
             aria-label={i18next.t("Remove")}
             negative
+            className={atMobile ? "mb-5" : ""}
           />
           <Button
             size="mini"
@@ -111,6 +116,7 @@ export const FundingFieldAlternateItem = ({
             onClick={() => fundingUp(index)}
             icon="arrow up"
             aria-label={i18next.t("Move up")}
+            className={atMobile ? "mb-5" : ""}
           />
           <Button
             size="mini"

@@ -15,6 +15,7 @@ import { Button, Form, Icon, List } from "semantic-ui-react";
 import { FieldLabel, FeedbackLabel } from "react-invenio-forms";
 import { LicenseModal } from "@js/invenio_rdm_records/src/deposit/fields/License/LicenseModal";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { useFormUIState } from "../../../FormUIStateManager";
 
 import { LicenseFieldAlternateItem } from "./LicenseFieldAlternateItem";
 
@@ -67,6 +68,9 @@ function LicenseFieldAlternateForm(props) {
     searchConfig,
     serializeLicenses,
   } = props;
+
+  const { formUIState } = useFormUIState();
+  const { atMobile } = formUIState;
 
   // Maintain stable React keys for list items to avoid triggering
   // component remounts when one item's license content changes. Formik
@@ -153,13 +157,13 @@ function LicenseFieldAlternateForm(props) {
             })}
           </List>
         )}
-        <div className="mt-10">
+        <div className={`mt-10 ${atMobile ? "centered" : ""}`}>
           <LicenseModal
             searchConfig={searchConfig}
             trigger={
               <Button type="button" key="standard" icon labelPosition="left" className={className}>
                 <Icon name="add" />
-                {i18next.t("Add standard")}
+                {atMobile ? i18next.t("Standard") : i18next.t("Add standard")}
               </Button>
             }
             onLicenseChange={pushLicense}
@@ -172,7 +176,7 @@ function LicenseFieldAlternateForm(props) {
             trigger={
               <Button type="button" key="custom" icon labelPosition="left" className={className}>
                 <Icon name="add" />
-                {i18next.t("Add custom")}
+                {atMobile ? i18next.t("Custom") : i18next.t("Add custom")}
               </Button>
             }
             onLicenseChange={pushLicense}

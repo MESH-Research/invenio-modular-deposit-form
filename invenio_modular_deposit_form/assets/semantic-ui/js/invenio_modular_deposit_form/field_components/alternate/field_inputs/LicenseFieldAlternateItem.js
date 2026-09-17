@@ -7,9 +7,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useDrag, useDrop } from "react-dnd";
-import { Button, List, Ref } from "semantic-ui-react";
+import { Button, Icon, List, Ref } from "semantic-ui-react";
 import _truncate from "lodash/truncate";
 import { LicenseModal } from "@js/invenio_rdm_records/src/deposit/fields/License/LicenseModal";
+import { useFormUIState } from "../../../FormUIStateManager";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 
 /**
@@ -38,6 +39,8 @@ export const LicenseFieldAlternateItem = ({
   licenseDown,
 }) => {
   const dropRef = React.useRef(null);
+  const { formUIState } = useFormUIState();
+  const { atMobile } = formUIState;
 
   const [, drag, preview] = useDrag({
     item: { index: license.index, type: "license" },
@@ -69,7 +72,7 @@ export const LicenseFieldAlternateItem = ({
   return (
     <Ref innerRef={dropRef}>
       <List.Item className={hidden ? "deposit-drag-listitem hidden" : "deposit-drag-listitem"}>
-        <List.Content floated="right">
+        <List.Content floated="right" className={atMobile ? "flex column ml-10" : ""}>
           <LicenseModal
             searchConfig={searchConfig}
             onLicenseChange={(selectedLicense) => {
@@ -79,8 +82,9 @@ export const LicenseFieldAlternateItem = ({
             initialLicense={license.initial}
             action="edit"
             trigger={
-              <Button size="mini" primary type="button">
-                {i18next.t("Change")}
+              <Button size="mini" primary type="button" className={atMobile ? "icon mb-5" : ""}>
+                <span className="computer tablet only">{i18next.t("Change")}</span>
+                <Icon name="exchange" className="mobile only" />
               </Button>
             }
             serializeLicenses={serializeLicenses}
@@ -92,6 +96,7 @@ export const LicenseFieldAlternateItem = ({
             icon="close"
             aria-label={i18next.t("Remove")}
             negative
+            className={atMobile ? "mb-5" : ""}
           />
           <Button
             size="mini"
@@ -100,6 +105,7 @@ export const LicenseFieldAlternateItem = ({
             onClick={() => licenseUp(license.index)}
             icon="arrow up"
             aria-label={i18next.t("Move up")}
+            className={atMobile ? "mb-5" : ""}
           />
           <Button
             size="mini"
