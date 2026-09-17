@@ -23,7 +23,6 @@ import { Button, Form, Icon } from "semantic-ui-react";
 
 import { useFormikContext } from "formik";
 import _get from "lodash/get";
-import { GroupField } from "react-invenio-forms";
 import { emptyAdditionalTitle } from "@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues";
 import { LanguagesField } from "./LanguagesField";
 import { ArrayField } from "../../replacement_components/input_controls/ArrayField";
@@ -70,7 +69,7 @@ const AdditionalTitleLanguagePicker = ({ fieldPath, recordUiLang }) => {
       clearable
       selectOnBlur={false}
       selectOnNavigation={false}
-      width={5}
+      width={7}
     />
   );
 };
@@ -93,10 +92,10 @@ export class AdditionalTitlesField extends Component {
     return (
       <ArrayField
         addButtonLabel={i18next.t("Add titles")}
-        addButtonClassName={"mt-12"}
+        addButtonClassName={"mt-0 mb-0"}
         defaultNewValue={emptyAdditionalTitle}
         fieldPath={fieldPath}
-        className="additional-titles"
+        className="additional-titles mb-0"
         onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.title`)}
         onAfterRemove={({ isNowEmpty, removedIndex }) => {
           if (isNowEmpty) {
@@ -111,40 +110,41 @@ export class AdditionalTitlesField extends Component {
           const fieldPathPrefix = `${fieldPath}.${indexPath}`;
 
           return (
-            <GroupField
-              fieldPath={fieldPath}
-              optimized
-              className={`mb-0 ${indexPath === 0 ? "mt-20" : "mt-12"}`}
-            >
-              <TextField
-                fieldPath={`${fieldPathPrefix}.title`}
-                label={i18next.t("Additional title")}
-                required
-                width={7}
-              />
-              <SelectField
-                fieldPath={`${fieldPathPrefix}.type`}
-                label={i18next.t("Type")}
-                optimized
-                options={options.type}
-                required
-                width={4}
-              />
-              <AdditionalTitleLanguagePicker
-                fieldPath={`${fieldPathPrefix}.lang`}
-                recordUiLang={recordUI?.additional_titles?.[indexPath]?.lang}
-              />
-              <Form.Field>
-                <Button
-                  aria-label={i18next.t("Remove field")}
-                  className="close-btn"
-                  icon
-                  onClick={() => arrayHelpers.remove(indexPath)}
-                >
-                  <Icon name="close" />
-                </Button>
-              </Form.Field>
-            </GroupField>
+            <div className="additional-title-item">
+              <div className="ui divider mb-10" />
+              <Form.Group className={`mb-0 mt-0 unstackable`}>
+                <TextField
+                  fieldPath={`${fieldPathPrefix}.title`}
+                  label={i18next.t("Additional title")}
+                  required
+                  width={14}
+                />
+                <Form.Field width={2}>
+                  <Button
+                    aria-label={i18next.t("Remove field")}
+                    className="close-btn right floated"
+                    icon
+                    onClick={() => arrayHelpers.remove(indexPath)}
+                  >
+                    <Icon name="close" />
+                  </Button>
+                </Form.Field>
+              </Form.Group>
+              <Form.Group className={`mb-0 mt-0 unstackable`}>
+                <SelectField
+                  fieldPath={`${fieldPathPrefix}.type`}
+                  label={i18next.t("Type")}
+                  optimized
+                  options={options.type}
+                  required
+                  width={8}
+                />
+                <AdditionalTitleLanguagePicker
+                  fieldPath={`${fieldPathPrefix}.lang`}
+                  recordUiLang={recordUI?.additional_titles?.[indexPath]?.lang}
+                />
+              </Form.Group>
+            </div>
           );
         }}
       </ArrayField>
