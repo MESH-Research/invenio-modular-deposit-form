@@ -35,6 +35,9 @@
 .sticky-footer-static {
   margin-top: 0;
   margin-bottom: 0;
+  /* In-flow footer is a flex item of `.ui.grid > .row`; grow to fill the row.
+   * Harmless when `position: fixed` (out of flex flow). */
+  flex-grow: 1;
 }
 
 /* In-flow stand-in while the bar is `fixed` — height must match the bottom
@@ -53,8 +56,22 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #fff;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
+  background: transparent;
+  .deposit-form-nav-bar {
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
+
+    .nav-bar-message {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+      @media (max-width: @largestMobileScreen) {
+        .nav-bar-message-text {
+          display: none;
+        }
+      }
+    }
+  }
+
   @media (max-width: @largestMobileScreen) {
     margin-left: 0 !important;
     margin-right: 0 !important;
@@ -102,17 +119,6 @@
   .ui[class*="pointing above"].label {
     margin-bottom: 0.5em;
     line-height: 1.25em;
-  }
-
-  .deposit-form-nav-bar .nav-bar-message {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    @media (max-width: @largestMobileScreen) {
-      .nav-bar-message-text {
-        display: none;
-      }
-    }
   }
 
   .upload-form-pager {
@@ -809,18 +815,20 @@
   &__inner > .ui.message.flashed {
     margin-bottom: 0;
   }
+}
 
-  #rdm-deposit-form-footer {
-    @media (max-width: @largestMobileScreen) {
-      padding: 0;
-      .sticky-footer-static {
-        padding: 0 !important;
-        margin-right: 0 !important;
-        margin-left: 0 !important;
-        .ui.segment {
-          border: none;
-          border-radius: 0;
-        }
+/* Mobile: bleed footer nav to viewport edges (Container padding/margins off). */
+#rdm-deposit-form #rdm-deposit-form-footer {
+  @media (max-width: @largestMobileScreen) {
+    padding: 0;
+    .sticky-footer-fixed,
+    .sticky-footer-static {
+      padding: 0 !important;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+      .ui.segment {
+        border: none;
+        border-radius: 0;
       }
     }
   }
