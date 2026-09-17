@@ -37,6 +37,15 @@
   margin-bottom: 0;
 }
 
+/* In-flow stand-in while the bar is `fixed` — height must match the bottom
+ * rootMargin on useIsInViewport in FormUIStateManager (currently 80px). */
+#rdm-deposit-form .sticky-footer-flow-spacer,
+.sticky-footer-flow-spacer {
+  height: 80px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 #rdm-deposit-form .sticky-footer-fixed,
 .sticky-footer-fixed {
   position: fixed;
@@ -52,21 +61,6 @@
     .ui.segment {
       border: none;
       border-radius: 0;
-    }
-  }
-}
-
-#rdm-deposit-form #rdm-deposit-form-footer {
-  @media (max-width: @largestMobileScreen) {
-    padding: 0;
-    .sticky-footer-static {
-      padding: 0 !important;
-      margin-right: 0 !important;
-      margin-left: 0 !important;
-      .ui.segment {
-        border: none;
-        border-radius: 0;
-      }
     }
   }
 }
@@ -814,5 +808,20 @@
 
   &__inner > .ui.message.flashed {
     margin-bottom: 0;
+  }
+
+  #rdm-deposit-form-footer {
+    @media (max-width: @largestMobileScreen) {
+      padding: 0;
+      .sticky-footer-static {
+        padding: 0 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        .ui.segment {
+          border: none;
+          border-radius: 0;
+        }
+      }
+    }
   }
 }

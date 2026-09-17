@@ -203,7 +203,7 @@ const FormUIStateManager = ({ children }) => {
     pageTargetRef.current = node;
     setPageTargetElement(node);
   }, []);
-  // Inset bottom by ~footer bar height so static mode waits until the bar fits on-screen.
+  // Bottom inset must match `.sticky-footer-flow-spacer` height in deposit_form.less.
   const pageTargetInViewport = useIsInViewport(pageTargetElement, "0px 0px -80px 0px");
 
   // Set up form UI context for provider
