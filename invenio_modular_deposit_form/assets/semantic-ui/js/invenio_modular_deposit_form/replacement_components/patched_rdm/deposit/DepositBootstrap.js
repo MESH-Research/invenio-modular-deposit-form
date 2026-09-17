@@ -27,7 +27,7 @@ import {
   validateForDraftSave,
   validateSchemaToFormikErrors,
 } from "../../../validation/validateForDraftSave";
-import { useSetClientValidationMeta } from "../../../ClientValidationMetaContext";
+import { useSetClientValidationMeta } from "../../../validation/ClientValidationMetaContext";
 
 class DepositBootstrapComponent extends Component {
   componentDidMount() {

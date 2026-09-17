@@ -17,8 +17,14 @@ import {
   RDMDepositFileApiClient,
 } from "@js/invenio_rdm_records/src/deposit/api/DepositApiClient";
 import { DepositBootstrap } from "./DepositBootstrap";
-import { DepositDraftsService, RDMDepositDraftsService } from "@js/invenio_rdm_records/src/deposit/api/DepositDraftsService";
-import { DepositFilesService, RDMDepositFilesService } from "@js/invenio_rdm_records/src/deposit/api/DepositFilesService";
+import {
+  DepositDraftsService,
+  RDMDepositDraftsService,
+} from "@js/invenio_rdm_records/src/deposit/api/DepositDraftsService";
+import {
+  DepositFilesService,
+  RDMDepositFilesService,
+} from "@js/invenio_rdm_records/src/deposit/api/DepositFilesService";
 import {
   DepositRecordSerializer,
   RDMDepositRecordSerializer,
@@ -26,7 +32,7 @@ import {
 import { DepositService } from "@js/invenio_rdm_records/src/deposit/api/DepositService";
 import { configureStore } from "./store";
 import { RDMUploadProgressNotifier } from "@js/invenio_rdm_records/src/deposit/components/UploadProgressNotifier";
-import { ClientValidationMetaProvider } from "../../../ClientValidationMetaContext";
+import { ClientValidationMetaProvider } from "../../../validation/ClientValidationMetaContext";
 
 export class DepositFormApp extends Component {
   constructor(props) {
@@ -44,11 +50,7 @@ export class DepositFormApp extends Component {
 
     const apiClient = props.apiClient
       ? props.apiClient
-      : new RDMDepositApiClient(
-          additionalApiConfig,
-          props.config.createUrl,
-          recordSerializer
-        );
+      : new RDMDepositApiClient(additionalApiConfig, props.config.createUrl, recordSerializer);
 
     const fileApiClient = props.fileApiClient
       ? props.fileApiClient
