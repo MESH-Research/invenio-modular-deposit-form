@@ -138,6 +138,7 @@ const FieldComponentWrapper = ({
     widescreen,
   });
   // Form width CSS targets `.N.wide.field`; keep `field` when widths are set.
+  // `mb-0`: wrapper `.field` is only a column shell; the inner control owns field margins.
   const needsFieldClass = isRowField || widthClasses.length > 0;
 
   return (
@@ -145,7 +146,7 @@ const FieldComponentWrapper = ({
       className={[
         "invenio-field-wrapper",
         `${fieldPath.replaceAll(".", "-").replaceAll(":", "-")}-field`,
-        needsFieldClass ? "field" : "",
+        needsFieldClass ? "field mb-0" : "",
         ...widthClasses,
         wrapperClasses,
       ]

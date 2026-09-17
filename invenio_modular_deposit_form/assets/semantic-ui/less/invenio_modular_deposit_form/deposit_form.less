@@ -73,8 +73,8 @@
 
   /* Basic top-level field layout */
   .field {
-    margin-top: 0; // FIXME: redundant
-    margin-bottom: 1rem;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
   }
 
   .fields {
@@ -366,7 +366,7 @@
         font-size: 1.25em;
         position: relative;
         top: 0;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
 
         > i.icon {
           margin-right: 0;
@@ -389,24 +389,12 @@
     }
   }
 
-  /* Form section severity: accordion/segment strip and severity badges (stock-equivalent). */
+  /* Form section severity: accordion/segment strip and severity badges. */
   .invenio-accordion-field,
   .invenio-form-section {
-    // &.error {
-    //   border-left: 3px solid @negativeBorderColor;
-    // }
-    //
-    // &.warning {
-    //   border-left: 3px solid #f2711c;
-    // }
-    //
-    // &.info,
-    // .invenio-form-section.info {
-    //   border-left: 3px solid #2185d0;
-    // }
     & > legend {
       padding-top: 1rem;
-      margin-bottom: -5px;
+      margin-bottom: -0.5rem;
     }
 
     .form-section-severity-badges {
@@ -418,171 +406,182 @@
         top: -0.15em;
       }
     }
+  }
 
-    // & > .invenio-field-wrapper:last-child,
-    // & > .content > .invenio-field-wrapper:last-child,
-    & > .invenio-group-field:last-child,
-    & > .content > .invenio-group-field:last-child {
-      .field {
-        margin-bottom: 0.5em !important;
+  .invenio-accordion-field {
+    .title {
+      .icon.small {
+        font-size: 0.75em !important;
       }
     }
+    .content.active {
+      padding-top: 0.75rem;
+    }
+  }
 
-    .invenio-select-field-wrapper > .field {
-      width: 100%;
+  // & > .invenio-field-wrapper:last-child,
+  // & > .content > .invenio-field-wrapper:last-child,
+  & > .invenio-group-field:last-child,
+  & > .content > .invenio-group-field:last-child {
+    .field {
+      margin-bottom: 0.5em !important;
+    }
+  }
+
+  .invenio-select-field-wrapper > .field {
+    width: 100%;
+  }
+
+  .invenio-field-wrapper {
+    .helptext,
+    .description {
+      display: block;
+      color: #757575 !important;
+      font-size: 0.9em !important;
+      font-weight: 400 !important;
     }
 
-    .invenio-field-wrapper {
-      .helptext,
-      .description {
-        display: block;
-        color: #757575 !important;
-        font-size: 0.9em !important;
-        font-weight: 400 !important;
-      }
+    // Description sits above the input; pull it close to the label and
+    // leave a small gap before the input.
+    .description {
+      margin-top: -0.5rem;
+      margin-bottom: 0.5rem;
+    }
 
-      // Description sits above the input; pull it close to the label and
-      // leave a small gap before the input.
-      .description {
-        margin-top: -0.5rem;
-        margin-bottom: 0.5rem;
-      }
+    // Helptext sits below the input; small breathing room above, none below.
+    .helptext {
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+    }
 
-      // Helptext sits below the input; small breathing room above, none below.
-      .helptext {
-        margin-top: 0.5rem;
+    .field,
+    .fields {
+      .no-label {
+        margin-top: 21px;
+      }
+    }
+    &.files-field {
+      & > .ui.grid.file-uploader {
+        margin-top: -5px;
+      }
+      .storage-col {
+        & > .header {
+          @media all and (max-width: @largestTabletScreen) {
+            display: none;
+          }
+        }
+      }
+      .uppy-u-reset {
+        z-index: 11;
+      }
+    }
+    &.metadata-title-field {
+      .field.additional-titles {
+        > .fields > .field.mt-15:has(button) {
+          margin-top: 0 !important;
+        }
+        .close-btn {
+          margin-top: 1.75em;
+        }
+      }
+    }
+    &.metadata-description-field {
+      .field.additional-descriptions {
+        > .fields > .field.mt-15:has(button) {
+          margin-top: 0 !important;
+        }
+      }
+    }
+    &.metadata-dates-field {
+      & > .field > .helptext {
         margin-bottom: 0;
+        margin-top: 0;
       }
-
-      .field,
       .fields {
-        .no-label {
-          margin-top: 21px;
+        .close-btn {
+          margin-top: 1.75em;
         }
       }
-      &.files-field {
-        & > .ui.grid.file-uploader {
-          margin-top: -5px;
-        }
-        .storage-col {
-          & > .header {
-            @media all and (max-width: @largestTabletScreen) {
-              display: none;
-            }
-          }
-        }
-        .uppy-u-reset {
-          z-index: 11;
+    }
+    &.metadata-identifiers-field {
+      .fields {
+        .close-btn {
+          margin-top: 1.75em;
         }
       }
-      &.metadata-title-field {
-        .field.additional-titles {
-          > .fields > .field.mt-15:has(button) {
-            margin-top: 0 !important;
-          }
-          .close-btn {
-            margin-top: 1.75em;
-          }
+    }
+    &.metadata-related_identifiers-field {
+      .fields {
+        .close-btn {
+          margin-top: 1.75em;
         }
       }
-      &.metadata-description-field {
-        .field.additional-descriptions {
-          > .fields > .field.mt-15:has(button) {
-            margin-top: 0 !important;
-          }
+    }
+    &.custom_fields-meeting-meeting-identifiers-field {
+      .fields {
+        .close-btn {
+          margin-top: 1.75em;
         }
       }
-      &.metadata-dates-field {
-        & > .field > .helptext {
-          margin-bottom: 0;
-          margin-top: 0;
-        }
-        .fields {
-          .close-btn {
-            margin-top: 1.75em;
-          }
+    }
+    &.metadata-creators-field,
+    &.metadata-contributors-field {
+      .creator-identifiers,
+      .contributor-identifiers {
+        .close-btn {
+          margin-top: 1.5em;
         }
       }
-      &.metadata-identifiers-field {
-        .fields {
-          .close-btn {
-            margin-top: 1.75em;
-          }
-        }
+      & > .field > .ui.list {
+        margin-bottom: 0.75rem;
       }
-      &.metadata-related_identifiers-field {
-        .fields {
-          .close-btn {
-            margin-top: 1.75em;
-          }
-        }
-      }
-      &.custom_fields-meeting-meeting-identifiers-field {
-        .fields {
-          .close-btn {
-            margin-top: 1.75em;
-          }
-        }
-      }
-      &.metadata-creators-field,
-      &.metadata-contributors-field {
-        .creator-identifiers,
-        .contributor-identifiers {
-          .close-btn {
-            margin-top: 1.5em;
-          }
-        }
-        & > .field > .ui.list {
+    }
+    &.metadata-rights-field,
+    &.metadata-funding-field {
+      & > .field {
+        & > .ui.list {
           margin-bottom: 0.75rem;
         }
       }
-      &.metadata-rights-field,
-      &.metadata-funding-field {
-        & > .field {
-          & > .ui.list {
-            margin-bottom: 0.75rem;
-          }
+    }
+    &.pids-doi-field {
+      // Target the managed identifier field container directly
+      [id^="pids\.doi-"] .field,
+      #pids\.doi-managed-identifier,
+      #pids\.doi-unmanaged-identifier {
+        margin-bottom: 0.25rem;
+        margin-top: 0.25rem;
+      }
+      #pids\.doi-switch {
+        & > label {
+          margin-bottom: 0.25rem !important;
         }
       }
-      &.pids-doi-field {
-        // Target the managed identifier field container directly
-        [id^="pids\.doi-"] .field,
-        #pids\.doi-managed-identifier,
-        #pids\.doi-unmanaged-identifier {
-          margin-bottom: 0.25rem;
-          margin-top: 0.25rem;
-        }
+      @media (min-width: @computerBreakpoint) {
+        margin-bottom: 0.25rem;
+        margin-top: 0.25rem;
         #pids\.doi-switch {
-          & > label {
-            margin-bottom: 0.25rem !important;
+          label {
+            margin-top: 0;
+            margin-bottom: 0 !important;
           }
-        }
-        @media (min-width: @computerBreakpoint) {
-          margin-bottom: 0.25rem;
-          margin-top: 0.25rem;
-          #pids\.doi-switch {
-            label {
+          .fields {
+            min-width: 50%;
+            .field {
               margin-top: 0;
-              margin-bottom: 0 !important;
-            }
-            .fields {
-              min-width: 50%;
-              .field {
-                margin-top: 0;
-                margin-bottom: 0;
-              }
+              margin-bottom: 0;
             }
           }
         }
       }
+    }
 
-      &.metadata-resource_type-field {
-        position: relative;
-        z-index: 20; // to allow display to overlap uppy file widget below
-        .ui.icon.menu {
-          border: none;
-          box-shadow: none;
-        }
+    &.metadata-resource_type-field {
+      position: relative;
+      z-index: 20; // to allow display to overlap uppy file widget below
+      .ui.icon.menu {
+        border: none;
+        box-shadow: none;
       }
     }
 
@@ -594,75 +593,76 @@
         }
       }
     }
-  }
 
-  // FIXME: Hack to deal with nested untouched creatibutors
-  fieldset.error .field:not(.error) .field:not(.error) {
-    input::placeholder {
-      color: #c7c7c7;
-    }
-  }
-  // Array/group .field.error must not paint siblings until their own .field.error
-  .field.error fieldset:not(.error) .field:not(.error),
-  .field.error .row .column .field:not(.error) {
-    label:not(.error) {
-      background-color: transparent !important;
-      color: #000 !important; // @inputColor;
-    }
-
-    & > .input input:not(.error),
-    .ui.dropdown:not(.error) {
-      background-color: #fff !important; // @inputBackground;
-      border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
-      color: #000 !important; // @inputColor;
-
-      &.active,
-      &.active:hover {
-        border-color: #2185d0;
-        box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
-      }
-      &::placeholder {
+    // FIXME: Hack to deal with nested untouched creatibutors
+    fieldset.error .field:not(.error) .field:not(.error) {
+      input::placeholder {
         color: #c7c7c7;
       }
     }
-    .ui.dropdown .item {
-      border-top: 1px solid #fafafa;
-      background-color: #fff !important;
-      color: #000 !important;
-      .text {
-        color: #000 !important;
+
+    // Array/group .field.error must not paint siblings until their own .field.error
+    .field.error fieldset:not(.error) .field:not(.error),
+    .field.error .row .column .field:not(.error) {
+      label:not(.error) {
+        background-color: transparent !important;
+        color: #000 !important; // @inputColor;
+      }
+
+      & > .input input:not(.error),
+      .ui.dropdown:not(.error) {
+        background-color: #fff !important; // @inputBackground;
+        border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
+        color: #000 !important; // @inputColor;
+
+        &.active,
+        &.active:hover {
+          border-color: #2185d0;
+          box-shadow: 0px 2px 3px 0px rgba(34, 36, 38, 0.15);
+        }
+        &::placeholder {
+          color: #c7c7c7;
+        }
+      }
+      .ui.dropdown .item {
+        border-top: 1px solid #fafafa;
         background-color: #fff !important;
+        color: #000 !important;
+        .text {
+          color: #000 !important;
+          background-color: #fff !important;
+        }
+        &:hover,
+        &:active {
+          background: rgba(0, 0, 0, 0.05) !important;
+        }
       }
-      &:hover,
-      &:active {
-        background: rgba(0, 0, 0, 0.05) !important;
-      }
-    }
-    .ui.dropdown .item.selected {
-      background: rgba(0, 0, 0, 0.03) !important;
-      color: rgba(0, 0, 0, 0.95) !important;
-      .text {
+      .ui.dropdown .item.selected {
+        background: rgba(0, 0, 0, 0.03) !important;
         color: rgba(0, 0, 0, 0.95) !important;
+        .text {
+          color: rgba(0, 0, 0, 0.95) !important;
+        }
       }
-    }
-    .ui.checkbox:not(.error) label:before {
-      background-color: #fff !important; // @inputBackground;
-      border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
-    }
-    .ui.checkbox:not(.error) label:after {
-      background-color: #000 !important; // @inputBackground;
-      border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
-    }
-    .ui.dropdown:not(.error) .ui.label {
-      background-color: #e8e8e8 !important; // @inputBackground;
-      border-color: #000 !important; // @inputBorder;
-      color: #757575 !important; // @inputColor;
-      box-shadow: 0px 0px 0px 1px rgba(34, 36, 38, 0.15) inset;
-    }
-    .ui.dropdown:not(.error) .divider.text {
-      background-color: #fff !important; // @inputBackground;
-      border-color: #000 !important; // @inputBorder;
-      color: #000 !important; // @inputColor;
+      .ui.checkbox:not(.error) label:before {
+        background-color: #fff !important; // @inputBackground;
+        border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
+      }
+      .ui.checkbox:not(.error) label:after {
+        background-color: #000 !important; // @inputBackground;
+        border-color: rgba(34, 36, 38, 0.15) !important; // @inputBorder;
+      }
+      .ui.dropdown:not(.error) .ui.label {
+        background-color: #e8e8e8 !important; // @inputBackground;
+        border-color: #000 !important; // @inputBorder;
+        color: #757575 !important; // @inputColor;
+        box-shadow: 0px 0px 0px 1px rgba(34, 36, 38, 0.15) inset;
+      }
+      .ui.dropdown:not(.error) .divider.text {
+        background-color: #fff !important; // @inputBackground;
+        border-color: #000 !important; // @inputBorder;
+        color: #000 !important; // @inputColor;
+      }
     }
   }
 

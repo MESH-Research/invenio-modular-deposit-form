@@ -92,11 +92,11 @@ const FormSection = ({
         active={isOpen}
         index={0}
         onClick={() => setIsOpen(!isOpen)}
-        className="invenio-field-label mb-0"
+        className="invenio-field-label mb-0 pb-0"
         aria-expanded={isOpen}
       >
         {label}
-        {!!icon && <Icon name={icon} className="ml-10 mr-0" />}
+        {!!icon && <Icon name={icon} size="small" className="ml-10 mr-0" />}
         {severityBadges}
         <Icon name="dropdown" className="accordion-dropdown-icon" />
       </Accordion.Title>
