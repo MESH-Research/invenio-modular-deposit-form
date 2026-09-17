@@ -40,7 +40,13 @@ from flask_login import current_user
 from invenio_access.utils import get_identity
 from invenio_accounts.proxies import current_accounts
 from invenio_administration.permissions import administration_permission
-from invenio_remote_user_data_kcworks.proxies import current_names_sync_service
+
+try:
+    from invenio_remote_user_data_kcworks.proxies import (
+        current_names_sync_service,
+    )
+except ImportError:  # optional; only present in KCWorks deployments
+    current_names_sync_service = None
 
 MAX_NAME_PART_LENGTH = 255
 
@@ -146,23 +152,32 @@ class UserNameView(MethodView):
 
         # Re-read so Names sync sees the committed profile blob.
         synced_user = current_accounts.datastore.get_user_by_id(user_id) or target_user
-        try:
-            names_record = current_names_sync_service.upsert_name_for_user(
-                synced_user
-            )
-        except Exception:
-            current_app.logger.exception(
-                "Names sync failed after name_parts_local update for user %s",
+        names_record = None
+        if current_names_sync_service is None:
+            current_app.logger.debug(
+                "Skipping Names sync for user %s; "
+                "invenio-remote-user-data-kcworks is not installed.",
                 user_id,
             )
-            abort(
-                500,
-                description=(
-                    "Your name was saved on your profile, but updating the "
-                    "Names vocabulary failed. Please try again or contact "
-                    "an administrator."
-                ),
-            )
+        else:
+            try:
+                names_record = current_names_sync_service.upsert_name_for_user(
+                    synced_user
+                )
+            except Exception:
+                current_app.logger.exception(
+                    "Names sync failed after name_parts_local update "
+                    "for user %s",
+                    user_id,
+                )
+                abort(
+                    500,
+                    description=(
+                        "Your name was saved on your profile, but updating "
+                        "the Names vocabulary failed. Please try again or "
+                        "contact an administrator."
+                    ),
+                )
 
         return {
             "name_parts_local": new_parts,

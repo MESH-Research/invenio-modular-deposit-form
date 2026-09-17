@@ -257,7 +257,8 @@
   /* Mobile-only page-title dropdown rendered by FormStepper beneath the
    * numbered stepper. Styled to look like a black page heading (slightly
    * larger than .prominent-field-label's 1.25em) with a right-aligned caret;
-   * no border or background so it reads as a heading, not a form input. */
+   * no border or background so it reads as a heading, not a form input.
+   * Uses theme primary + inverted text (not instance brand tokens). */
   .upload-form-pager-mobile-title.ui.dropdown {
     display: flex;
     align-items: center;
@@ -267,7 +268,7 @@
     font-weight: bold;
     font-size: 1.4em;
     line-height: 1.25em;
-    background: @ivy;
+    background: @primaryColor;
     border: 0;
     box-shadow: none;
     cursor: pointer;
@@ -275,7 +276,7 @@
     letter-spacing: 1px;
 
     > .text {
-      color: @ivory;
+      color: @invertedTextColor;
       font-weight: bold;
     }
 
@@ -284,7 +285,7 @@
     > .dropdown.icon {
       margin: 0 0 0 0.5em;
       font-size: 0.85em;
-      color: ivory;
+      color: @invertedTextColor;
     }
 
     > .menu {
