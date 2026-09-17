@@ -25,19 +25,17 @@ const RecoveryModal = ({
           : i18next.t("Recover unsaved changes?")}
       </Modal.Header>
       <Modal.Content>
-        <Modal.Description>
-          <p>
-            {isUnsavedDraft
-              ? i18next.t(
-                  "This form was closed with draft work unsaved. Do you want to recover it and continue with the unsaved draft?"
-                )
-              : i18next.t(
-                  "This form was closed with unsaved changes to your record. Do you want to recover the changes or start again from the last saved version?"
-                )}
-          </p>
-        </Modal.Description>
+        <p>
+          {isUnsavedDraft
+            ? i18next.t(
+                "This form was closed with draft work unsaved. Do you want to recover it and continue with the unsaved draft?"
+              )
+            : i18next.t(
+                "This form was closed with unsaved changes to your record. Do you want to recover the changes or start again from the last saved version?"
+              )}
+        </p>
       </Modal.Content>
-      <Modal.Actions>
+      <Modal.Actions className="centered">
         <Button
           // color="black"
           content={
