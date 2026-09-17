@@ -21,7 +21,8 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "invenio-app-rdm[opensearch2]<14",
+  # Host instance supplies OpenSearch extras; keep the pin broad for RDM 12–15.
+  "invenio-app-rdm>=12,<16",
   # Match parent kcworks-next uv.lock (invenio-records-resources needs >=0.12; 0.10 lacks EDTFLevel2DateString).
   "marshmallow-utils>=0.12",
   "setuptools>=61,<82",
@@ -58,6 +59,7 @@ entry-points."invenio_base.finalize_app".invenio_modular_deposit_form = "invenio
 entry-points."invenio_i18n.translations".messages = "invenio_modular_deposit_form"
 
 [dependency-groups]
+dev = ["bump-my-version==1.5.1"]
 docs = [
   "furo>=2023",
   "linkify-it-py>=0.2",
@@ -202,26 +204,39 @@ ini_options.norecursedirs = []
 ini_options.log_cli_level = "DEBUG"
 ini_options.isort_show_files = true
 
-[tool.bumpver]
+[tool.bumpversion]
 current_version = "0.4.0"
-version_pattern = "MAJOR.MINOR.PATCH[-TAGNUM]"
-commit_message = "Bumping version {old_version} -> {new_version}."
-tag_message = "{new_version}"
-tag_scope = "default"
-pre_commit_hook = ""
-post_commit_hook = ""
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
+serialize = ["{major}.{minor}.{patch}"]
+search = "{current_version}"
+replace = "{new_version}"
 commit = false
 tag = false
-push = false
-file_patterns."pyproject.toml" = [
-  '^version = "{version}"',
-  '^current_version = "{version}"',
-]
-file_patterns."README.md" = ["^Version {version}"]
-file_patterns.VERSION = ['^"{version}"']
-file_patterns."invenio_modular_deposit_form/__init__.py" = [
-  '^__version__ = "{version}"',
-]
+allow_shell_hooks = false
+message = "Bump version: {current_version} → {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+key_path = "project.version"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+key_path = "tool.bumpversion.current_version"
+
+[[tool.bumpversion.files]]
+filename = "README.md"
+search = "Version {current_version}"
+replace = "Version {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "VERSION"
+search = '"{current_version}"'
+replace = '"{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "invenio_modular_deposit_form/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
 
 [tool.babel]
 compile_catalog.directory = "invenio_modular_deposit_form/translations/"
