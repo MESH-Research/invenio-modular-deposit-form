@@ -1,5 +1,5 @@
 // Part of invenio-modular-deposit-form
-// Copyright (C) 2023-2025, MESH Research
+// Copyright (C) 2023-2026, MESH Research
 //
 // invenio-modular-deposit-form is free software; you can redistribute and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
@@ -13,28 +13,20 @@ import { useFormUIState } from "../FormUIStateManager.jsx";
 
 /**
  * Back / Continue navigation bar for multi-page deposit form (e.g. in form footer region).
- * Gets runtime data from useFormUIState; accepts classnames and other props from config.
+ * Renders as a grid column; sticky shell and spacers live on FormFooterRegion.
+ * Gets runtime data from useFormUIState; accepts classnames and width props from config.
  * Back / Next use `formUIState.previousFormPage` and `formUIState.nextFormPage` (viewport-aware,
  * stored in the form UI reducer).
  */
 const FormPageNavigationBar = ({ classnames, ...props }) => {
-  const {
-    formUIState,
-    pageTargetInViewport,
-    handleFormPageChange,
-    storageDataPresent,
-  } = useFormUIState();
+  const { formUIState, handleFormPageChange, storageDataPresent } = useFormUIState();
   const { nextFormPage, previousFormPage } = formUIState;
 
   return (
-    <div
-      className={`ui container ${
-        pageTargetInViewport ? "sticky-footer-static" : "sticky-footer-fixed"
-      } ${classnames ?? ""}`.trim()}
-    >
+    <Grid.Column className={classnames ?? ""} {...props}>
       <Segment>
         <Grid className="deposit-form-nav-bar">
-          <Grid.Column width={4} textAlign="left">
+          <Grid.Column computer={4} tablet={4} mobile={6} textAlign="left">
             {!!previousFormPage && (
               <Button
                 type="button"
@@ -49,7 +41,13 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
               </Button>
             )}
           </Grid.Column>
-          <Grid.Column className="nav-bar-message pr-0 pl-0" width={8} textAlign="center">
+          <Grid.Column
+            className="nav-bar-message pr-0 pl-0"
+            computer={8}
+            tablet={8}
+            mobile={4}
+            textAlign="center"
+          >
             {!!storageDataPresent && (
               <span className="nav-bar-message-text">
                 <Trans
@@ -59,7 +57,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
               </span>
             )}
           </Grid.Column>
-          <Grid.Column width={4} textAlign="right">
+          <Grid.Column computer={4} tablet={4} mobile={6} textAlign="right">
             {!!nextFormPage && (
               <Button
                 type="button"
@@ -76,7 +74,7 @@ const FormPageNavigationBar = ({ classnames, ...props }) => {
           </Grid.Column>
         </Grid>
       </Segment>
-    </div>
+    </Grid.Column>
   );
 };
 

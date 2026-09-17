@@ -29,7 +29,7 @@ import { useCurrentResourceTypeFields } from "./hooks/useCurrentResourceTypeFiel
 import { useFormPageNavigation } from "./hooks/useFormPageNavigation";
 import { useLocalStorageRecovery } from "./hooks/useLocalStorageRecovery";
 import { useIsInViewport } from "./hooks/useIsInViewport";
-import { useClientValidationMetaValue } from "./ClientValidationMetaContext";
+import { useClientValidationMetaValue } from "./validation/ClientValidationMetaContext";
 import {
   SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
   SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX,
@@ -203,7 +203,8 @@ const FormUIStateManager = ({ children }) => {
     pageTargetRef.current = node;
     setPageTargetElement(node);
   }, []);
-  const pageTargetInViewport = useIsInViewport(pageTargetElement);
+  // Inset bottom by ~footer bar height so static mode waits until the bar fits on-screen.
+  const pageTargetInViewport = useIsInViewport(pageTargetElement, "0px 0px -80px 0px");
 
   // Set up form UI context for provider
   const contextValue = useMemo(

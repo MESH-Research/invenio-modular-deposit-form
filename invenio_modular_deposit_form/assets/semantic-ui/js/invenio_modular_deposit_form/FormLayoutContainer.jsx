@@ -240,7 +240,10 @@ const FormLayoutContainer = () => {
         </Grid.Row>
 
         {formFooterConfig && (
-          <FormFooterRegion subsections={formFooterConfig?.subsections ?? []}>
+          <FormFooterRegion
+            subsections={formFooterConfig?.subsections ?? []}
+            classnames={formFooterConfig?.classnames}
+          >
             <div
               id="sticky-footer-observation-target"
               ref={ctx.pageTargetRefCallback}
