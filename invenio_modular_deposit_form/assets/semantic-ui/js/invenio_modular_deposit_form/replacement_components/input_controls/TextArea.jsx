@@ -1,7 +1,7 @@
 import React from "react";
 import { Field, FastField, getIn } from "formik";
-import { Form } from "semantic-ui-react";
 import { ErrorLabel, FieldLabel } from "react-invenio-forms";
+import { Form, TextArea as SemanticTextArea } from "semantic-ui-react";
 import { getTouchedParent } from "../../utils";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 
@@ -45,15 +45,15 @@ const TextArea = ({
         const helptextId = helpText && helpText !== " " ? `${fieldPath}.helptext` : "";
         const describedByText = [descriptionId, helptextId].filter(Boolean).join(" ") || undefined;
         const labelId = showLabel && label ? `${fieldPath}.label` : undefined;
+        const showError =
+          (!!meta.error && !!meta.touched) ||
+          !!error ||
+          (field.value === meta.initialValue && !!meta.initialError);
 
         return (
           <Form.Field
             required={!!required}
-            error={
-              (!!meta.error && !!meta.touched) ||
-              !!error ||
-              (field.value === meta.initialValue && !!meta.initialError)
-            }
+            error={showError}
             className={`invenio-text-area-field ${classnames ? classnames : ""}`}
             width={width}
           >
@@ -70,7 +70,7 @@ const TextArea = ({
                 {React.isValidElement(description) ? description : i18next.t(description)}
               </div>
             )}
-            <Form.TextArea
+            <SemanticTextArea
               id={fieldPath}
               name={fieldPath}
               rows={rows}
@@ -90,11 +90,7 @@ const TextArea = ({
                 {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
               </div>
             )}
-            {((!!meta.error && !!meta.touched) ||
-              !!error ||
-              (field.value === meta.initialValue && !!meta.initialError)) && (
-              <ErrorLabel fieldPath={fieldPath} />
-            )}
+            {showError && <ErrorLabel fieldPath={fieldPath} />}
           </Form.Field>
         );
       }}

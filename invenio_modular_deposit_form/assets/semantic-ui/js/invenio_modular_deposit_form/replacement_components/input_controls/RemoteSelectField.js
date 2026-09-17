@@ -25,7 +25,7 @@
 //   with `.cancel()` on unmount (stock debounces only, no ref / cancel).
 // - `commitSearchOnBlur` (default false): when true and not `multiple`, blur commits trimmed
 //   search text like a free-text value (`onValueChange` + `ui.*`). Does not require
-//   `allowAdditions` on semantic-ui-react `Form.Dropdown`. Also opts the field into
+//   `allowAdditions` on semantic-ui-react `Dropdown`. Also opts the field into
 //   **mid-typeahead-on-focus** UX: on focus, seed controlled `searchQuery` from the Formik
 //   field value (fallback: selected suggestion text) and select that text — the same
 //   state as if the user had already typed that string (browser-typical focus selection).
@@ -34,7 +34,7 @@
 //   `searchQuery` updates on every keystroke; remote fetches stay on `runDebouncedSearch` /
 //   `debounceTime`.
 // - `hideAdditionMenuItem` (default false): passes `allowAdditions={false}` into `SelectField` /
-//   `Form.Dropdown`. semantic-ui-react has no prop to hide only the synthetic “Add …” row in
+//   `Dropdown`. semantic-ui-react has no prop to hide only the synthetic “Add …” row in
 //   `getMenuOptions`; turning additions off removes that row. Pair with `commitSearchOnBlur` (or
 //   list-only selection) so free text is still accepted when needed.
 // - `focusFieldPathAfterSelect` (optional Formik field path / DOM id): after `onChange` (pick

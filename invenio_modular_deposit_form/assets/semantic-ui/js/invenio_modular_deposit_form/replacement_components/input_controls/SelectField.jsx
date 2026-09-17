@@ -17,20 +17,22 @@
 //   `form.errors` show only after the field is touched (prop `error` and initial-error
 //   while value unchanged stay as in stock).
 // - Formik `handleBlur(e)` infers the field from `e.target.name` or `e.target.id`. For
-//   `Form.Dropdown` (search), the blur target is often a wrapper or an inner input
-//   without that path, so we still call `setFieldTouched(fieldPath, true, false)` on
-//   blur after `handleBlur(e)`.
-// - If `onBlur` is passed as a field prop, it is **not** spread onto `Form.Dropdown`
-//   alone: we destructure it and call it **after** `handleBlur` + `setFieldTouched`, as
+//   search `Dropdown`, the blur target is often a wrapper or an inner input without that
+//   path, so we still call `setFieldTouched(fieldPath, true, false)` on blur after
+//   `handleBlur(e)`.
+// - If `onBlur` is passed as a field prop, it is **not** spread onto `Dropdown` alone:
+//   we destructure it and call it **after** `handleBlur` + `setFieldTouched`, as
 //   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
 //   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
 //   and any other caller that needs extra blur logic.
 // - Same for `onFocus`: destructured and invoked as `onFocusFromProps(e, { formikProps })`
 //   so callers (e.g. `RemoteSelectField` mid-typeahead seed) can read Formik values.
 // - The dropdown is wrapped in `Form.Field` and the label is rendered as a separate
-//   `FieldLabel` sibling rather than passed to `Form.Dropdown` via its `label` prop, so
-//   `description` can be rendered between the label and the input.
-// - Sets `id={fieldPath}` on `Form.Dropdown` (stock does not) so `FieldLabel`'s
+//   `FieldLabel` sibling rather than passed via a `label` prop, so `description` can be
+//   rendered between the label and the input. Uses plain `Dropdown` (not `Form.Dropdown`)
+//   to avoid a nested `.field` wrapper; `FeedbackLabel` is a sibling under the same
+//   show-error rule (stock stuffed it into `Form.Dropdown`'s `error` prop).
+// - Sets `id={fieldPath}` on `Dropdown` (stock does not) so `FieldLabel`'s
 //   `htmlFor={fieldPath}` resolves and so `arrayFieldFocus.focusFieldByPath` can find
 //   the control the same way replacement `TextField` does (`id` on the input).
 
@@ -45,7 +47,7 @@ import {
   createOption,
 } from "react-invenio-forms";
 import { FieldLabel } from "./FieldLabel";
-import { Form } from "semantic-ui-react";
+import { Dropdown, Form } from "semantic-ui-react";
 
 export class SelectField extends Component {
   constructor(props) {
@@ -68,18 +70,14 @@ export class SelectField extends Component {
     }
   }
 
-  renderError = (isTouched, initialValue, initialErrors, value, errors) => {
+  getComputedError = (isTouched, initialValue, initialErrors, value, errors) => {
     const { error, fieldPath } = this.props;
-    const computedError =
+    return (
       error ||
       (isTouched && getIn(errors, fieldPath, null)) ||
       // We check if initialValue changed to display the initialError,
       // otherwise it would be displayed despite updating the field
-      (initialValue === value && getIn(initialErrors, fieldPath, null));
-    return (
-      computedError && (
-        <FeedbackLabel errorMessage={computedError} pointing="above" fieldPath={fieldPath} />
-      )
+      (initialValue === value && getIn(initialErrors, fieldPath, null))
     );
   };
 
@@ -124,6 +122,13 @@ export class SelectField extends Component {
 
     const initialValue = getIn(initialValues, fieldPath, _defaultValue);
     const isTouched = !!getIn(touched, fieldPath);
+    const computedError = this.getComputedError(
+      isTouched,
+      initialValue,
+      initialErrors,
+      value,
+      errors
+    );
     const { options: stateOptions } = this.state;
 
     // Use state options if available (includes user-added options), otherwise use props
@@ -132,72 +137,81 @@ export class SelectField extends Component {
     // Ensure selected values are present in options
     dropdownOptions = ensureSelectedValuesInOptions(dropdownOptions, value, multiple);
     return (
-      <Form.Dropdown
-        fluid
-        className="invenio-select-field"
-        search
-        selection
-        error={this.renderError(isTouched, initialValue, initialErrors, value, errors)}
-        id={fieldPath}
-        name={fieldPath}
-        disabled={disabled}
-        required={required}
-        onBlur={(e) => {
-          handleBlur(e);
-          setFieldTouched(fieldPath, true, false);
-          if (onBlurFromProps) {
-            onBlurFromProps(e, { formikProps });
-          }
-        }}
-        onFocus={(e) => {
-          if (onFocusFromProps) {
-            onFocusFromProps(e, { formikProps });
-          }
-        }}
-        onChange={(event, data) => {
-          if (onChange) {
-            onChange({ event, data, formikProps });
-            event.target.value = "";
-          } else {
-            setFieldValue(fieldPath, data.value);
-          }
-        }}
-        onAddItem={(event, data) => {
-          if (onAddItem) {
-            // Allow custom onAddItem handler if provided
-            onAddItem({ event, data, formikProps });
-          } else {
-            // Default behavior: add new option to state and update form value
-            const newValue = data.value;
-            const newOption = createOption(newValue);
-
-            // Add new option to state (deduplication handled by state update)
-            this.setState((prevState) => {
-              const prevOptions = prevState.options || [];
-              // Skip update if option already exists
-              if (prevOptions.some((opt) => opt.value === newValue)) {
-                return null;
-              }
-              return { options: [...prevOptions, newOption] };
-            });
-
-            // Update form value with new selection
-            if (multiple) {
-              const currentArray = Array.isArray(value) ? value : [];
-              setFieldValue(fieldPath, [...currentArray, newValue]);
-            } else {
-              setFieldValue(fieldPath, newValue);
+      <>
+        <Dropdown
+          fluid
+          className="invenio-select-field"
+          search
+          selection
+          error={!!computedError}
+          id={fieldPath}
+          name={fieldPath}
+          disabled={disabled}
+          required={required}
+          onBlur={(e) => {
+            handleBlur(e);
+            setFieldTouched(fieldPath, true, false);
+            if (onBlurFromProps) {
+              onBlurFromProps(e, { formikProps });
             }
-          }
-        }}
-        openOnFocus={openOnFocus}
-        options={dropdownOptions}
-        value={value}
-        multiple={multiple}
-        selectOnBlur={false}
-        allowAdditions={allowAdditions}
-        {...uiProps}
-      />
+          }}
+          onFocus={(e) => {
+            if (onFocusFromProps) {
+              onFocusFromProps(e, { formikProps });
+            }
+          }}
+          onChange={(event, data) => {
+            if (onChange) {
+              onChange({ event, data, formikProps });
+              event.target.value = "";
+            } else {
+              setFieldValue(fieldPath, data.value);
+            }
+          }}
+          onAddItem={(event, data) => {
+            if (onAddItem) {
+              // Allow custom onAddItem handler if provided
+              onAddItem({ event, data, formikProps });
+            } else {
+              // Default behavior: add new option to state and update form value
+              const newValue = data.value;
+              const newOption = createOption(newValue);
+
+              // Add new option to state (deduplication handled by state update)
+              this.setState((prevState) => {
+                const prevOptions = prevState.options || [];
+                // Skip update if option already exists
+                if (prevOptions.some((opt) => opt.value === newValue)) {
+                  return null;
+                }
+                return { options: [...prevOptions, newOption] };
+              });
+
+              // Update form value with new selection
+              if (multiple) {
+                const currentArray = Array.isArray(value) ? value : [];
+                setFieldValue(fieldPath, [...currentArray, newValue]);
+              } else {
+                setFieldValue(fieldPath, newValue);
+              }
+            }
+          }}
+          openOnFocus={openOnFocus}
+          options={dropdownOptions}
+          value={value}
+          multiple={multiple}
+          selectOnBlur={false}
+          allowAdditions={allowAdditions}
+          {...uiProps}
+        />
+        {computedError ? (
+          <FeedbackLabel
+            pointing="above"
+            fieldPath={fieldPath}
+            {...(error ? { injectedError: error } : {})}
+          />
+        ) : null}
+      </>
     );
   };
 

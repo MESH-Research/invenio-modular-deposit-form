@@ -1,6 +1,7 @@
 import React from "react";
 import { FastField, Field } from "formik";
-import { Form } from "semantic-ui-react";
+import { ErrorLabel } from "react-invenio-forms";
+import { Form, Input } from "semantic-ui-react";
 import { FieldLabel } from "./FieldLabel";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 // import { getTouchedParent } from "../../utils";
@@ -74,8 +75,8 @@ const TextField = ({
                 {React.isValidElement(description) ? description : i18next.t(description)}
               </div>
             )}
-            <Form.Input
-              error={showError ? meta.error : undefined}
+            <Input
+              error={showError}
               disabled={disabled}
               fluid={fluid}
               icon={undefined}
@@ -98,6 +99,7 @@ const TextField = ({
                 {React.isValidElement(helpText) ? helpText : i18next.t(helpText)}
               </div>
             )}
+            {showError && <ErrorLabel fieldPath={fieldPath} />}
           </Form.Field>
         );
       }}

@@ -17,9 +17,11 @@
 //   `onAfterAdd({ index })` with `valuesToDisplay.length` before `push`.
 // - Add button `id={`${fieldPath}.add-button`}` for `focusAddButton(fieldPath)` (Form.Button
 //   does not forward refs to the DOM button).
+// - Row list keys use `<Fragment key={...}>` instead of a bare `<div key={...}>` wrapper
+//   (stock wraps each row in an unclassed div).
 // - `PropTypes` / `defaultProps`: `onAfterAdd`, `onAfterRemove`.
 
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { getIn, FieldArray } from "formik";
 import { Form, Icon } from "semantic-ui-react";
@@ -145,7 +147,7 @@ export class ArrayField extends Component {
           const key = value.__key || index;
 
           return (
-            <div key={key}>
+            <Fragment key={key}>
               {children({
                 array,
                 arrayHelpers: wrappedArrayHelpers,
@@ -155,11 +157,11 @@ export class ArrayField extends Component {
                 value,
                 ...props,
               })}
-            </div>
+            </Fragment>
           );
         })}
 
-        <Form.Group>
+        <Form.Group className="mb-0">
           <Form.Button
             id={`${fieldPath}.add-button`}
             type="button"

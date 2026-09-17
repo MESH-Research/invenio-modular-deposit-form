@@ -25,19 +25,23 @@
 //
 // RichInputField - same error display rule as TextArea; imports pull subcomponents from stock package.
 //
-// SelectField — `classnames` merged into `className` on `Form.Dropdown`; shared helpers imported from
-// the `react-invenio-forms` package root (no `utils` subpath). **When errors show:** `error` prop if
-// set, else `errors[fieldPath]` if `touched[fieldPath]`, else `initialErrors[fieldPath]` if value
-// still equals the initial value. **Blur:** `handleBlur` then `setFieldTouched(fieldPath)` (dropdown
+// SelectField — `classnames` merged into `className` on wrapping `Form.Field`; plain `Dropdown`
+// inside (avoids nested `.field` from `Form.Dropdown`); shared helpers from `react-invenio-forms`
+// package root. **When errors show + `FeedbackLabel`:** `error` prop if set, else
+// `errors[fieldPath]` if `touched[fieldPath]`, else `initialErrors[fieldPath]` if value still
+// equals the initial value. **Blur:** `handleBlur` then `setFieldTouched(fieldPath)` (dropdown
 // blur target fix), then optional `onBlurFromProps`. Optional `description` / `helpText` slots.
 // See SelectField.jsx.
 //
-// TextArea — **same when-to-show rule** as TextField for `Form.Field`’s `error` flag; also renders
-// `ErrorLabel` when that rule is true. `optimized` switches FastField vs Field.
+// TextArea — Uses plain `TextArea` inside `Form.Field` (avoids nested `.field` from
+// `Form.TextArea`). **Same when-to-show rule** as TextField for `Form.Field`’s `error` flag;
+// also renders `ErrorLabel` when that rule is true. `optimized` switches FastField vs Field.
 //
-// TextField — `description` / `helpText` placement (see TextField.js header). **When `Form.Field` /
-// `Form.Input` show error:** `(meta.error && meta.touched) || error prop || (value still initial &&
-// meta.initialError)`. Always uses Formik `Field` here (`optimized`/FastField left as FIXME in file).
+// TextField — `description` / `helpText` placement (see TextField.js header). Uses plain `Input`
+// inside `Form.Field` (avoids nested `.field` from `Form.Input`). **When `Form.Field` /
+// `Input` show error + `ErrorLabel`:** `(meta.error && meta.touched) || error prop || (value still
+// initial && meta.initialError)`. Always uses Formik `Field` here (`optimized`/FastField left as
+// FIXME in file).
 export * from "./ArrayField";
 export * from "./AutocompleteDropdown";
 export * from "./Dropdown";
