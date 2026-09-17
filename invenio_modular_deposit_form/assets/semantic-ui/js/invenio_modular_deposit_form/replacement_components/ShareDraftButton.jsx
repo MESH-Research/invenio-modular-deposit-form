@@ -2,23 +2,29 @@
 // Copyright (C) 2026 Mesh Research
 //
 // Replacement for stock ShareDraftButton / ShareButton: those hardcode
-// labelPosition="left" and do not accept className. Reuses upstream ShareModal.
+// labelPosition="left" and do not accept className. Reuses upstream ShareModal
+// via DepositShareModal, keeping Formik as the live record (never mutating Redux).
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useFormikContext } from "formik";
-import { useSelector } from "react-redux";
 import _get from "lodash/get";
 import { Button, Icon, Popup } from "semantic-ui-react";
-import { ShareModal } from "@js/invenio_app_rdm/landing_page/ShareOptions/ShareModal";
 import { i18next } from "@translations/invenio_app_rdm/i18next";
+
+import { DepositShareModal } from "./DepositShareModal";
+import {
+  buildRecordForModal,
+  fillMissingFromRedux,
+  mergeShareRecordIntoFormik,
+} from "./depositShareRecord";
 
 /**
  * Deposit-form Share button with configurable icon label position.
  *
  * @param {object} props
  * @param {boolean} [props.disabled]
- * @param {object} props.record
+ * @param {object} props.record - Redux deposit record (read-only source for gaps)
  * @param {object} props.permissions
  * @param {boolean} props.groupsEnabled
  * @param {"left"|"right"} [props.labelPosition]
@@ -32,24 +38,52 @@ export const ShareDraftButton = ({
   labelPosition = "right",
   className,
 }) => {
-  const { values, isSubmitting } = useFormikContext();
-  const numberOfFiles = useSelector(
-    (state) => Object.values(state.files.entries).length
-  );
+  const { values, isSubmitting, setValues } = useFormikContext();
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Same sync as stock ShareDraftButton so ShareModal sees form values.
-  record.expanded = values.expanded;
-  record.links = values.links;
-  if (record.parent?.access) {
-    record.parent.access.settings = values.parent?.access?.settings;
-  }
+  // After draft save, Redux may have server-owned fields Formik lacks until
+  // reinitialize catches up — fill gaps into Formik (never Formik → Redux).
+  useEffect(() => {
+    const filled = fillMissingFromRedux(values, record);
+    if (filled !== values) {
+      setValues(filled);
+    }
+  }, [
+    record,
+    setValues,
+    values,
+    values.expanded,
+    values.links,
+    values.parent?.access?.grants,
+    values.parent?.access?.links,
+    values.parent?.access?.owned_by,
+    values.parent?.access?.settings,
+  ]);
+
+  const handleRecordChangeFromModal = useCallback(
+    (modalRecord) => {
+      setValues(mergeShareRecordIntoFormik(values, modalRecord));
+    },
+    [setValues, values]
+  );
+
+  const handleOpen = () => {
+    const filled = fillMissingFromRedux(values, record);
+    if (filled !== values) {
+      setValues(filled);
+    }
+    setModalOpen(true);
+  };
 
   const filesEnabled = _get(values, "files.enabled", false);
+  const numberOfFiles = _get(values, "files.count", 0);
   const filesMissing = filesEnabled && !numberOfFiles;
   const dataEmpty = Object.keys(values.expanded ?? {}).length === 0;
-  const disabled =
-    disabledProp || isSubmitting || filesMissing || dataEmpty;
+  const disabled = disabledProp || isSubmitting || filesMissing || dataEmpty;
+
+  const recordForModal = buildRecordForModal(
+    fillMissingFromRedux(values, record)
+  );
 
   return (
     <>
@@ -59,7 +93,7 @@ export const ShareDraftButton = ({
         trigger={
           <Button
             fluid
-            onClick={() => setModalOpen(true)}
+            onClick={handleOpen}
             disabled={disabled}
             primary
             size="medium"
@@ -73,13 +107,16 @@ export const ShareDraftButton = ({
           </Button>
         }
       />
-      <ShareModal
-        open={modalOpen}
-        handleClose={() => setModalOpen(false)}
-        record={record}
-        permissions={permissions}
-        groupsEnabled={groupsEnabled}
-      />
+      {modalOpen && (
+        <DepositShareModal
+          open
+          handleClose={() => setModalOpen(false)}
+          record={recordForModal}
+          permissions={permissions}
+          groupsEnabled={groupsEnabled}
+          onRecordChange={handleRecordChangeFromModal}
+        />
+      )}
     </>
   );
 };
