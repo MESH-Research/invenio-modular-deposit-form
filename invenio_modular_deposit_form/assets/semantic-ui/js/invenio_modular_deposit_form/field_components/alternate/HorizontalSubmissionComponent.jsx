@@ -32,12 +32,12 @@ const HelpTextContent = ({ canDeleteDraft }) => (
     </p>
     <p>
       <b>Published deposits</b> can still be edited, but you will no longer be able to{" "}
-      {canDeleteDraft && "delete the deposit or "}change the attached files. To add or
-      change files for a published deposit you must create a new version of the record.
+      {canDeleteDraft && "delete the deposit or "}change the attached files. To add or change files
+      for a published deposit you must create a new version of the record.
     </p>
     <p>
-      Deposits can only be <b>deleted while they are drafts</b>. Once you publish your
-      deposit, you can only restrict access and/or create a new version.
+      Deposits can only be <b>deleted while they are drafts</b>. Once you publish your deposit, you
+      can only restrict access and/or create a new version.
     </p>
   </>
 );
@@ -48,24 +48,19 @@ const HorizontalSubmissionComponent = () => {
   const canDeleteDraft = !!permissions?.can_delete_draft;
 
   return (
-    <Grid relaxed stackable columns={2} className="horizontal-submission">
-      <Grid.Column className="horizontal-submission-controls">
-        <div className="mobile only horizontal-help-trigger">
-          <Popup
-            trigger={
-              <Icon
-                name="info circle"
-                size="large"
-                link
-                aria-label="Help: drafts and publishing"
-              />
-            }
-            content={<HelpTextContent canDeleteDraft={canDeleteDraft} />}
-            position="bottom right"
-            wide="very"
-            on="click"
-          />
-        </div>
+    <Grid relaxed stackable columns={2} className="horizontal-submission mb-0 pb-0">
+      <Grid.Column className="horizontal-submission-controls pt-0">
+        {/* <div className="mobile only horizontal-help-trigger">
+      <Popup
+      trigger={
+        <Icon name="info circle" size="large" link aria-label="Help: drafts and publishing" />
+      }
+      content={<HelpTextContent canDeleteDraft={canDeleteDraft} />}
+      position="bottom right"
+      wide="very"
+      on="click"
+      />
+      </div> */}
         <SubmissionComponent />
       </Grid.Column>
       <Grid.Column

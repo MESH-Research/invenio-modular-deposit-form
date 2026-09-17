@@ -812,7 +812,7 @@ const SubmissionComponent = () => {
       permissions={permissions}
       groupsEnabled={groupsEnabled}
     >
-      <Card className="pt-5 pr-5 pl-5 pb-20">
+      <Card className="pt-5 pr-5 pl-5 pb-20" fluid>
         {/* <Card.Content>
             <DepositStatusBox />
           </Card.Content> */}
@@ -834,11 +834,7 @@ const SubmissionComponent = () => {
             {permissions?.can_delete_draft && (
               <Overridable id="InvenioAppRdm.Deposit.CardDeleteButton.container" record={record}>
                 <Grid.Column width={16} className="rel-pt-1">
-                  <DeleteButton
-                    fluid
-                    icon="trash alternate outline"
-                    labelPosition="right"
-                  />
+                  <DeleteButton fluid icon="trash alternate outline" labelPosition="right" />
                 </Grid.Column>
               </Overridable>
             )}
