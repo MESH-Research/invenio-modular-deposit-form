@@ -109,6 +109,12 @@ export class SelectField extends Component {
       disabled,
       required,
       allowAdditions,
+      // Wrapper / RemoteSelect config — not Dropdown DOM attributes.
+      customFieldsUI,
+      defaultFieldValue,
+      extraRequiredFields,
+      priorityFieldValues,
+      searchOnFocus,
       ...uiProps
     } = cmpProps;
 

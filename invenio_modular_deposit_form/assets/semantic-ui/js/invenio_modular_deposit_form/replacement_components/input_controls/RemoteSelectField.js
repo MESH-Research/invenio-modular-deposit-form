@@ -393,6 +393,8 @@ class RemoteSelectField extends Component {
         hideAdditionMenuItem,
         mergeExtraSource,
         restrictOptionsToResults,
+        // RemoteSelect-only; must not reach SelectField → Dropdown DOM.
+        searchOnFocus,
         ...uiProps
       } = this.props;
 
@@ -419,6 +421,7 @@ class RemoteSelectField extends Component {
         hideAdditionMenuItem,
         mergeExtraSource,
         restrictOptionsToResults,
+        searchOnFocus,
       };
       return { compProps, uiProps };
     };
