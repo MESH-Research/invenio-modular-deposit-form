@@ -6,12 +6,14 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-from invenio_modular_deposit_form import __version__
+from pathlib import Path
 
 project = "Invenio Modular Deposit Form"
 copyright = "2023-2026, MESH Research"
 author = "MESH Research"
-release = __version__
+release = (
+    Path(__file__).resolve().parents[2].joinpath("VERSION").read_text().strip().strip('"')
+)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
