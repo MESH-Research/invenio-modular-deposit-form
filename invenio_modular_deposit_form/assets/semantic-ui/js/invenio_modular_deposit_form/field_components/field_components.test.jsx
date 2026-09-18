@@ -9,6 +9,19 @@ import axios from 'axios';
 import { Provider } from 'react-redux';
 import { useFormikContext } from 'formik';
 
+// AdditionalTitlesField (pulled in via field_components barrel) imports this upstream
+// constant; stub so standalone CI need not check out invenio-rdm-records.
+jest.mock(
+  '@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues',
+  () => ({
+    emptyAdditionalTitle: {
+      lang: '',
+      title: '',
+      type: 'alternative-title',
+    },
+  })
+);
+
 describe('LanguagesComponent', () => {
   let store;
 

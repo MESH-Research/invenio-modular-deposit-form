@@ -8,6 +8,18 @@ import axios from "axios";
 import { Provider } from "react-redux";
 import { useFormikContext } from "formik";
 
+// Upstream constant; stub so standalone CI need not check out invenio-rdm-records.
+jest.mock(
+  "@js/invenio_rdm_records/src/deposit/fields/TitlesField/initialValues",
+  () => ({
+    emptyAdditionalTitle: {
+      lang: "",
+      title: "",
+      type: "alternative-title",
+    },
+  })
+);
+
 const typeOptions = {
   type: [
     { text: "Alternative title", value: "alternative-title" },
