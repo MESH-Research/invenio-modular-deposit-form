@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Icon, Modal } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
-import PropsTypes from "prop-types";
+import PropTypes from "prop-types";
 
 const RecoveryModal = ({
   confirmModalRef,
@@ -72,11 +72,10 @@ const RecoveryModal = ({
 };
 
 RecoveryModal.propTypes = {
-  confirmModalRef: PropsTypes.object.isRequired,
-  handleStorageData: PropsTypes.func.isRequired,
-  isDraft: PropsTypes.bool.isRequired,
-  isVersionDraft: PropsTypes.bool.isRequired,
-  setRecoveryAsked: PropsTypes.func.isRequired,
+  confirmModalRef: PropTypes.object.isRequired,
+  handleStorageData: PropTypes.func.isRequired,
+  isUnsavedDraft: PropTypes.bool.isRequired,
+  setRecoveryAsked: PropTypes.func.isRequired,
 };
 
 export { RecoveryModal };
