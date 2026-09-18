@@ -107,6 +107,9 @@ importers:
       redux-thunk:
         specifier: 2.3.0
         version: 2.3.0(redux@4.0.0)
+      semantic-ui-react:
+        specifier: 2.1.5
+        version: 2.1.5(react-dom@16.13.0(react@16.13.0))(react@16.13.0)
       yup:
         specifier: 0.32.11
         version: 0.32.11
