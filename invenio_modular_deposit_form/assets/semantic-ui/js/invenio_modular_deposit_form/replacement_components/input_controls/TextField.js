@@ -12,7 +12,7 @@ const TextField = ({
   disabled,
   error,
   fieldPath,
-  fluid = "true",
+  fluid = true,
   helpText,
   icon, // field wrapper component puts both icon and labelIcon on
   label,
@@ -59,7 +59,6 @@ const TextField = ({
             required={!!required}
             error={showError}
             className={`invenio-text-input-field ${classnames ? classnames : ""} ${label?.length < 1 ? "no-label" : ""}`}
-            fluid={fluid.toString()}
             width={width}
           >
             {showLabel && label ? (
@@ -78,7 +77,7 @@ const TextField = ({
             <Input
               error={showError}
               disabled={disabled}
-              fluid={fluid}
+              fluid={!!fluid}
               icon={undefined}
               id={fieldPath}
               name={fieldPath}
