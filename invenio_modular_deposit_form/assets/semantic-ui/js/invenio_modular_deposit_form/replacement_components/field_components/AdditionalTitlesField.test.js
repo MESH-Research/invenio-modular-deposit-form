@@ -84,12 +84,14 @@ describe("AdditionalTitlesField", () => {
 
     const result = renderWithFormik(
       <Provider store={store}>
-        <AdditionalTitlesField
-          fieldPath="metadata.additional_titles"
-          options={typeOptions}
-          recordUI={store.getState().deposit.record.ui}
-        />
-        <TestComponent />
+        <>
+          <AdditionalTitlesField
+            fieldPath="metadata.additional_titles"
+            options={typeOptions}
+            recordUI={store.getState().deposit.record.ui}
+          />
+          <TestComponent />
+        </>
       </Provider>,
       {
         initialValues: formMocks.values,

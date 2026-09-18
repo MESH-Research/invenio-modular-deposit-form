@@ -17,11 +17,11 @@
 //   `form.errors` show only after the field is touched (prop `error` and initial-error
 //   while value unchanged stay as in stock).
 // - Formik `handleBlur(e)` infers the field from `e.target.name` or `e.target.id`. For
-//   search `Dropdown`, the blur target is often a wrapper or an inner input without that
-//   path, so we still call `setFieldTouched(fieldPath, true, false)` on blur after
-//   `handleBlur(e)`.
+//   search `Dropdown`, blur often targets the inner search `<input>`, which has neither,
+//   so we mark touched with `setFieldTouched(fieldPath, true, false)` instead of
+//   `handleBlur(e)` (which would warn and not identify this field).
 // - If `onBlur` is passed as a field prop, it is **not** spread onto `Dropdown` alone:
-//   we destructure it and call it **after** `handleBlur` + `setFieldTouched`, as
+//   we destructure it and call it **after** `setFieldTouched`, as
 //   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
 //   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
 //   and any other caller that needs extra blur logic.
@@ -87,7 +87,6 @@ export class SelectField extends Component {
         values,
         setFieldValue,
         setFieldTouched,
-        handleBlur,
         errors,
         initialErrors,
         initialValues,
@@ -155,7 +154,6 @@ export class SelectField extends Component {
           disabled={disabled}
           required={required}
           onBlur={(e) => {
-            handleBlur(e);
             setFieldTouched(fieldPath, true, false);
             if (onBlurFromProps) {
               onBlurFromProps(e, { formikProps });

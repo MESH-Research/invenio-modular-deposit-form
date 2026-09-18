@@ -19,7 +19,7 @@
 
 import React, { Component, useMemo } from "react";
 import PropTypes from "prop-types";
-import { Button, Form, Icon } from "semantic-ui-react";
+import { Button, Form } from "semantic-ui-react";
 
 import { useFormikContext } from "formik";
 import _get from "lodash/get";
@@ -123,11 +123,9 @@ export class AdditionalTitlesField extends Component {
                   <Button
                     aria-label={i18next.t("Remove field")}
                     className="close-btn right floated"
-                    icon
+                    icon="close"
                     onClick={() => arrayHelpers.remove(indexPath)}
-                  >
-                    <Icon name="close" />
-                  </Button>
+                  />
                 </Form.Field>
               </Form.Group>
               <Form.Group className={`mb-0 mt-0 unstackable`}>
