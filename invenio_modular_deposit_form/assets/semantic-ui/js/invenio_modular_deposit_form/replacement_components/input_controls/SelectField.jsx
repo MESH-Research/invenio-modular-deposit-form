@@ -7,12 +7,19 @@
 // modify it under the terms of the MIT License; see LICENSE file for more details.
 //
 // Differences from stock react-invenio-forms SelectField:
+// 
+// ### Layout/styling support
 // - Pulls `classnames` out of props and merges it into `className` on the wrapping
-//   `Form.Field` (semantic-ui-react has no `classnames` prop; spreading it would
-//   not apply styles).
-// - Imports `FeedbackLabel`, `FieldLabel`, `mergeOptions`, `ensureSelectedValuesInOptions`,
-//   and `createOption` from `react-invenio-forms` main entry (published package has no
-//   `react-invenio-forms/utils` subpath; helpers live on the root export).
+//   `Form.Field`.
+//
+// ### Support for both help text and description (above and below the input)
+// - The dropdown is wrapped in `Form.Field` and the label is rendered as a separate
+//   `FieldLabel` sibling rather than passed via a `label` prop, so `description` can be
+//   rendered between the label and the input. Uses plain `Dropdown` (not `Form.Dropdown`)
+//   to avoid a nested `.field` wrapper; `FeedbackLabel` is a sibling under the same
+//   show-error rule (stock puts it into `Form.Dropdown`'s `error` prop).
+//
+// ### Client-side validation support
 // - Stock destructures nonexistent `form.meta`; we use `form.touched` so messages from
 //   `form.errors` show only after the field is touched (prop `error` and initial-error
 //   while value unchanged stay as in stock).
@@ -25,16 +32,42 @@
 //   `onBlurFromProps(e, { formikProps })`. Stock behavior had the custom handler replace
 //   the default when spread last; chaining preserves touched parity for `RemoteSelectField`
 //   and any other caller that needs extra blur logic.
-// - Same for `onFocus`: destructured and invoked as `onFocusFromProps(e, { formikProps })`
-//   so callers (e.g. `RemoteSelectField` mid-typeahead seed) can read Formik values.
-// - The dropdown is wrapped in `Form.Field` and the label is rendered as a separate
-//   `FieldLabel` sibling rather than passed via a `label` prop, so `description` can be
-//   rendered between the label and the input. Uses plain `Dropdown` (not `Form.Dropdown`)
-//   to avoid a nested `.field` wrapper; `FeedbackLabel` is a sibling under the same
-//   show-error rule (stock stuffed it into `Form.Dropdown`'s `error` prop).
+//
+// ### Support for onFocus
+// - If `onFocus` is passed as a field prop, it's also destructured and invoked as 
+//   `onFocusFromProps(e, { formikProps })` so callers (e.g. `RemoteSelectField` mid-typeahead 
+//   seed) can read Formik values.
+//
+// ### a11y support
 // - Sets `id={fieldPath}` on `Dropdown` (stock does not) so `FieldLabel`'s
 //   `htmlFor={fieldPath}` resolves and so `arrayFieldFocus.focusFieldByPath` can find
 //   the control the same way replacement `TextField` does (`id` on the input).
+//
+// ### Selected-value identity for `ensureSelectedValuesInOptions`
+// - Stock (and this fork) set `value={formikValue}` then `{...uiProps}`, so a parent
+//   `value` prop already overrides what the Dropdown treats as selected. SubjectsField
+//   relies on that: Formik holds `[{ subject, id }, …]` (record schema) while it passes
+//   `value={….map((v) => v.subject)}` (strings the Dropdown can match to `option.value`).
+// - Stock still runs `ensureSelectedValuesInOptions` on the Formik value only. For
+//   subjects that means comparing objects to string option values, inventing phantom
+//   options, and empty menu rows (the blank gap). This fork feeds ensure the same
+//   selection identity the Dropdown ends up with: `uiProps.value` when the parent
+//   passed it, otherwise Formik. That privileges an incoming `value` prop for option
+//   synthesis the same way the spread already privileges it for display — deliberate
+//   alignment with SubjectsField, not a new controlled-mode API.
+//
+// ### Support for restricting the dropdown list to the current search results
+// - Used by `RemoteSelectField`.
+// - Stock merges every `props.options` change into `state.options` (grow-only). With an
+//   empty search query SUIR does not call a custom `search`, so that accumulated list is
+//   what the dropdown list shows. When this prop is true, replace `state.options` instead of
+//   merging so RemoteSelect can shrink the list (e.g. after select clears the query).
+//
+// ### Other
+// - Imports `FeedbackLabel`, `FieldLabel`, `mergeOptions`, `ensureSelectedValuesInOptions`,
+//   and `createOption` from `react-invenio-forms` main entry (published package has no
+//   `react-invenio-forms/utils` subpath; helpers live on the root export).
+//
 
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { FastField, Field, getIn } from "formik";
@@ -59,14 +92,14 @@ export class SelectField extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { options } = this.props;
+    const { options, restrictOptionsToResults } = this.props;
     if (prevProps.options !== options) {
-      // When props.options change, merge with existing state options
-      // This preserves user-added options while incorporating new prop options
-      this.setState((prevState) => {
-        const merged = mergeOptions(prevState.options || [], options || []);
-        return { options: merged };
-      });
+      this.setState((prevState) => ({
+        // RemoteSelect may shrink the list (e.g. after select); merge would keep stale hits.
+        options: restrictOptionsToResults
+          ? options || []
+          : mergeOptions(prevState.options || [], options || []),
+      }));
     }
   }
 
@@ -108,12 +141,16 @@ export class SelectField extends Component {
       disabled,
       required,
       allowAdditions,
-      // Wrapper / RemoteSelect config — not Dropdown DOM attributes.
+      // Wrapper / RemoteSelect / MultiInput config — not Dropdown DOM attributes.
+      additionLabel,
       customFieldsUI,
       defaultFieldValue,
       extraRequiredFields,
+      initialOptions,
+      noQueryMessage,
       priorityFieldValues,
       searchOnFocus,
+      restrictOptionsToResults,
       ...uiProps
     } = cmpProps;
 
@@ -139,8 +176,17 @@ export class SelectField extends Component {
     // Use state options if available (includes user-added options), otherwise use props
     let dropdownOptions = (stateOptions && stateOptions.length > 0 ? stateOptions : options) || [];
 
-    // Ensure selected values are present in options
-    dropdownOptions = ensureSelectedValuesInOptions(dropdownOptions, value, multiple);
+    // Prefer passed `value` prop when present so that `ensureSelectedValuesInOptions` can be given 
+    // selected values as an array of strings (suitable for comparison with the dropdown's list of options). 
+    // In some cases (e.g. SubjectsField's string array) Formik's value can contain objects with a different 
+    // shape, resulting in false comparison misses and phantom options (empty menu rows).
+    const selectionForEnsure =
+      uiProps.value !== undefined ? uiProps.value : value;
+    dropdownOptions = ensureSelectedValuesInOptions(
+      dropdownOptions,
+      selectionForEnsure,
+      multiple
+    );
     return (
       <>
         <Dropdown

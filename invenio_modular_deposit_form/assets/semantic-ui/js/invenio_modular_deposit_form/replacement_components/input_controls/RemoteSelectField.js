@@ -10,16 +10,25 @@
 // see the LICENSE file for more details.
 //
 // Differences from stock react-invenio-forms RemoteSelectField:
+//
+// ### Client-side validation support
 // - Uses local replacement SelectField (touched-aware; chains `onBlur` — see SelectField.jsx).
+//
+// ### Styling/layout support
 // - Preserves className/classnames passthrough for local styling hooks.
+// - **`description` / `helpText`:** forwarded to local `SelectField` (above / below the
+//   dropdown); see `SelectField.jsx`.
+//
+// ### LocalStorage restore
 // - Syncs selected suggestions to `formik.values.ui.<fieldPath>` on add/change so
-//   `initialSuggestions` can rehydrate readable labels on remount/recovery (stock does not).
+//   `initialSuggestions` can rehydrate readable labels on remount/recovery.
 // - Re-seeds `state.suggestions` / `state.selectedSuggestions` from `initialSuggestions`
-//   on `componentDidUpdate` when its content changes (stock seeds only in the
+//   on `componentDidUpdate` only when its content changes (stock seeds only in the
 //   constructor). Required so localStorage recovery — which calls Formik `resetForm`
 //   *after* this widget has mounted — surfaces restored vocabulary labels instead of
-//   bare ids. Content equality (`_isEqual`) avoids churn when callers recompute
-//   `initialOptions` to a new array on every render.
+//   bare ids. Content equality (`_isEqual`) avoids unnecessary state updates. 
+//
+// ### Creatibutor name typeahead in-place support
 // - Search: keeps `latestSearchStringRef` in sync on **every** `onSearchChange` event (before
 //   debounce) so blur can commit the literal typed string; debounced fetch is `runDebouncedSearch`
 //   with `.cancel()` on unmount (stock debounces only, no ref / cancel).
@@ -30,9 +39,9 @@
 //   field value (fallback: selected suggestion text) and select that text — the same
 //   state as if the user had already typed that string (browser-typical focus selection).
 //   SUIR otherwise clears `searchQuery` after selection and shows a non-editable `.text`
-//   overlay, so typing replaces instead of edits. Focus alone does **not** fetch; display
-//   `searchQuery` updates on every keystroke; remote fetches stay on `runDebouncedSearch` /
-//   `debounceTime`.
+//   overlay, so typing replaces instead of edits. Focus alone does **not** fetch; 
+// -  display `searchQuery` updates on every keystroke to keep the input editable, but remote 
+//    fetches stay debounced.
 // - `hideAdditionMenuItem` (default false): passes `allowAdditions={false}` into `SelectField` /
 //   `Dropdown`. semantic-ui-react has no prop to hide only the synthetic “Add …” row in
 //   `getMenuOptions`; turning additions off removes that row. Pair with `commitSearchOnBlur` (or
@@ -40,8 +49,8 @@
 // - `focusFieldPathAfterSelect` (optional Formik field path / DOM id): after `onChange` (pick
 //   from list) or `onAddItem` (Enter on addition when additions are enabled), focuses
 //   `document.getElementById(path)` on the next tick; not run after blur-only commit.
-// - **`description` / `helpText`:** forwarded to local `SelectField` (above / below the
-//   dropdown); see `SelectField.jsx`.
+//
+// ### Parallel remote sources (like ORCID for names)
 // - `mergeExtraSource` (optional `(localHitsPromise, query) => Promise<extraHits>`): fans out
 //   alongside the local `suggestionAPIUrl` request. Local hits are painted into the dropdown as
 //   soon as they arrive (spinner stays on while extras are pending); extras are merged in via
@@ -50,17 +59,28 @@
 //   responses for queries the user has already typed past are dropped via a `searchQuery`
 //   staleness guard. Errors thrown from `mergeExtraSource` are swallowed (logged) so the local
 //   list is never lost.
-// - `restrictOptionsToResults` (default false): when true, the dropdown menu is sourced solely from
+//
+// ### Stale/redundant options (names, subjects, affiliations)
+// - `restrictOptionsToResults` (default false): when true, the dropdown list is sourced solely from
 //   the current remote results (`this.state.suggestions`) rather than the inner `SelectField`'s
 //   accumulating `state.options`. This bypasses both semantic-ui-react's built-in client-side
 //   text filtering and the inherited stock `SelectField` behavior of merging every `props.options`
 //   change into an ever-growing option universe (which, with client filtering disabled, would
 //   otherwise leave stale prior-query rows visible). Use for true remote autocomplete (e.g.
 //   `/api/names`) where the server / `mergeExtraSource` already decide relevance and each query's
-//   results should replace the previous menu. Callers pass the flag instead of a custom
+//   results should replace the previous list. Callers pass the flag instead of a custom
 //   `search={(options) => options}` and need no ref into this widget's state.
+//   For `multiple`, the dropdown omits currently selected values (SUIR would normally strip them
+//   before calling `search`, but a custom `search` replaces that list — so we strip here).
+//   Selected options remain in `suggestions` / `options` so chips can still resolve labels.
+//   On select/addition (query cleared), also collapse `suggestions` to the selection;
+//   `searchIfNoSuggestions` returns early so stock's empty-query refetch cannot refill the menu.
+//   Passes `restrictOptionsToResults` into SelectField so it **replaces** `state.options`
+//   instead of merge-only (otherwise shrinking `suggestions` never reaches the menu).
+//
+// ### Smaller UX fixes
 // - update `onFocus` logic to respect `searchOnFocus` prop value.
-// - added check for non-zero-length  string to `handleSearchInputChange` so that options menu
+// - added check for non-zero-length string to `handleSearchInputChange` so that dropdown list
 //   immediately opens when user types, instead of brief delay waiting for returned options.
 
 import axios from "axios";
@@ -109,13 +129,14 @@ class RemoteSelectField extends Component {
     this.onSelectValue = async (event, { options, value }, callbackFunc) => {
       this.latestSearchStringRef.current = "";
       this.lastFetchedQueryRef.current = undefined;
-      const { multiple } = this.props;
+      const { multiple, restrictOptionsToResults } = this.props;
       const newSelectedSuggestions = options.filter((item) =>
         multiple ? value.includes(item.value) : item.value === value
       );
       this.setState(
         {
           selectedSuggestions: newSelectedSuggestions,
+          ...(restrictOptionsToResults ? { suggestions: newSelectedSuggestions } : {}),
           searchQuery: null,
           error: false,
           open: !!multiple,
@@ -128,7 +149,7 @@ class RemoteSelectField extends Component {
     this.handleAddition = async (e, { value }, callbackFunc) => {
       this.latestSearchStringRef.current = "";
       this.lastFetchedQueryRef.current = undefined;
-      const { serializeAddedValue } = this.props;
+      const { serializeAddedValue, restrictOptionsToResults } = this.props;
       const { selectedSuggestions } = this.state;
 
       const selectedSuggestion = serializeAddedValue
@@ -139,7 +160,9 @@ class RemoteSelectField extends Component {
       this.setState(
         (prevState) => ({
           selectedSuggestions: newSelectedSuggestions,
-          suggestions: mergeOptions(prevState.suggestions, newSelectedSuggestions),
+          suggestions: restrictOptionsToResults
+            ? newSelectedSuggestions
+            : mergeOptions(prevState.suggestions, newSelectedSuggestions),
           searchQuery: null,
         }),
         () => callbackFunc(newSelectedSuggestions)
@@ -228,6 +251,8 @@ class RemoteSelectField extends Component {
     };
 
     this.searchIfNoSuggestions = async (newSelectedSuggestions) => {
+      // No global fallback fetch if restricting the dropdown list to current search results.
+      if (this.props.restrictOptionsToResults) return;
       const { suggestions } = this.state;
       if (_isEqual(newSelectedSuggestions, suggestions)) {
         await this.executeSearch("");
@@ -392,7 +417,7 @@ class RemoteSelectField extends Component {
         focusFieldPathAfterSelect,
         hideAdditionMenuItem,
         mergeExtraSource,
-        restrictOptionsToResults,
+        restrictOptionsToResults, // also forwarded to SelectField (options replace vs merge)
         // RemoteSelect-only; must not reach SelectField → Dropdown DOM.
         searchOnFocus,
         ...uiProps
@@ -505,12 +530,16 @@ class RemoteSelectField extends Component {
     }
   }
 
-  // Menu source for `restrictOptionsToResults`: returns only the current remote
-  // results (selected item(s) + latest query's hits, including merged
-  // extra-source hits). Stable identity so semantic-ui-react isn't handed a new
-  // `search` function on every render; it reads fresh `state.suggestions` at
-  // call time.
-  menuSearchFromResults = () => this.state.suggestions;
+  // Using a method for stable identity to avoid a new `search` each render;
+  // when multiple, drops currently selected values (chips stay via suggestions/options).
+  filterSuggestionsForDropdown = () => {
+    const { suggestions, selectedSuggestions } = this.state;
+    if (!this.props.multiple) {
+      return suggestions || [];
+    }
+    const selectedValues = new Set(selectedSuggestions.map((s) => s.value));
+    return (suggestions || []).filter((s) => !selectedValues.has(s.value));
+  };
 
   render() {
     const { compProps, uiProps } = this.getProps();
@@ -520,10 +549,10 @@ class RemoteSelectField extends Component {
       .filter(Boolean)
       .join(" ");
 
-    // When restricting the menu to current results, source it from this widget's
+    // When restricting the dropdown list to current results, source it from this widget's
     // own suggestions and ignore the caller-supplied `search`.
-    const menuSearch = compProps.restrictOptionsToResults
-      ? this.menuSearchFromResults
+    const suggestionsForDropdown = compProps.restrictOptionsToResults
+      ? this.filterSuggestionsForDropdown
       : compProps.search;
 
     // Mid-typeahead mode (`commitSearchOnBlur`): control SUIR's searchQuery so focus-seeded /
@@ -539,8 +568,9 @@ class RemoteSelectField extends Component {
         }
         fieldPath={compProps.fieldPath}
         options={suggestions}
+        restrictOptionsToResults={compProps.restrictOptionsToResults}
         noResultsMessage={this.getNoResultsMessage()}
-        search={menuSearch}
+        search={suggestionsForDropdown}
         {...(controlSearchQuery ? { searchQuery: searchQuery ?? "" } : {})}
         searchInput={{
           id: compProps.fieldPath,
