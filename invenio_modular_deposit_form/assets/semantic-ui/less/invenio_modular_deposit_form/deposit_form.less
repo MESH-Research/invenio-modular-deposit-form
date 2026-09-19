@@ -12,8 +12,27 @@
 /* Same as Semantic UI button.variables: text on primary background = inverted. */
 @primaryTextColor: @invertedTextColor;
 
-/* Light border: built-in modification (no custom @negativeBorderColorLight). */
 @negativeBorderColorLight: lighten(@negativeBorderColor, 12%);
+
+@fade-collapse-duration: 0.3s;
+@fade-collapse-easing: ease;
+@fade-collapse-max-height: 16rem;
+
+.fade-collapse-visible(@max-height: @fade-collapse-max-height) {
+  overflow: hidden;
+  max-height: @max-height;
+  opacity: 1;
+  transition-property: max-height, opacity, margin, padding;
+  transition-duration: @fade-collapse-duration;
+  transition-timing-function: @fade-collapse-easing;
+}
+
+.fade-collapse-hiding() {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
 
 /* Set outside #rdm-deposit-form to catch modal widgets */
 .ui.radio.checkbox,
@@ -26,66 +45,53 @@
   }
 }
 
-/* Footer nav: fixed when IO marks sentinel out of view (standalone selector if markup shifts).
- * Zero vertical margins: sticky shell is a Semantic UI Grid, whose default
- * margin-bottom: -1rem would otherwise pull 1rem of the bar past the viewport. */
-#rdm-deposit-form .sticky-footer-fixed,
-.sticky-footer-fixed,
-#rdm-deposit-form .sticky-footer-static,
-.sticky-footer-static {
-  margin-top: 0;
-  margin-bottom: 0;
-  /* In-flow footer is a flex item of `.ui.grid > .row`; grow to fill the row.
-   * Harmless when `position: fixed` (out of flex flow). */
-  flex-grow: 1;
-}
-
-/* In-flow stand-in while the bar is `fixed` — height must match the bottom
- * rootMargin on useIsInViewport in FormUIStateManager (currently 80px). */
-#rdm-deposit-form .sticky-footer-flow-spacer,
-.sticky-footer-flow-spacer {
-  height: 80px;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-#rdm-deposit-form .sticky-footer-fixed,
-.sticky-footer-fixed {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: transparent;
-  .deposit-form-nav-bar {
-    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
-
-    .nav-bar-message {
-      align-items: center;
-      display: flex;
-      justify-content: center;
-      @media (max-width: @largestMobileScreen) {
-        .nav-bar-message-text {
-          display: none;
-        }
-      }
-    }
-  }
-
-  @media (max-width: @largestMobileScreen) {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    .ui.segment {
-      border: none;
-      border-radius: 0;
-    }
-  }
-}
-
 #rdm-deposit-form {
   @media (max-width: @largestMobileScreen) {
     margin-right: 0 !important;
     margin-left: 0 !important;
+  }
+
+  /*
+   * Text-link appearance for `<button class="ui button link-button">`.
+   * Matches KCWorks site theme (`assets/less/site/elements/button.overrides`)
+   * so the package does not depend on that host override.
+   */
+  .ui.button.link-button {
+    background: transparent !important;
+    border: 0;
+    box-shadow: none !important;
+    color: @linkColor;
+    font-weight: normal;
+    padding: 0;
+    vertical-align: baseline;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background: transparent;
+      background-color: transparent !important;
+      box-shadow: none;
+      color: @linkHoverColor;
+      text-decoration-color: currentColor;
+    }
+
+    &.negative {
+      color: @primaryTextColor;
+    }
+    &.positive {
+      color: @positiveTextColor;
+    }
+    &.warning {
+      color: @warningTextColor;
+    }
+    &.error {
+      color: @errorTextColor;
+    }
+    &.info {
+      color: @infoTextColor;
+    }
   }
 
   /* Basic top-level field layout */
@@ -242,6 +248,7 @@
 
       .ui.label {
         margin-left: 0.25em;
+        border: 1px solid @white;
       }
     }
 
@@ -744,6 +751,120 @@
       margin-bottom: 0;
     }
   }
+
+  #rdm-deposit-form-footer {
+    .sticky-footer-flow-spacer {
+      /* Height set inline from ResizeObserver on .sticky-footer-stack.
+       * Same value drives useIsInViewport bottom rootMargin via FormUIStateManager. */
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .sticky-footer-stack {
+      .sticky-footer-column-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      .sticky-footer-notices {
+        width: 100%;
+
+        .hidden-fields-banner.ui.warning.message,
+        .hidden-fields-banner.ui.info.message {
+          .fade-collapse-visible(24rem);
+          display: block;
+
+          &.hidden {
+            .fade-collapse-hiding();
+            padding-top: 0;
+            padding-bottom: 0;
+            pointer-events: none;
+            border-width: 0;
+          }
+        }
+      }
+
+      &.sticky-footer-static {
+        flex-grow: 1;
+
+        .sticky-footer-notices {
+          flex: 0 0 auto;
+        }
+      }
+
+      &.sticky-footer-fixed {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        align-self: flex-start;
+        flex-grow: 0;
+        height: auto;
+        max-height: none;
+        overflow: visible;
+
+        .sticky-footer-notices {
+          flex: 0 0 auto;
+          width: 100%;
+
+          .hidden-fields-banner.ui.warning.message:not(.hidden),
+          .hidden-fields-banner.ui.info.message:not(.hidden) {
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0.5rem;
+          }
+        }
+
+        .sticky-footer-nav {
+          flex: 0 0 auto;
+        }
+
+        .deposit-form-nav-bar {
+          box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.08);
+
+          .nav-bar-message {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            @media (max-width: @largestMobileScreen) {
+              .nav-bar-message-text {
+                display: none;
+              }
+            }
+          }
+        }
+
+        @media (max-width: @largestMobileScreen) {
+          .sticky-footer-notices {
+            .hidden-fields-banner.ui.warning.message:not(.hidden),
+            .hidden-fields-banner.ui.info.message:not(.hidden) {
+              border-radius: 0;
+              margin-bottom: 0;
+            }
+          }
+          .ui.segment {
+            border: none;
+            border-radius: 0;
+          }
+        }
+      }
+    }
+
+    @media (max-width: @largestMobileScreen) {
+      .sticky-footer-stack {
+        .ui.segment {
+          border: none;
+          border-radius: 0;
+        }
+      }
+    }
+  }
 }
 
 /* Generic responsive helper: visible only at the computer breakpoint, hidden on
@@ -798,39 +919,14 @@
   padding-right: 10px !important;
 }
 
-/* Fade + height collapse for ephemeral sidebar toasts (FadeCollapse / FadeCollapseStack). */
 .fade-collapse {
-  overflow: hidden;
-  max-height: 16rem;
-  opacity: 1;
-  transition-property: max-height, opacity, margin;
-  transition-timing-function: ease;
+  .fade-collapse-visible();
 
-  &--hiding {
-    max-height: 0;
-    opacity: 0;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
+  &.hiding {
+    .fade-collapse-hiding();
   }
 
-  &__inner > .ui.message.flashed {
+  .fade-collapse-inner > .ui.message.flashed {
     margin-bottom: 0;
-  }
-}
-
-/* Mobile: bleed footer nav to viewport edges (Container padding/margins off). */
-#rdm-deposit-form #rdm-deposit-form-footer {
-  @media (max-width: @largestMobileScreen) {
-    padding: 0;
-    .sticky-footer-fixed,
-    .sticky-footer-static {
-      padding: 0 !important;
-      margin-right: 0 !important;
-      margin-left: 0 !important;
-      .ui.segment {
-        border: none;
-        border-radius: 0;
-      }
-    }
   }
 }

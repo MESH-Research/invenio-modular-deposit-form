@@ -73,7 +73,19 @@ COMMON_FIELDS_ZENODO_PAGED = [
     {
         "component": "FormFooter",
         "subsections": [
-            {"component": "FormPageNavigationBar"},
+            {
+                "component": "StickyFooter",
+                "mobile": 16,
+                "tablet": 16,
+                "computer": 16,
+                "largeScreen": 16,
+                "widescreen": 16,
+                "classnames": "p-0",
+                "subsections": [
+                    {"component": "HiddenFieldsNotices"},
+                    {"component": "FormPageNavigationBar", "asColumn": False},
+                ],
+            },
         ],
     },
     {
