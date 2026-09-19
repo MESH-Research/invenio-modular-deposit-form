@@ -67,7 +67,6 @@ export class AdditionalDescriptionsField extends Component {
     return (
       <ArrayField
         addButtonLabel={i18next.t("Add description")}
-        addButtonClasses=""
         className="additional-descriptions"
         defaultNewValue={emptyAdditionalDescription}
         fieldPath={fieldPath}

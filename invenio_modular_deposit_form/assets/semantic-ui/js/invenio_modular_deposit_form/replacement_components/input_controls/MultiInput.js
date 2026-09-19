@@ -13,7 +13,7 @@ function MultiInput({
   helpText = undefined,
   label,
   labelIcon,
-  noQueryMessage,
+  noQueryMessage: _noQueryMessage,
   openOnFocus = false,
   required = false,
   ...uiProps
@@ -41,7 +41,6 @@ function MultiInput({
       label={label}
       labelIcon={labelIcon}
       multiple
-      noQueryMessage={noQueryMessage}
       noResultsMessage={""}
       onChange={({ data, formikProps }) => {
         setOptions(serializeValues(data.value));

@@ -89,6 +89,7 @@ const TextField = ({
                 },
               })}
               {...uiProps}
+              value={uiProps.value ?? field.value ?? ""}
               {...(describedByText ? { "aria-describedby": describedByText } : {})}
               {...(labelId ? { "aria-labelledby": labelId } : {})}
               type="text"

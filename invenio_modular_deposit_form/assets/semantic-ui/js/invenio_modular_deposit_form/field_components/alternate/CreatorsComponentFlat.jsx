@@ -21,12 +21,13 @@ const CreatorsComponentFlat = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="CreatorsField"
-      fieldPath="metadata.creators"
       label={i18next.t("Creators")}
       labelIcon="user"
       {...extraProps}
+      fieldPath="metadata.creators"
     >
       <CreatibutorsFieldFlat
+        fieldPath="metadata.creators"
         roleOptions={vocabularies.metadata.creators?.role}
         schema="creators"
         autocompleteNames={config.autocomplete_names}

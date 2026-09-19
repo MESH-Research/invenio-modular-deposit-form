@@ -21,12 +21,13 @@ const ContributorsComponentFlat = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="ContributorsField"
-      fieldPath="metadata.contributors"
       label={i18next.t("Contributors")}
       labelIcon="user plus"
       {...extraProps}
+      fieldPath="metadata.contributors"
     >
       <CreatibutorsFieldFlat
+        fieldPath="metadata.contributors"
         addButtonLabel={i18next.t("Add contributor")}
         roleOptions={vocabularies.metadata.contributors?.role}
         schema="contributors"

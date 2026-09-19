@@ -98,20 +98,23 @@ const AbstractComponent = ({ ...extraProps }) => {
  * Access rights field (access). Uses stock AccessRightField.
  * @overridable InvenioAppRdm.Deposit.AccessRightField.container (via FieldComponentWrapper)
  */
-const AccessRightsComponent = ({ ...extraProps }) => {
+const AccessRightsComponent = ({ label, ...extraProps }) => {
   const store = useStore();
   const { config, record, permissions } = store.getState().deposit;
+  const fieldLabel =
+    label === null ? "" : label === undefined ? i18next.t("Public access") : label;
 
   return (
     <FieldComponentWrapper
       componentName="AccessRightField"
       labelIcon="shield"
-      label={i18next.t("Public access")}
       {...extraProps}
+      label={fieldLabel}
       fieldPath="access"
     >
       <AccessRightField
         fieldPath="access"
+        label={fieldLabel}
         showMetadataAccess={permissions?.can_manage_record_access}
         record={record ?? {}}
         recordRestrictionGracePeriod={config.record_restriction_grace_period ?? 30}
@@ -309,6 +312,8 @@ const ShareDraftButtonComponent = () => {
  * DOI field (pids.doi) using replacement PIDField.
  * @overridable InvenioAppRdm.Deposit.PIDField.container (via FieldComponentWrapper)
  */
+const EMPTY_DOI_TRANSITIONS = Object.freeze({});
+
 const DoiComponent = ({ ...extraProps }) => {
   const store = useStore();
   const { config, record } = store.getState().deposit;
@@ -318,6 +323,12 @@ const DoiComponent = ({ ...extraProps }) => {
   if (!doiPid) {
     return null;
   }
+
+  const rawTransitions = doiPid.optional_doi_transitions;
+  const optionalDOItransitions =
+    rawTransitions && typeof rawTransitions === "object" && !Array.isArray(rawTransitions)
+      ? rawTransitions
+      : EMPTY_DOI_TRANSITIONS;
 
   return (
     <FieldComponentWrapper
@@ -332,7 +343,7 @@ const DoiComponent = ({ ...extraProps }) => {
         canBeManaged={doiPid.can_be_managed}
         canBeUnmanaged={doiPid.can_be_unmanaged}
         doiDefaultSelection={doiPid.default_selected}
-        optionalDOItransitions={doiPid.optional_doi_transitions ?? {}}
+        optionalDOItransitions={optionalDOItransitions}
         fieldPath="pids.doi"
         fieldLabel={doiPid.field_label}
         isEditingPublishedRecord={record?.is_published === true}
@@ -472,10 +483,11 @@ const FundingComponent = ({ ...extraProps }) => {
   return (
     <FieldComponentWrapper
       componentName="FundingField"
-      fieldPath="metadata.funding"
       {...extraProps}
+      fieldPath="metadata.funding"
     >
       <FundingFieldAlternate
+        fieldPath="metadata.funding"
         searchConfig={{
           searchApi: {
             axios: {
@@ -759,6 +771,7 @@ const SubjectsComponent = ({ ...extraProps }) => {
       fieldPath="metadata.subjects"
     >
       <SubjectsField
+        fieldPath="metadata.subjects"
         initialOptions={_get(record, "ui.subjects", null)}
         limitToOptions={myLimitToOptions}
       />
