@@ -1,12 +1,10 @@
 import React, { useMemo, useState } from "react";
 import Overridable from "react-overridable";
-import { useStore } from "react-redux";
 import { Accordion, Icon, Label, Segment } from "semantic-ui-react";
 import { useFormUIState } from "../FormUIStateManager.jsx";
 import { getFormSectionElementId } from "../utils";
 import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
 import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityChecksConfig";
-import { HiddenFieldsBanner } from "./HiddenFieldsBanner";
 
 const FormSection = ({
   children,
@@ -21,11 +19,8 @@ const FormSection = ({
 }) => {
   const [isOpen, setIsOpen] = useState(startExpanded);
   const ctx = useFormUIState();
-  const store = useStore();
   const formUIState = ctx.formUIState ?? {};
-  const formSectionFields = store?.getState?.()?.deposit?.config?.formSectionFields ?? [];
   const currentFormPage = formUIState?.currentFormPage ?? "";
-  const currentResourceType = formUIState?.currentResourceType ?? "";
 
   const sectionErrorsByKey = useMemo(
     () => getSectionErrorsBySectionKey(formUIState),
@@ -100,16 +95,7 @@ const FormSection = ({
         {severityBadges}
         <Icon name="dropdown" className="accordion-dropdown-icon" />
       </Accordion.Title>
-      <Accordion.Content active={isOpen}>
-        <HiddenFieldsBanner
-          pageId={currentFormPage}
-          sectionId={sectionName}
-          sectionErrorPaths={sectionErrorPaths}
-          formSectionFields={formSectionFields}
-          currentResourceType={currentResourceType}
-        />
-        {children}
-      </Accordion.Content>
+      <Accordion.Content active={isOpen}>{children}</Accordion.Content>
     </Accordion>
   ) : (
     <Segment
@@ -133,13 +119,6 @@ const FormSection = ({
           {severityBadges}
         </legend>
       )}
-      <HiddenFieldsBanner
-        pageId={currentFormPage}
-        sectionId={sectionName}
-        sectionErrorPaths={sectionErrorPaths}
-        formSectionFields={formSectionFields}
-        currentResourceType={currentResourceType}
-      />
       {children}
     </Segment>
   );

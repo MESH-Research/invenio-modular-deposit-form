@@ -68,7 +68,9 @@ import {
 } from "./field_components/compound_field_components";
 import { FormRow } from "./framing_components/FieldsContent";
 import { FormTitle } from "./framing_components/FormTitle";
+import { HiddenFieldsNotices } from "./framing_components/HiddenFieldsNotices";
 import { SpacerColumn } from "./framing_components/SpacerColumn";
+import { StickyFooter } from "./framing_components/StickyFooter";
 import { FormStepper } from "./nav_components/FormStepper";
 import { FormPageNavigationBar } from "./nav_components/FormPageNavigationBar";
 import { FormSidebarPageMenu } from "./nav_components/FormSidebarPageMenu";
@@ -173,7 +175,9 @@ const componentsRegistry = {
   FormPageNavigationBar: [FormPageNavigationBar, []],
   FormSidebarPageMenu: [FormSidebarPageMenu, []],
   FormTitle: [FormTitle, []],
+  HiddenFieldsNotices: [HiddenFieldsNotices, []],
   SpacerColumn: [SpacerColumn, []],
+  StickyFooter: [StickyFooter, []],
 };
 
 const extras = require(`@js/invenio_modular_deposit_form_components`);

@@ -203,8 +203,11 @@ const FormUIStateManager = ({ children }) => {
     pageTargetRef.current = node;
     setPageTargetElement(node);
   }, []);
-  // Bottom inset must match `.sticky-footer-flow-spacer` height in deposit_form.less.
-  const pageTargetInViewport = useIsInViewport(pageTargetElement, "0px 0px -80px 0px");
+  // Bottom inset must match sticky stack height (nav + notices). FormFooterRegion
+  // publishes measured height via setStickyFooterHeightPx whenever the stack resizes.
+  const [stickyFooterHeightPx, setStickyFooterHeightPx] = useState(80);
+  const pageTargetRootMargin = `0px 0px -${stickyFooterHeightPx}px 0px`;
+  const pageTargetInViewport = useIsInViewport(pageTargetElement, pageTargetRootMargin);
 
   // Set up form UI context for provider
   const contextValue = useMemo(
@@ -222,6 +225,7 @@ const FormUIStateManager = ({ children }) => {
       pageTargetRefCallback,
       pageTargetInViewport,
       recoveryAsked: recovery.recoveryAsked,
+      setStickyFooterHeightPx,
       storageDataPresent: recovery.storageDataPresent,
     }),
     [
@@ -232,6 +236,7 @@ const FormUIStateManager = ({ children }) => {
       pageTargetRefCallback,
       pageTargetInViewport,
       recovery,
+      setStickyFooterHeightPx,
     ]
   );
 

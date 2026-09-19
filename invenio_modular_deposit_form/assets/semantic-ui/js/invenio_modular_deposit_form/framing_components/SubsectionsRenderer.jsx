@@ -8,6 +8,8 @@ import { FieldsContent } from "./FieldsContent";
  * the component registry. Handles FormSection (with inner subsections) and
  * single field components via FieldsContent. Used by FormPage and by layout
  * regions (FormTitle, FormHeader, FormLeftSidebar, FormRightSidebar, FormFooter).
+ * Nested layout components such as StickyFooter receive their own `subsections`
+ * and render them directly from the registry.
  * When `isFormPagesRegion` is true (FormPage body), top-level non-FormSection rows
  * default to `wrapped` (auto fieldset via FieldsContent → FormSection); set
  * `wrapped: false` on a row to opt out of that auto-wrap.
@@ -49,6 +51,7 @@ const SubsectionsRenderer = ({ subsections = [], className, id, isFormPagesRegio
           component={component}
           wrapped={isFormPagesRegion ? wrapped !== false : (wrapped ?? false)}
           index={index}
+          subsections={innerSections}
           {...props}
         />
       );
