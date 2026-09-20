@@ -178,13 +178,11 @@ const FormFeedbackSummary = ({
             ? getSeverityBadgeType("info")
             : "";
     return (
-      <List.Item>
+      <List.Item key={`${pageId}\0${sectionId}`}>
         <Button
-          key={`${pageId}\0${sectionId}`}
           type="button"
-          transparent
           basic
-          className={`p-10 mb-5 ${severityClass} validation-error-feedback-link`}
+          className={`transparent p-10 pl-0 mb-5 ${severityClass} validation-error-feedback-link link-button`}
           onClick={(e) => {
             if (multiPage && pageId !== currentFormPage && handleFormPageChange) {
               handleFormPageChange(e, { value: pageId });
@@ -194,44 +192,6 @@ const FormFeedbackSummary = ({
           }}
         >
           {label}{" "}
-          {false && (
-            <>
-              {/* TODO: Decide whether to enable count badges here */}
-              {errorsCount > 0 && (
-                <Label
-                  size="tiny"
-                  circular
-                  className={`${getSeverityBadgeType("error")} rel-ml-1`}
-                  key="error"
-                >
-                  {errorsCount} {getSeverityLabel("error")}
-                  {errorsCount !== 1 ? "s" : ""}
-                </Label>
-              )}
-              {warningsCount > 0 && (
-                <Label
-                  size="tiny"
-                  circular
-                  className={`${getSeverityBadgeType("warning")} rel-ml-1`}
-                  key="warning"
-                >
-                  {warningsCount} {getSeverityLabel("warning")}
-                  {warningsCount !== 1 ? "s" : ""}
-                </Label>
-              )}
-              {infoCount > 0 && (
-                <Label
-                  size="tiny"
-                  circular
-                  className={`${getSeverityBadgeType("info")} rel-ml-1`}
-                  key="info"
-                >
-                  {infoCount} {getSeverityLabel("info")}
-                  {infoCount !== 1 ? "s" : ""}
-                </Label>
-              )}
-            </>
-          )}
         </Button>
       </List.Item>
     );

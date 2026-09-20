@@ -101,8 +101,7 @@ const AbstractComponent = ({ ...extraProps }) => {
 const AccessRightsComponent = ({ label, ...extraProps }) => {
   const store = useStore();
   const { config, record, permissions } = store.getState().deposit;
-  const fieldLabel =
-    label === null ? "" : label === undefined ? i18next.t("Public access") : label;
+  const fieldLabel = label === null ? "" : label === undefined ? i18next.t("Public access") : label;
 
   return (
     <FieldComponentWrapper
@@ -825,10 +824,7 @@ const SubmissionComponent = () => {
       permissions={permissions}
       groupsEnabled={groupsEnabled}
     >
-      <Card className="pt-5 pr-5 pl-5 pb-20" fluid>
-        {/* <Card.Content>
-            <DepositStatusBox />
-          </Card.Content> */}
+      <Card className="pt-5 pr-5 pl-5 pb-20 mt-0" fluid>
         <Card.Content>
           <Grid relaxed>
             <Grid.Column width={16} className="rel-pt-1 pb-0">
