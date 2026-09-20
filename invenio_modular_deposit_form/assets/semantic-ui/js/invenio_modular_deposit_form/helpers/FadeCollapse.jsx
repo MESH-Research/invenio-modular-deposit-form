@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 /**
  * Keeps children mounted through an exit animation, then unmounts.
  *
- * When `visible` becomes false: applies `--hiding`, waits `durationMs`, then
+ * When `visible` becomes false: adds class `hiding`, waits `durationMs`, then
  * unmounts children and calls `onExited`. Parent owns when `visible` flips;
  * this component owns exit CSS + delayed unmount.
  *
@@ -63,13 +63,13 @@ const FadeCollapse = ({
     return null;
   }
 
-  const rootClass = ["fade-collapse", hiding && "fade-collapse--hiding", className]
+  const rootClass = ["fade-collapse", hiding && "hiding", className]
     .filter(Boolean)
     .join(" ");
 
   return (
     <div className={rootClass} style={{ transitionDuration: `${durationMs}ms` }}>
-      <div className="fade-collapse__inner">{children}</div>
+      <div className="fade-collapse-inner">{children}</div>
     </div>
   );
 };
