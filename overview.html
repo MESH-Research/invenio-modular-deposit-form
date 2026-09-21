@@ -369,6 +369,13 @@ variables that each map resource type ids to field paths and new values:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES</span></code> — values that override user input</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS</span></code> — fields made required per type</p></li>
 </ul>
+<p><strong>Hidden fields notices.</strong> When the depositor enters a page where the selected
+resource type hides fields that still have flagged errors or non-empty values
+on that page, the footer shows notices listing those fields and offering
+switch-to-type shortcuts for resource types that would reveal them again.
+Bundled layouts mount this via <code class="docutils literal notranslate"><span class="pre">HiddenFieldsNotices</span></code> under <code class="docutils literal notranslate"><span class="pre">StickyFooter</span></code>.
+Notices only cover fields that appear on the current page for some other type
+— switching type can surface them without leaving the page.</p>
 <p>All changes take effect immediately when the resource type is changed, with no
 page reload.</p>
 <p>See <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration</span></a> for syntax and examples.</p>

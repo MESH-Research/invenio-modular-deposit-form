@@ -128,6 +128,14 @@ variables that each map resource type ids to field paths and new values:
 - `MODULAR_DEPOSIT_FORM_PRIORITY_FIELD_VALUES` — values that override user input
 - `MODULAR_DEPOSIT_FORM_EXTRA_REQUIRED_FIELDS` — fields made required per type
 
+**Hidden fields notices.** When the depositor enters a page where the selected
+resource type hides fields that still have flagged errors or non-empty values
+on that page, the footer shows notices listing those fields and offering
+switch-to-type shortcuts for resource types that would reveal them again.
+Bundled layouts mount this via `HiddenFieldsNotices` under `StickyFooter`.
+Notices only cover fields that appear on the current page for some other type
+— switching type can surface them without leaving the page.
+
 All changes take effect immediately when the resource type is changed, with no
 page reload.
 

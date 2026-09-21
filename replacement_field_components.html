@@ -254,7 +254,7 @@
           <section class="tex2jax_ignore mathjax_ignore" id="replacement-field-components">
 <h1>Replacement field components<a class="headerlink" href="#replacement-field-components" title="Link to this heading">¶</a></h1>
 <p>This page covers the field components re-exported from
-<code class="docutils literal notranslate"><span class="pre">replacement_components/field_components/index.js</span></code> — local copies and forks of
+<code class="docutils literal notranslate"><span class="pre">field_components/patched/rdm_fields/index.js</span></code> — local copies and forks of
 field components that exist in <strong><code class="docutils literal notranslate"><span class="pre">invenio_rdm_records</span></code></strong> (and a few in
 <code class="docutils literal notranslate"><span class="pre">react-invenio-forms</span></code>). They ship in this package so the modular deposit form
 can use <strong>shared widgets</strong> and <strong>consistent UX</strong> without patching
@@ -304,8 +304,8 @@ the file header in each source module.</p>
 </section>
 <section id="top-level-replacement-widgets">
 <h2>Top-level replacement widgets<a class="headerlink" href="#top-level-replacement-widgets" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">replacement_components/input_controls/index.js</span></code> (re-exported from
-<code class="docutils literal notranslate"><span class="pre">replacement_components/index.js</span></code>) exposes:</p>
+<p><code class="docutils literal notranslate"><span class="pre">field_components/patched/input_controls/index.js</span></code> (re-exported from
+<code class="docutils literal notranslate"><span class="pre">field_components/patched/index.js</span></code>) exposes:</p>
 <ul class="simple">
 <li><p><strong>Core widgets:</strong> <code class="docutils literal notranslate"><span class="pre">TextField</span></code>, <code class="docutils literal notranslate"><span class="pre">TextArea</span></code>, <code class="docutils literal notranslate"><span class="pre">SelectField</span></code>, <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>,
 <code class="docutils literal notranslate"><span class="pre">MultiInput</span></code>, <code class="docutils literal notranslate"><span class="pre">ArrayField</span></code>.</p></li>
@@ -317,10 +317,10 @@ the touched-aware local widgets without you having to change those names in
 YAML or in <code class="docutils literal notranslate"><span class="pre">RDM_CUSTOM_FIELDS_UI</span></code>.</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">ArrayField</span></code> is the local fork of the react-invenio-forms array helper: it adds
-touched-aware error gating (same idea as <code class="docutils literal notranslate"><span class="pre">TextField</span></code>) and optional
-<code class="docutils literal notranslate"><span class="pre">onAfterAdd</span></code> / <code class="docutils literal notranslate"><span class="pre">onAfterRemove</span></code> callbacks. Several replacement field components
-(Dates, Identifiers, Related works, Additional titles/descriptions) import it
-directly.</p>
+touched-aware error gating (same idea as <code class="docutils literal notranslate"><span class="pre">TextField</span></code>), optional <code class="docutils literal notranslate"><span class="pre">onAfterAdd</span></code> /
+<code class="docutils literal notranslate"><span class="pre">onAfterRemove</span></code> callbacks, and only renders the array header <code class="docutils literal notranslate"><span class="pre">FieldLabel</span></code> when
+<code class="docutils literal notranslate"><span class="pre">label</span></code> is truthy. Several replacement field components (Dates, Identifiers,
+Related works, Additional titles/descriptions) import it directly.</p>
 <p><strong><code class="docutils literal notranslate"><span class="pre">RichInputField</span></code></strong> (TinyMCE) also lives under <code class="docutils literal notranslate"><span class="pre">input_controls/</span></code> and is used by
 <code class="docutils literal notranslate"><span class="pre">DescriptionsField</span></code> / <code class="docutils literal notranslate"><span class="pre">AdditionalDescriptionsField</span></code>, but it is <strong>not</strong>
 re-exported from the barrel — import it by path if you need it. Same
@@ -335,14 +335,13 @@ exceptions keep their own helptext behavior: <code class="docutils literal notra
 <ul class="simple">
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">SelectField</span></code> marks touched on blur.</strong> Formik’s <code class="docutils literal notranslate"><span class="pre">handleBlur</span></code> decides what
 to mark from <code class="docutils literal notranslate"><span class="pre">event.target.name</span></code> / <code class="docutils literal notranslate"><span class="pre">id</span></code>, and a search dropdown’s blur event
-often doesn’t carry the Formik path. The local <code class="docutils literal notranslate"><span class="pre">SelectField</span></code> calls
-<code class="docutils literal notranslate"><span class="pre">form.setFieldTouched(fieldPath,</span> <span class="pre">true,</span> <span class="pre">false)</span></code> on blur in addition to
-<code class="docutils literal notranslate"><span class="pre">handleBlur</span></code>, so the touched-aware error gating works.</p></li>
+often targets the inner search <code class="docutils literal notranslate"><span class="pre">&lt;input&gt;</span></code>, which has neither. The local
+<code class="docutils literal notranslate"><span class="pre">SelectField</span></code> calls <code class="docutils literal notranslate"><span class="pre">form.setFieldTouched(fieldPath,</span> <span class="pre">true,</span> <span class="pre">false)</span></code> on blur
+<strong>instead of</strong> <code class="docutils literal notranslate"><span class="pre">handleBlur</span></code>, so the touched-aware error gating works.</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">SelectField</span></code> chains a caller-provided <code class="docutils literal notranslate"><span class="pre">onBlur</span></code>.</strong> If you pass an <code class="docutils literal notranslate"><span class="pre">onBlur</span></code>
-prop (e.g. from <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>), it runs <strong>after</strong> <code class="docutils literal notranslate"><span class="pre">handleBlur</span></code> and
-<code class="docutils literal notranslate"><span class="pre">setFieldTouched</span></code>. You can extend blur behavior without accidentally
-dropping touched-marking. The same chaining applies to <code class="docutils literal notranslate"><span class="pre">onFocus</span></code>
-(<code class="docutils literal notranslate"><span class="pre">onFocus(e,</span> <span class="pre">{</span> <span class="pre">formikProps</span> <span class="pre">})</span></code>).</p></li>
+prop (e.g. from <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code>), it runs <strong>after</strong> <code class="docutils literal notranslate"><span class="pre">setFieldTouched</span></code>.
+You can extend blur behavior without accidentally dropping touched-marking.
+The same chaining applies to <code class="docutils literal notranslate"><span class="pre">onFocus</span></code> (<code class="docutils literal notranslate"><span class="pre">onFocus(e,</span> <span class="pre">{</span> <span class="pre">formikProps</span> <span class="pre">})</span></code>).</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code> opt-in props.</strong> All default to <code class="docutils literal notranslate"><span class="pre">false</span></code> / unset:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">commitSearchOnBlur</span></code> — for single-value fields, blur commits trimmed
@@ -385,7 +384,7 @@ and <strong><code class="docutils literal notranslate"><span class="pre">Dropdow
 <section id="the-replacement-field-components">
 <h2>The replacement field components<a class="headerlink" href="#the-replacement-field-components" title="Link to this heading">¶</a></h2>
 <p>The barrel is at:</p>
-<p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/replacement_components/field_components/index.js</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/field_components/patched/rdm_fields/index.js</span></code></p>
 <section id="mostly-import-swap-copies-plus-small-layout-fixes">
 <h3>Mostly import-swap copies (plus small layout fixes)<a class="headerlink" href="#mostly-import-swap-copies-plus-small-layout-fixes" title="Link to this heading">¶</a></h3>
 <p>The following are copies of the upstream field whose main job is to <code class="docutils literal notranslate"><span class="pre">import</span></code>
@@ -403,7 +402,7 @@ the icon on <code class="docutils literal notranslate"><span class="pre">FieldLa
 <li><p><code class="docutils literal notranslate"><span class="pre">LanguagesField</span></code> (uses local <code class="docutils literal notranslate"><span class="pre">RemoteSelectField</span></code> instead of the stock select)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">PublisherField</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">RelatedWorksField</span></code> (local <code class="docutils literal notranslate"><span class="pre">ArrayField</span></code>; row <code class="docutils literal notranslate"><span class="pre">ResourceTypeField</span></code> from this
-folder; hides the array header when <code class="docutils literal notranslate"><span class="pre">label</span></code> is unset)</p></li>
+folder; Grid column layout instead of Form.Group width classes)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ResourceTypeField</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SubjectsField</span></code> (omits the title row when <code class="docutils literal notranslate"><span class="pre">label</span></code> is null/empty, matching
 replacement <code class="docutils literal notranslate"><span class="pre">TextField</span></code>)</p></li>
@@ -414,7 +413,7 @@ replacement <code class="docutils literal notranslate"><span class="pre">TextFie
 registry — see <a class="reference internal" href="field_components.html"><span class="std std-doc">Built-in field widget components</span></a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><code class="docutils literal notranslate"><span class="pre">replacement_components/field_components/SizesField.js</span></code> exists on disk but is
+<p><code class="docutils literal notranslate"><span class="pre">field_components/patched/rdm_fields/SizesField.js</span></code> exists on disk but is
 <strong>not</strong> exported from the barrel and is unused. The live sizes UI is
 <code class="docutils literal notranslate"><span class="pre">SizesComponent</span></code> → <code class="docutils literal notranslate"><span class="pre">field_components/alternate/field_inputs/SizesField</span></code>.</p>
 </div>
@@ -477,7 +476,7 @@ mount</strong>, so an empty optional DOI never validates as an external identifi
 <span id="formik-touched-pidfield"></span><h3>Where the touched wiring lives<a class="headerlink" href="#where-the-touched-wiring-lives" title="Link to this heading">¶</a></h3>
 <p>If you’re customizing PID behavior or debugging visible errors, the relevant
 files under
-<code class="docutils literal notranslate"><span class="pre">replacement_components/field_components/PIDField/</span></code> are:</p>
+<code class="docutils literal notranslate"><span class="pre">field_components/patched/rdm_fields/PIDField/</span></code> are:</p>
 <ul class="simple">
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">pid_components/fieldErrorsForDisplay.js</span></code></strong> — the touched-aware error
 helper used on the label row and identifier components. <code class="docutils literal notranslate"><span class="pre">pickDisplayableError</span></code>
@@ -504,7 +503,7 @@ that disagrees with the rest of the form.</p>
 <h2>Form feedback components (cross-reference)<a class="headerlink" href="#form-feedback-components-cross-reference" title="Link to this heading">¶</a></h2>
 <p>The form-feedback UI used in this package’s layouts (<code class="docutils literal notranslate"><span class="pre">FormFeedback</span></code>,
 <code class="docutils literal notranslate"><span class="pre">FormFeedbackSummary</span></code>) lives under <code class="docutils literal notranslate"><span class="pre">field_components/alternate/field_inputs/</span></code>
-rather than <code class="docutils literal notranslate"><span class="pre">replacement_components/field_components/</span></code>. See
+rather than <code class="docutils literal notranslate"><span class="pre">field_components/patched/rdm_fields/</span></code>. See
 <a class="reference internal" href="field_components.html#form-feedback-errors-and-action-state"><span class="std std-ref">Form feedback (errors and action state)</span></a>
 for behavior and props.</p>
 </section>

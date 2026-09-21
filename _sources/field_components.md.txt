@@ -137,7 +137,7 @@ name in `componentsRegistry`. Swap them in the layout dict without touching
 | `ResourceTypeSelectorComponent` | Button-style resource type picker (`ResourceTypeSelectorField`). For the deposit overridable slot alone, you can also map `ResourceTypeField.container` to `ResourceTypeSelectorField` (inner field only). |
 | `CreatorsComponentFlat` / `ContributorsComponentFlat` | Inline (non-modal) creatibutors — see below |
 | `HorizontalAccessComponent` / `HorizontalSubmissionComponent` | Alternate access / submit layouts — see above |
-| `SizesComponent` | Dimensions / sizes for `metadata.sizes` (no stock InvenioRDM field for this path). Uses `field_components/alternate/field_inputs/SizesField`, not the unused `replacement_components/field_components/SizesField.js` orphan. |
+| `SizesComponent` | Dimensions / sizes for `metadata.sizes` (no stock InvenioRDM field for this path). Uses `field_components/alternate/field_inputs/SizesField`, not the unused `field_components/patched/rdm_fields/SizesField.js` orphan. |
 
 `LanguagesComponent` already uses the replacement `LanguagesField`; there is no
 separate languages alternate. To override languages via a slot, add a

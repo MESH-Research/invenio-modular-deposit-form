@@ -1,7 +1,7 @@
 # Replacement field components
 
 This page covers the field components re-exported from
-`replacement_components/field_components/index.js` — local copies and forks of
+`field_components/patched/rdm_fields/index.js` — local copies and forks of
 field components that exist in **`invenio_rdm_records`** (and a few in
 `react-invenio-forms`). They ship in this package so the modular deposit form
 can use **shared widgets** and **consistent UX** without patching
@@ -56,8 +56,8 @@ the file header in each source module.
 
 ## Top-level replacement widgets
 
-`replacement_components/input_controls/index.js` (re-exported from
-`replacement_components/index.js`) exposes:
+`field_components/patched/input_controls/index.js` (re-exported from
+`field_components/patched/index.js`) exposes:
 
 - **Core widgets:** `TextField`, `TextArea`, `SelectField`, `RemoteSelectField`,
   `MultiInput`, `ArrayField`.
@@ -69,10 +69,10 @@ the file header in each source module.
   YAML or in `RDM_CUSTOM_FIELDS_UI`.
 
 `ArrayField` is the local fork of the react-invenio-forms array helper: it adds
-touched-aware error gating (same idea as `TextField`) and optional
-`onAfterAdd` / `onAfterRemove` callbacks. Several replacement field components
-(Dates, Identifiers, Related works, Additional titles/descriptions) import it
-directly.
+touched-aware error gating (same idea as `TextField`), optional `onAfterAdd` /
+`onAfterRemove` callbacks, and only renders the array header `FieldLabel` when
+`label` is truthy. Several replacement field components (Dates, Identifiers,
+Related works, Additional titles/descriptions) import it directly.
 
 **`RichInputField`** (TinyMCE) also lives under `input_controls/` and is used by
 `DescriptionsField` / `AdditionalDescriptionsField`, but it is **not**
@@ -90,15 +90,14 @@ A few behaviors are worth knowing if you wrap or extend these widgets:
 
 - **`SelectField` marks touched on blur.** Formik's `handleBlur` decides what
   to mark from `event.target.name` / `id`, and a search dropdown's blur event
-  often doesn't carry the Formik path. The local `SelectField` calls
-  `form.setFieldTouched(fieldPath, true, false)` on blur in addition to
-  `handleBlur`, so the touched-aware error gating works.
+  often targets the inner search `<input>`, which has neither. The local
+  `SelectField` calls `form.setFieldTouched(fieldPath, true, false)` on blur
+  **instead of** `handleBlur`, so the touched-aware error gating works.
 
 - **`SelectField` chains a caller-provided `onBlur`.** If you pass an `onBlur`
-  prop (e.g. from `RemoteSelectField`), it runs **after** `handleBlur` and
-  `setFieldTouched`. You can extend blur behavior without accidentally
-  dropping touched-marking. The same chaining applies to `onFocus`
-  (`onFocus(e, { formikProps })`).
+  prop (e.g. from `RemoteSelectField`), it runs **after** `setFieldTouched`.
+  You can extend blur behavior without accidentally dropping touched-marking.
+  The same chaining applies to `onFocus` (`onFocus(e, { formikProps })`).
 
 - **`RemoteSelectField` opt-in props.** All default to `false` / unset:
 
@@ -142,7 +141,7 @@ and **`Dropdown`** may still accept stock **`icon`** and map it to
 
 The barrel is at:
 
-`invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/replacement_components/field_components/index.js`
+`invenio_modular_deposit_form/assets/semantic-ui/js/invenio_modular_deposit_form/field_components/patched/rdm_fields/index.js`
 
 ### Mostly import-swap copies (plus small layout fixes)
 
@@ -161,7 +160,7 @@ and dual help text apply. A few also carry a small layout fix noted inline:
 - `LanguagesField` (uses local `RemoteSelectField` instead of the stock select)
 - `PublisherField`
 - `RelatedWorksField` (local `ArrayField`; row `ResourceTypeField` from this
-  folder; hides the array header when `label` is unset)
+  folder; Grid column layout instead of Form.Group width classes)
 - `ResourceTypeField`
 - `SubjectsField` (omits the title row when `label` is null/empty, matching
   replacement `TextField`)
@@ -172,7 +171,7 @@ If you customize layouts, you'd typically reach for these via the components
 registry — see [Built-in field widget components](field_components.md).
 
 ```{note}
-`replacement_components/field_components/SizesField.js` exists on disk but is
+`field_components/patched/rdm_fields/SizesField.js` exists on disk but is
 **not** exported from the barrel and is unused. The live sizes UI is
 `SizesComponent` → `field_components/alternate/field_inputs/SizesField`.
 ```
@@ -237,7 +236,7 @@ mount**, so an empty optional DOI never validates as an external identifier.
 
 If you're customizing PID behavior or debugging visible errors, the relevant
 files under
-`replacement_components/field_components/PIDField/` are:
+`field_components/patched/rdm_fields/PIDField/` are:
 
 - **`pid_components/fieldErrorsForDisplay.js`** — the touched-aware error
   helper used on the label row and identifier components. `pickDisplayableError`
@@ -263,7 +262,7 @@ that disagrees with the rest of the form.
 
 The form-feedback UI used in this package's layouts (`FormFeedback`,
 `FormFeedbackSummary`) lives under `field_components/alternate/field_inputs/`
-rather than `replacement_components/field_components/`. See
+rather than `field_components/patched/rdm_fields/`. See
 [Form feedback (errors and action state)](field_components.md#form-feedback-errors-and-action-state)
 for behavior and props.
 

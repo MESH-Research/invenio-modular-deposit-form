@@ -188,7 +188,7 @@ import {
   TextField,
   SelectField,
   RemoteSelectField,
-} from "@js/invenio_modular_deposit_form/replacement_components";
+} from "@js/invenio_modular_deposit_form/field_components/patched";
 ```
 
 Prefer the package's [replacement field components](replacement_field_components.md) (`TextField`, `SelectField`, `RemoteSelectField`, etc.) over the stock `react-invenio-forms` widgets so visible-error gating ("touched") stays consistent across the form.
@@ -216,7 +216,7 @@ The package treats the following as its public surface for extenders:
 - **`useFormUIState`** — the current resource type, the current page and its neighbours, the viewport breakpoint, and the combined client + server error state. This is the one to reach for in a custom layout component.
 - **Error selectors** — `getPageFlaggedErrorCounts` and friends, for rendering your own error badges or summaries.
 - **Supporting hooks** — `useCurrentFieldMods`, `useCurrentResourceTypeFields`, `useCustomFieldWidget`, `useFormSubmissionTransformer`, `useIsInViewport`, `useStickyFooterOverlapFix`.
-- **Replacement input widgets** — `TextField`, `SelectField`, `RemoteSelectField`, `TextArea`, `MultiInput`, `ArrayField`, `Input`, `Dropdown`, and `AutocompleteDropdown`, under `@js/invenio_modular_deposit_form/replacement_components`. See [Replacement field components](replacement_field_components.md) for how they differ from upstream.
+- **Replacement input widgets** — `TextField`, `SelectField`, `RemoteSelectField`, `TextArea`, `MultiInput`, `ArrayField`, `Input`, `Dropdown`, and `AutocompleteDropdown`, under `@js/invenio_modular_deposit_form/field_components/patched`. See [Replacement field components](replacement_field_components.md) for how they differ from upstream.
 
 **[Component developer API](component-api.md) is the full reference** — import paths, signatures, return shapes, and a field-by-field breakdown of the `formUIState` object.
 

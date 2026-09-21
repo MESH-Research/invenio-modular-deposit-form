@@ -1024,6 +1024,18 @@ user to either fix the errors or proceed. When `False` (the default), the errors
 are still flagged on the leaving page — in the navigation badges and the form
 feedback summary — but no modal interrupts navigation.
 
+### `MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING`
+
+Default: `True`.
+
+When `True`, leaving a form page while the Uppy Dashboard still has files that
+have not been uploaded opens a separate warning modal. The form registers
+`FileUploaderAreaWithUppyWatch` on
+`ReactInvenioDeposit.FileUploader.FileUploaderArea.container` only when this
+flag is on and the instance has not already overridden that slot. When `False`,
+staged-but-unconfirmed files do not interrupt page changes. This is independent
+of `MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL`.
+
 ### `MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP`
 
 Default: `True`.

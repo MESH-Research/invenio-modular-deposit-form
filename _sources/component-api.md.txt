@@ -248,7 +248,7 @@ import {
   SelectField,
   TextArea,
   TextField,
-} from "@js/invenio_modular_deposit_form/replacement_components";
+} from "@js/invenio_modular_deposit_form/field_components/patched";
 ```
 
 Prefer these over the stock `react-invenio-forms` equivalents when writing a

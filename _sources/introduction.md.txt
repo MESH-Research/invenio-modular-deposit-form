@@ -32,6 +32,8 @@ the InvenioRDM deposit form that allows:
   - Widget properties (labels, icons, placeholders, help text, etc.)
   - Alternate component variants (e.g. flat creatibutors layout, alternate
     resource-type selector) selectable per resource type
+  - Footer notices on page entry when the selected type hides fields that
+    still have values or errors on that page, with switch-to-type suggestions
 - **Integration of custom fields** freely into the main form layout
   - Custom fields can be placed on any page and laid out alongside core fields
 - **Client-side form validation**

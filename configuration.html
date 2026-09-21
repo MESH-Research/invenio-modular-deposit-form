@@ -1368,6 +1368,17 @@ user to either fix the errors or proceed. When <code class="docutils literal not
 are still flagged on the leaving page — in the navigation badges and the form
 feedback summary — but no modal interrupts navigation.</p>
 </section>
+<section id="modular-deposit-form-use-uppy-incomplete-warning">
+<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING</span></code><a class="headerlink" href="#modular-deposit-form-use-uppy-incomplete-warning" title="Link to this heading">¶</a></h3>
+<p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, leaving a form page while the Uppy Dashboard still has files that
+have not been uploaded opens a separate warning modal. The form registers
+<code class="docutils literal notranslate"><span class="pre">FileUploaderAreaWithUppyWatch</span></code> on
+<code class="docutils literal notranslate"><span class="pre">ReactInvenioDeposit.FileUploader.FileUploaderArea.container</span></code> only when this
+flag is on and the instance has not already overridden that slot. When <code class="docutils literal notranslate"><span class="pre">False</span></code>,
+staged-but-unconfirmed files do not interrupt page changes. This is independent
+of <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code>.</p>
+</section>
 <section id="modular-deposit-form-show-community-banner-at-top">
 <h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP</span></code><a class="headerlink" href="#modular-deposit-form-show-community-banner-at-top" title="Link to this heading">¶</a></h3>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
@@ -1655,6 +1666,7 @@ package’s <code class="docutils literal notranslate"><span class="pre">config.
 <li><a class="reference internal" href="#other-configuration-flags">Other configuration flags</a><ul>
 <li><a class="reference internal" href="#modular-deposit-form-use-client-validation"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code></a></li>
 <li><a class="reference internal" href="#modular-deposit-form-use-confirm-modal"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code></a></li>
+<li><a class="reference internal" href="#modular-deposit-form-use-uppy-incomplete-warning"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING</span></code></a></li>
 <li><a class="reference internal" href="#modular-deposit-form-show-community-banner-at-top"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP</span></code></a></li>
 <li><a class="reference internal" href="#modular-deposit-form-priority-resource-types"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES</span></code></a></li>
 <li><a class="reference internal" href="#modular-deposit-form-pids-overrides"><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES</span></code></a></li>
