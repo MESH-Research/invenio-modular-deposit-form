@@ -2,7 +2,7 @@
 
 **Status:** Working draft for internal review. This file lives under **`docs/internal/`** and is **not** included in the published Sphinx build (`docs/source/`).
 
-**Published departures (same package):** `SelectField` / `RemoteSelectField` differences from stock are documented in Sphinx at **`docs/source/replacement_field_components.md`** and in file headers plus `replacement_components/index.js`.
+**Published departures (same package):** `SelectField` / `RemoteSelectField` differences from stock are documented in Sphinx at **`docs/source/replacement_field_components.md`** and in file headers plus `field_components/patched/index.js`.
 
 **Scope:** `CreatibutorsFieldFlat` / `CreatibutorsInlineForm` / `CreatibutorsFormBody` — **person** entries when name autocomplete is enabled. Organizations follow a separate pattern (scratch search + org name field).
 
@@ -19,7 +19,7 @@
 
 ## 2. Technical approach (component stack)
 
-We reuse the package **`RemoteSelectField`** (`replacement_components/RemoteSelectField.js`), which wraps **`SelectField`** → Semantic UI **`Form.Dropdown`** in **search** mode.
+We reuse the package **`RemoteSelectField`** (`field_components/patched/input_controls/RemoteSelectField.js`), which wraps **`SelectField`** → Semantic UI **`Form.Dropdown`** in **search** mode.
 
 **Why not a raw text input + custom list?**
 
@@ -38,7 +38,7 @@ We reuse the package **`RemoteSelectField`** (`replacement_components/RemoteSele
 
 **`RemoteSelectField` defaults:** `commitSearchOnBlur`, `hideAdditionMenuItem`, and `focusFieldPathAfterSelect` are **opt-in**; other uses (e.g. `AutocompleteDropdown`) are unchanged.
 
-**`SelectField`:** If a custom **`onBlur(e, { formikProps })`** is passed, it runs **after** Formik **`handleBlur`** and **`setFieldTouched`**, so touched state stays correct.
+**`SelectField`:** If a custom **`onBlur(e, { formikProps })`** is passed, it runs **after** **`setFieldTouched`**, so touched state stays correct.
 
 ---
 
@@ -119,11 +119,11 @@ We reuse the package **`RemoteSelectField`** (`replacement_components/RemoteSele
 
 | File | Responsibility |
 |------|----------------|
-| `replacement_components/alternate_components/creatibutor_components/CreatibutorsFormBody.js` | Layout: remote family vs plain fields; `search` vs `search_only` given-name visibility; org branch |
-| `replacement_components/alternate_components/creatibutor_components/CreatibutorsInlineForm.js` | `applyPersonFromApi`, `onPersonSearchChange`, `familyNameWidgetRef`, `personDetailsExpanded` |
-| `replacement_components/alternate_components/creatibutor_components/CreatibutorsFormActionButtons.js` | `setPersonDetailsExpanded` / `personDetailsExpandedAfterSave` when `search_only` |
-| `replacement_components/RemoteSelectField.js` | Remote fetch + Dropdown + `onValueChange`; optional `commitSearchOnBlur`, `hideAdditionMenuItem`, `focusFieldPathAfterSelect` |
-| `replacement_components/SelectField.jsx` | Chains custom `onBlur` after Formik `handleBlur` / `setFieldTouched` |
+| `field_components/alternate/field_inputs/creatibutor_components/CreatibutorsFormBody.js` | Layout: remote family vs plain fields; `search` vs `search_only` given-name visibility; org branch |
+| `field_components/alternate/field_inputs/creatibutor_components/CreatibutorsInlineForm.js` | `applyPersonFromApi`, `onPersonSearchChange`, `familyNameWidgetRef`, `personDetailsExpanded` |
+| `field_components/alternate/field_inputs/creatibutor_components/CreatibutorsFormActionButtons.js` | `setPersonDetailsExpanded` / `personDetailsExpandedAfterSave` when `search_only` |
+| `field_components/patched/input_controls/RemoteSelectField.js` | Remote fetch + Dropdown + `onValueChange`; optional `commitSearchOnBlur`, `hideAdditionMenuItem`, `focusFieldPathAfterSelect` |
+| `field_components/patched/input_controls/SelectField.jsx` | Chains custom `onBlur` after `setFieldTouched` |
 
 ---
 

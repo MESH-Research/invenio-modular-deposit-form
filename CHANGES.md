@@ -6,6 +6,73 @@ more details. -->
 
 # Changes
 
+## Unreleased
+
+- Files / Uppy: warn before leaving a form page when files are staged in the
+  Dashboard but the upload button has not been clicked
+  (`MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING`, default True). Registers
+  `FileUploaderAreaWithUppyWatch` only when that flag is on and the instance has
+  not already overridden the file-uploader area slot. Separate from the
+  page-error confirm modal (`MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL`, default
+  False)
+- Layout / packaging: move `replacement_components` to
+  `field_components/patched` and rename its nested field forks folder
+  to `rdm_fields` (import paths updated throughout); nest `ShareDraftButton`
+  under `rdm_fields/` with `DepositShareModal` / `depositShareRecord` in
+  `rdm_fields/share_components/`; move the deposit app shell (store, reducer,
+  `DepositFormApp`, bootstrap) out to `patched_rdm_core/` beside
+  `field_components/`; move `utils.js` into `helpers/`
+- Hidden fields notices (footer): warn when the current resource type hides
+  fields that still have errors or non-empty values on this page, with
+  switch-to-type suggestions (`HiddenFieldsNotices` / `HiddenFieldsBanner`,
+  `hiddenSectionErrors` helpers + tests); default / alternate / Zenodo layouts
+  mount these under `StickyFooter`
+- Layout: new `StickyFooter` container for nested footer subsections (notices +
+  nav); `FormPageNavigationBar` can render without its own column when nested
+  (`asColumn: false`); footer region respects spacer columns; footer drop
+  shadow fix
+- Sharing: share modal no longer crashes / strips settings on new drafts
+  - Required wrapping of some upstream behaviour to better integrate modal form
+    with our Formik (DepositShareModal, ShareDraftButton, depositShareRecord +
+    tests)
+- Local recovery: no longer prompts for recovery if a user has just
+  saved/published or made no changes to an existing draft; cleaner detection of
+  unsaved changes; preserve `files.count` in Formik so recovery equality checks
+  do not false-trigger
+- Resource type selector: better responsive widescreen shortcuts; z-index and
+  styling improvements
+- Layout / mobile:
+  - sticky footer behaviour and mobile width fixed;
+  - layout improvements to form rows, accordion headers, additional titles;
+  - better responsive layout for DnD array fields;
+  - more mobile-friendly recovery modal
+- Submission / access: horizontal components updated for main-column layout; no
+  longer import KCWorks overrides directly
+- Input controls:
+  - less redundant markup (SelectField, TextField, TextArea, etc.);
+  - RemoteSelect / SelectField option-filtering fixes;
+  - stop forwarding React-only props to DOM; PropTypes / warning cleanups
+    (TextField and related)
+  - RichInputField: local-controlled editor content with debounced Formik sync
+    (default 2.5s; flush on blur / unmount / pagehide) so local-storage
+    recovery sees mid-edit rich text without per-keystroke form updates
+    (`formikSyncDebounceMs` prop)
+- Form feedback: layout class tweaks; FormFeedbackSummary link-button markup
+  cleanup (disabled count-badge experiment removed)
+- Field labels: expanded `readableFieldLabels` for journal / imprint / meeting /
+  thesis / code custom fields; `getReadableFieldLabel` walks ancestors
+- Access / DOI components: optional empty label for AccessRights; safer empty
+  `optionalDOItransitions` object for DOI field
+- Build / packaging:
+  - pnpm/corepack CI fixes; pinned pnpm version hash;
+  - bump-my-version for release number management;
+  - docs build: drop unnecessary `__version__` import
+- Compatibility: remaining KCWorks-specific blockers removed so a clean
+  InvenioRDM install works again
+- Chore: move ClientValidationMetaContext into validation folder; minor reorgs
+- Testing: utils.test.js cleanup; mock invenio-rdm-records in Jest; add
+  semantic-ui-react to package.json for tests; hiddenSectionErrors suite
+
 ## Version 0.4.0 (2026-09-09)
 
 ### Features and redesign
