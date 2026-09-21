@@ -5,7 +5,7 @@ requires = ["babel>2.8", "setuptools>=61,<82", "wheel"]
 
 [project]
 name = "invenio-modular-deposit-form"
-version = "0.4.0"
+version = "0.5.0"
 description = "An InvenioRDM extension that adds a more modular and customizable version of the record deposit form"
 readme = "README.md"
 keywords = ["deposit-form", "extensions", "invenio", "inveniordm", "ui"]
@@ -205,7 +205,7 @@ ini_options.log_cli_level = "DEBUG"
 ini_options.isort_show_files = true
 
 [tool.bumpversion]
-current_version = "0.4.0"
+current_version = "0.5.0"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 search = "{current_version}"
@@ -215,14 +215,9 @@ tag = false
 allow_shell_hooks = false
 message = "Bump version: {current_version} → {new_version}"
 
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
-key_path = "project.version"
-
-[[tool.bumpversion.files]]
-filename = "pyproject.toml"
-key_path = "tool.bumpversion.current_version"
-
+# pyproject.toml project.version and tool.bumpversion.current_version are
+# updated automatically by bump-my-version's update_config_file; listing them
+# here double-applies a whole-file search and fails on the second entry.
 [[tool.bumpversion.files]]
 filename = "README.md"
 search = "Version {current_version}"
