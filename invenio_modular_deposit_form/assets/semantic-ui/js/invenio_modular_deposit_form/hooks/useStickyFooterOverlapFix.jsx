@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { isNearViewportBottom } from "@js/invenio_modular_deposit_form/utils";
+import { isNearViewportBottom } from "@js/invenio_modular_deposit_form/helpers/utils";
 
 function useStickyFooterOverlapFix() {
   useEffect(() => {

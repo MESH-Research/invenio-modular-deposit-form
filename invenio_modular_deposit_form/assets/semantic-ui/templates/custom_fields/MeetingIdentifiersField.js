@@ -13,7 +13,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useStore } from "react-redux";
-import { IdentifiersField } from "@js/invenio_modular_deposit_form/replacement_components/field_components";
+import { IdentifiersField } from "@js/invenio_modular_deposit_form/field_components/patched/rdm_fields";
 
 const DEFAULT_FIELD_PATH = "custom_fields.meeting:meeting.identifiers";
 

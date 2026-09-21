@@ -1,0 +1,107 @@
+// Replacement field-components (re-exports below)
+// =================================================
+// These modules mirror `invenio_rdm_records` deposit field components but adapt them for
+// Invenio Modular Deposit Form: local widgets (`field_components/patched/input_controls/`),
+// touched-aware errors, or import paths that only resolve inside this bundle.
+//
+// Full enumeration, per-field notes, and “what upstream could change” live in the Sphinx doc:
+//   docs/source/replacement_field_components.md
+//
+// Default pattern (most files in this folder)
+// -------------------------------------------
+// Copy of the stock field file with the same class/API; only imports change so basic
+// controls use `../input_controls/TextField`, `../input_controls/RemoteSelectField`, or
+// other replacements from `field_components/patched/input_controls/` instead of
+// `react-invenio-forms` defaults where applicable.
+//
+// Exceptions (larger forks — summary only; see doc + file headers)
+// -----------------------------------------------------------------
+// PIDField/
+//   Fork of upstream `deposit/fields/Identifiers/PIDField` (layout: `PIDFieldCmp`,
+//   `RequiredPIDField`, `OptionalPIDField` at folder root; `pid_components/` for local
+//   identifier UIs + `fieldErrorsForDisplay`). Stock uses `getFieldErrors` (show as soon
+//   as validation fails); here `getFieldErrorsForDisplay` aligns visible errors with
+//   `field_components/patched/input_controls/TextField.js` (touch / initial-error rules).
+//   Because PID inputs are not plain Formik Field scalars, this fork sets `touched` on
+//   unmanaged-input blur (`UnmanagedIdentifierCmp`, true); radio changes use
+//   `setFieldTouched(fieldPath, false, false)` (`RequiredPIDField` / `OptionalPIDField`);
+//   see Sphinx docs/source/replacement_field_components.md § “Formik touched and this fork”.
+//   **Initial `provider` (required PID only):** `RequiredPIDField` on mount, if there is no
+//   identifier yet, seeds `pids.<scheme>` from `doiDefaultSelection` (`default_selected`).
+//   It also keeps **`managed_selection`** and **`draft_*_pid_backup`** under **`values.ui.<fieldPath>`**
+//   (for DOI, **`pids.doi`** → **`values.ui.pids.doi.*`**): radio change runs **`restoreFromBackup`**;
+//   unmanaged typing updates `pids` + **`draft_unmanaged_pid_backup`** (debounced); while
+//   managed is selected, **`componentDidUpdate`** mirrors **`pids.<scheme>`** into
+//   **`draft_managed_pid_backup`** when the Formik value reference changes (reserve/discard).
+//   **`ManagedUnmanagedSwitch` `disabled`:** stock-style **`hasDoi`** from **`record.pids.doi`**,
+//   **`isDoiCreated`** from draft **`field.value.identifier`**.
+//   `OptionalPIDField` does not seed (optional DOI must not validate empty); it persists
+//   optional-DOI radio choice in `values.ui.pids.doi.managed_selection` when the user
+//   changes radios (survives `pids` cleared / remount); its unmanaged radio clears `pids`
+//   without `provider: "external"` (external only on input). Sphinx:
+//   replacement_field_components.md (PIDField).
+//   Leaf widgets that are unchanged are deep-imported from `@js/invenio_rdm_records/...`;
+//   deposit API/state imports use `@js` because relative paths from upstream
+//   (`../../../../api/...`) do not resolve from this package. Eliminating this fork would
+//   require upstream to expose a pluggable error-visibility strategy (or the same helper)
+//   on PIDField / helpers, plus equivalent touched wiring for radios and unmanaged input.
+//
+// CreatibutorsField.js + creatibutor_components/CreatibutorsModal.js
+//   Local modal fork: `onModalClose` in `closeModal()` so the parent can `setFieldTouched`
+//   when the modal closes (any path). CreatibutorsFieldItem/type/utils still from `@js`.
+//   Upstream could add an optional `onModalClose` (or equivalent) on stock modal to avoid
+//   forking the modal file.
+//
+// IdentifiersField.js
+//   Fork of upstream `deposit/fields/Identifiers/IdentifiersField.js`. Row wrapper is bare
+//   `<GroupField>` like stock (baseline — no `fieldPath` / `optimized` on the group). Other
+//   divergences: local `ArrayField` / `TextField` / `SelectField` from
+//   `field_components/patched/input_controls/`; `emptyIdentifier` from
+//   `@js/invenio_rdm_records/.../Identifiers/initialValues`. Layout/markup otherwise matches
+//   upstream. `labelIcon` is supplied by `FieldComponentWrapper` like stock.
+//
+// DatesField.js
+//   Fork of upstream `deposit/fields/DatesField/DatesField.js`. Local `ArrayField` (with
+//   `onAfterAdd` / `onAfterRemove` for keyboard focus), `TextField` / `SelectField`;
+//   `emptyDate` from `@js/.../DatesField/initialValues`. Overridable ids unchanged.
+//
+// RelatedWorksField.js
+//   Fork of upstream `deposit/fields/RelatedWorksField/RelatedWorksField.js`. Local
+//   `ArrayField` / `TextField` / `SelectField`; row `ResourceTypeField` from this folder;
+//   `emptyRelatedWork` from `@js/...`. Item layout uses SUI `Grid` columns with explicit
+//   widths (not Form.Group `N wide` classes). Array header visibility when `label` is
+//   unset comes from local `ArrayField` (`{label && <FieldLabel …>}`), not a
+//   RelatedWorks-only change.
+//
+// SubjectsField.js
+//   Fork of upstream `deposit/fields/SubjectsField/SubjectsField.js`. Same visibility rule for
+//   `label` / `labelIcon` as replacement `TextField`.
+//
+// CopyrightsField.js
+//   Fork of upstream `deposit/fields/CopyrightsField/CopyrightsField.js`. Local `TextField`;
+//   pass through `labelIcon` (and description / helpText / placeholder / classnames) from props
+//   so layout `icon: None` can hide the label icon; upstream hardcodes the icon on `FieldLabel`.
+//
+// ShareDraftButton.jsx + share_components/
+//   Fork of stock ShareDraftButton / ShareButton (configurable `labelPosition` / `className`).
+//   `share_components/DepositShareModal` wraps upstream ShareModal; `depositShareRecord`
+//   merges modal output into Formik without mutating Redux.
+//
+// Any new non–import-only divergence must be summarized in this header and in
+// docs/source/replacement_field_components.md.
+export { AdditionalDescriptionsField } from "./AdditionalDescriptionsField";
+export { AdditionalTitlesField } from "./AdditionalTitlesField";
+export { CopyrightsField } from "./CopyrightsField";
+export { CreatibutorsField } from "./CreatibutorsField";
+export { DatesField } from "./DatesField";
+export { DescriptionsField } from "./DescriptionsField";
+export { IdentifiersField } from "./IdentifiersField";
+export { LanguagesField } from "./LanguagesField";
+export { PIDField } from "./PIDField";
+export { PublisherField } from "./PublisherField";
+export { RelatedWorksField } from "./RelatedWorksField";
+export { ResourceTypeField } from "./ResourceTypeField";
+export { ShareDraftButton } from "./ShareDraftButton";
+export { SubjectsField } from "./SubjectsField";
+export { TitlesField } from "./TitlesField";
+export { VersionField } from "./VersionField";

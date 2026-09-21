@@ -17,7 +17,7 @@ import React, {
 import { useFormikContext } from "formik";
 import { useSelector, useStore } from "react-redux";
 
-import { focusFirstElement } from "./utils";
+import { focusFirstElement } from "./helpers/utils";
 import { FormErrorManager } from "./helpers/FormErrorManager";
 import {
   FORM_UI_ACTION,
@@ -68,7 +68,8 @@ const FormUIStateManager = ({ children }) => {
     .getState()
     .deposit?.config?.common_fields?.find((item) => item.component === "FormPages");
   const formPagesCommon = formPagesConfig?.subsections ?? [];
-  const useConfirmModal = config?.use_confirm_modal ?? true;
+  const useConfirmModal = config?.use_confirm_modal ?? false;
+  const useUppyIncompleteWarning = config?.use_uppy_incomplete_warning ?? true;
 
   // Dynamic form state
   const formik = useFormikContext();
@@ -131,7 +132,8 @@ const FormUIStateManager = ({ children }) => {
     focusFirstElement,
     recovery.recoveryAsked,
     formik,
-    useConfirmModal
+    useConfirmModal,
+    useUppyIncompleteWarning
   );
 
   // Manage updating of resource type
@@ -214,11 +216,14 @@ const FormUIStateManager = ({ children }) => {
     () => ({
       confirmModalRef: recovery.confirmModalRef,
       confirmingPageChange: navigation.confirmingPageChange,
+      confirmingUnconfirmedUploads: navigation.confirmingUnconfirmedUploads,
       formUIState: state,
       formUIDispatch: dispatch,
       handleFormPageChange: navigation.handleFormPageChange,
       handlePageChangeCancel: navigation.handlePageChangeCancel,
       handlePageChangeConfirm: navigation.handlePageChangeConfirm,
+      handleUnconfirmedUploadsCancel: navigation.handleUnconfirmedUploadsCancel,
+      handleUnconfirmedUploadsConfirm: navigation.handleUnconfirmedUploadsConfirm,
       handleRecoveryAsked: recovery.handleRecoveryAsked,
       handleStorageData: recovery.handleStorageData,
       pageTargetRef,

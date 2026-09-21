@@ -42,6 +42,10 @@ _CONFIG_KEYS = [
         "show_community_banner_at_top",
     ),
     ("MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL", "use_confirm_modal"),
+    (
+        "MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING",
+        "use_uppy_incomplete_warning",
+    ),
     ("RDM_RECORDS_PERMISSIONS_PER_FIELD", "permissions_per_field"),
 ]
 

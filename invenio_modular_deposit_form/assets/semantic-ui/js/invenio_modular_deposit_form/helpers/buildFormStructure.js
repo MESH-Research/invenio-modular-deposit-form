@@ -3,11 +3,11 @@
  * Each entry: { pageId, sectionId, pageLabel, sectionLabel, fields, resourceTypes }.
  * pageLabel is the common FormPage label when present, else pageId (type-specific stepper labels
  * live on form UI state `resolvedFormPages`, used by modular FormFeedbackSummary
- * (`replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx`).
+ * (`field_components/alternate/field_inputs/form_feedback_components/FormFeedbackSummary.jsx`).
  * resourceTypes is an array of resource type ids that include this section in their overrides (empty for base-only).
  */
 
-import { flattenWrappers } from "../utils";
+import { flattenWrappers } from "./utils";
 
 function getFieldPathsForSubsection(subsection, registry) {
   if (!subsection) return [];

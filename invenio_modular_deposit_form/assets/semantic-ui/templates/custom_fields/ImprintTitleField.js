@@ -7,7 +7,7 @@
 
 import React, { Component } from "react";
 
-import { TextField } from "@js/invenio_modular_deposit_form/replacement_components/input_controls/TextField";
+import { TextField } from "@js/invenio_modular_deposit_form/field_components/patched/input_controls/TextField";
 
 import PropTypes from "prop-types";
 

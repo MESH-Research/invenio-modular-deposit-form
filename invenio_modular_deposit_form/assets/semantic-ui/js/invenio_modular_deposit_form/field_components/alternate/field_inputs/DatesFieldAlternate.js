@@ -8,8 +8,8 @@
 
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { TextField } from "../../../replacement_components/input_controls/TextField";
-import { SelectField } from "../../../replacement_components/input_controls/SelectField";
+import { TextField } from "../../patched/input_controls/TextField";
+import { SelectField } from "../../patched/input_controls/SelectField";
 import { Button, Form, Icon } from "semantic-ui-react";
 import _isEmpty from "lodash/isEmpty";
 import _matches from "lodash/matches";

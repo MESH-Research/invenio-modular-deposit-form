@@ -78,7 +78,9 @@ left. Any errors left behind are flagged in the menu and the submission feedback
 message. Setting **`MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL`** to `True` in
 `invenio.cfg` instead shows a confirmation modal before leaving a page that still
 has errors. Details and related behaviour are in
-[Configuration](configuration.md).
+[Configuration](configuration.md). Staged Uppy files that have not been uploaded
+are a separate warning (`MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING`, on
+by default) and do not use this error modal.
 
 ### Customizing the validation schema
 
@@ -140,6 +142,12 @@ descriptions, help text) and the related default-value / extra-required-field
 maps let you retarget field chrome per resource type without rewriting the
 layout tree — for example renaming “Title” to “Book title” for
 `textDocument-book`.
+
+Because a type switch can leave values or errors in fields that are no longer
+on screen for the new type, the default layouts surface those cases in the
+footer when the depositor enters each page — with links to switch to a type
+that still includes the affected fields. See
+[Adapting the form to the selected resource type](overview.md#adapting-the-form-to-the-selected-resource-type).
 
 Both are configured in `invenio.cfg`. Worked examples and the full key list are
 in [Configuration](configuration.md).

@@ -14,7 +14,7 @@
 // typed family name still commits on blur. `commitSearchOnBlur` also reconstructs mid-typeahead
 // state on focus (Formik value in the search input, text selected; debounced search unchanged).
 // `focusFieldPathAfterSelect` when given name shows.
-// See `replacement_components/RemoteSelectField.js` and `docs/source/replacement_field_components.md`.
+// See `field_components/patched/input_controls/RemoteSelectField.js` and `docs/source/replacement_field_components.md`.
 
 import React, { createRef, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
@@ -24,9 +24,9 @@ import { Button, Form, Icon, Label } from "semantic-ui-react";
 import _get from "lodash/get";
 import Overridable from "react-overridable";
 import { RadioField } from "react-invenio-forms";
-import { RemoteSelectField } from "../../../../replacement_components/input_controls/RemoteSelectField";
-import { TextField } from "../../../../replacement_components/input_controls/TextField";
-import { SelectField } from "../../../../replacement_components/input_controls/SelectField";
+import { RemoteSelectField } from "../../../patched/input_controls/RemoteSelectField";
+import { TextField } from "../../../patched/input_controls/TextField";
+import { SelectField } from "../../../patched/input_controls/SelectField";
 import { AffiliationsField } from "@js/invenio_rdm_records/src/deposit/fields/AffiliationsField/AffiliationsField";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";

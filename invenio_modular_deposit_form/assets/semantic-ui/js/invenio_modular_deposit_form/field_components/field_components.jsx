@@ -10,7 +10,7 @@ import _get from "lodash/get";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { FeedbackLabel } from "react-invenio-forms";
-import { FieldLabel } from "../replacement_components/input_controls/FieldLabel.js";
+import { FieldLabel } from "./patched/input_controls/FieldLabel.js";
 import { useSelector, useStore } from "react-redux";
 import {
   AccessRightField,
@@ -26,7 +26,7 @@ import {
 } from "@js/invenio_rdm_records";
 import { useFormUIState } from "../FormUIStateManager.jsx";
 import { SyncFilesCountFromRedux } from "../helpers/SyncFilesCountFromRedux";
-import { PIDField as ReplacementPIDField } from "../replacement_components/field_components/PIDField";
+import { PIDField as ReplacementPIDField } from "./patched/rdm_fields/PIDField";
 import { FormFeedback as ModularFormFeedback } from "./alternate/field_inputs/FormFeedback";
 import {
   CopyrightsField,
@@ -41,13 +41,13 @@ import {
   SubjectsField,
   TitlesField,
   VersionField,
-} from "../replacement_components/field_components";
-import { ShareDraftButton } from "../replacement_components/ShareDraftButton";
+} from "./patched/rdm_fields";
+import { ShareDraftButton } from "./patched/rdm_fields/ShareDraftButton";
 import { FundingFieldAlternate } from "./alternate/field_inputs/FundingFieldAlternate";
 import { LicenseFieldAlternate } from "./alternate/field_inputs/LicenseFieldAlternate";
 import { Card, Form, Grid } from "semantic-ui-react";
 import Overridable from "react-overridable";
-import { getTouchedParent } from "../utils";
+import { getTouchedParent } from "../helpers/utils";
 import { FieldComponentWrapper } from "./FieldComponentWrapper";
 
 /**
@@ -125,7 +125,7 @@ const AccessRightsComponent = ({ label, ...extraProps }) => {
 };
 
 /**
- * Additional dates field (metadata.dates). Replacement DatesField (`replacement_components`; local widgets).
+ * Additional dates field (metadata.dates). Replacement DatesField (`field_components/patched`; local widgets).
  * For dropdown-based additional dates use `AdditionalDatesAlternateComponent` (`alternate_components/DatesFieldAlternate`).
  * @overridable InvenioAppRdm.Deposit.DateField.container (via FieldComponentWrapper)
  */
@@ -145,7 +145,7 @@ const AdditionalDatesComponent = ({ ...extraProps }) => {
 
 /**
  * Alternate identifiers / URLs (metadata.identifiers). Replacement IdentifiersField
- * (`replacement_components`; bare `GroupField` like stock — see fork header).
+ * (`field_components/patched`; bare `GroupField` like stock — see fork header).
  * @overridable InvenioAppRdm.Deposit.IdentifiersField.container (via FieldComponentWrapper)
  */
 const AlternateIdentifiersComponent = ({ ...extraProps }) => {
@@ -708,7 +708,7 @@ const ReferencesComponent = ({ ...extraProps }) => {
 };
 
 /**
- * Related works (metadata.related_identifiers). Replacement RelatedWorksField (`replacement_components`; local widgets).
+ * Related works (metadata.related_identifiers). Replacement RelatedWorksField (`field_components/patched`; local widgets).
  * @overridable InvenioAppRdm.Deposit.RelatedWorksField.container (via FieldComponentWrapper)
  */
 const RelatedWorksComponent = ({ ...extraProps }) => {
@@ -783,7 +783,7 @@ const SubjectsComponent = ({ ...extraProps }) => {
  * errors or action state. Use above SubmissionComponent in FormRightSidebar to
  * show save/publish feedback.
  * Forwards optional props (e.g. `hideMessageIcon`) to modular `FormFeedback`
- * (`replacement_components/alternate_components/FormFeedback.jsx`).
+ * (`field_components/alternate/field_inputs/FormFeedback.jsx`).
  * @overridable InvenioAppRdm.Deposit.FormFeedback.container
  */
 const FormFeedbackComponent = (props) => {
@@ -874,7 +874,7 @@ const SubmissionComponent = () => {
 };
 
 /**
- * Title (metadata.title). Uses modular TitlesField (see `replacement_components/field_components`).
+ * Title (metadata.title). Uses modular TitlesField (see `field_components/patched/rdm_fields`).
  * @overridable InvenioAppRdm.Deposit.TitlesField.container (via FieldComponentWrapper)
  */
 const TitlesComponent = ({ ...extraProps }) => {

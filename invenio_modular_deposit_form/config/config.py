@@ -65,6 +65,12 @@ MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL = False
 form page with a current error. When False, the errors on the page will be 
 flagged on page exit but no modal confirmation will be required."""
 
+MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING = True
+"""When True, leaving a form page while Uppy has files staged but not yet
+uploaded opens a warning modal. The FileUploader area Overridable is registered
+only when this is True and the instance has not already overridden that slot.
+When False, staged files do not block page changes."""
+
 MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES: tuple[str, ...] = (
     "publication-article",
     "publication-peerreview",

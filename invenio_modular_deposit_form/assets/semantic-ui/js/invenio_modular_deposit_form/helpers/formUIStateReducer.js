@@ -41,6 +41,9 @@
  *   excludes global API failures (e.g. CSRF `message`). Used to disable Publish.
  * - hasDraftBlockingClientErrors: from ClientValidationMetaContext (last Formik validate /
  *   raw Yup types); copied into form UI state by FormErrorManager. Used to disable Save.
+ * - hasUnconfirmedUppyUploads: true when Uppy Dashboard has files staged but upload has not
+ *   started (`autoProceed: false`); set by FileUploaderAreaWithUppyWatch. Used by the leave-page
+ *   confirm modal.
  *
  * Section entry shape: { page, section, error_fields, info_fields, warning_fields } (each value string[]).
  */
@@ -55,6 +58,7 @@ const FORM_UI_ACTION = {
   SET_SUBMISSION_BUTTON_STATE: "SET_SUBMISSION_BUTTON_STATE",
   SET_FORM_PAGES_LAYOUT: "SET_FORM_PAGES_LAYOUT",
   SET_VIEWPORT_INFO: "SET_VIEWPORT_INFO",
+  SET_HAS_UNCONFIRMED_UPPY_UPLOADS: "SET_HAS_UNCONFIRMED_UPPY_UPLOADS",
 };
 
 const defaultState = {
@@ -72,6 +76,7 @@ const defaultState = {
   sectionErrorsAll: [],
   hasClientValidationErrors: false,
   hasDraftBlockingClientErrors: false,
+  hasUnconfirmedUppyUploads: false,
   atMobile: false,
   atTablet: false,
   atComputer: false,
@@ -236,6 +241,13 @@ function formUIStateReducer(state, action) {
     }
     case FORM_UI_ACTION.SET_CURRENT_FORM_PAGE_FIELDS:
       return { ...state, currentFormPageFields: action.payload };
+    case FORM_UI_ACTION.SET_HAS_UNCONFIRMED_UPPY_UPLOADS: {
+      const hasUnconfirmedUppyUploads = !!action.payload;
+      if (state.hasUnconfirmedUppyUploads === hasUnconfirmedUppyUploads) {
+        return state;
+      }
+      return { ...state, hasUnconfirmedUppyUploads };
+    }
     default:
       return state;
   }

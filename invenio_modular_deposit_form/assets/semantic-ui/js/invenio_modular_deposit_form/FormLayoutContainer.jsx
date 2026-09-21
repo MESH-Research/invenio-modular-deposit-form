@@ -17,7 +17,7 @@ import { FormTitleRegion } from "./framing_components/FormTitleRegion";
 import { FormLeftSidebar } from "./framing_components/FormLeftSidebar";
 import { FormRightSidebar } from "./framing_components/FormRightSidebar";
 import { RecoveryModal } from "./framing_components/RecoveryModal";
-import { focusFirstElement } from "./utils";
+import { focusFirstElement } from "./helpers/utils";
 import { useStickyFooterOverlapFix } from "./hooks/useStickyFooterOverlapFix";
 import { SIDEBAR_DEFAULTS_WIDTHS } from "./constants";
 import { makeFormHeading, makeSelectedCommunityLabel } from "./helpers/depositFormTitleText";
@@ -253,29 +253,71 @@ const FormLayoutContainer = () => {
         )}
 
         <Confirm
-          icon="question circle outline"
           id="confirm-page-change"
           className="confirm-page-change"
           open={ctx.confirmingPageChange}
-          closeIcon
           content={
-            <Modal.Content image>
-              <Icon name="question circle outline" size="huge" />
-              <Modal.Description>
-                {i18next.t(
-                  "There are problems with the information you've entered. Do you want to fix them before moving on?"
-                )}
-              </Modal.Description>
+            <Modal.Content>
+              <Grid verticalAlign="middle">
+                <Grid.Column width={2} textAlign="center">
+                  <Icon name="question circle outline" size="large" aria-hidden="true" />
+                </Grid.Column>
+                <Grid.Column width={14}>
+                  <p>
+                    {i18next.t(
+                      "There are problems with the information you've entered. Do you want to fix them before moving on?"
+                    )}
+                  </p>
+                </Grid.Column>
+              </Grid>
             </Modal.Content>
           }
           confirmButton={<button className="ui button">{i18next.t("Continue anyway")}</button>}
           cancelButton={
-            <button className="ui button positive" ref={ctx.confirmModalRef}>
+            <button
+              className="ui button positive"
+              ref={ctx.confirmingPageChange ? ctx.confirmModalRef : undefined}
+            >
               {i18next.t("Fix the problems")}
             </button>
           }
           onCancel={ctx.handlePageChangeCancel}
           onConfirm={ctx.handlePageChangeConfirm}
+        />
+
+        <Confirm
+          id="confirm-unconfirmed-uploads"
+          className="confirm-unconfirmed-uploads"
+          open={ctx.confirmingUnconfirmedUploads}
+          content={
+            <Modal.Content>
+              <Grid verticalAlign="middle">
+                <Grid.Column width={2} textAlign="center">
+                  <Icon name="exclamation triangle" size="large" aria-hidden="true" />
+                </Grid.Column>
+                <Grid.Column width={14}>
+                  <p>
+                    {i18next.t(
+                      "You have selected files but have not clicked the upload button yet. Upload them before leaving this page, or your selected files will be lost."
+                    )}
+                  </p>
+                </Grid.Column>
+              </Grid>
+            </Modal.Content>
+          }
+          confirmButton={
+            <button className="ui button">{i18next.t("Leave without uploading")}</button>
+          }
+          cancelButton={
+            <button
+              className="ui button positive"
+              ref={ctx.confirmingUnconfirmedUploads ? ctx.confirmModalRef : undefined}
+            >
+              {i18next.t("Stay and upload")}
+            </button>
+          }
+          onCancel={ctx.handleUnconfirmedUploadsCancel}
+          onConfirm={ctx.handleUnconfirmedUploadsConfirm}
         />
 
         {!ctx.recoveryAsked && ctx.storageDataPresent && (

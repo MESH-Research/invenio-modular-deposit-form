@@ -16,7 +16,7 @@ import React, { useMemo } from "react";
 import { Button, Label, List } from "semantic-ui-react";
 import { useFormUIState } from "../../../../FormUIStateManager.jsx";
 import { getSeverityBadgeType, getSeverityLabel } from "../../../../helpers/severityChecksConfig";
-import { getFormSectionElementId } from "../../../../utils";
+import { getFormSectionElementId } from "../../../../helpers/utils";
 
 /**
  * Section list and counts from formUIState.sectionErrorsFlagged (FormErrorManager), so badges

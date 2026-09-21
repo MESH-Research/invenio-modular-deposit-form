@@ -1,5 +1,5 @@
 import { get, isEqual } from "lodash";
-import { flattenKeysDotJoined, getErrorParent, getTouchedParent } from "../utils";
+import { flattenKeysDotJoined, getErrorParent, getTouchedParent } from "./utils";
 import { FORM_UI_ACTION } from "./formUIStateReducer";
 import { RECORD_FIELD_ERROR_ROOTS, SEVERITIES } from "../constants";
 
@@ -77,7 +77,7 @@ function getSeverityAtPath(errors, path) {
  * formSectionFields is the full section config (common_fields + fields_by_type for all resource types),
  * so paths are attributed to a section even if that section is not visible for the current type.
  * Matching: path equals a section field, or path is a descendant (path.startsWith(f + ".")), or section field is a descendant of path. Same rule as modular FormFeedbackSummary
- * (`replacement_components/alternate_components/form_feedback_components/FormFeedbackSummary.jsx`).
+ * (`field_components/alternate/field_inputs/form_feedback_components/FormFeedbackSummary.jsx`).
  * @param {Array<{ pageId, sectionId, fields: string[] }>} formSectionFields
  * @param {string} fieldPath
  * @returns {{ pageId: string, sectionId: string } | null} null if path is not in any section's fields

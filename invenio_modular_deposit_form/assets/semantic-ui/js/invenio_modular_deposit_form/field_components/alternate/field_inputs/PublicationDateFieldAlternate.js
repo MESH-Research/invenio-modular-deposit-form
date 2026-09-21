@@ -7,7 +7,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Field, getIn, useFormikContext } from "formik";
-import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel.js";
+import { FieldLabel } from "../../patched/input_controls/FieldLabel.js";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { Checkbox, Dropdown, Form, Label } from "semantic-ui-react";
 

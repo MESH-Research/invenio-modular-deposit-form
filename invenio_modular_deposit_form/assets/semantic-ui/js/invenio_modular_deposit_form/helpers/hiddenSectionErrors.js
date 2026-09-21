@@ -18,7 +18,7 @@
  */
 
 import get from "lodash/get";
-import { fieldMatches } from "../utils";
+import { fieldMatches } from "./utils";
 
 /** Default cap on switch-to type buttons in the footer notices. */
 const DEFAULT_MAX_SUGGESTED_TYPES = 5;

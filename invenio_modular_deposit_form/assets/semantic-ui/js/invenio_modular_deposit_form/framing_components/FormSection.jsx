@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import Overridable from "react-overridable";
 import { Accordion, Icon, Label, Segment } from "semantic-ui-react";
 import { useFormUIState } from "../FormUIStateManager.jsx";
-import { getFormSectionElementId } from "../utils";
+import { getFormSectionElementId } from "../helpers/utils";
 import { getSectionErrorsBySectionKey } from "../helpers/formUIStateReducer";
 import { getSeverityBadgeType, getSeverityLabel } from "../helpers/severityChecksConfig";
 

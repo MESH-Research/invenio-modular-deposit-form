@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import { useFormikContext } from "formik";
 import { useStore } from "react-redux";
 
-import { areDeeplyEqual, focusFirstElement } from "../utils";
+import { areDeeplyEqual, focusFirstElement } from "../helpers/utils";
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
 

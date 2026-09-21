@@ -12,7 +12,7 @@ import {
 } from "../helpers/hiddenSectionErrors";
 import { getReadableFieldLabel } from "../helpers/readableFieldLabels";
 import { useFormUIState } from "../FormUIStateManager.jsx";
-import { getTouchedParent } from "../utils";
+import { getTouchedParent } from "../helpers/utils";
 import PropTypes from "prop-types";
 
 /**

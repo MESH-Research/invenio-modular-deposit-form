@@ -2,7 +2,7 @@
 // Copyright (C) 2023-2026 MESH Research
 //
 // Alternate resource type UI: button shortcuts + “Other” vocabulary select
-// (`replacement_components/alternate_components/ResourceTypeSelectorField`).
+// (`field_components/alternate/field_inputs/ResourceTypeSelectorField`).
 
 import React, { useMemo } from "react";
 import { useStore } from "react-redux";

@@ -12,7 +12,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { DndProvider } from "react-dnd";
 import { Button, Form, Icon, List } from "semantic-ui-react";
 import { FeedbackLabel } from "react-invenio-forms";
-import { FieldLabel } from "../../../replacement_components/input_controls/FieldLabel";
+import { FieldLabel } from "../../patched/input_controls/FieldLabel";
 import Overridable from "react-overridable";
 import FundingModal from "@js/invenio_vocabularies/src/contrib/forms/Funding/FundingModal";
 import { i18next } from "@translations/invenio_vocabularies/i18next";

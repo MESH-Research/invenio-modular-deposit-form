@@ -8,7 +8,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getIn } from "formik";
 import { FORM_UI_ACTION, getPagesWithErrors } from "../helpers/formUIStateReducer";
-import { collectLeafFieldPathsUnderRoot } from "../utils";
+import { collectLeafFieldPathsUnderRoot } from "../helpers/utils";
 
 /**
  * Multi-page deposit form: keeps `currentFormPage` / `previousFormPage` / `nextFormPage` (form UI
@@ -42,7 +42,11 @@ import { collectLeafFieldPathsUnderRoot } from "../utils";
  *   `syncFormPageForViewport` re-resolves current + previous + next and `replaceState`s the URL
  *   when current changes.
  * - **Modal helpers** — `handlePageChangeCancel` / `handlePageChangeConfirm` complete or abort the
- *   “leave page with errors?” flow; `confirmingPageChange` drives the `Confirm` in FormLayoutContainer.
+ *   “leave page with errors?” flow. `handleUnconfirmedUploadsCancel` /
+ *   `handleUnconfirmedUploadsConfirm` do the same for staged Uppy files. The two modals
+ *   are independent: confirming the upload warning can still open the error modal when
+ *   that flag is on. `confirmingPageChange` and `confirmingUnconfirmedUploads` drive the
+ *   two `Confirm`s in FormLayoutContainer.
  *
  * @param {Object} formUIState - Form UI reducer state (`currentFormPage`, `previousFormPage`, `nextFormPage`, …)
  * @param {Function} dispatch - Dispatch for form UI state only (`FORM_UI_ACTION` / `formUIStateReducer`)
@@ -50,10 +54,12 @@ import { collectLeafFieldPathsUnderRoot } from "../utils";
  * @param {Function} focusFirstElement - Focus helper when cancelling a guarded page change
  * @param {boolean} recoveryAsked - Passed through to `focusFirstElement` (recovery modal gating)
  * @param {Object} formik - Formik context (`setFieldTouched` on leave-page)
- * @param {boolean} useConfirmModal - Flag to determine whether to open a confirm modal when leaving a page
- *   with errors (default is true)
- * @returns {Object} `confirmingPageChange`, `handleFormPageChange`, `handlePageChangeCancel`,
- *   `handlePageChangeConfirm`
+ * @param {boolean} useConfirmModal - Open a confirm modal when leaving a page with errors (default false)
+ * @param {boolean} useUppyIncompleteWarning - Open a separate modal when leaving with staged,
+ *   not-yet-uploaded Uppy files (default true)
+ * @returns {Object} `confirmingPageChange`, `confirmingUnconfirmedUploads`, `handleFormPageChange`,
+ *   `handlePageChangeCancel`, `handlePageChangeConfirm`, `handleUnconfirmedUploadsCancel`,
+ *   `handleUnconfirmedUploadsConfirm`
  */
 const useFormPageNavigation = (
   formUIState,
@@ -62,7 +68,8 @@ const useFormPageNavigation = (
   focusFirstElement,
   recoveryAsked,
   formik,
-  useConfirmModal = true
+  useConfirmModal = false,
+  useUppyIncompleteWarning = true
 ) => {
   const visibleFormPages = formUIState?.visibleFormPages ?? [];
   const visibleFormPagesRef = useRef(visibleFormPages);
@@ -91,9 +98,11 @@ const useFormPageNavigation = (
   atComputerOrWiderRef.current = atComputerOrWider;
 
   const pagesWithErrors = useMemo(() => getPagesWithErrors(formUIState ?? {}), [formUIState]);
+  const hasUnconfirmedUppyUploads = !!formUIState?.hasUnconfirmedUppyUploads;
   const { currentFormPage, currentFormPageFields } = formUIState ?? {};
   const [destFormPage, setDestFormPage] = useState(null);
   const [confirmingPageChange, setConfirmingPageChange] = useState(false);
+  const [confirmingUnconfirmedUploads, setConfirmingUnconfirmedUploads] = useState(false);
 
   const pageNums = visibleFormPages.map(({ section }) => section);
   const pageNumsRef = useRef(pageNums);
@@ -331,8 +340,14 @@ const useFormPageNavigation = (
     focusFirstElement(currentFormPage, recoveryAsked);
   }, [currentFormPage, recoveryAsked]);
 
+  const handleUnconfirmedUploadsCancel = useCallback(() => {
+    setConfirmingUnconfirmedUploads(false);
+    setDestFormPage(null);
+    focusFirstElement(currentFormPage, recoveryAsked);
+  }, [currentFormPage, recoveryAsked]);
+
   const handleFormPageChange = useCallback(
-    (_, { value }) => {
+    (_, { value, skipUnconfirmedUploadsGuard = false, skipErrorGuard = false }) => {
       const payload = resolvePageForViewport(value);
       const destPage = payload.currentFormPage;
 
@@ -370,17 +385,30 @@ const useFormPageNavigation = (
         }
       }
 
-      // Open confirm modal if origin page has errors, otherwise navigate.
-      if (
-        pagesWithErrors[currentFormPage]?.length > 0 &&
-        useConfirmModal &&
-        !confirmingPageChange
-      ) {
-        setConfirmingPageChange(true);
+      const originHasErrors = (pagesWithErrors[currentFormPage]?.length ?? 0) > 0;
+      const prompting = confirmingUnconfirmedUploads || confirmingPageChange;
+      if (!skipUnconfirmedUploadsGuard && !skipErrorGuard && prompting) {
+        return;
+      }
+
+      const openGuard = (setOpen) => {
         setDestFormPage(destPage);
+        setOpen(true);
         setTimeout(() => {
           confirmModalRef.current?.focus();
         }, 20);
+      };
+
+      // Staged Uppy files and page errors are separate modals. Confirming the
+      // upload warning (skipUnconfirmedUploadsGuard) can still open the error modal.
+      if (
+        !skipUnconfirmedUploadsGuard &&
+        useUppyIncompleteWarning &&
+        hasUnconfirmedUppyUploads
+      ) {
+        openGuard(setConfirmingUnconfirmedUploads);
+      } else if (!skipErrorGuard && useConfirmModal && originHasErrors) {
+        openGuard(setConfirmingPageChange);
       } else {
         setDestFormPage(null);
         dispatch({ type: FORM_UI_ACTION.SET_CURRENT_FORM_PAGE, payload });
@@ -389,32 +417,56 @@ const useFormPageNavigation = (
     },
     [
       confirmingPageChange,
+      confirmingUnconfirmedUploads,
       confirmModalRef,
       currentFormPage,
       currentFormPageFields,
       dispatch,
       formik.values,
+      hasUnconfirmedUppyUploads,
       pagesWithErrors,
       setFormPageInHistory,
+      useConfirmModal,
+      useUppyIncompleteWarning,
     ]
   );
 
-  const handlePageChangeConfirm = useCallback(() => {
-    setConfirmingPageChange(false);
-    setDestFormPage(null);
+  const handleUnconfirmedUploadsConfirm = useCallback(() => {
+    setConfirmingUnconfirmedUploads(false);
     handleFormPageChange(null, {
       value: destFormPage,
+      skipUnconfirmedUploadsGuard: true,
+    });
+  }, [destFormPage, handleFormPageChange]);
+
+  const handlePageChangeConfirm = useCallback(() => {
+    setConfirmingPageChange(false);
+    handleFormPageChange(null, {
+      value: destFormPage,
+      skipUnconfirmedUploadsGuard: true,
+      skipErrorGuard: true,
     });
   }, [destFormPage, handleFormPageChange]);
 
   return useMemo(
     () => ({
       confirmingPageChange,
+      confirmingUnconfirmedUploads,
       handleFormPageChange,
       handlePageChangeCancel,
       handlePageChangeConfirm,
+      handleUnconfirmedUploadsCancel,
+      handleUnconfirmedUploadsConfirm,
     }),
-    [confirmingPageChange, handleFormPageChange, handlePageChangeCancel, handlePageChangeConfirm]
+    [
+      confirmingPageChange,
+      confirmingUnconfirmedUploads,
+      handleFormPageChange,
+      handlePageChangeCancel,
+      handlePageChangeConfirm,
+      handleUnconfirmedUploadsCancel,
+      handleUnconfirmedUploadsConfirm,
+    ]
   );
 };
 

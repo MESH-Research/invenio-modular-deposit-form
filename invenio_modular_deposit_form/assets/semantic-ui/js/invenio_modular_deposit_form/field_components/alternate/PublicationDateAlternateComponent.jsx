@@ -2,7 +2,7 @@
 // Copyright (C) 2023-2026 MESH Research
 //
 // Alternate publication date UI: Y/M/D dropdowns composing metadata.publication_date
-// (`replacement_components/alternate_components/PublicationDateFieldAlternate`).
+// (`field_components/alternate/field_inputs/PublicationDateFieldAlternate`).
 
 import React from "react";
 import { PublicationDateFieldAlternate } from "./field_inputs/PublicationDateFieldAlternate";

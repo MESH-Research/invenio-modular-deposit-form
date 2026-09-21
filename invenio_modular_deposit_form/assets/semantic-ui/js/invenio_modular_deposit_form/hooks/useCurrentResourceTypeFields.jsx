@@ -13,7 +13,7 @@ import {
   filterVisibleFormPages,
   flattenWrappers,
   getResolvedFormPages,
-} from "../utils";
+} from "../helpers/utils";
 
 /**
  * Fills `formUIState.currentFormPageFields`: for each configured FormPage, the list of Formik

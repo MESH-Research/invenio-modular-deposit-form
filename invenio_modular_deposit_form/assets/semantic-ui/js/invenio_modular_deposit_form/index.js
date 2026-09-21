@@ -14,12 +14,26 @@ import ReactDOM from "react-dom";
 import { getInputFromDOM } from "@js/invenio_rdm_records/";
 import { RDMDepositForm } from "./RDMDepositForm";
 import { OverridableContext, overrideStore } from "react-overridable";
+import { FileUploaderAreaWithUppyWatch } from "./field_components/alternate/FileUploaderAreaWithUppyWatch";
 
-const overriddenComponents = overrideStore.getAll();
+const FILE_UPLOADER_AREA_OVERRIDABLE_ID =
+  "ReactInvenioDeposit.FileUploader.FileUploaderArea.container";
+
 const formDiv = document.getElementById("deposit-form");
 
 // Single config payload (stock forms_config + extension keys from merge_deposit_config)
 const config = getInputFromDOM("deposits-config") || {};
+
+// Instance mapping.js entries win. Fill the Uppy watch slot only when the
+// incomplete-upload warning is on and the instance has not claimed it.
+const overriddenComponents = { ...overrideStore.getAll() };
+const useUppyIncompleteWarning = config.use_uppy_incomplete_warning ?? true;
+if (
+  useUppyIncompleteWarning &&
+  overriddenComponents[FILE_UPLOADER_AREA_OVERRIDABLE_ID] == null
+) {
+  overriddenComponents[FILE_UPLOADER_AREA_OVERRIDABLE_ID] = FileUploaderAreaWithUppyWatch;
+}
 
 const recordRestrictionGracePeriod = getInputFromDOM("deposits-record-restriction-grace-period");
 const allowRecordRestriction = getInputFromDOM("deposits-allow-record-restriction");
@@ -52,6 +66,6 @@ ReactDOM.render(
 );
 
 export * from "./RDMDepositForm";
-export * from "./utils";
+export * from "./helpers/utils";
 export * from "./field_components";
-export * from "./replacement_components";
+export * from "./field_components/patched";

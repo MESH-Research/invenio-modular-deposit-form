@@ -354,6 +354,36 @@
     .invenio-fieldset.invenio-form-section.basic {
       padding: 0;
     }
+
+    /*
+     * Submission stack elevation: FormFeedback (attached top messages) sits
+     * above SubmissionComponent's card. Soft shadow on both pieces, clipped at
+     * the shared edge so they do not double. `.access-right` is a sibling card
+     * and keeps its default Semantic shadow.
+     */
+    @submission-stack-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    @submission-stack-clip: 16px;
+
+    .form-feedback {
+      box-shadow: @submission-stack-shadow;
+      clip-path: inset(
+        -@submission-stack-clip -@submission-stack-clip 0 -@submission-stack-clip
+      );
+
+      .ui.message {
+        box-shadow: none;
+      }
+    }
+
+    .ui.card:not(.access-right) {
+      box-shadow: @submission-stack-shadow;
+    }
+
+    .form-feedback + .ui.card:not(.access-right) {
+      clip-path: inset(
+        0 -@submission-stack-clip -@submission-stack-clip -@submission-stack-clip
+      );
+    }
   }
 
   /* Non-collapsible form sections: match accordion header styling */
