@@ -358,8 +358,8 @@
     /*
      * Submission stack elevation: FormFeedback (attached top messages) sits
      * above SubmissionComponent's card. Soft shadow on both pieces, clipped at
-     * the shared edge so they do not double. `.access-right` is a sibling card
-     * and keeps its default Semantic shadow.
+     * the shared edge so they do not double. Access settings use Message +
+     * Segment (`.access-right`), not a card in this stack.
      */
     @submission-stack-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     @submission-stack-clip: 16px;
@@ -386,9 +386,11 @@
     }
   }
 
-  /* Non-collapsible form sections: match accordion header styling */
+  /* Non-collapsible form sections: match accordion header styling.
+   * Direct-child only so nested `.measured-height` accordion titles are not
+   * restyled as section headers. */
   .invenio-form-section {
-    .title {
+    > .title {
       color: @primaryColor;
       font-weight: bold;
       font-size: 1.25em;
@@ -460,6 +462,27 @@
     }
     .content.active {
       padding-top: 0.75rem;
+    }
+  }
+
+  /*
+   * Opt-in measured-height accordion (pairs with useMeasuredHeightAnimation).
+   * Keep panels measurable while collapsed (no display:none) so open/close can
+   * match classic SUI slide behavior. Add `.height-animating` during the tween
+   * (via openMeasure.addClass / className) so CSS does not force height: 0.
+   */
+  .ui.accordion.measured-height {
+    > .content {
+      display: block !important;
+      overflow: hidden;
+    }
+
+    > .content:not(.active):not(.height-animating) {
+      height: 0;
+    }
+
+    > .content.height-animating {
+      overflow: hidden;
     }
   }
 
