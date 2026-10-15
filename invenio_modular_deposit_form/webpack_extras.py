@@ -25,23 +25,14 @@ _STUBS_PATH = "./js/invenio_modular_deposit_form/stubs"
 
 
 def _resolve_path(group):
-    """Return the absolute path from the first entry point in group, or None."""
-    try:
-        from importlib.metadata import entry_points
+    """Return the absolute path from the first entry point in group, or None.
 
-        eps = entry_points(group=group)
-    except (ImportError, TypeError):
-        # Python < 3.10 or entry_points() doesn't accept group=; fall back to pkg_resources.
-        # Prefer importlib.metadata when available (pkg_resources is being deprecated).
-        try:
-            import pkg_resources
+    Uses ``importlib.metadata`` only (requires Python >=3.10 ``group=`` support;
+    this package requires Python >=3.12).
+    """
+    from importlib.metadata import entry_points
 
-            eps = list(pkg_resources.iter_entry_points(group))
-        except Exception:
-            return None
-    else:
-        eps = list(eps)
-
+    eps = list(entry_points(group=group))
     if not eps:
         return None
     first = next(iter(eps), None)

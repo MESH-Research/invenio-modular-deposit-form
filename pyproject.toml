@@ -1,7 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-# setuptools>=82 removed pkg_resources; pin until callers use importlib only.
-requires = ["babel>2.8", "setuptools>=61,<82", "wheel"]
+requires = ["babel>2.8", "setuptools>=83", "wheel"]
 
 [project]
 name = "invenio-modular-deposit-form"
@@ -25,7 +24,6 @@ dependencies = [
   "invenio-app-rdm>=12,<16",
   # Match parent kcworks-next uv.lock (invenio-records-resources needs >=0.12; 0.10 lacks EDTFLevel2DateString).
   "marshmallow-utils>=0.12",
-  "setuptools>=61,<82",
 ]
 optional-dependencies.docs = [
   "furo>=2023",
