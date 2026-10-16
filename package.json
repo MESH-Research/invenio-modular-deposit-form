@@ -13,7 +13,7 @@
   },
   "description": "JS tests for invenio-modular-deposit-form. React/Formik/Redux/etc. pins are the minimum versions satisfying invenio_rdm_records/webpack.py and this package’s webpack yup ^0.32.11; react-redux is 7.2.1 (still ^7.2.0) so @reduxjs/toolkit 1.9.7’s peer is met. Jest/Babel pins are toolchain-only.",
   "devDependencies": {
-    "@babel/core": "7.29.0",
+    "@babel/core": "7.29.6",
     "@babel/eslint-parser": "7.26.10",
     "@babel/preset-env": "7.29.0",
     "@babel/preset-react": "7.28.5",
