@@ -256,7 +256,7 @@ const PublicationDateFieldAlternate = ({
       unit: "Year",
       value: yearValue,
       options: yearOptions,
-      width: "2",
+      width: "3",
     },
     {
       name: "startMonth",
@@ -279,7 +279,7 @@ const PublicationDateFieldAlternate = ({
       unit: "Year",
       value: endYearValue,
       options: yearOptions,
-      width: "2",
+      width: "3",
     },
     {
       name: "endMonth",
@@ -299,10 +299,10 @@ const PublicationDateFieldAlternate = ({
 
   return (
     <>
-      <Field name={fieldPath} id={fieldPath}>
+      <Field name={fieldPath} id={fieldPath} className="mb-0">
         {({ meta }) => {
           return (
-            <Form.Field required={!!required} error={!!meta.error}>
+            <Form.Field required={!!required} error={!!meta.error} className="mb-0">
               {label ? (
                 <FieldLabel
                   htmlFor={fieldPath}
@@ -316,7 +316,7 @@ const PublicationDateFieldAlternate = ({
                   {i18next.t(description)}
                 </div>
               )}
-              <Form.Group className="invenio-group-field invenio-form-row mb-12">
+              <Form.Group className="invenio-group-field invenio-form-row mb-0">
                 {startDropdowns.map((dropdown, idx) => (
                   <DateDropdowns
                     key={idx}

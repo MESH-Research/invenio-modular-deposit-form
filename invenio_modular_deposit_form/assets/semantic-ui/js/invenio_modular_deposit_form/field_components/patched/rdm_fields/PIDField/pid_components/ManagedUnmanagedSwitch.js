@@ -28,7 +28,7 @@ export class ManagedUnmanagedSwitch extends Component {
     return (
       <Form.Group
         id={id}
-        className="stackable-tablet"
+        className="stackable-tablet mb-0"
         role="radiogroup"
         aria-controls={ariaControls}
         aria-labelledby="managed-unmanaged-switch"

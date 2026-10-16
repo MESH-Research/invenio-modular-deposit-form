@@ -283,7 +283,7 @@ function ResourceTypeSelectorFieldInner({
               </div>
             )}
             <div
-              className={`ui compact fluid icon labeled ${menuWidthClass} menu mb-0 mt-10`}
+              className={`ui compact fluid icon labeled ${menuWidthClass} menu sliding-hover-pill mb-0 mt-10`}
               role="radiogroup"
               tabIndex={-1}
               aria-invalid={showError || undefined}

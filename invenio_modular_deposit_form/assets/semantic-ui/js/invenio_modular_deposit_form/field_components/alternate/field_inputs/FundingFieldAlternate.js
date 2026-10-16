@@ -190,7 +190,7 @@ function FundingFieldAlternateForm(props) {
                   key="standard"
                   icon
                   labelPosition="left"
-                  className={`mb-5 ${className}`}
+                  className={`mb-5 mr-10 ${className}`}
                 >
                   <Icon name="add" />
                   {atMobile ? i18next.t("Award") : i18next.t("Add")}

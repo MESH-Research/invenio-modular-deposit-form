@@ -104,7 +104,7 @@ const DatesFieldAlternate = ({
             const hasRequiredTypeValue = _has(requiredOption, "type");
             const hasRequiredDescriptionValue = _has(requiredOption, "description");
             return (
-              <Form.Group key={index} optimized className="mb-12">
+              <Form.Group key={index} optimized className="mb-0">
                 <TextField
                   fieldPath={`${fieldPathPrefix}.date`}
                   id={`${fieldPathPrefix}.date`}

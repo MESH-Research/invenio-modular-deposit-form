@@ -457,13 +457,13 @@ const CreatibutorsFieldFlat = ({
             </TransitionGroup>
 
             {!(newItemIndex > -1 && showEditForms.includes(newItemIndex)) && (
-              <div className={`mt-10 ${atMobile ? "centered" : ""}`}>
+              <div className={`mt-15 ${atMobile ? "centered" : ""}`}>
                 <Button
                   type="button"
                   icon
                   labelPosition="left"
                   id={`${fieldPath}.add-button`}
-                  className="add-button"
+                  className="add-button mr-10"
                   aria-labelledby={`${fieldPath}-field-description`}
                   onClick={() => {
                     handleAddNew(arrayHelpers.push, buildEmptyCreatibutor());
