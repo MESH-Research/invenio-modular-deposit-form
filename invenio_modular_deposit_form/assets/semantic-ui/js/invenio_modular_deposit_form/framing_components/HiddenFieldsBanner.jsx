@@ -48,16 +48,19 @@ function getResourceTypeLabel(vocabularies, typeId) {
  * - `variant="values"`: non-empty values on fields not in `currentFormPageFields`,
  *   configured on this page, excluding paths already listed in the errors banner
  *
- * For each hidden field, lists resource types that include it on this page as
- * link-styled buttons. The values variant also marks page-configured hidden
- * paths as Formik-touched so they validate.
+ * Lists hidden fields and resource-type switch links. When one or more types
+ * include every listed field, shows a single shared type list; otherwise each
+ * field lists the types that include it. The values variant also marks
+ * page-configured hidden paths as Formik-touched so they validate.
  */
 const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) => {
   const store = useStore();
   const { setFieldTouched, setFieldValue, touched, validateForm, values } = useFormikContext();
   const { formUIState } = useFormUIState();
-  const vocabularies = store?.getState?.()?.deposit?.config?.vocabularies;
-  const formSectionFields = store?.getState?.()?.deposit?.config?.formSectionFields ?? [];
+  const depositConfig = store?.getState?.()?.deposit?.config;
+  const vocabularies = depositConfig?.vocabularies;
+  const formSectionFields = depositConfig?.formSectionFields ?? [];
+  const customFieldsUI = depositConfig?.custom_fields?.ui;
   const currentResourceType = formUIState?.currentResourceType ?? "";
   const currentFormPage = formUIState?.currentFormPage ?? "";
   const currentFormPageFields = formUIState?.currentFormPageFields ?? {};
@@ -140,7 +143,7 @@ const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) =
     const seenLabels = new Set();
     const items = [];
     for (const path of hiddenPaths) {
-      const label = getReadableFieldLabel(path);
+      const label = getReadableFieldLabel(path, customFieldsUI);
       if (seenLabels.has(label)) continue;
       seenLabels.add(label);
       items.push({
@@ -156,7 +159,31 @@ const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) =
       });
     }
     return items;
-  }, [hiddenPaths, formSectionFields, currentResourceType, currentFormPage, suggestOptions]);
+  }, [
+    hiddenPaths,
+    customFieldsUI,
+    formSectionFields,
+    currentResourceType,
+    currentFormPage,
+    suggestOptions,
+  ]);
+
+  const sharedTypeIds = useMemo(() => {
+    if (fieldItems.length === 0) return [];
+    return suggestResourceTypesForPaths(
+      fieldItems.map((item) => item.path),
+      formSectionFields,
+      currentResourceType,
+      currentFormPage,
+      { ...suggestOptions, requireAll: true }
+    );
+  }, [
+    fieldItems,
+    formSectionFields,
+    currentResourceType,
+    currentFormPage,
+    suggestOptions,
+  ]);
 
   if (fieldItems.length === 0) {
     return null;
@@ -164,6 +191,8 @@ const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) =
 
   const isValues = variant === "values";
   const count = fieldItems.length;
+  const useSharedTypes = sharedTypeIds.length > 0;
+  const linkButtonClass = `ui button link-button ${variant === "errors" ? "error" : "info"}`;
   const intro = isValues
     ? i18next.t(
         "These fields are not shown when this resource type is selected. To review or edit them, switch to one of the resource types listed below by clicking on it. (Don't forget to switch the resource type back once you're done.)"
@@ -172,6 +201,20 @@ const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) =
         "These fields are not shown when this resource type is selected. To fix them, switch to one of the resource types listed below by clicking on it. (Don't forget to switch the resource type back once you're done.)"
       );
 
+  const renderTypeLinks = (typeIds) =>
+    typeIds.map((typeId, idx) => (
+      <Message.Item
+        key={typeId}
+        as="button"
+        type="button"
+        className={linkButtonClass}
+        onClick={() => setFieldValue("metadata.resource_type", typeId)}
+      >
+        {getResourceTypeLabel(vocabularies, typeId)}
+        {idx !== typeIds.length - 1 && ", "}
+      </Message.Item>
+    ));
+
   return (
     <Message
       warning={!isValues}
@@ -179,7 +222,10 @@ const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) =
       className={[
         "hidden-fields-banner",
         isValues ? "hidden-fields-values" : "hidden-fields-errors",
-      ].join(" ")}
+        useSharedTypes ? "hidden-fields-shared-types" : null,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       size="small"
       hidden={hidden}
       onDismiss={onDismiss}
@@ -209,29 +255,32 @@ const HiddenFieldsBanner = ({ variant = "errors", hidden = false, onDismiss }) =
           )}
         </Message.Header>
         <p>{intro}</p>
-        <Message.List>
-          {fieldItems.map(({ path, label, typeIds }) => (
-            <Message.Item key={path}>
-              <b>{label}</b> is visible on:
-              {typeIds.length > 0 ? (
-                <Message.List>
-                  {typeIds.map((typeId, idx) => (
-                    <Message.Item
-                      key={typeId}
-                      as="button"
-                      type="button"
-                      className={`ui button link-button ${variant === "errors" ? "error" : "info"}`}
-                      onClick={() => setFieldValue("metadata.resource_type", typeId)}
-                    >
-                      {getResourceTypeLabel(vocabularies, typeId)}
-                      {idx !== typeIds.length - 1 && ", "}
-                    </Message.Item>
-                  ))}
-                </Message.List>
-              ) : null}
-            </Message.Item>
-          ))}
-        </Message.List>
+        {useSharedTypes ? (
+          <>
+            <Message.List>
+              {fieldItems.map(({ path, label }) => (
+                <Message.Item key={path}>
+                  <b>{label}</b>
+                </Message.Item>
+              ))}
+            </Message.List>
+            <p className="hidden-fields-visible-on">
+              {i18next.t("Visible on:")}
+            </p>
+            <Message.List>{renderTypeLinks(sharedTypeIds)}</Message.List>
+          </>
+        ) : (
+          <Message.List>
+            {fieldItems.map(({ path, label, typeIds }) => (
+              <Message.Item key={path}>
+                <b>{label}</b> is visible on:
+                {typeIds.length > 0 ? (
+                  <Message.List>{renderTypeLinks(typeIds)}</Message.List>
+                ) : null}
+              </Message.Item>
+            ))}
+          </Message.List>
+        )}
       </Message.Content>
     </Message>
   );

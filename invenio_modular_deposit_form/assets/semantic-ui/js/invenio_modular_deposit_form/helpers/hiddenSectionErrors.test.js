@@ -182,7 +182,7 @@ describe("getHiddenValuedFields", () => {
 });
 
 describe("suggestResourceTypesForPaths", () => {
-  it("returns covering types other than the current one, sorted by label", () => {
+  it("returns covering types other than the current one", () => {
     const types = suggestResourceTypesForPaths(
       ["metadata.journal"],
       sectionsConfig,
@@ -207,8 +207,8 @@ describe("suggestResourceTypesForPaths", () => {
     expect(types).toEqual([]);
   });
 
-  it("scatter-samples when there are more covering types than maxSuggestions", () => {
-    // type-a..type-j; current is type-a → 9 covering types after sort
+  it("scatter-samples within the nearest proximity band when over maxSuggestions", () => {
+    // type-a..type-j share family "type"; current type-a → 9 same-band candidates
     const manyTypes = Array.from(
       { length: 10 },
       (_, i) => `type-${String.fromCharCode(97 + i)}`
@@ -229,8 +229,34 @@ describe("suggestResourceTypesForPaths", () => {
       { maxSuggestions: 3 }
     );
 
-    // Evenly spaced across [type-b … type-j]: first, middle, last
+    // Same-family band, scatter-sampled: first, middle, last of [type-b … type-j]
     expect(types).toEqual(["type-b", "type-f", "type-j"]);
+  });
+
+  it("prefers same-family covering types over farther families", () => {
+    const config = [
+      {
+        pageId: "1",
+        resourceTypes: [
+          "presentation-slides",
+          "textDocument-book",
+          "image-figure",
+        ],
+        fields: ["metadata.journal"],
+      },
+    ];
+
+    const types = suggestResourceTypesForPaths(
+      ["metadata.journal"],
+      config,
+      "textDocument-journalArticle",
+      "1",
+      { maxSuggestions: 3 }
+    );
+
+    expect(types[0]).toBe("textDocument-book");
+    expect(types[1]).toBe("presentation-slides");
+    expect(types[2]).toBe("image-figure");
   });
 
   it("returns empty for empty paths or config", () => {
@@ -240,5 +266,42 @@ describe("suggestResourceTypesForPaths", () => {
     expect(
       suggestResourceTypesForPaths(["metadata.journal"], [], "type-a", "1")
     ).toEqual([]);
+  });
+
+  it("requireAll keeps only types that cover every path (unioning section rows)", () => {
+    const config = [
+      {
+        pageId: "1",
+        resourceTypes: ["type-b"],
+        fields: ["metadata.journal"],
+      },
+      {
+        pageId: "1",
+        resourceTypes: ["type-b"],
+        fields: ["metadata.publisher"],
+      },
+      {
+        pageId: "1",
+        resourceTypes: ["type-c"],
+        fields: ["metadata.journal"],
+      },
+    ];
+
+    const anyCovering = suggestResourceTypesForPaths(
+      ["metadata.journal", "metadata.publisher"],
+      config,
+      "type-a",
+      "1"
+    );
+    expect(anyCovering.sort()).toEqual(["type-b", "type-c"]);
+
+    const allCovering = suggestResourceTypesForPaths(
+      ["metadata.journal", "metadata.publisher"],
+      config,
+      "type-a",
+      "1",
+      { requireAll: true }
+    );
+    expect(allCovering).toEqual(["type-b"]);
   });
 });

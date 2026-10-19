@@ -19,6 +19,7 @@
 
 import get from "lodash/get";
 import { fieldMatches } from "./utils";
+import { rankAndSampleByProximity } from "./resourceTypeProximity";
 
 /** Default cap on switch-to type buttons in the footer notices. */
 const DEFAULT_MAX_SUGGESTED_TYPES = 5;
@@ -139,43 +140,55 @@ function getHiddenErrorPaths(
 }
 
 /**
- * Pick up to `maxCount` items evenly spaced across an already-ordered array
- * (first, last, and intermediates), so samples are scattered rather than
- * clustered at the start.
+ * Aggregate field paths per resource type on a form page.
  *
- * @template T
- * @param {T[]} orderedItems
- * @param {number} [maxCount=5]
- * @returns {T[]}
+ * A type’s fields are split across section rows in `formSectionFields`, so
+ * coverage checks must union fields for that type on the page.
+ *
+ * @param {Array<{ pageId?: string, fields?: string[], resourceTypes?: string[] }>} sectionsConfig
+ * @param {string} [currentFormPage]
+ * @returns {Map<string, string[]>}
  */
-function scatterSample(orderedItems, maxCount = 5) {
-  const items = Array.isArray(orderedItems) ? orderedItems : [];
-  const limit = Math.max(0, Math.floor(maxCount));
-  if (limit === 0 || items.length === 0) return [];
-  if (items.length <= limit) return [...items];
-  if (limit === 1) {
-    return [items[Math.floor((items.length - 1) / 2)]];
+function collectTypeFieldsOnPage(sectionsConfig, currentFormPage) {
+  const byType = new Map();
+  const config = Array.isArray(sectionsConfig) ? sectionsConfig : [];
+  for (const entry of config) {
+    if (currentFormPage && (entry.pageId ?? "") !== currentFormPage) {
+      continue;
+    }
+    const fields = entry.fields ?? [];
+    if (!fields.length) continue;
+    for (const typeId of entry.resourceTypes ?? []) {
+      if (!typeId) continue;
+      const existing = byType.get(typeId);
+      if (existing) {
+        existing.push(...fields);
+      } else {
+        byType.set(typeId, [...fields]);
+      }
+    }
   }
-  const picked = [];
-  const seen = new Set();
-  for (let i = 0; i < limit; i++) {
-    const index = Math.round((i * (items.length - 1)) / (limit - 1));
-    if (seen.has(index)) continue;
-    seen.add(index);
-    picked.push(items[index]);
-  }
-  return picked;
+  return byType;
 }
 
 /**
- * Suggest alternative resource types for hidden paths: all covering types on
- * the current page, alphabetized by `getLabel` (or id), then scatter-sampled.
+ * Suggest alternative resource types for hidden paths: covering types on the
+ * current page, ranked by family proximity to the current type (same hyphen
+ * prefix first, then BFS over {@link RESOURCE_TYPE_FAMILY_EDGES}), filling
+ * nearest bands first up to `maxSuggestions`.
+ *
+ * Coverage is evaluated per type after unioning that type’s section fields on
+ * the page (not per section row).
  *
  * @param {string[]} hiddenPaths
  * @param {Array<{ pageId?: string, fields?: string[], resourceTypes?: string[] }>} sectionsConfig
  * @param {string} currentResourceType
  * @param {string} [currentFormPage]
- * @param {{ getLabel?: (typeId: string) => string, maxSuggestions?: number }} [options]
+ * @param {{
+ *   getLabel?: (typeId: string) => string,
+ *   maxSuggestions?: number,
+ *   requireAll?: boolean,
+ * }} [options] - When `requireAll` is true, only types that include every path.
  * @returns {string[]}
  */
 function suggestResourceTypesForPaths(
@@ -188,32 +201,26 @@ function suggestResourceTypesForPaths(
   const {
     getLabel = (typeId) => typeId,
     maxSuggestions = DEFAULT_MAX_SUGGESTED_TYPES,
+    requireAll = false,
   } = options;
   const paths = Array.isArray(hiddenPaths) ? hiddenPaths : [];
   const config = Array.isArray(sectionsConfig) ? sectionsConfig : [];
   if (paths.length === 0 || config.length === 0) return [];
 
-  const covering = new Set();
-  for (const entry of config) {
-    if (currentFormPage && (entry.pageId ?? "") !== currentFormPage) {
-      continue;
-    }
-    const fields = entry.fields ?? [];
-    const coversAny = paths.some((p) => fields.some((f) => fieldMatches(p, f)));
-    if (!coversAny) continue;
-    for (const typeId of entry.resourceTypes ?? []) {
-      if (typeId && typeId !== currentResourceType) {
-        covering.add(typeId);
-      }
-    }
+  const byType = collectTypeFieldsOnPage(config, currentFormPage);
+  const covering = [];
+  for (const [typeId, fields] of byType) {
+    if (typeId === currentResourceType) continue;
+    const covers = requireAll
+      ? paths.every((p) => fields.some((f) => fieldMatches(p, f)))
+      : paths.some((p) => fields.some((f) => fieldMatches(p, f)));
+    if (covers) covering.push(typeId);
   }
 
-  const sorted = [...covering].sort((a, b) =>
-    String(getLabel(a)).localeCompare(String(getLabel(b)), undefined, {
-      sensitivity: "base",
-    })
-  );
-  return scatterSample(sorted, maxSuggestions);
+  return rankAndSampleByProximity(currentResourceType, covering, {
+    getLabel,
+    maxSuggestions,
+  });
 }
 
 /**
@@ -248,7 +255,7 @@ function getHiddenErrors(
       sectionsConfig,
       currentResourceType,
       currentFormPage,
-      suggestOptions
+      { ...suggestOptions, requireAll: true }
     ),
   };
 }
@@ -306,7 +313,7 @@ function getHiddenValuedFields(
       sectionsConfig,
       currentResourceType,
       currentFormPage,
-      suggestOptions
+      { ...suggestOptions, requireAll: true }
     ),
   };
 }

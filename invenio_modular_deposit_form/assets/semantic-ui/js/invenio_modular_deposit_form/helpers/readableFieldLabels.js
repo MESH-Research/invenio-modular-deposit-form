@@ -1,6 +1,9 @@
 import i18next from "i18next";
 
-// FIXME: The untranslated fallback values are a hack until translations are available
+// FIXME: The untranslated fallback values are a hack until translations are available.
+// Core metadata / access / PID paths (not in custom_fields.ui). Custom-field paths
+// prefer labels from deposit config `custom_fields.ui` when that array is passed to
+// `getReadableFieldLabel`; the custom_fields.* entries below remain as fallback.
 const readableFieldLabels = {
   "files.enabled": i18next.t("Files") || "Files",
   "metadata.resource_type": i18next.t("Resource type") || "Resource type",
@@ -62,17 +65,90 @@ const readableFieldLabels = {
     i18next.t("Programming language") || "Programming language",
 };
 
+const CUSTOM_FIELDS_PREFIX = "custom_fields.";
+
+/**
+ * Look up a label from deposit `custom_fields.ui` for a Formik path.
+ *
+ * Supports top-level UI field entries (`kcr:publication_url`) and compound
+ * widgets whose subfield labels live under `props.<subfield>.label`
+ * (`journal:journal` + `title` → `props.title.label`).
+ *
+ * @param {string} fieldPath - Full Formik path (usually `custom_fields.…`)
+ * @param {Array<{fields?: Array}>|null|undefined} customFieldsUI
+ * @returns {string|null}
+ */
+function getLabelFromCustomFieldsUI(fieldPath, customFieldsUI) {
+  if (!Array.isArray(customFieldsUI) || !fieldPath?.startsWith(CUSTOM_FIELDS_PREFIX)) {
+    return null;
+  }
+  const relative = fieldPath.slice(CUSTOM_FIELDS_PREFIX.length);
+  if (!relative) return null;
+
+  const fields = customFieldsUI.flatMap((section) => section?.fields ?? []);
+  if (!fields.length) return null;
+
+  let candidate = relative;
+  let nestedPath = "";
+  while (candidate) {
+    const cfg = fields.find((f) => f?.field === candidate);
+    if (cfg) {
+      if (!nestedPath) {
+        const label = cfg.props?.label;
+        return label != null && String(label).trim() !== "" ? String(label) : null;
+      }
+      const parts = nestedPath.split(".");
+      let node = cfg.props;
+      for (const part of parts) {
+        if (node == null || typeof node !== "object") {
+          node = null;
+          break;
+        }
+        node = node[part];
+      }
+      if (
+        node &&
+        typeof node === "object" &&
+        node.label != null &&
+        String(node.label).trim() !== ""
+      ) {
+        return String(node.label);
+      }
+      const parentLabel = cfg.props?.label;
+      return parentLabel != null && String(parentLabel).trim() !== ""
+        ? String(parentLabel)
+        : null;
+    }
+    const lastDot = candidate.lastIndexOf(".");
+    if (lastDot === -1) break;
+    const stripped = candidate.slice(lastDot + 1);
+    nestedPath = nestedPath ? `${stripped}.${nestedPath}` : stripped;
+    candidate = candidate.slice(0, lastDot);
+  }
+  return null;
+}
+
 /**
  * Resolve a human-readable label for a Formik field path.
- * Tries the full path, then ancestors (so `metadata.creators.0.name` → Creators).
+ *
+ * Order per path segment (full path, then ancestors so
+ * `metadata.creators.0.name` → Creators):
+ *
+ * 1. `custom_fields.ui` when provided (instance labels, including site `kcr:*`)
+ * 2. Static `readableFieldLabels` map (core metadata + fallbacks)
+ * 3. Raw `fieldPath`
  *
  * @param {string} fieldPath
+ * @param {Array<{fields?: Array}>|null|undefined} [customFieldsUI] -
+ *   `deposit.config.custom_fields.ui`
  * @returns {string}
  */
-function getReadableFieldLabel(fieldPath) {
+function getReadableFieldLabel(fieldPath, customFieldsUI) {
   if (!fieldPath || typeof fieldPath !== "string") return fieldPath ?? "";
   let path = fieldPath;
   while (path) {
+    const fromUi = getLabelFromCustomFieldsUI(path, customFieldsUI);
+    if (fromUi) return fromUi;
     const label = readableFieldLabels[path];
     if (label) return label;
     const lastDot = path.lastIndexOf(".");
@@ -82,4 +158,4 @@ function getReadableFieldLabel(fieldPath) {
   return fieldPath;
 }
 
-export { getReadableFieldLabel, readableFieldLabels };
+export { getLabelFromCustomFieldsUI, getReadableFieldLabel, readableFieldLabels };

@@ -110,6 +110,48 @@ const DEFAULT_PERSONORG_SCHEME_IDS = ["orcid", "isni", "gnd", "ror"];
  */
 const DEFAULT_LOCATION_SCHEME_IDS = ["wikidata", "geonames"];
 
+/**
+ * Undirected proximity edges between resource-type **families** (the segment
+ * before the first `-` in a type id, or the whole id when unhyphenated).
+ *
+ * Bridges stock InvenioRDM ids (`publication`, `presentation`, `poster`,
+ * `video`, `audio`, `lesson`, …) and KCWorks ids (`textDocument`,
+ * `audiovisual`, `instructionalResource`, …). Used when ranking alternate
+ * resource-type links in the deposit hidden-fields notices: same-family first,
+ * then BFS distance over this graph.
+ *
+ * @type {ReadonlyArray<readonly [string, string]>}
+ */
+const RESOURCE_TYPE_FAMILY_EDGES = Object.freeze([
+  // Cross-vocab textual / publication cluster
+  ["textDocument", "publication"],
+  ["textDocument", "presentation"],
+  ["publication", "presentation"],
+  ["textDocument", "instructionalResource"],
+  ["publication", "instructionalResource"],
+  ["instructionalResource", "lesson"],
+  // Presentation ↔ image / media
+  ["presentation", "poster"],
+  ["presentation", "image"],
+  ["image", "audiovisual"],
+  ["audiovisual", "video"],
+  ["audiovisual", "audio"],
+  // Upstream bare media ids without an audiovisual parent
+  ["presentation", "video"],
+  ["presentation", "audio"],
+  // Software / data / catch-alls (looser)
+  ["software", "dataset"],
+  ["textDocument", "dataset"],
+  ["publication", "dataset"],
+  ["software", "model"],
+  ["other", "textDocument"],
+  ["other", "publication"],
+  ["other", "event"],
+  ["other", "physicalobject"],
+  ["other", "workflow"],
+  ["presentation", "event"],
+]);
+
 export {
   DEFAULT_LOCATION_SCHEME_IDS,
   DEFAULT_PERSONORG_SCHEME_IDS,
@@ -117,6 +159,7 @@ export {
   DEFAULT_TITLE_MAX_LENGTH,
   RECORD_FIELD_ERROR_ROOTS,
   RDM_RECORD_ACCESS_LEVELS,
+  RESOURCE_TYPE_FAMILY_EDGES,
   SEMANTIC_UI_COMPUTER_BREAKPOINT_PX,
   SEMANTIC_UI_LARGE_SCREEN_BREAKPOINT_PX,
   SEMANTIC_UI_MOBILE_BREAKPOINT_PX,

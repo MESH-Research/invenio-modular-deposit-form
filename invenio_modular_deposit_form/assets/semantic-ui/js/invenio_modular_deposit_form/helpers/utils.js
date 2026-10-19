@@ -6,7 +6,7 @@
 // under the terms of the MIT License; see LICENSE file for more details.
 
 import { getIn } from "formik";
-import { readableFieldLabels } from "./readableFieldLabels";
+import { getReadableFieldLabel } from "./readableFieldLabels";
 
 /**
  * Scroll page to top
@@ -611,9 +611,10 @@ const focusFirstElement = (currentFormPage, recoveryAsked = true) => {
  *   including just the part of the field path before the square brackets
  *
  * @param {Array} fields - List of fields (dot-separated key paths)
+ * @param {Array|null|undefined} [customFieldsUI] - `deposit.config.custom_fields.ui`
  * @returns {Array} List of two arrays
  */
-function getReadableFields(fields) {
+function getReadableFields(fields, customFieldsUI) {
   // Separate fields with array indices into a separate list
   const fieldsWithArrays = fields.filter((field) => field.includes("["));
   const fieldsWithoutArrays = fields.filter((field) => !field.includes("["));
@@ -622,15 +623,12 @@ function getReadableFields(fields) {
     field.substring(0, field.indexOf("["))
   );
 
-  console.log("fieldsWithoutArrays", fieldsWithoutArrays);
-  console.log("fieldsWithArraysStripped", fieldsWithArraysStripped);
-  let readableFields = fieldsWithoutArrays.map((field) => readableFieldLabels[field] || field);
-  let readableFieldsWithArrays = fieldsWithArraysStripped.map(
-    (field) => readableFieldLabels[field] || field
+  const readableFields = fieldsWithoutArrays.map((field) =>
+    getReadableFieldLabel(field, customFieldsUI)
   );
-  console.log("readableFieldLabels", readableFieldLabels);
-  console.log("readableFields", readableFields);
-  console.log("readableFieldsWithArrays", readableFieldsWithArrays);
+  const readableFieldsWithArrays = fieldsWithArraysStripped.map((field) =>
+    getReadableFieldLabel(field, customFieldsUI)
+  );
 
   return [readableFields, readableFieldsWithArrays];
 }
