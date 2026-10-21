@@ -20,6 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
+  "setuptools>=83.0.0",
   # Host instance supplies OpenSearch extras; keep the pin broad for RDM 12–15.
   "invenio-app-rdm>=12,<16",
   # Match parent kcworks-next uv.lock (invenio-records-resources needs >=0.12; 0.10 lacks EDTFLevel2DateString).
