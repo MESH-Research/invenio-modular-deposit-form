@@ -9,8 +9,10 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { Grid } from "semantic-ui-react";
 
-import { useFormUIState } from "../../FormUIStateManager.jsx";
+import { useUppyFileIntegrityCheck } from "./file_uploader_components/uppyTransferIntegrity";
+
 import { FORM_UI_ACTION } from "../../helpers/formUIStateReducer";
+import { useFormUIState } from "../../FormUIStateManager.jsx";
 
 /** Uppy events that may change the unconfirmed-queue flag. */
 const UPPY_UNCONFIRMED_UPLOAD_EVENTS = [
@@ -23,36 +25,7 @@ const UPPY_UNCONFIRMED_UPLOAD_EVENTS = [
   "reset-all",
 ];
 
-/**
- * Whether Uppy has files added to the Dashboard that have not started uploading.
- *
- * With `autoProceed: false`, users must click the Dashboard upload button; until then
- * files sit in Uppy's queue with `progress.uploadStarted` falsy and never reach Redux/Formik.
- *
- * @param {import("@uppy/core").Uppy | null | undefined} uppy
- * @returns {boolean}
- */
-export function hasUnconfirmedUppyFiles(uppy) {
-  if (!uppy || typeof uppy.getFiles !== "function") {
-    return false;
-  }
-  return uppy.getFiles().some((file) => !file?.progress?.uploadStarted);
-}
-
-/**
- * Overridable for `ReactInvenioDeposit.FileUploader.FileUploaderArea.container`.
- *
- * Re-renders the default `Grid.Row` children and, when Uppy is present, keeps
- * `formUIState.hasUnconfirmedUppyUploads` in sync with staged (not-yet-started) files.
- * Stock (non-Uppy) FileUploader does not pass `uppy`; the flag stays false.
- *
- * @param {Object} props
- * @param {Object} [props.uppy] - Uppy instance from UppyUploader (absent for stock FileUploader)
- * @param {React.ReactNode} [props.children] - Default area content (list + Dashboard)
- * @param {string} [props.className] - From the overridden `Grid.Row`
- * @param {boolean} [props.stretched] - From the overridden `Grid.Row` (Uppy area)
- */
-export function FileUploaderAreaWithUppyWatch({ uppy, children, className, stretched }) {
+function useUppyConfirmModal(uppy) {
   const { formUIDispatch } = useFormUIState();
 
   useEffect(() => {
@@ -82,6 +55,44 @@ export function FileUploaderAreaWithUppyWatch({ uppy, children, className, stret
       setFlag(false);
     };
   }, [uppy, formUIDispatch]);
+}
+
+/**
+ * Whether Uppy has files added to the Dashboard that have not started uploading.
+ *
+ * With `autoProceed: false`, users must click the Dashboard upload button; until then
+ * files sit in Uppy's queue with `progress.uploadStarted` falsy and never reach Redux/Formik.
+ *
+ * @param {import("@uppy/core").Uppy | null | undefined} uppy
+ * @returns {boolean}
+ */
+function hasUnconfirmedUppyFiles(uppy) {
+  if (!uppy || typeof uppy.getFiles !== "function") {
+    return false;
+  }
+  return uppy.getFiles().some((file) => !file?.progress?.uploadStarted);
+}
+
+/**
+ * Overridable for `ReactInvenioDeposit.FileUploader.FileUploaderArea.container`.
+ *
+ * Re-renders the default `Grid.Row` children and, when Uppy is present:
+ * - keeps `formUIState.hasUnconfirmedUppyUploads` in sync with staged files
+ * - disables part `Content-MD5` (AWS SigV4 / pre-signed URL compatibility)
+ * - hashes each local file and compares to the post-commit `md5:` checksum
+ *
+ * Stock (non-Uppy) FileUploader does not pass `uppy`; the flag stays false.
+ *
+ * @param {Object} props
+ * @param {Object} [props.uppy] - Uppy instance from UppyUploader (absent for stock FileUploader)
+ * @param {Function} [props.deleteFile] - Redux delete action bound for Uppy files
+ * @param {React.ReactNode} [props.children] - Default area content (list + Dashboard)
+ * @param {string} [props.className] - From the overridden `Grid.Row`
+ * @param {boolean} [props.stretched] - From the overridden `Grid.Row` (Uppy area)
+ */
+function FileUploaderAreaWithUppyWatch({ uppy, deleteFile, children, className, stretched }) {
+  useUppyFileIntegrityCheck(uppy, deleteFile);
+  useUppyConfirmModal(uppy);
 
   // files.enabled false → Overridable children are falsy; mirror stock (render nothing).
   if (children == null && className == null && stretched == null) {
@@ -97,7 +108,10 @@ export function FileUploaderAreaWithUppyWatch({ uppy, children, className, stret
 
 FileUploaderAreaWithUppyWatch.propTypes = {
   uppy: PropTypes.object,
+  deleteFile: PropTypes.func,
   children: PropTypes.node,
   className: PropTypes.string,
   stretched: PropTypes.bool,
 };
+
+export { FileUploaderAreaWithUppyWatch, hasUnconfirmedUppyFiles, useUppyConfirmModal };

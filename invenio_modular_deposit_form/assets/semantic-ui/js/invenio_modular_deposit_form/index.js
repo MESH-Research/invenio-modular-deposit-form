@@ -24,14 +24,11 @@ const formDiv = document.getElementById("deposit-form");
 // Single config payload (stock forms_config + extension keys from merge_deposit_config)
 const config = getInputFromDOM("deposits-config") || {};
 
-// Instance mapping.js entries win. Fill the Uppy watch slot only when the
-// incomplete-upload warning is on and the instance has not claimed it.
+// Instance mapping.js entries win. Fill the Uppy area slot when free: disables
+// part Content-MD5, runs whole-file transfer integrity, and syncs
+// hasUnconfirmedUppyUploads for the incomplete-upload warning.
 const overriddenComponents = { ...overrideStore.getAll() };
-const useUppyIncompleteWarning = config.use_uppy_incomplete_warning ?? true;
-if (
-  useUppyIncompleteWarning &&
-  overriddenComponents[FILE_UPLOADER_AREA_OVERRIDABLE_ID] == null
-) {
+if (overriddenComponents[FILE_UPLOADER_AREA_OVERRIDABLE_ID] == null) {
   overriddenComponents[FILE_UPLOADER_AREA_OVERRIDABLE_ID] = FileUploaderAreaWithUppyWatch;
 }
 

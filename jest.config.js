@@ -56,7 +56,7 @@ module.exports = {
   transformIgnorePatterns: [
     // pnpm: allowlist must match the package after the optional
     // .pnpm/<pkg>@ver/node_modules/ prefix (see root jest.config.js).
-    "/node_modules/(?!(?:\\.pnpm/[^/]+/node_modules/)?(react-invenio-forms|react-searchkit|axios|semantic-ui-react|@babel|@inveniosoftware)(/|$))",
+    "/node_modules/(?!(?:\\.pnpm/[^/]+/node_modules/)?(react-invenio-forms|react-searchkit|axios|semantic-ui-react|@babel|@inveniosoftware|hash-wasm)(/|$))",
   ],
   testMatch: ["**/*.test.js", "**/*.test.jsx"],
   testPathIgnorePatterns: ["/node_modules/"],

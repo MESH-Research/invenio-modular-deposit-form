@@ -21,6 +21,8 @@ theme = WebpackThemeBundle(
                 "invenio-modular-deposit-form-css": "./less/invenio_modular_deposit_form/deposit_form.less",
             },
             dependencies={
+                "@reduxjs/toolkit": "1.9.7",
+                "hash-wasm": "^4.12.0",
                 "orcid-utils": "^1.2.2",
                 "yup": "^0.32.11",
             },
