@@ -12,7 +12,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { DndProvider } from "react-dnd";
 import { Button, Form, Icon, List } from "semantic-ui-react";
 import { FeedbackLabel } from "react-invenio-forms";
-import { FieldLabel } from "../../patched/input_controls/FieldLabel";
+import { FieldGroupLabel } from "../../patched/input_controls/FieldGroupLabel";
 import Overridable from "react-overridable";
 import FundingModal from "@js/invenio_vocabularies/src/contrib/forms/Funding/FundingModal";
 import { i18next } from "@translations/invenio_vocabularies/i18next";
@@ -152,7 +152,7 @@ function FundingFieldAlternateForm(props) {
   return (
     <DndProvider backend={HTML5Backend}>
       <Form.Field required={required} className={className}>
-        <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+        <FieldGroupLabel icon={labelIcon} label={label} />
         <List className="awards-list mt-10 mb-0">
           {fundingList.map((value, index) => {
             // if award does not exist or has no id, it's a custom one

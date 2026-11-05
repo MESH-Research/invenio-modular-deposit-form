@@ -42,10 +42,11 @@ import _isEmpty from "lodash/isEmpty";
 import PropTypes from "prop-types";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { FieldLabel, FeedbackLabel } from "react-invenio-forms";
+import { FeedbackLabel } from "react-invenio-forms";
 import { Form } from "semantic-ui-react";
 import { OptionalDOIoptions } from "@js/invenio_rdm_records/src/deposit/fields/Identifiers/PIDField/components/OptionalDOIoptions";
 import { SET_DOI_NEEDED } from "@js/invenio_rdm_records/src/deposit/state/types";
+import { FieldGroupLabel } from "../../input_controls/FieldGroupLabel";
 import { ManagedIdentifierCmp } from "./pid_components/ManagedIdentifierCmp";
 import { UnmanagedIdentifierCmp } from "./pid_components/UnmanagedIdentifierCmp";
 import { getFieldErrorsForDisplay } from "./pid_components/fieldErrorsForDisplay";
@@ -242,7 +243,7 @@ class OptionalPIDFieldCmp extends Component {
     return (
       <>
         <Form.Field required={required || hasParentDoi} error={fieldError ? true : false}>
-          <FieldLabel htmlFor={fieldPath} icon={pidIcon} label={fieldLabel} />
+          <FieldGroupLabel icon={pidIcon} label={fieldLabel} />
           {fieldError && <FeedbackLabel fieldPath={fieldPath} />}
         </Form.Field>
 

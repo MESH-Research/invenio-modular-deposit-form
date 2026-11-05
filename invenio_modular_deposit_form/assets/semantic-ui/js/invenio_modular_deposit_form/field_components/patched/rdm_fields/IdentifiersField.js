@@ -27,7 +27,6 @@ import {
   focusAddButton,
   focusFieldByPath,
 } from "../input_controls/arrayFieldFocus";
-import { FieldLabel } from "../input_controls/FieldLabel";
 import { SelectField } from "../input_controls/SelectField";
 import { TextField } from "../input_controls/TextField";
 
@@ -41,7 +40,8 @@ export class IdentifiersField extends Component {
         addButtonLabel={i18next.t("Add identifier")}
         defaultNewValue={emptyIdentifier}
         fieldPath={fieldPath}
-        label={<FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
+        label={label}
+        labelIcon={labelIcon}
         onAfterAdd={({ index }) => focusFieldByPath(`${fieldPath}.${index}.identifier`)}
         onAfterRemove={({ isNowEmpty, removedIndex }) => {
           if (isNowEmpty) {

@@ -12,10 +12,11 @@ import { FieldArray, getIn } from "formik";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { DndProvider } from "react-dnd";
 import { Button, Form, Icon, List } from "semantic-ui-react";
-import { FieldLabel, FeedbackLabel } from "react-invenio-forms";
+import { FeedbackLabel } from "react-invenio-forms";
 import { LicenseModal } from "@js/invenio_rdm_records/src/deposit/fields/License/LicenseModal";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { useFormUIState } from "../../../FormUIStateManager";
+import { FieldGroupLabel } from "../../patched/input_controls/FieldGroupLabel";
 
 import { LicenseFieldAlternateItem } from "./LicenseFieldAlternateItem";
 
@@ -135,7 +136,7 @@ function LicenseFieldAlternateForm(props) {
   return (
     <DndProvider backend={HTML5Backend}>
       <Form.Field required={required} className={className}>
-        <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+        <FieldGroupLabel icon={labelIcon} label={label} />
         {licenseList.length > 0 && (
           <List>
             {licenseList.map((value, index) => {

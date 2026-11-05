@@ -15,7 +15,7 @@ import { useStore } from "react-redux";
 import { getIn, FieldArray, useFormikContext } from "formik";
 import { Button, Form, Icon, Label, List, TransitionGroup } from "semantic-ui-react";
 import _get from "lodash/get";
-import { FieldLabel } from "../../patched/input_controls/FieldLabel.js";
+import { FieldGroupLabel } from "../../patched/input_controls/FieldGroupLabel.js";
 import PropTypes from "prop-types";
 
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";
@@ -399,7 +399,7 @@ const CreatibutorsFieldFlat = ({
         required={!!required}
         render={(arrayHelpers) => (
           <>
-            {label && <FieldLabel htmlFor={fieldPath} icon={icon} label={label} className="" />}
+            {label && <FieldGroupLabel icon={icon} label={label} />}
             {description && (
               <span id={`${fieldPath}-field-description`} className="description mb-10">
                 {description}

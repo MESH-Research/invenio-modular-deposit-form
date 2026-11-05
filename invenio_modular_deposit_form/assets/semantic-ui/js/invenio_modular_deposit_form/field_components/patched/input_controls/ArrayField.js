@@ -7,7 +7,8 @@
 //
 // invenio-modular-deposit-form fork (otherwise matches upstream):
 // - Uses local `./FieldLabel` (this package’s fork, not the stock package-relative import).
-// - Renders the array header only when `label` is truthy (`{label && <FieldLabel …>}`).
+// - Renders the array header only when `label` is truthy (`FieldGroupLabel` span, not a
+//   control `<label htmlFor>` — FormSection fieldset legend names the group for AT).
 // - Make hasGroupErrors sensitive to touched state and relationship of current value to
 //   any initial value and initial errors.
 // - Optional `onAfterRemove`: shallow-clone `arrayHelpers`, wrap `remove` to call Formik’s `remove`
@@ -29,7 +30,7 @@ import { Form, Icon } from "semantic-ui-react";
 import _filter from "lodash/filter";
 import _isEmpty from "lodash/isEmpty";
 import _matches from "lodash/matches";
-import { FieldLabel } from "./FieldLabel";
+import { FieldGroupLabel } from "./FieldGroupLabel";
 
 export class ArrayField extends Component {
   constructor(props) {
@@ -130,7 +131,12 @@ export class ArrayField extends Component {
         {...hasError}
         {...(describedById ? { "aria-describedby": describedById } : {})}
       >
-        {label && <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />}
+        {label &&
+          (React.isValidElement(label) ? (
+            label
+          ) : (
+            <FieldGroupLabel icon={labelIcon} label={label} />
+          ))}
         {description && (
           <div id={`${fieldPath}-description`} className="description">
             {description}

@@ -6,14 +6,16 @@
 // Invenio-RDM-Records is free software; you can redistribute it and/or modify it
 // under the terms of the MIT License; see LICENSE file for more details.
 //
-// Modular fork: omit `FieldLabel` when `label` is null/undefined/empty so deposit config
+// Modular fork: omit group title when `label` is null/undefined/empty so deposit config
 // can hide the title row (matches replacement `TextField`: no icon-only blank header).
+// Top-level title uses `FieldGroupLabel` (span), not `FieldLabel`/`htmlFor`.
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { FieldLabel, GroupField, SubjectAutocompleteDropdown } from "react-invenio-forms";
+import { GroupField, SubjectAutocompleteDropdown } from "react-invenio-forms";
 import { Form } from "semantic-ui-react";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
+import { FieldGroupLabel } from "../input_controls/FieldGroupLabel";
 
 export class SubjectsField extends Component {
   state = {
@@ -26,7 +28,7 @@ export class SubjectsField extends Component {
     const displaySuggestFromField = limitToOptions.length > 2; // 2 because of "all", that is always present
     const labelEl =
       label != null && String(label).trim() !== "" ? (
-        <FieldLabel htmlFor={fieldPath} icon={labelIcon} label={label} />
+        <FieldGroupLabel icon={labelIcon} label={label} />
       ) : null;
 
     return (

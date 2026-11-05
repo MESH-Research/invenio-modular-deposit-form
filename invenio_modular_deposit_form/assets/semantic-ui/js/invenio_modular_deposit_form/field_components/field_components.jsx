@@ -10,7 +10,7 @@ import _get from "lodash/get";
 import { i18next } from "@translations/invenio_modular_deposit_form/i18next";
 import { useFormikContext } from "formik";
 import { FeedbackLabel } from "react-invenio-forms";
-import { FieldLabel } from "./patched/input_controls/FieldLabel.js";
+import { FieldGroupLabel } from "./patched/input_controls/FieldGroupLabel.js";
 import { useSelector, useStore } from "react-redux";
 import {
   AccessRightField,
@@ -376,7 +376,7 @@ const FileUploaderInner = ({
   <>
     {label && (
       <Form.Field required={required}>
-        <FieldLabel htmlFor="files" icon={icon} label={label} />
+        <FieldGroupLabel icon={icon} label={label} />
       </Form.Field>
     )}
     <SyncFilesCountFromRedux />

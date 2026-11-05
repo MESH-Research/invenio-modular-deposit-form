@@ -15,6 +15,8 @@
 export * from "./ArrayField";
 export * from "./AutocompleteDropdown";
 export * from "./Dropdown";
+export * from "./FieldGroupLabel";
+export * from "./FieldLabel";
 export * from "./Input";
 export { default as MultiInput } from "./MultiInput";
 export * from "./RemoteSelectField";
