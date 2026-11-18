@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
@@ -254,7 +254,7 @@
           <section class="tex2jax_ignore mathjax_ignore" id="what-to-override-when-modular-deposit-form">
 <h1>What to Override When (modular deposit form)<a class="headerlink" href="#what-to-override-when-modular-deposit-form" title="Link to this heading">¶</a></h1>
 <section id="replace-the-whole-widget-for-a-section">
-<h2>1. Replace the <strong>whole</strong> widget for a section<a class="headerlink" href="#replace-the-whole-widget-for-a-section" title="Link to this heading">¶</a></h2>
+<span id="1-replace-the-whole-widget-for-a-section"></span><h2>1. Replace the <strong>whole</strong> widget for a section<a class="headerlink" href="#replace-the-whole-widget-for-a-section" title="Link to this heading">¶</a></h2>
 <p><strong>You want:</strong> A completely different implementation for that section (e.g. different dates UI, different community picker, different submit area).</p>
 <p><strong>Override:</strong> The <strong>slot</strong> id in the instance’s <code class="docutils literal notranslate"><span class="pre">assets/js/invenio_app_rdm/overridableRegistry/mapping.js</span></code> → <code class="docutils literal notranslate"><span class="pre">overriddenComponents</span></code>.</p>
 <p><strong>Ids (one per section):</strong></p>
@@ -353,7 +353,7 @@ there is no <code class="docutils literal notranslate"><span class="pre">field_c
 </section>
 <hr class="docutils" />
 <section id="change-only-part-of-a-widget-e-g-one-button-one-sub-field">
-<h2>2. Change only <strong>part</strong> of a widget (e.g. one button, one sub-field)<a class="headerlink" href="#change-only-part-of-a-widget-e-g-one-button-one-sub-field" title="Link to this heading">¶</a></h2>
+<span id="2-change-only-part-of-a-widget-eg-one-button-one-sub-field"></span><h2>2. Change only <strong>part</strong> of a widget (e.g. one button, one sub-field)<a class="headerlink" href="#change-only-part-of-a-widget-e-g-one-button-one-sub-field" title="Link to this heading">¶</a></h2>
 <p><strong>You want:</strong> Keep the rest of the widget but customize one inner piece (e.g. the “Add date” button, the community selection button, one input inside CreatibutorsField).</p>
 <p><strong>Override:</strong> The <strong>inner</strong> Overridable id for that piece, in the same <code class="docutils literal notranslate"><span class="pre">mapping.js</span></code> → <code class="docutils literal notranslate"><span class="pre">overriddenComponents</span></code>.</p>
 <p><strong>Where to find inner ids:</strong> In the source of the widget in <code class="docutils literal notranslate"><span class="pre">invenio_rdm_records</span></code> (or the package that provides it). Examples:</p>
@@ -371,7 +371,7 @@ there is no <code class="docutils literal notranslate"><span class="pre">field_c
 </section>
 <hr class="docutils" />
 <section id="change-layout-which-sections-exist-order-or-which-wrapper-is-used-by-name">
-<h2>3. Change <strong>layout</strong>: which sections exist, order, or which wrapper is used by name<a class="headerlink" href="#change-layout-which-sections-exist-order-or-which-wrapper-is-used-by-name" title="Link to this heading">¶</a></h2>
+<span id="3-change-layout-which-sections-exist-order-or-which-wrapper-is-used-by-name"></span><h2>3. Change <strong>layout</strong>: which sections exist, order, or which wrapper is used by name<a class="headerlink" href="#change-layout-which-sections-exist-order-or-which-wrapper-is-used-by-name" title="Link to this heading">¶</a></h2>
 <p><strong>You want:</strong> Add/remove/reorder sections, or have the layout resolve a different component when it asks for e.g. “DescriptionsField” by name.</p>
 <p><strong>Use:</strong> Form layout config (COMMON_FIELDS / FIELDS_BY_TYPE) and/or the <strong>component registry</strong> (<code class="docutils literal notranslate"><span class="pre">componentsRegistry.js</span></code> from the <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form.components_registry</span></code> entry point).</p>
 <ul class="simple">
@@ -467,6 +467,6 @@ there is no <code class="docutils literal notranslate"><span class="pre">field_c
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
     </body>
 </html>

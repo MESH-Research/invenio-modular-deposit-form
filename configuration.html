@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
     
     
@@ -465,7 +465,7 @@ pass <code class="docutils literal notranslate"><span class="pre">_(&quot;Steps&
 </div>
 </section>
 <section id="form-page-s">
-<h3>Form page(s)<a class="headerlink" href="#form-page-s" title="Link to this heading">¶</a></h3>
+<span id="form-pages"></span><h3>Form page(s)<a class="headerlink" href="#form-page-s" title="Link to this heading">¶</a></h3>
 <p>Each item in <code class="docutils literal notranslate"><span class="pre">subsections</span></code> is a <strong>page</strong> of the form with component value
 <code class="docutils literal notranslate"><span class="pre">&quot;FormPage&quot;</span></code>. The form may have just a single page; in that case all content is
 visible at once, like the default InvenioRDM form.</p>
@@ -983,7 +983,7 @@ another <code class="docutils literal notranslate"><span class="pre">matchMedia<
 navigation adjusts to match <strong>in real time</strong> — no page reload. Two independent
 mechanisms decide whether a page is part of the flow.</p>
 <section id="pages-hidden-by-resource-type">
-<h4>1. Pages hidden by resource type<a class="headerlink" href="#pages-hidden-by-resource-type" title="Link to this heading">¶</a></h4>
+<span id="1-pages-hidden-by-resource-type"></span><h4>1. Pages hidden by resource type<a class="headerlink" href="#pages-hidden-by-resource-type" title="Link to this heading">¶</a></h4>
 <p>A page drops out of the flow entirely when its merged subsection list is empty
 for the selected resource type. This is the placeholder-page mechanism described
 in <a class="reference internal" href="#optional-pages-and-resource-types">Optional pages and resource types</a>. Such
@@ -993,7 +993,7 @@ resource type, the form moves them to the first remaining page and rewrites the
 URL in place (no extra browser-history entry).</p>
 </section>
 <section id="pages-whose-menu-item-is-hidden-by-breakpoint">
-<h4>2. Pages whose menu item is hidden by breakpoint<a class="headerlink" href="#pages-whose-menu-item-is-hidden-by-breakpoint" title="Link to this heading">¶</a></h4>
+<span id="2-pages-whose-menu-item-is-hidden-by-breakpoint"></span><h4>2. Pages whose menu item is hidden by breakpoint<a class="headerlink" href="#pages-whose-menu-item-is-hidden-by-breakpoint" title="Link to this heading">¶</a></h4>
 <p>A <code class="docutils literal notranslate"><span class="pre">FormPage</span></code> accepts an optional <strong><code class="docutils literal notranslate"><span class="pre">menuItemClasses</span></code></strong> key. The string is
 applied to the page’s stepper step (<code class="docutils literal notranslate"><span class="pre">FormStepper</span></code>) and its sidebar menu item
 (<code class="docutils literal notranslate"><span class="pre">FormSidebarPageMenu</span></code>) — <strong>not</strong> to the page content.</p>
@@ -1058,7 +1058,7 @@ through end to end.</p>
 </section>
 </section>
 <section id="worked-example-shifting-save-access-feedback-between-sidebar-and-page">
-<h3>Worked example: shifting save/access/feedback between sidebar and page<a class="headerlink" href="#worked-example-shifting-save-access-feedback-between-sidebar-and-page" title="Link to this heading">¶</a></h3>
+<span id="worked-example-shifting-saveaccessfeedback-between-sidebar-and-page"></span><h3>Worked example: shifting save/access/feedback between sidebar and page<a class="headerlink" href="#worked-example-shifting-save-access-feedback-between-sidebar-and-page" title="Link to this heading">¶</a></h3>
 <p>Pattern: at computer and larger widths the submission/access/feedback components
 live in the right sidebar; at tablet and mobile widths the right sidebar
 collapses and the same components appear on a dedicated form page reachable from
@@ -1216,7 +1216,7 @@ field when the selected resource type is <code class="docutils literal notransla
 </pre></div>
 </div>
 <section id="inheriting-page-layouts-with-same-as">
-<h3>Inheriting page layouts with <code class="docutils literal notranslate"><span class="pre">same_as</span></code><a class="headerlink" href="#inheriting-page-layouts-with-same-as" title="Link to this heading">¶</a></h3>
+<span id="inheriting-page-layouts-with-same_as"></span><h3>Inheriting page layouts with <code class="docutils literal notranslate"><span class="pre">same_as</span></code><a class="headerlink" href="#inheriting-page-layouts-with-same-as" title="Link to this heading">¶</a></h3>
 <p>To re-use another resource type’s page entry for the same FormPage <code class="docutils literal notranslate"><span class="pre">section</span></code> id,
 set top-level <code class="docutils literal notranslate"><span class="pre">same_as</span></code> to that type’s id. The form resolves the target page
 first (chasing further <code class="docutils literal notranslate"><span class="pre">same_as</span></code> references along the way, with cycle
@@ -1347,7 +1347,7 @@ a widget that reads these props.</p>
 config-change time <em>except</em> <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code> (see
 note below).</p>
 <section id="modular-deposit-form-use-client-validation">
-<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code><a class="headerlink" href="#modular-deposit-form-use-client-validation" title="Link to this heading">¶</a></h3>
+<span id="modular_deposit_form_use_client_validation"></span><h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CLIENT_VALIDATION</span></code><a class="headerlink" href="#modular-deposit-form-use-client-validation" title="Link to this heading">¶</a></h3>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, the form loads your <code class="docutils literal notranslate"><span class="pre">validator.js</span></code> (see <a class="reference internal" href="validation.html"><span class="std std-doc">Validation</span></a>
 and <a class="reference internal" href="extending.html#what-goes-in-each-extension-file"><span class="std std-ref">Adding your own components</span></a>)
@@ -1360,7 +1360,7 @@ validation errors.</p>
 </div>
 </section>
 <section id="modular-deposit-form-use-confirm-modal">
-<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code><a class="headerlink" href="#modular-deposit-form-use-confirm-modal" title="Link to this heading">¶</a></h3>
+<span id="modular_deposit_form_use_confirm_modal"></span><h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code><a class="headerlink" href="#modular-deposit-form-use-confirm-modal" title="Link to this heading">¶</a></h3>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, attempting to navigate to another page in a multi-page form while
 the current page has unresolved errors opens a confirmation modal asking the
@@ -1369,7 +1369,7 @@ are still flagged on the leaving page — in the navigation badges and the form
 feedback summary — but no modal interrupts navigation.</p>
 </section>
 <section id="modular-deposit-form-use-uppy-incomplete-warning">
-<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING</span></code><a class="headerlink" href="#modular-deposit-form-use-uppy-incomplete-warning" title="Link to this heading">¶</a></h3>
+<span id="modular_deposit_form_use_uppy_incomplete_warning"></span><h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_UPPY_INCOMPLETE_WARNING</span></code><a class="headerlink" href="#modular-deposit-form-use-uppy-incomplete-warning" title="Link to this heading">¶</a></h3>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, leaving a form page while the Uppy Dashboard still has files that
 have not been uploaded opens a separate warning modal. The form registers
@@ -1380,7 +1380,7 @@ staged-but-unconfirmed files do not interrupt page changes. This is independent
 of <code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL</span></code>.</p>
 </section>
 <section id="modular-deposit-form-show-community-banner-at-top">
-<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP</span></code><a class="headerlink" href="#modular-deposit-form-show-community-banner-at-top" title="Link to this heading">¶</a></h3>
+<span id="modular_deposit_form_show_community_banner_at_top"></span><h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_SHOW_COMMUNITY_BANNER_AT_TOP</span></code><a class="headerlink" href="#modular-deposit-form-show-community-banner-at-top" title="Link to this heading">¶</a></h3>
 <p>Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, a full-width community banner (the stock InvenioRDM
 <code class="docutils literal notranslate"><span class="pre">CommunityHeader</span></code>) is rendered above the form title whenever the deposit state
@@ -1389,7 +1389,7 @@ suppress it; the selected community will then be shown next to the form title
 instead.</p>
 </section>
 <section id="modular-deposit-form-priority-resource-types">
-<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES</span></code><a class="headerlink" href="#modular-deposit-form-priority-resource-types" title="Link to this heading">¶</a></h3>
+<span id="modular_deposit_form_priority_resource_types"></span><h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PRIORITY_RESOURCE_TYPES</span></code><a class="headerlink" href="#modular-deposit-form-priority-resource-types" title="Link to this heading">¶</a></h3>
 <p>Default:
 <code class="docutils literal notranslate"><span class="pre">(&quot;publication-article&quot;,</span> <span class="pre">&quot;publication-peerreview&quot;,</span> <span class="pre">&quot;publication-book&quot;,</span> <span class="pre">&quot;publication-section&quot;,</span> <span class="pre">&quot;lesson&quot;)</span></code>.</p>
 <p>Ordered tuple of resource type ids that the <code class="docutils literal notranslate"><span class="pre">ResourceTypeSelectorComponent</span></code>
@@ -1404,7 +1404,7 @@ your most-specific or highest-traffic types first.</p>
 <p>Ids must come from your instance’s <code class="docutils literal notranslate"><span class="pre">resource_types</span></code> vocabulary.</p>
 </section>
 <section id="modular-deposit-form-pids-overrides">
-<h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES</span></code><a class="headerlink" href="#modular-deposit-form-pids-overrides" title="Link to this heading">¶</a></h3>
+<span id="modular_deposit_form_pids_overrides"></span><h3><code class="docutils literal notranslate"><span class="pre">MODULAR_DEPOSIT_FORM_PIDS_OVERRIDES</span></code><a class="headerlink" href="#modular-deposit-form-pids-overrides" title="Link to this heading">¶</a></h3>
 <p>Default: a <code class="docutils literal notranslate"><span class="pre">doi</span></code> entry with KC-flavoured labels and help text (see
 <code class="docutils literal notranslate"><span class="pre">invenio_modular_deposit_form/config/config.py</span></code>).</p>
 <p>Maps PID scheme ids to dictionaries of UI-string overrides that are
@@ -1691,6 +1691,6 @@ package’s <code class="docutils literal notranslate"><span class="pre">config.
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
     </body>
 </html>
