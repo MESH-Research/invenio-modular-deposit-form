@@ -572,7 +572,7 @@ function ValidationMessage({
           />
         </Message.List>
       </Message.Content>
-      {!hideMessageIcon ? <Icon name={icon} className="ml-15 mr-0" /> : null}
+      {!hideMessageIcon ? <Icon name={icon} className="ml-0 mr-15" /> : null}
     </Message>
   );
 }
