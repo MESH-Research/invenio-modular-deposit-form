@@ -6,7 +6,14 @@ more details. -->
 
 # Changes
 
-## Unreleased
+## Version 0.5.1 (2026-11-27)
+
+- **harmonize creatibutor `name` subfield handling**: Ensure that the
+  creatibutor entry's `person_or_org.name` field gets populated appropriately
+  with the inverted/bibliographic form of the person's name--whether from the
+  local Names index or ORCID data.
+
+## Version 0.5.0
 
 - Files / Uppy: warn before leaving a form page when files are staged in the
   Dashboard but the upload button has not been clicked
@@ -16,9 +23,9 @@ more details. -->
   page-error confirm modal (`MODULAR_DEPOSIT_FORM_USE_CONFIRM_MODAL`, default
   False)
 - Layout / packaging: move `replacement_components` to
-  `field_components/patched` and rename its nested field forks folder
-  to `rdm_fields` (import paths updated throughout); nest `ShareDraftButton`
-  under `rdm_fields/` with `DepositShareModal` / `depositShareRecord` in
+  `field_components/patched` and rename its nested field forks folder to
+  `rdm_fields` (import paths updated throughout); nest `ShareDraftButton` under
+  `rdm_fields/` with `DepositShareModal` / `depositShareRecord` in
   `rdm_fields/share_components/`; move the deposit app shell (store, reducer,
   `DepositFormApp`, bootstrap) out to `patched_rdm_core/` beside
   `field_components/`; move `utils.js` into `helpers/`
@@ -29,8 +36,8 @@ more details. -->
   mount these under `StickyFooter`
 - Layout: new `StickyFooter` container for nested footer subsections (notices +
   nav); `FormPageNavigationBar` can render without its own column when nested
-  (`asColumn: false`); footer region respects spacer columns; footer drop
-  shadow fix
+  (`asColumn: false`); footer region respects spacer columns; footer drop shadow
+  fix
 - Sharing: share modal no longer crashes / strips settings on new drafts
   - Required wrapping of some upstream behaviour to better integrate modal form
     with our Formik (DepositShareModal, ShareDraftButton, depositShareRecord +
@@ -54,8 +61,8 @@ more details. -->
   - stop forwarding React-only props to DOM; PropTypes / warning cleanups
     (TextField and related)
   - RichInputField: local-controlled editor content with debounced Formik sync
-    (default 2.5s; flush on blur / unmount / pagehide) so local-storage
-    recovery sees mid-edit rich text without per-keystroke form updates
+    (default 2.5s; flush on blur / unmount / pagehide) so local-storage recovery
+    sees mid-edit rich text without per-keystroke form updates
     (`formikSyncDebounceMs` prop)
 - Form feedback: layout class tweaks; FormFeedbackSummary link-button markup
   cleanup (disabled count-badge experiment removed)

@@ -19,6 +19,7 @@ import { FieldLabel } from "../../patched/input_controls/FieldLabel.js";
 import PropTypes from "prop-types";
 
 import { CreatibutorsFieldFlatItem } from "./creatibutor_components/CreatibutorsFieldFlatItem";
+import { creatibutorNameFromProfile } from "./creatibutor_components/creatibutorDisplayName";
 import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/CreatibutorsField/type";
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { getFamilyName, getGivenName, guessPersonNamesFromFullName } from "../../../helpers/names";
@@ -201,7 +202,9 @@ const makeSelfCreatibutor = (currentUserprofile, schema, orderedRoleOptions, per
     person_or_org: {
       family_name: family || currentUserprofile?.full_name || "",
       given_name: given,
-      name: currentUserprofile?.full_name || "",
+      // Inverted citation form from profile `display_name` (Names-aligned);
+      // fall back to natural `full_name` for profiles not yet backfilled.
+      name: creatibutorNameFromProfile(currentUserprofile),
       type: "personal",
       identifiers: myIdentifiers,
     },

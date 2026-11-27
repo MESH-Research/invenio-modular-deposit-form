@@ -21,6 +21,7 @@ import { CREATIBUTOR_TYPE } from "@js/invenio_rdm_records/src/deposit/fields/Cre
 import { i18next } from "@translations/invenio_rdm_records/i18next";
 import { CreatibutorsFormBody } from "./CreatibutorsFormBody";
 import { CreatibutorsFormActionButtons } from "./CreatibutorsFormActionButtons";
+import { creatibutorNameFromPersonSuggestion } from "./creatibutorDisplayName";
 
 const NamesAutocompleteOptions = {
   SEARCH: "search",
@@ -125,6 +126,12 @@ const CreatibutorsInlineForm = ({
 
       setFieldValue(`${personOrOrgPath}.family_name`, selected.family_name);
       setFieldValue(`${personOrOrgPath}.given_name`, selected.given_name);
+      // Prefer Names `props.display_name` (rich/inverted or ORCID credit-name)
+      // over coerced top-level `name`; ORCID picker hits only have `name`.
+      setFieldValue(
+        `${personOrOrgPath}.name`,
+        creatibutorNameFromPersonSuggestion(selected)
+      );
       setFieldValue(identifiersFieldPath, newIdentifiers);
       setFieldValue(affiliationsFieldPath, newAffiliations);
 
